@@ -1430,17 +1430,6 @@ codeunit 8614 "Config. XML Exchange"
         exit(Base64Convert.ToBase64(InStream));
     end;
 
-    local procedure ExportBlob(var FieldRef: FieldRef): Text
-    var
-        TempBlob: Codeunit "Temp Blob";
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        TempBlob.FromFieldRef(FieldRef);
-        TempBlob.CreateInStream(InStream);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
-    end;
-
     local procedure ExportMediaSet(var FieldRef: FieldRef): Text
     var
         TempConfigMediaBuffer: Record "Config. Media Buffer" temporary;

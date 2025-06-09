@@ -178,18 +178,18 @@ codeunit 139883 "E-Doc Process Test"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocImportParameters: Record "E-Doc. Import Parameters";
-        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        Vendor."No." := 'EDOC001';
-        Vendor."VAT Registration No." := 'EDOCTESTTAXID001';
-        Vendor.Insert();
+        Vendor2."No." := 'EDOC001';
+        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor2.Insert();
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
-        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor2."VAT Registration No.";
         EDocumentPurchaseHeader.Insert();
 
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
@@ -198,10 +198,10 @@ codeunit 139883 "E-Doc Process Test"
 
         EDocumentPurchaseHeader.SetRecFilter();
         EDocumentPurchaseHeader.FindFirst();
-        Assert.AreEqual(Vendor."No.", EDocumentPurchaseHeader."[BC] Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
+        Assert.AreEqual(Vendor2."No.", EDocumentPurchaseHeader."[BC] Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
 
-        Vendor.SetRecFilter();
-        Vendor.Delete();
+        Vendor2.SetRecFilter();
+        Vendor2.Delete();
     end;
 
     [Test]
@@ -211,7 +211,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         EDocImportParameters: Record "E-Doc. Import Parameters";
-        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
         GLAccount: Record "G/L Account";
         TextToAccountMapping: Record "Text-to-Account Mapping";
         EDocumentProcessing: Codeunit "E-Document Processing";
@@ -222,17 +222,17 @@ codeunit 139883 "E-Doc Process Test"
         GLAccount."No." := 'EDOC001';
         GLAccount.Insert();
 
-        Vendor."No." := 'EDOC001';
-        Vendor."VAT Registration No." := 'EDOCTESTTAXID001';
-        Vendor.Insert();
+        Vendor2."No." := 'EDOC001';
+        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor2.Insert();
 
         TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
-        TextToAccountMapping."Vendor No." := Vendor."No.";
+        TextToAccountMapping."Vendor No." := Vendor2."No.";
         TextToAccountMapping."Mapping Text" := 'Test description';
         TextToAccountMapping.Insert();
 
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
-        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor."VAT Registration No.";
+        EDocumentPurchaseHeader."Vendor VAT Id" := Vendor2."VAT Registration No.";
         EDocumentPurchaseHeader.Insert();
         EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseLine.Description := 'Test description';
@@ -247,12 +247,12 @@ codeunit 139883 "E-Doc Process Test"
 
         EDocumentPurchaseHeader.SetRecFilter();
         EDocumentPurchaseHeader.FindFirst();
-        Assert.AreEqual(Vendor."No.", EDocumentPurchaseHeader."[BC] Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
+        Assert.AreEqual(Vendor2."No.", EDocumentPurchaseHeader."[BC] Vendor No.", 'The vendor should be found when the tax id is specified and it matches the one in BC.');
         Assert.AreEqual("Purchase Line Type"::"G/L Account", EDocumentPurchaseLine."[BC] Purchase Line Type", 'The purchase line type should be set to G/L Account.');
         Assert.AreEqual(GLAccount."No.", EDocumentPurchaseLine."[BC] Purchase Type No.", 'The G/L Account configured in the Text-to-Account Mapping should be found.');
 
-        Vendor.SetRecFilter();
-        Vendor.Delete();
+        Vendor2.SetRecFilter();
+        Vendor2.Delete();
         GLAccount.SetRecFilter();
         GLAccount.Delete();
         TextToAccountMapping.SetRecFilter();

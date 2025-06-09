@@ -440,7 +440,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationManagement: Codeunit "Notification Management";
     begin
         // [FEATURE] [Approval] [Overdue]
-        // [SCENARIO] Send a Notification Email for Overdue Approval Entries with different "Sent Time" 
+        // [SCENARIO] Send a Notification Email for Overdue Approval Entries with different "Sent Time"
         Initialize();
 
         // [GIVEN] 2 Approval Entris for the same document
@@ -2829,14 +2829,6 @@ codeunit 134301 "Workflow Notification Test"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateNotificationEntryWithSetup(var NotificationEntry: Record "Notification Entry"; SalesHeader: Record "Sales Header"; UserID: Code[50]; NotificationType: Enum "Notification Entry Type"; NotificationMethod: Enum "Notification Method Type")
-    var
-        NotificationSetup: Record "Notification Setup";
-    begin
-        NotificationEntry.CreateNotificationEntry(NotificationType, UserID, SalesHeader, 0, '', UserID);
-        LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserID, NotificationType, NotificationMethod);
-    end;
-
     local procedure CreateUserWithUserSetupWithEmail(var User: Record User; var UserSetup: Record "User Setup")
     begin
         LibraryPermissions.CreateUser(User, LibraryUtility.GenerateGUID(), true);
@@ -2921,19 +2913,6 @@ codeunit 134301 "Workflow Notification Test"
         ApprovalEntry.SetRange(Status, StatusOption);
         ApprovalEntry.FindFirst();
         UpdateApprovalEntrySenderApprover(ApprovalEntry, NewSenderUserCode, NewApproverUserCode);
-    end;
-
-    local procedure FindAndRunJobQueueEntry(ObjectTypeToRun: Option; ObjectIDToRun: Integer)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToRun);
-        JobQueueEntry.SetRange("Object ID to Run", ObjectIDToRun);
-        JobQueueEntry.FindFirst();
-        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Modify();
-
-        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
     end;
 
     local procedure UpdateApprovalEntrySenderApproverForGroupMember(var ApprovalEntry: Record "Approval Entry"; RecID: RecordID; SequenceNo: Integer; NewSenderUserCode: Code[50]; NewApproverUserCode: Code[50])
@@ -3262,4 +3241,3 @@ codeunit 134301 "Workflow Notification Test"
         DataTypeBuffer.Insert();
     end;
 }
-

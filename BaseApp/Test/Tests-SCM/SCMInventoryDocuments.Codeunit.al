@@ -18,7 +18,6 @@ codeunit 137140 "SCM Inventory Documents"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryCosting: Codeunit "Library - Costing";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -386,7 +385,7 @@ codeunit 137140 "SCM Inventory Documents"
         TransferHeader: Record "Transfer Header";
         Qty: Integer;
     begin
-        // [FEATURE] [Location] [Warehouse] [Direct Transfer] 
+        // [FEATURE] [Location] [Warehouse] [Direct Transfer]
         // [SCENARIO 449256] Direct transfer to location with directed put-away and pick cannot be posted
 
         Initialize();
@@ -613,7 +612,7 @@ codeunit 137140 "SCM Inventory Documents"
         CopyInvtDocMgt: Codeunit "Copy Invt. Document Mgt.";
     begin
         // [FEATURE] [Inventory Receipt] [Item Tracking] [Copy Document]
-        // [SCENARIO 474794] Posting correction inventory receipt with multiple serial nos. for posted inventory receipt 
+        // [SCENARIO 474794] Posting correction inventory receipt with multiple serial nos. for posted inventory receipt
 
         Initialize();
 
@@ -649,7 +648,7 @@ codeunit 137140 "SCM Inventory Documents"
         InvtDocumentHeader.Validate("Correction", true);
         InvtDocumentHeader.Modify();
 
-        // [WHEN]  Coping lines from posted Inventory Receipt with item tracking data and apllies values 
+        // [WHEN]  Coping lines from posted Inventory Receipt with item tracking data and apllies values
         CopyInvtDocMgt.SetProperties(false, true, false, false, true);
         CopyInvtDocMgt.SetCopyItemTracking(true);
         CopyInvtDocMgt.CopyItemDoc(Enum::"Invt. Doc. Document Type From"::"Posted Receipt", InvtRcptHeader."No.", InvtDocumentHeader);
@@ -935,7 +934,7 @@ codeunit 137140 "SCM Inventory Documents"
         InvtDocumentLine: Record "Invt. Document Line";
         Location: Record Location;
     begin
-        // [FEATURE 378558] [Item Receipt] 
+        // [FEATURE 378558] [Item Receipt]
         // Create item document line with non-inventory item produce error
         Initialize();
 
@@ -1060,7 +1059,7 @@ codeunit 137140 "SCM Inventory Documents"
         LocationReceipt: Record Location;
         LocationPutAwayAndPick: Record Location;
     begin
-        // [SCENARIO] It is possible to use a location with require receipt for inventory receipt document but 
+        // [SCENARIO] It is possible to use a location with require receipt for inventory receipt document but
         // not for directed put-away and pick.
         Initialize();
 
@@ -1092,7 +1091,7 @@ codeunit 137140 "SCM Inventory Documents"
         LocationShipment: Record Location;
         LocationPutAwayAndPick: Record Location;
     begin
-        // [SCENARIO] It is possible to use a location with require receipt for inventory shipment document but 
+        // [SCENARIO] It is possible to use a location with require receipt for inventory shipment document but
         // not for directed put-away and pick.
         Initialize();
 
@@ -1327,7 +1326,7 @@ codeunit 137140 "SCM Inventory Documents"
         InvtDocumentLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         InvtDocumentLine.Modify();
 
-        // [VERIFY] Verify Unit Cost will update when Base Unit Of Measure Code is Change to new Unit of Measure Code. 
+        // [VERIFY] Verify Unit Cost will update when Base Unit Of Measure Code is Change to new Unit of Measure Code.
         Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
     end;
 
@@ -1645,7 +1644,7 @@ codeunit 137140 "SCM Inventory Documents"
         // [THEN] Find the first Inventory Shipment Line
         InvtShipment.ShipmentLines.First();
 
-        // [VERIFY] Verify: The dimension on the Inventory Shipment line should be empty        
+        // [VERIFY] Verify: The dimension on the Inventory Shipment line should be empty
         Assert.AreEqual('', InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value, StrSubstNo(DimensionErr, ''));
     end;
 
@@ -1950,7 +1949,7 @@ codeunit 137140 "SCM Inventory Documents"
         CreateRegisterWhsePick(WhseActivityHeader, WarehouseShipmentLine, TransferLine.Quantity);
         PostWhseShipmentFromTO(TransferHeader."No.");
         LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
-        //[WHEN] Post created assembly order    
+        //[WHEN] Post created assembly order
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         //[THEN] Assembly Order should be posted successfully.
@@ -2421,19 +2420,6 @@ codeunit 137140 "SCM Inventory Documents"
           DefaultDimension, DATABASE::Item, Item."No.", Dimension.Code, DimensionValue.Code);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalBatch: Record "Item Journal Batch";
-    begin
-        LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
-        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
-
-        ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Modify(true);
-    end;
-
     local procedure CreateSalespersonPurchaseWithDimension(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var DimensionValue: Record "Dimension Value")
     var
         Dimension: Record Dimension;
@@ -2497,36 +2483,6 @@ codeunit 137140 "SCM Inventory Documents"
         InventorySetup.Get();
         InventorySetup."Copy Comments to Invt. Doc." := true;
         InventorySetup.Modify();
-    end;
-
-    local procedure PostItemJournalLine(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        CreateItemJournalLine(ItemJournalLine, EntryType, ItemNo, Quantity, UnitCost);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-    end;
-
-    local procedure PostItemRevaluation(ItemNo: Code[20]; NewAmount: Decimal)
-    var
-        Item: Record Item;
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalBatch: Record "Item Journal Batch";
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
-
-        Item.SetRange("No.", ItemNo);
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
-        LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID(), "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false);
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst();
-        ItemJournalLine.Validate("Inventory Value (Revalued)", NewAmount);
-        ItemJournalLine.Modify(true);
-
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure SetupForItemDocument(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Location: Record Location; var DimensionValue: Record "Dimension Value")
@@ -2720,4 +2676,3 @@ codeunit 137140 "SCM Inventory Documents"
         Reply := false;
     end;
 }
-

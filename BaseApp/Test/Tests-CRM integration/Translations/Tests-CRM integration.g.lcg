@@ -491,15 +491,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - currency code, %2 - CRM product name]D;]A;(LookupHint=Codeunit CRM Coupling Test - NamedType CurrencyExchangeRateMissingErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2792564265 - NamedType 933954680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Customer-contact link.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Coupling Test - NamedType CustomerContactLinkTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2792564265 - NamedType 544198257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The synchronization has been scheduled.]]></Val>
