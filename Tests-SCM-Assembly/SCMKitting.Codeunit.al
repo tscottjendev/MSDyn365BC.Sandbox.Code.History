@@ -2816,7 +2816,7 @@ codeunit 137101 "SCM Kitting"
         PostedAssemblyHeader.CalcActualCosts(ActualCosts);
         exit(ActualCosts[1] + ActualCosts[2] + ActualCosts[3] + ActualCosts[4] + ActualCosts[5]);
     end;
-
+#if not CLEAN25
     local procedure CopyAssemblyBOM(FromParentItemNo: Code[20]; ToParentItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -2828,7 +2828,7 @@ codeunit 137101 "SCM Kitting"
               BOMComponent."Quantity per", true);  // Use Base Unit of Measure as True.
         until BOMComponent.Next() = 0;
     end;
-
+#endif
     local procedure CreateAndPostAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; AssemblyItemNo: Code[20]; Quantity: Decimal; HeaderQtyFactor: Integer; CompQtyFactor: Integer; UpdateAllComps: Boolean)
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), AssemblyItemNo, '', Quantity, '');
