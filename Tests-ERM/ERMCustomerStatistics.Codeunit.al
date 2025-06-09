@@ -1246,20 +1246,6 @@ codeunit 134389 "ERM Customer Statistics"
         exit(SalesInvHeader."No.");
     end;
 
-    local procedure IsCodeLineHitByCodeCoverage(ObjectType: Option; ObjectID: Integer; CodeLine: Text): Boolean
-    var
-        CodeCoverage: Record "Code Coverage";
-        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
-    begin
-        CodeCoverageMgt.Refresh();
-        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
-        CodeCoverage.SetRange("Object Type", ObjectType);
-        CodeCoverage.SetRange("Object ID", ObjectID);
-        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
-        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
-        exit(not CodeCoverage.IsEmpty);
-    end;
-
     local procedure InvokeCustStatsByCurrLinesFromCustomerList(var CustStatsByCurrLines: TestPage "Cust. Stats. by Curr. Lines"; CustomerNo: Code[20])
     var
         CustomerList: TestPage "Customer List";
@@ -1521,4 +1507,3 @@ codeunit 134389 "ERM Customer Statistics"
         GetShipmentLines.OK().Invoke();
     end;
 }
-

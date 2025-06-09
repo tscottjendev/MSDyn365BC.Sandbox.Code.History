@@ -723,7 +723,7 @@
         // [GIVEN] Create gen. journal line
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
 
-        // [WHEN] Run posting preview 
+        // [WHEN] Run posting preview
         Commit();
         ExtendedGLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
@@ -743,7 +743,7 @@
         TotalVATAmount: array[2] of Decimal;
         TotalBaseAmount: array[2] of Decimal;
     begin
-        // [SCENARIO 354973] Extended posting preview shows grouped VAT entries 
+        // [SCENARIO 354973] Extended posting preview shows grouped VAT entries
         Initialize();
 
         // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
@@ -761,7 +761,7 @@
         // [GIVEN] Create purchase line with VAT Posting Setups: VBG, VPG2
         CreatePurchLineWithVATPostingSetup(PurchaseHeader, TotalVATAmount[2], TotalBaseAmount[2], VATPostingSetup[2]);
 
-        // [GIVEN] Run posting preview 
+        // [GIVEN] Run posting preview
         Commit();
         ExtendedGLPostingPreview.Trap();
         asserterror PurchPostYesNo.Preview(PurchaseHeader);
@@ -872,26 +872,6 @@
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandIntInRange(5, 10));
         PurchaseHeader.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        Commit();
-    end;
-
-    local procedure CreatePurchaseOrderWithPrepayment(var PurchaseHeader: Record "Purchase Header")
-    var
-        Vendor: Record Vendor;
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Prepayment %", LibraryRandom.RandInt(10));
-        Vendor.Modify();
-
-        LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", '', 1, '', 0D);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(500));
-        PurchaseLine.Modify(true);
-
-        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
-        PurchaseHeader.Modify(true);
         Commit();
     end;
 
@@ -1104,4 +1084,3 @@
           DetailedVendEntriesPreview.Amount.AsDecimal() <> 0, 'Application does not exist');
     end;
 }
-

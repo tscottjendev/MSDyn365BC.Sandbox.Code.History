@@ -502,7 +502,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     trigger OnPreXmlPort()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         FeatureTelemetry.LogUptake('0000N1X', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000N1Y', SEPACTExportFile.FeatureName(), 'XmlPort SEPA CT pain.001.001.03');
@@ -585,14 +585,15 @@ xmlport 1000 "SEPA CT pain.001.001.03"
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
     begin
     end;
 }
-

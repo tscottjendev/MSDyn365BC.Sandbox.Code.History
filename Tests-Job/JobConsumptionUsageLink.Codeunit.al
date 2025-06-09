@@ -15,7 +15,9 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN25
         LibraryResource: Codeunit "Library - Resource";
+#endif
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
@@ -2351,7 +2353,6 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobResourcePrice.Validate("Unit Price", UnitPrice);
         JobResourcePrice.Modify(true);
     end;
-#endif
 
     local procedure CreateJobPlanningLineWithWorkTypeCode(JobTask: Record "Job Task"; ResourceNo: Code[20]; WorkTypeCode: Code[10]): Decimal
     var
@@ -2374,7 +2375,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobJournalLine.Modify(true);
         exit(JobJournalLine."Unit Price");
     end;
-
+#endif
     local procedure CreateJob(ApplyUsageLink: Boolean; BothAllowed: Boolean; var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job);
@@ -2392,7 +2393,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
-
+#if not CLEAN25
     local procedure CreateResourceGroup(Resource: Record Resource): Code[10]
     var
         ResourceGroup: Record "Resource Group";
@@ -2410,7 +2411,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateWorkType(WorkTypeCode);
         UpdateWorkTypeForUnitOfMeasureCode(WorkTypeCode, Resource."Base Unit of Measure");
     end;
-
+#endif
     local procedure CreateSimilarJobPlanningLines(JobPlanningLine: Record "Job Planning Line")
     var
         NewJobPlanningLine: Record "Job Planning Line";
@@ -2529,7 +2530,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobUsageLink."Entry No." := LibraryRandom.RandInt(10);
         JobUsageLink.Insert();
     end;
-
+#if not CLEAN25
     local procedure ResourcePriceSuggestedSetup(var JobTask: Record "Job Task"; var Resource: Record Resource; var WorkTypeCode: Code[10])
     var
         Job: Record Job;
@@ -2548,6 +2549,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         WorkType.Validate("Unit of Measure Code", BaseUnitOfMeasure);
         WorkType.Modify(true);
     end;
+#endif
 
     local procedure VerifyUsageLink(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
     var
