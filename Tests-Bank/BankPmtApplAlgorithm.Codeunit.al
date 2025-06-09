@@ -6515,23 +6515,6 @@
         exit(String);
     end;
 
-    local procedure GenerateRandomTextWithSpecialChars(): Text[100]
-    begin
-        exit(
-          GenerateRandomSmallLetters(2) + '''' +
-          UpperCase(GenerateRandomSmallLetters(2)) + '&' +
-          GenerateRandomSmallLetters(2) + '(' +
-          GenerateRandomSmallLetters(2) + ')' +
-          GenerateRandomSmallLetters(2) + '.' +
-          UpperCase(GenerateRandomSmallLetters(2)) + '{' +
-          GenerateRandomSmallLetters(2) + '}' +
-          GenerateRandomSmallLetters(2) + '"' +
-          GenerateRandomSmallLetters(2) + ';' +
-          GenerateRandomSmallLetters(2) + ':' +
-          GenerateRandomSmallLetters(2) + '-' +
-          GenerateRandomSmallLetters(2) + '+');
-    end;
-
     local procedure OpenPaymentRecJournal(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
@@ -7046,4 +7029,3 @@
         Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set');
     end;
 }
-

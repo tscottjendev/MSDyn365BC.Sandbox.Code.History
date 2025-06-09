@@ -3094,7 +3094,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26    
+#if not CLEAN26
     [Obsolete('Replaced by OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace event', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVisitedEntries(var ExcludedValueEntry: Record "Value Entry"; OutbndValueEntry: Record "Value Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry")
@@ -3195,7 +3195,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26    
+#if not CLEAN26
     [Obsolete('Use OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace instead.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnExcludeAvgCostOnValuationDateOnAfterSetItemLedgEntryInChainFilters(var ItemLedgerEntryInChain: Record "Item Ledger Entry" temporary)
@@ -3213,13 +3213,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26    
+#if not CLEAN26
     [Obsolete('Replaced by OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnIsOutputWithSelfConsumptionOnAfterSetTempItemLedgEntryFilter(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
-#endif    
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnIsOutputWithSelfConsumptionOnAfterSetConsumpValueEntryFilters(var ConsumpValueEntry: Record "Value Entry")
@@ -3497,11 +3497,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetParameters(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace(var OutbndValueEntry: Record "Value Entry"; var OutbndEntryItemApplicationTrace: Record "Item Application Trace")
     begin
@@ -3517,4 +3519,3 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 }
-

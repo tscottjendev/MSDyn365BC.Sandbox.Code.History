@@ -1353,7 +1353,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [SCENARIO 316070] Account Schedule report prints lines with empty Totaling and Show=Yes when SkipEmptyLines = true
         Initialize();
 
-        // [GIVEN] Account Schedule Name 
+        // [GIVEN] Account Schedule Name
         CreateColumnLayout(ColumnLayout);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         // [GIVEN] Line 10000 with empty Totaling and Show=Yes
@@ -1821,7 +1821,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1) 
+        // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1)
         AccountSchedule1CurrentColumnName := AccScheduleOverview.CurrentColumnName.Value();
         AccScheduleOverview.Close();
 
@@ -1830,7 +1830,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [THEN] As "AS2" has empty "Default Column Layout", Current Column Name = "CL" (w1) 
+        // [THEN] As "AS2" has empty "Default Column Layout", Current Column Name = "CL" (w1)
         AccScheduleOverview.CurrentColumnName.AssertEquals(ColumnLayoutName.Name);
         AccScheduleOverview.Close();
 
@@ -1839,7 +1839,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [GIVEN] Current Column Name has not changed and is equal to previous value = "Default" (w1) 
+        // [GIVEN] Current Column Name has not changed and is equal to previous value = "Default" (w1)
         AccScheduleOverview.CurrentColumnName.AssertEquals(AccountSchedule1CurrentColumnName);
         AccScheduleOverview.Close();
     end;
@@ -1968,7 +1968,7 @@ codeunit 134994 "ERM Account Schedule II"
         Amount: Decimal;
     begin
         // [FEATURE] [Report]
-        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for column formula 
+        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for column formula
         // Clear
         Initialize();
         // [GIVEN] GLSetup with local currency symbol '$' specified
@@ -1977,7 +1977,7 @@ codeunit 134994 "ERM Account Schedule II"
         Amount := LibraryRandom.RandDec(100, 2);
         AccountNo := CreateGLAccountWithNetChange(Amount);
         // [GIVEN] Create financial report for account "A"
-        // Note that the CreateAccScheduleName procedure creates a Financial Report 
+        // Note that the CreateAccScheduleName procedure creates a Financial Report
         // with the same name as sets the Account Schedule Name as a Row Group
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
@@ -2033,7 +2033,7 @@ codeunit 134994 "ERM Account Schedule II"
         Amount := LibraryRandom.RandDec(100, 2);
         AccountNo := CreateGLAccountWithNetChange(Amount);
         // [GIVEN] Create financial report for account "A"
-        // Note that the CreateAccScheduleName procedure creates a Financial Report 
+        // Note that the CreateAccScheduleName procedure creates a Financial Report
         // with the same name as sets the Account Schedule Name as a Row Group
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
@@ -2084,7 +2084,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Create G/L Account account "A" and post entry with amount 100
         Amount := LibraryRandom.RandDec(100, 2);
         AccountNo := CreateGLAccountWithNetChange(Amount);
-        // [GIVEN] Create account schedule line for account "A" 
+        // [GIVEN] Create account schedule line for account "A"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         FinancialReport.Get(AccScheduleName.Name);
@@ -2166,7 +2166,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Open "Financial Reports" page
         FinancialReports.OpenView();
 
-        // [GIVEN] Position to created "Financial Report"        
+        // [GIVEN] Position to created "Financial Report"
         FinancialReports.GoToKey(AccScheduleName.Name);
 
         // [WHEN] Run "Edit Row Definition" action
@@ -2745,32 +2745,6 @@ codeunit 134994 "ERM Account Schedule II"
         FinancialReports.OpenEdit();
         FinancialReports.FILTER.SetFilter(Name, Name);
         FinancialReports.Overview.Invoke();
-    end;
-
-    local procedure SetupAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; AccountNo: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
-    begin
-        CreateAccountScheduleAndLine(AccScheduleLine, AccountNo);
-        UpdateAccScheduleLine(AccScheduleLine, AccountNo, TotalingType, AccountNo);
-    end;
-
-    local procedure CreateAccountScheduleAndLine(var AccScheduleLine: Record "Acc. Schedule Line"; RowNo: Code[10])
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-    begin
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        AccScheduleLine.Validate("Row No.", RowNo);
-        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
-        AccScheduleLine.Validate(Totaling, AccScheduleName.Name);
-        AccScheduleLine.Modify(true);
-    end;
-
-    local procedure UpdateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; Totalling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; RowNo: Code[10])
-    begin
-        AccScheduleLine.Validate("Row No.", RowNo);
-        AccScheduleLine.Validate("Totaling Type", TotalingType);
-        AccScheduleLine.Validate(Totaling, Totalling);
-        AccScheduleLine.Modify(true);
     end;
 
     [RequestPageHandler]

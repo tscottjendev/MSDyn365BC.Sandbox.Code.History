@@ -501,7 +501,7 @@ codeunit 6620 "Copy Document Mgt."
                             CopyFromSalesDocAssgntToLine(
                               ToSalesLine, FromSalesLine."Document Type", FromSalesLine."Document No.", FromSalesLine."Line No.",
                               ItemChargeAssgntNextLineNo);
-                        InsertTempLineBufer(FromSalesline."Line No.", NextLineNo); // NextLineNo                                  
+                        InsertTempLineBufer(FromSalesline."Line No.", NextLineNo); // NextLineNo
                         OnAfterCopySalesLineFromSalesDocSalesLine(
                           ToSalesHeader, ToSalesLine, FromSalesLine, IncludeHeader, RecalculateLines);
                     end;
@@ -7201,14 +7201,6 @@ codeunit 6620 "Copy Document Mgt."
     begin
         if RecalculateLines then
             SalesLine.CalcSalesTaxLines(ToSalesHeader, SalesLine);
-    end;
-
-    local procedure PurchCalcSalesTaxLines(ToPurchaseHeader: Record "Purchase Header")
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        if RecalculateLines then
-            PurchaseLine.CalcSalesTaxLines(ToPurchaseHeader, PurchaseLine);
     end;
 
     local procedure InsertTempLineBufer(OldLineNo: Integer; NewLineNo: Integer)

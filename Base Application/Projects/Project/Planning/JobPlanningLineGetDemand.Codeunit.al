@@ -212,8 +212,11 @@ codeunit 99000847 "Job Planning Line Get Demand"
         until TempJobPlanningLine.Next() = 0;
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetDemandOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
