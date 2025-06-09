@@ -1,7 +1,7 @@
 {
   "settings": {
-    "al.enableCodeActions": false,
     "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
     "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
@@ -64,9 +64,6 @@
     },
     {
       "path": "./Tests-Integration-Internal"
-    },
-    {
-      "path": "./Tests-Invoicing"
     },
     {
       "path": "./Tests-Job"

@@ -162,13 +162,6 @@ page 99000902 "Item Availability Line List"
     end;
 #endif
 
-    local procedure AdjustWithQtyByUnitOfMeasure(Quantity: Decimal): Decimal
-    begin
-        if QtyByUnitOfMeasure <> 0 then
-            exit(Quantity / QtyByUnitOfMeasure);
-        exit(Quantity);
-    end;
-
     procedure SetQtyByUnitOfMeasure(NewQtyByUnitOfMeasure: Decimal);
     begin
         QtyByUnitOfMeasure := NewQtyByUnitOfMeasure;
@@ -230,4 +223,3 @@ page 99000902 "Item Availability Line List"
     end;
 #endif
 }
-
