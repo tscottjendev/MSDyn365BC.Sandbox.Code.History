@@ -1,7 +1,6 @@
 namespace System.Threading;
 
 using Microsoft.EServices.EDocument;
-using System.Environment.Configuration;
 
 codeunit 487 "Job Queue Start Report" implements "Job Queue Report Runner"
 {
@@ -142,36 +141,6 @@ codeunit 487 "Job Queue Start Report" implements "Job Queue Report Runner"
             REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), RepFormat, OutStream, RecordRef)
         else
             REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), RepFormat, OutStream);
-    end;
-
-    local procedure SetReportTimeOut(JobQueueEntry: Record "Job Queue Entry")
-    var
-        ReportSettingsOverride: Record "Report Settings Override";
-        TimeoutInSeconds: Integer;
-    begin
-        if not ReportSettingsOverride.WritePermission then
-            exit;
-        if JobQueueEntry."Job Timeout" = 0 then
-            exit;
-        ReportSettingsOverride.LockTable();
-        if JobQueueEntry."Job Timeout" = 0 then
-            TimeoutInSeconds := JobQueueEntry.DefaultJobTimeout() div 1000
-        else
-            TimeoutInSeconds := JobQueueEntry."Job Timeout" div 1000;
-
-        if ReportSettingsOverride.Get(JobQueueEntry."Object ID to Run", CompanyName) then begin
-            if ReportSettingsOverride.Timeout < TimeoutInSeconds then begin
-                ReportSettingsOverride.Timeout := TimeoutInSeconds;
-                ReportSettingsOverride.Modify();
-            end;
-        end else
-            if TimeoutInSeconds > 6 * 60 * 60 then begin // Report default is 6hrs
-                ReportSettingsOverride."Object ID" := JobQueueEntry."Object ID to Run";
-                ReportSettingsOverride."Company Name" := CopyStr(CompanyName, 1, MaxStrLen(ReportSettingsOverride."Company Name"));
-                ReportSettingsOverride.Timeout := TimeoutInSeconds;
-                ReportSettingsOverride.Insert();
-            end;
-        Commit();
     end;
 
 #if not CLEAN27
