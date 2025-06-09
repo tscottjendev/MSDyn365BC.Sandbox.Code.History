@@ -302,7 +302,7 @@ codeunit 137405 "SCM Item Tracking"
         WarehouseActivityLine.SetRange("Action Type", 2);
         WarehouseActivityLine.FindFirst();
 
-        // [THEN]  Changing Place Qty. To Handle and Split Lines       
+        // [THEN]  Changing Place Qty. To Handle and Split Lines
         WarehouseActivityLine.Validate("Qty. to Handle", SplitQuantity);
         WarehouseActivityLine.Modify();
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
@@ -413,7 +413,7 @@ codeunit 137405 "SCM Item Tracking"
         // [GIVEN] Item with Lot Specific Tracking and Warehouse Tracking
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] Location 
+        // [GIVEN] Location
         LibraryWarehouse.CreateFullWMSLocation(Location, 10);
 
         // [GIVEN] Second item unit of measure created for the item with Box of 12
@@ -553,7 +553,7 @@ codeunit 137405 "SCM Item Tracking"
         // [GIVEN] Item with Lot Specific Tracking and Warehouse Tracking
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] Location 
+        // [GIVEN] Location
         LibraryWarehouse.CreateFullWMSLocation(Location, 10);
 
         // [GIVEN] Second item unit of measure created for the item with Box of 6
@@ -699,7 +699,7 @@ codeunit 137405 "SCM Item Tracking"
         // [GIVEN] Item with Lot Specific Tracking and Warehouse Tracking
         Item.Get(CreateItemWithLotWarehouseTracking());
 
-        // [GIVEN] Location 
+        // [GIVEN] Location
         LibraryWarehouse.CreateFullWMSLocation(Location, 10);
 
         // [GIVEN] Second item unit of measure created for the item with Case of 6
@@ -773,7 +773,7 @@ codeunit 137405 "SCM Item Tracking"
                     WarehouseActivityLine.ChangeUOMCode(WarehouseActivityLine, TempWhseActivLine);
                     WarehouseActivityLine.Modify();
                 end else begin
-                    // [THEN]  Changing Place Qty. To Handle and Split Lines       
+                    // [THEN]  Changing Place Qty. To Handle and Split Lines
                     BinCode := WarehouseActivityLine."Bin Code";
                     WarehouseActivityLine.Validate("Qty. to Handle", SplitQuantity);
                     WarehouseActivityLine.Modify();
@@ -3236,7 +3236,7 @@ codeunit 137405 "SCM Item Tracking"
         // [WHEN] Inventory Put-Away created
         CreateInvtPutAwayPurchOrder(WarehouseActivityHeader, PurchaseHeader."No.");
 
-        // [THEN] The number of warehouse activity lines created equals base quantity on the purchase line 
+        // [THEN] The number of warehouse activity lines created equals base quantity on the purchase line
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         Assert.RecordCount(WarehouseActivityLine, PurchaseLine."Quantity (Base)");
 
@@ -3289,7 +3289,7 @@ codeunit 137405 "SCM Item Tracking"
             // [WHEN] Inventory Put-Away created
             CreateInvtPutAwayPurchOrder(WarehouseActivityHeader, PurchaseHeader."No.");
 
-            // [THEN] The number of warehouse activity lines created equals base quantity on the purchase line 
+            // [THEN] The number of warehouse activity lines created equals base quantity on the purchase line
             WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
             Assert.RecordCount(WarehouseActivityLine, PurchaseLine."Quantity (Base)");
 
@@ -3318,7 +3318,7 @@ codeunit 137405 "SCM Item Tracking"
         Counter: Integer;
     begin
         // [FEATURE] [Inventory Pick] [Serial No.]
-        // [SCENARIO] Number of Whse. Activity Lines created equals Base Quantity when serial number is required 
+        // [SCENARIO] Number of Whse. Activity Lines created equals Base Quantity when serial number is required
         Initialize();
 
         // [GIVEN] Item with Serial Number Item Tracking Code with "SN Warehouse Tracking"
@@ -3923,24 +3923,6 @@ codeunit 137405 "SCM Item Tracking"
         CreateInvtPutAwayPickMvmt.SetTableView(WhseRequest);
         CreateInvtPutAwayPickMvmt.UseRequestPage := false;
         CreateInvtPutAwayPickMvmt.RunModal();
-    end;
-
-    local procedure CreatePostWhseRcpt(PurchHeader: Record "Purchase Header")
-    var
-        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
-    begin
-        LibraryWarehouse.CreateWhseReceiptFromPO(PurchHeader);
-        FindWhseRcptHeader(WarehouseReceiptHeader, PurchHeader."No.");
-        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-    end;
-
-    local procedure FindWhseRcptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20])
-    var
-        WarehouseReceiptLine: Record "Warehouse Receipt Line";
-    begin
-        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst();
-        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
     end;
 
     [Test]
@@ -5093,14 +5075,14 @@ codeunit 137405 "SCM Item Tracking"
         WhseShipmentLine: Record "Warehouse Shipment Line";
         SerialNo: array[4] of Code[50];
     begin
-        // [SCENARIO 566894] Warehouse Pick for Serial No. having "Expiration Date" is created even if another 
-        // Serial No. is with "Expiration Date" when Create Pick from a Warehouse Shipment of Item whose Inventory 
+        // [SCENARIO 566894] Warehouse Pick for Serial No. having "Expiration Date" is created even if another
+        // Serial No. is with "Expiration Date" when Create Pick from a Warehouse Shipment of Item whose Inventory
         // Movement is already created with other two Serial Nos.
         Initialize();
 
         // [GIVEN] Create Serial Item Tracking Code.
         CreateSerialItemTrackingCode(ItemTrackingCode);
- 
+
 
         // [GIVEN] Create Item with Serial Item Tracking Code and
         // Validate "Use Expiration Dates" and "Strict Expiration Posting".
@@ -5184,7 +5166,7 @@ codeunit 137405 "SCM Item Tracking"
         // [SCENARIO 563235] A Duplicate SN is not allowed to be added to stock with SN Specific Tracking when Item Journal is posted followed by an Undo Shipment with the same SN.
         Initialize();
 
-        // [GIVEN] Create Item with Serial Number Item Tracking Code 
+        // [GIVEN] Create Item with Serial Number Item Tracking Code
         CreateItem(
           Item, CreateItemTrackingCodeSerialSpecificWhseTracking(false, true), LibraryUtility.GetGlobalNoSeriesCode(), '');
 
@@ -5219,7 +5201,7 @@ codeunit 137405 "SCM Item Tracking"
         // [THEN] Error is thrown for duplicate Serial No.
         Assert.ExpectedError(StrSubstNo(SerialNoAlreadyOnInventoryErr, SerialNo));
     end;
-    
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6991,7 +6973,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryInventory.CreateItemJournalLine(
             ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
             ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
-        
+
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Bin Code", Bin.Code);
         ItemJournalLine.Modify(true);
@@ -7436,4 +7418,3 @@ codeunit 137405 "SCM Item Tracking"
         WhseItemTrackingLines.OK().Invoke();
     end;
 }
-

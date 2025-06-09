@@ -1183,7 +1183,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // [GIVEN] Calculate Subcontracting
         CalculateSubcontractOrder(WorkCenter);
 
-        // [GIVEN] Accept and Carry Out Action Message on Subcontracting Worksheet.   
+        // [GIVEN] Accept and Carry Out Action Message on Subcontracting Worksheet.
         AcceptActionMessage(RequisitionLine, Item."No.");
         LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
 
@@ -2084,11 +2084,6 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure CreateRoutingAndUpdateItem(var Item: Record Item; var WorkCenter: Record "Work Center"): Code[10]
-    begin
-        exit(CreateRoutingAndUpdateItemSubcontracted(Item, WorkCenter, false));
-    end;
-
     local procedure CreateRoutingAndUpdateItemSubcontracted(var Item: Record Item; var WorkCenter: Record "Work Center"; IsSubcontracted: Boolean): Code[10]
     var
         RoutingHeader: Record "Routing Header";
@@ -2317,4 +2312,3 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProductionJournal.Post.Invoke();
     end;
 }
-
