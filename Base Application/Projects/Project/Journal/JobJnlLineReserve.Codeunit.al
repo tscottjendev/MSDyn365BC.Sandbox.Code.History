@@ -268,11 +268,13 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; JobJnlLine: Record "Job Journal Line")
     begin
     end;
-
+#endif
     // codeunit Create Reserv. Entry
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
@@ -337,4 +339,3 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
             ReturnValue := Enum::"Reservation Summary Type"::"Job Journal Usage".AsInteger() + ReservationEntry."Source Subtype";
     end;
 }
-
