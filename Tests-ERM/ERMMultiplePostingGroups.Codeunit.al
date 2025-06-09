@@ -905,7 +905,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryVariableStorage.Enqueue(VoidType::"Void check only");
         VoidCheck(CheckLedgerEntry."Document No.");
 
-        // Verify Vendor Posting Group on Vendor Ledger Entry. 
+        // Verify Vendor Posting Group on Vendor Ledger Entry.
         VerifyPostingGroupOnVendorLedgerEntry(GenJournalLine."Document No.", VendorPostingGroup2.Code);
     end;
 
@@ -1046,25 +1046,6 @@ codeunit 134195 "ERM Multiple Posting Groups"
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
-    end;
-
-    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-    begin
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
-        VendorLedgerEntry2.FindSet();
-        repeat
-            VendorLedgerEntry2.CalcFields("Remaining Amount");
-            VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
-            VendorLedgerEntry2.Modify(true);
-        until VendorLedgerEntry2.Next() = 0;
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
-        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
     local procedure VerifyGLEntryForGLAccount(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; Amount: Decimal)

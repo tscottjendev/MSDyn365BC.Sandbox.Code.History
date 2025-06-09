@@ -2587,16 +2587,6 @@ codeunit 139183 "CRM Integration Mapping"
             exit(IntegrationRecordSynch.GetWasModified());
     end;
 
-    local procedure SimulateIntegrationSyncJobExecution(var IntegrationTableMapping: Record "Integration Table Mapping")
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
-        JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-        JobQueueEntry.FindFirst();
-        Codeunit.Run(Codeunit::"Integration Synch. Job Runner", JobQueueEntry);
-    end;
-
     procedure CreateIntegrationTableMappingWithFieldMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable; FieldDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable)
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";

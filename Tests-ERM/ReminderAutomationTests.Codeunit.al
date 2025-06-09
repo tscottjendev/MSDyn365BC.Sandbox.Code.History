@@ -33,7 +33,7 @@ codeunit 134979 "Reminder Automation Tests"
         // [GIVEN] System with no reminders
         Initialize();
 
-        // [WHEN] User creates a reminder automation group with a create action        
+        // [WHEN] User creates a reminder automation group with a create action
         ReminderActionCode := CreateReminderAutomationWithCreateAction(ReminderAutomationCard);
 
         // [THEN] The UI is updated correctly
@@ -55,7 +55,7 @@ codeunit 134979 "Reminder Automation Tests"
     begin
         Initialize();
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard);
         VerifySetupRecordForCreateAction(ReminderAutomationCard.Code.Value());
 
@@ -89,7 +89,7 @@ codeunit 134979 "Reminder Automation Tests"
         NumberOfOverdueEntries := Any.IntegerInRange(2, 5);
         CreateCustomerWithOverdueEntries(Customer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard, ReminderTerms);
         ReminderActionGroup.Get(ReminderAutomationCard.Code.Value());
 
@@ -123,7 +123,7 @@ codeunit 134979 "Reminder Automation Tests"
         CreateReminderTermsWithLevels(ReminderTerms, GetDefaultDueDatePeriodForReminderLevel(), Any.IntegerInRange(2, 5));
         CreateCustomerWithPaidOverdueEntries(Customer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard, ReminderTerms);
         ReminderActionGroup.Get(ReminderAutomationCard.Code.Value());
 
@@ -194,7 +194,7 @@ codeunit 134979 "Reminder Automation Tests"
         NumberOfOverdueEntries := Any.IntegerInRange(2, 5);
         CreateCustomerWithOverdueEntries(Customer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard, ReminderTerms);
         ReminderActionGroup.Get(ReminderAutomationCard.Code.Value());
 
@@ -241,7 +241,7 @@ codeunit 134979 "Reminder Automation Tests"
         CreateCustomerWithOverdueEntries(FirstCustomer, ReminderTerms, NumberOfOverdueEntries);
         CreateCustomerWithOverdueEntries(SecondCustomer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard, ReminderTerms);
         ReminderActionGroup.Get(ReminderAutomationCard.Code.Value());
 
@@ -280,7 +280,7 @@ codeunit 134979 "Reminder Automation Tests"
         CreateCustomerWithOverdueEntries(FirstCustomer, ReminderTerms, NumberOfOverdueEntries);
         CreateCustomerWithOverdueEntries(SecondCustomer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithCreateAction(ReminderAutomationCard, ReminderTerms);
         ReminderActionGroup.Get(ReminderAutomationCard.Code.Value());
 
@@ -321,7 +321,7 @@ codeunit 134979 "Reminder Automation Tests"
         // [GIVEN] System with no reminders
         Initialize();
 
-        // [WHEN] User creates a reminder automation group with a issue action        
+        // [WHEN] User creates a reminder automation group with a issue action
         ReminderActionCode := CreateReminderAutomationWithIssueAction(ReminderAutomationCard, ReminderTerms);
 
         // [THEN] The UI is updated correctly
@@ -344,7 +344,7 @@ codeunit 134979 "Reminder Automation Tests"
     begin
         Initialize();
 
-        // [GIVEN] A reminder automation group with a create action        
+        // [GIVEN] A reminder automation group with a create action
         CreateReminderAutomationWithIssueAction(ReminderAutomationCard, ReminderTerms);
         VerifySetupRecordForIssueAction(ReminderAutomationCard.Code.Value());
 
@@ -378,7 +378,7 @@ codeunit 134979 "Reminder Automation Tests"
         NumberOfOverdueEntries := Any.IntegerInRange(2, 5);
         CreateCustomerWithOverdueEntries(Customer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create and issue action        
+        // [GIVEN] A reminder automation group with a create and issue action
         CreateReminderAutomationGroupViaUI(ReminderAutomationCard, ReminderTerms);
         CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Create Reminder");
         CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Issue Reminder");
@@ -417,7 +417,7 @@ codeunit 134979 "Reminder Automation Tests"
         CreateCustomerWithOverdueEntries(FirstCustomer, ReminderTerms, NumberOfOverdueEntries);
         CreateCustomerWithOverdueEntries(SecondCustomer, ReminderTerms, NumberOfOverdueEntries);
 
-        // [GIVEN] A reminder automation group with a create and issue action        
+        // [GIVEN] A reminder automation group with a create and issue action
         CreateReminderAutomationGroupViaUI(ReminderAutomationCard, ReminderTerms);
         CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Create Reminder");
         CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Issue Reminder");
@@ -530,7 +530,7 @@ codeunit 134979 "Reminder Automation Tests"
         // [GIVEN] System with no reminders
         Initialize();
 
-        // [WHEN] User creates a reminder automation group with a send action        
+        // [WHEN] User creates a reminder automation group with a send action
         CreateReminderAutomationGroupViaUI(ReminderAutomationCard, DummyReminderTerms);
         ReminderActionCode := CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Send Reminder");
 
@@ -554,7 +554,7 @@ codeunit 134979 "Reminder Automation Tests"
     begin
         Initialize();
 
-        // [GIVEN] A reminder automation group with a Send action        
+        // [GIVEN] A reminder automation group with a Send action
         CreateReminderAutomationGroupViaUI(ReminderAutomationCard, DummyReminderTerms);
         CreateReminderAction(ReminderAutomationCard, Enum::"Reminder Action"::"Send Reminder");
         VerifySetupRecordForSendAction(ReminderAutomationCard.Code.Value());
@@ -643,7 +643,7 @@ codeunit 134979 "Reminder Automation Tests"
         CustomerPostingGroup."Additional Fee Account" := '';
         CustomerPostingGroup.Modify();
 
-        // [GIVEN] Create and issue reminder for customer X 
+        // [GIVEN] Create and issue reminder for customer X
         CreateAndIssueReminder(ReminderHeader, Customer."No.");
 
         // [WHEN] Run action "Send by mail" on issued reminder
@@ -768,31 +768,6 @@ codeunit 134979 "Reminder Automation Tests"
         Assert.AreEqual(ExpectedNumberOfLines, IssuedReminderLines.Count, 'Wrong number of issued reminder lines created');
         IssuedReminderLines.CalcSums(Amount, "Remaining Amount");
         Assert.AreNotEqual(0, IssuedReminderLines."Remaining Amount", 'The issues reminder lines were created with wrong Remaining Amount.');
-    end;
-
-    local procedure VerifyRemindersSentForCustomer(var Customer: Record Customer; TotalNumberOfRemindersSent: Integer; SendEmailMock: Codeunit "Send Email Mock")
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        TempEmailItemSent: Record "Email Item" temporary;
-        BlankDate: Date;
-        IssuedReminderEmailCount: Integer;
-    begin
-        Clear(BlankDate);
-        IssuedReminderHeader.SetRange("Customer No.", Customer."No.");
-        Assert.IsFalse(IssuedReminderHeader.IsEmpty(), 'No issued reminders exist for the customer');
-        IssuedReminderHeader.FindFirst();
-        IssuedReminderEmailCount := 1;
-        Assert.AreNotEqual(IssuedReminderHeader."Last Email Sent Date Time", BlankDate, 'The email sent date was not updated');
-        Assert.AreEqual(true, IssuedReminderHeader."Sent For Current Level", 'The sent flag for current level was not updated');
-        Assert.AreEqual(IssuedReminderHeader."Reminder Level", IssuedReminderHeader."Email Sent Level", 'The email sent level was not updated');
-        Assert.AreEqual(IssuedReminderEmailCount, IssuedReminderHeader."Last Level Email Sent Count", 'The number of emails sent was not updated');
-        Assert.AreEqual(IssuedReminderEmailCount, IssuedReminderHeader."Total Email Sent Count", 'The total number of emails sent was not updated');
-
-        SendEmailMock.GetEmailsSent(TempEmailItemSent);
-        Assert.AreEqual(TempEmailItemSent.Count(), TotalNumberOfRemindersSent, 'The number of emails sent was not correct');
-        TempEmailItemSent.SetRange("Send to", Customer."E-Mail");
-        Assert.IsTrue(TempEmailItemSent.FindFirst(), 'The email was not sent to the customer');
-        Assert.IsTrue(TempEmailItemSent.HasAttachments(), 'The email has no attachments');
     end;
 
     local procedure VerifyReminderMailWithAttachmentSentForCustomer(var Customer: Record Customer; TotalNumberOfRemindersSent: Integer; SendEmailMock: Codeunit "Send Email Mock")

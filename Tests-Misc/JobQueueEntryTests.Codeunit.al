@@ -826,15 +826,6 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.Insert(true);
     end;
 
-    local procedure MockJobQueueEntryWithUserID(var JobQueueEntry: Record "Job Queue Entry"; NewUserID: Text[65])
-    begin
-        JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid();
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry."User ID" := NewUserID;
-        JobQueueEntry.Insert();
-    end;
-
     local procedure VerifyErrorInJobQueueEntryAndLog(JobQueueEntry: Record "Job Queue Entry"; JobQueueLogEntry: Record "Job Queue Log Entry"; ExpectedErrorMessage: Text)
     begin
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
