@@ -36,7 +36,7 @@ codeunit 6104 "Import E-Document Process"
 
         NewStatus := GetStatusForStep(Step, UndoStep);
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
-        EDocumentLog.ConfigureLogToInsert(Enum::"E-Document Service Status"::Imported, NewStatus);
+        EDocumentLog.ConfigureLogToInsert(Enum::"E-Document Service Status"::Imported, NewStatus, UndoStep);
 
         if UndoStep then
             UndoProcessingStep(EDocument, Step)
@@ -281,6 +281,11 @@ codeunit 6104 "Import E-Document Process"
             Step::"Finish draft":
                 exit(StepBefore ? Status::"Draft ready" : Status::Processed);
         end;
+    end;
+
+    procedure GetStatusCount(): Integer
+    begin
+        exit(StatusStepIndex("Import E-Doc. Proc. Status"::Processed) + 1);
     end;
 
     procedure OpenTermsAndConditions(TermsNotification: Notification)
