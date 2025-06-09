@@ -5085,7 +5085,7 @@ codeunit 134902 "ERM Account Schedule"
         PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
         ConfigPackage.Get(PackageCode);
         ConfigPackage.TestField("Exclude Config. Tables", true);
-        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line" 
+        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line"
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         Assert.RecordCount(ConfigPackageTable, 2);
         ConfigPackageTable.SetFilter("Table ID", '%1|%2', Database::"Acc. Schedule Name", Database::"Acc. Schedule Line");
@@ -5112,7 +5112,7 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO] Export Financial Report as rapidstart package.
         Initialize();
 
-        // [GIVEN] Financial Report 'X', Library ERM CreateAccountScheduleName creates a Financial Report 
+        // [GIVEN] Financial Report 'X', Library ERM CreateAccountScheduleName creates a Financial Report
         // with the same name as the account schedule now called row definition
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
         // [GIVEN] Find 'X' in "Financial Reports" page
@@ -5126,7 +5126,7 @@ codeunit 134902 "ERM Account Schedule"
         PackageCode := StrSubstNo(TwoPosTxt, FinRepPrefixTxt, AccScheduleLine."Schedule Name");
         ConfigPackage.Get(PackageCode);
         ConfigPackage.TestField("Exclude Config. Tables", true);
-        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line" 
+        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line"
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         Assert.RecordCount(ConfigPackageTable, 3); // Fin Rep, Row Def, and Col Def
         ConfigPackageTable.SetFilter("Table ID", '%1', Database::"Financial Report");
@@ -6023,19 +6023,6 @@ codeunit 134902 "ERM Account Schedule"
         FinancialReports.Overview.Invoke();
         Commit();
         AccountScheduleOverview.Print.Invoke();
-    end;
-
-    local procedure CreateFinancialReportAccountScheduleNameAndColumn(var FinancialReport: Record "Financial Report"; var AccScheduleName: Record "Acc. Schedule Name"; var ColumnLayoutName: Record "Column Layout Name")
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        ColumnLayout: Record "Column Layout";
-    begin
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
-        LibraryERM.CreateAccScheduleName(AccScheduleName);
-        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
-        FinancialReport.Get(AccScheduleName.Name); // Financial Report is created during AccScheduleName creation with the same name.
-        UpdateDefaultColumnLayoutOnAccSchNameRec(AccScheduleName, ColumnLayoutName.Name);
     end;
 
     local procedure CreateAccountScheduleNameAndColumn(var AccScheduleName: Record "Acc. Schedule Name"; var ColumnLayoutName: Record "Column Layout Name")
@@ -7445,4 +7432,3 @@ codeunit 134902 "ERM Account Schedule"
         LibraryVariableStorage.Enqueue(AccountSchedule.StartDate.Enabled());
     end;
 }
-

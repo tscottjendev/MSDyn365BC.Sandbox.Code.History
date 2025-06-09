@@ -5772,14 +5772,6 @@
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndSendSalesDocToPosting(VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        CreateSalesDoc(SalesHeader, VATDate, DocType);
-        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
-    end;
-
     local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; VATDate: Date; DocType: Enum "Gen. Journal Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
