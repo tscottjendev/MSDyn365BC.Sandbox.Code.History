@@ -1,4 +1,3 @@
-#pragma warning disable AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -531,4 +530,3 @@ page 6181 "E-Document Purchase Draft"
         ResetDraftQst: Label 'All the changes that you may have made on the document draft will be lost. Do you want to continue?';
         PageEditable, HasPDFSource : Boolean;
 }
-#pragma warning restore AS0050

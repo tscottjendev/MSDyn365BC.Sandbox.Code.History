@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AS0031, AS0032
 namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Foundation.Attachment;
@@ -404,5 +403,3 @@ page 6105 "Inbound E-Documents"
         EDocumentHelper: Codeunit "E-Document Helper";
         RecordLinkTxt, VendorNameTxt, DocumentNameTxt, DocumentTypeStyleTxt : Text;
 }
-
-#pragma warning restore AS0031, AS0032

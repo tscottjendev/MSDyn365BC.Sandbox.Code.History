@@ -252,9 +252,6 @@ table 6103 "E-Document Service"
                 end;
             end;
         }
-#pragma warning disable AS0004
-#pragma warning disable AS0115
-#pragma warning disable AS0072
 #if not CLEANSCHEMA26
         field(29; "E-Document Structured Format"; Integer)
         {
@@ -266,10 +263,6 @@ table 6103 "E-Document Service"
             ObsoleteTag = '26.0';
         }
 #endif
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0072
-
         field(31; "Import Process"; Enum "E-Document Import Process")
         {
             Caption = 'Import Process';

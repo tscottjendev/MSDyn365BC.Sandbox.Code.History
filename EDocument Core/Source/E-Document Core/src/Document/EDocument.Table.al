@@ -213,9 +213,6 @@ table 6121 "E-Document"
             Caption = 'File Name';
             ToolTip = 'Specifies the file name of the E-Document source.';
         }
-#pragma warning disable AS0004
-#pragma warning disable AS0115
-#pragma warning disable AS0072
 #if not CLEANSCHEMA26
         field(36; "File Type"; Integer)
         {
@@ -234,9 +231,6 @@ table 6121 "E-Document"
             ObsoleteTag = '26.0';
         }
 #endif
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0072
         field(38; "Service Integration"; Enum "Service Integration")
         {
             Caption = 'Service Integration';
