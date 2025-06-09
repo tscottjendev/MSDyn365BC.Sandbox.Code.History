@@ -2769,7 +2769,7 @@
         // [WHEN] User tries to change status to "Certified"
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2807,7 +2807,7 @@
         // [WHEN] User tries to release document
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2846,7 +2846,7 @@
         // [WHEN] User tries to post document
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2883,7 +2883,7 @@
         // [WHEN] User tries to release document
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -2921,7 +2921,7 @@
         // [WHEN] User tries to post document
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -3064,7 +3064,7 @@
         // [WHEN] Header is posted
         LibraryInventory.PostInvtDocument(InvtDocHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -3105,7 +3105,7 @@
         // [WHEN] Batch is posted
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -3137,13 +3137,13 @@
         Assert.ExpectedError(OrderPromisingLine.FieldCaption(OrderPromisingLine."Variant Code"));
 
         // [GIVEN] Variant is specified
-        SalesLine.Validate("Variant Code", ItemVariant.Code); // Variant is set on SalesLine and transferred to OrderPromisingLine 
+        SalesLine.Validate("Variant Code", ItemVariant.Code); // Variant is set on SalesLine and transferred to OrderPromisingLine
         SalesLine.Modify();
 
         // [WHEN] Lines on Order promising lines page is set (triggered by SetSalesHeader)
         AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
-        // [THEN] No error is thrown 
+        // [THEN] No error is thrown
     end;
 
     [Test]
@@ -4321,12 +4321,13 @@
         SalesOrder.FILTER.SetFilter("No.", SalesHeaderNo);
     end;
 
+#if not CLEAN25
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
         VendorCard.OpenEdit();  // Open Vendor Card.
         VendorCard.FILTER.SetFilter("No.", VendorNo);
     end;
-
+#endif
     local procedure PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(ReturnOrder: Boolean; CreditMemo: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -5188,4 +5189,3 @@
         Assert.IsTrue(SalesHeader.Find(), '');
     end;
 }
-

@@ -452,9 +452,6 @@ codeunit 90 "Purch.-Post"
         ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
         ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.\\Do you want to continue?';
         ConfirmUsageWithBlankJobPlanningLineNoQst: Label 'Usage will not be linked to the project planning line because the Project Planning Line No field is empty.\\Do you want to continue?';
-#if not CLEAN25        
-        TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
-#endif
 #if not CLEAN27
         ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
         ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
@@ -526,7 +523,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     /// <summary>
-    /// Copies all the purchase lines to a temporary table, if they haven't been copied yet, to speed up later processing 
+    /// Copies all the purchase lines to a temporary table, if they haven't been copied yet, to speed up later processing
     /// </summary>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
     /// <param name="TempPurchLine">Return value: The temp table that holds a copy of all purchase lines.</param>
@@ -674,14 +671,14 @@ codeunit 90 "Purch.-Post"
     /// <summary>
     /// Checks if document header and lines are valid for posting, updates the document and lines and creates posted documents.
     /// Prepayment lines are created for documents that are invoiced.
-    /// Unposted document is archived   
+    /// Unposted document is archived
     /// Check for over-receipt is performed
     /// </summary>
     /// <remarks>
     /// Transaction is committed after updating the document header if posting is not in PreviewMode
     /// Several related tables are locked for update after this procedure.
     /// DocumentIsReadyToBeChecked is set to true, so that PrepareCheckDocument() is not called again in CheckPurchDocument(). Preparation already happened in RunWithCheck() (parent function).
-    /// </remarks>    
+    /// </remarks>
     /// <param name="PurchHeader">Return Value: The purchase header of the document that is being posted, returned with updated values.</param>
     local procedure CheckAndUpdate(var PurchHeader: Record "Purchase Header")
     var
@@ -2842,7 +2839,7 @@ codeunit 90 "Purch.-Post"
     /// Update Posting Date on an associated drop shipment Sales Order
     /// </summary>
     /// <remarks>
-    /// Document Date is being retained after updating Posting Date 
+    /// Document Date is being retained after updating Posting Date
     /// </remarks>
     /// <param name="SalesHeader">Drop Shipment Sales Order related to current purchase document</param>
     /// <param name="PostingDate">New posting Date</param>
@@ -3616,7 +3613,7 @@ codeunit 90 "Purch.-Post"
 
     /// <summary>
     /// Collects the purchase lines for the specified Purchase Header and stores them in the PurchLine record set.
-    /// Collected lines will have the amounts divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.    
+    /// Collected lines will have the amounts divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.
     /// </summary>
     /// <remarks>
     /// Temporary/buffer table TempPurchLineGlobal is populated as part of the process
@@ -3638,7 +3635,7 @@ codeunit 90 "Purch.-Post"
     /// Sums the purchase lines for the specified Purchase Header and stores the results in the NewTotalPurchLine and NewTotalPurchLineLCY record variables.
     /// The amounts will be divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.
     /// </summary>
-    /// <remarks>    
+    /// <remarks>
     /// it always takes the lines for the specified Purchase Header (doesn't support a parameter for filtered or temp purchase lines).
     /// </remarks>
     /// <param name="NewPurchHeader">The Purchase Header of the document.</param>
@@ -3687,7 +3684,7 @@ codeunit 90 "Purch.-Post"
 
     /// <summary>
     /// Collects the purchase lines for the specified Purchase Header and stores them in the PurchLine record set.
-    /// Collected lines will have the amounts divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.    
+    /// Collected lines will have the amounts divided by quantity the same way as they are divided during the posting process, depending on the selected QtyType.
     /// If Invoice Rounding functionality is enabled, rounding line is created
     /// </summary>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
@@ -5835,7 +5832,7 @@ codeunit 90 "Purch.-Post"
     /// <remarks>
     /// Only Purchase Orders and Purchase Return Orders can be archived
     /// Archiving must be enabled in Purchase Setup
-    /// When archiving purchase line associated with deferrals, deferral amounts are rounded 
+    /// When archiving purchase line associated with deferrals, deferral amounts are rounded
     /// </remarks>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
     procedure ArchiveUnpostedOrder(var PurchHeader: Record "Purchase Header")
@@ -8071,7 +8068,7 @@ codeunit 90 "Purch.-Post"
         if PurchInvHeader."No." = '' then
             exit;
 
-        // Do not change 'Order No.' if already set 
+        // Do not change 'Order No.' if already set
         if PurchInvHeader."Order No." <> '' then
             exit;
 
@@ -8149,7 +8146,7 @@ codeunit 90 "Purch.-Post"
         NoOfLinesWithShipmentNo: Integer;
         NoOfLinesWithParticularShipmentNo: Integer;
     begin
-        // Do not change 'Return Order No.' if already set 
+        // Do not change 'Return Order No.' if already set
         if PurchCrMemoHdr."Return Order No." <> '' then
             exit;
 
@@ -8689,27 +8686,6 @@ codeunit 90 "Purch.-Post"
         if NoSeries.Get(NoSeriesCode) then
             NoSeries.TestField("Default Nos.", true);
     end;
-
-#if not CLEAN25  
-    local procedure CheckDeferralAmount(DeferralLine: Record "Deferral Line")
-    var
-        DeferralHeader: Record "Deferral Header";
-    begin
-        if not DeferralHeader.Get(
-            DeferralLine."Deferral Doc. Type",
-            DeferralLine."Gen. Jnl. Template Name",
-            DeferralLine."Gen. Jnl. Batch Name",
-            DeferralLine."Document Type",
-            DeferralLine."Document No.",
-            DeferralLine."Line No.")
-        then
-            exit;
-
-        DeferralHeader.CalcFields("Schedule Line Total");
-        if DeferralHeader."Schedule Line Total" <> DeferralHeader."Amount to Defer" then
-            Error(TotalToDeferErr);
-    end;
-#endif
 
     local procedure DeleteItemChargeLines(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
     begin

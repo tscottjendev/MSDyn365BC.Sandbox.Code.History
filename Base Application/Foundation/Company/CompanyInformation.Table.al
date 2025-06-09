@@ -853,11 +853,13 @@ table 79 "Company Information"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin

@@ -1,7 +1,7 @@
 codeunit 144024 "UT REP VATREP"
 {
     //  3 - 4. Purpose of this test is to validate Purchase Quote.
-    // 
+    //
     // Covers Test Cases for WI - 341554
     // -----------------------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                                   TFS ID
@@ -410,7 +410,6 @@ codeunit 144024 "UT REP VATREP"
         VATEntry."Posting Date" := WorkDate();
         VATEntry.Insert();
     end;
-#endif
 
     local procedure CreateVendor(): Code[20]
     var
@@ -421,7 +420,6 @@ codeunit 144024 "UT REP VATREP"
         exit(Vendor."No.");
     end;
 
-#if not CLEAN27
     local procedure FindReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
@@ -575,4 +573,3 @@ codeunit 144024 "UT REP VATREP"
     end;
 #endif
 }
-
