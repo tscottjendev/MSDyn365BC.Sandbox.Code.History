@@ -1603,13 +1603,6 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderLine.Delete(true);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20])
-    begin
-        ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst();
-    end;
-
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
     var
         RoutingLine: Record "Routing Line";
@@ -2043,4 +2036,3 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryReportDataset.RunReportAndLoad(Report::"Prod. Order - List", ProductionOrder, '');
     end;
 }
-

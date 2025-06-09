@@ -4146,14 +4146,14 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [Line Discount] [Sales Price] [Warranty]
         // [SCENARIO 348944] Change "Exclude Warranty" to True in Service Line
         Initialize();
-        // [GIVEN] Customer and Item 
+        // [GIVEN] Customer and Item
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Service Header for Customer
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
-        // [GIVEN] Sales Price with Item for Customer 
+        // [GIVEN] Sales Price with Item for Customer
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.", WorkDate(), '', '', '', 0, LibraryRandom.RandInt(20));
         SalesPrice.Validate("Allow Line Disc.", false);
@@ -4373,7 +4373,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4459,7 +4459,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4547,7 +4547,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4635,7 +4635,7 @@ codeunit 136101 "Service Orders"
         NonBaseUOM: Record "Unit of Measure";
         BaseUOM: Record "Unit of Measure";
     begin
-        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the 
+        // [SCENARIO] A rounding to 0 error should be thrown if the entered non-base quantity converted to the
         // base quantity is rounded to zero.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4694,7 +4694,7 @@ codeunit 136101 "Service Orders"
         BaseUOM: Record "Unit of Measure";
         TempServiceLine: Record "Service Line" temporary;
     begin
-        // [SCENARIO] It should be possible to split up the service line quantity between invoice and consume 
+        // [SCENARIO] It should be possible to split up the service line quantity between invoice and consume
         // without any imbalance.
 
         // [GIVEN] A service line using non-base UoM with rounding precision of 0.01.
@@ -4971,7 +4971,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] New customer
         LibrarySales.CreateCustomer(Customer);
 
-        // [GIVEN] New Service Quote with Service Item Line 
+        // [GIVEN] New Service Quote with Service Item Line
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, Customer."No.");
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -4988,7 +4988,7 @@ codeunit 136101 "Service Orders"
         ServiceHeader.FindFirst();
         ServiceHeader.TestField("Quote No.");
 
-        //IT layer issue    
+        //IT layer issue
         ServiceHeader.TestField("Posting No. Series");
         NoSeries.Get(ServiceHeader."Posting No. Series");
         if not NoSeries."Date Order" then begin
@@ -5309,7 +5309,7 @@ codeunit 136101 "Service Orders"
         AltCustPostGrp.Validate("Alt. Customer Posting Group", CustPostGroup.Code);
         AltCustPostGrp.Insert();
 
-        // [GIVEN] Create and Post Service Invoice with Customer Posting Group 
+        // [GIVEN] Create and Post Service Invoice with Customer Posting Group
         InvoiceNo := CreateAndPostServiceInvoiceWithCustomerPostingGroup(Customer."No.", CustPostGroup.Code, WorkDate());
 
         // [THEN] Check GL Entry Created With Service Header Customer Posting Group
@@ -5421,7 +5421,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
         Initialize();
 
-        // [GIVEN] new Customer 
+        // [GIVEN] new Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] new Service Item
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -5435,7 +5435,7 @@ codeunit 136101 "Service Orders"
         // [GIVEN] user allowed just to ship
         CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
 
-        // [GIVEN] posting shipment 
+        // [GIVEN] posting shipment
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode());
         LibraryVariableStorage.Enqueue(1); //ship
         OpenServiceOrderPageAndPost(ServiceHeader, true);
@@ -5472,7 +5472,7 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 480943] Shipping and invoicing service order with "Prohibited" and "Mandatory" settings of invoice posting policy.
         Initialize();
 
-        // [GIVEN] new Customer 
+        // [GIVEN] new Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] new Service Item
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -5508,7 +5508,7 @@ codeunit 136101 "Service Orders"
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";
     begin
-        // [SCENARIO 522444] When run Release action from a Service Order having a Service Line without 
+        // [SCENARIO 522444] When run Release action from a Service Order having a Service Line without
         // Unit of Measure Code, then it gives error and the document is not released.
         Initialize();
 
@@ -6535,30 +6535,6 @@ codeunit 136101 "Service Orders"
         ServiceItemWorksheet.ServInvLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(ServiceLine.FieldNo(Description), DATABASE::"Service Line"));
         ServiceItemWorksheet.ServInvLines.New();
-    end;
-
-    local procedure CreateServiceDocumentWithInvoiceDiscount(var ServiceLine: Record "Service Line") ServiceCharge: Decimal
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        ServiceHeader: Record "Service Header";
-        ServiceItem: Record "Service Item";
-        ServiceItemLine: Record "Service Item Line";
-    begin
-        // Create Customer, Item, Customer Invoice Discount, Service Order.
-        LibrarySales.CreateCustomer(Customer);
-        LibraryInventory.CreateItem(Item);
-        ServiceCharge := LibraryRandom.RandDec(10, 2);  // Generate Random Value for Service Charge.
-        CreateCustomerInvoiceDiscount(Customer."No.", LibraryRandom.RandDec(10, 2), ServiceCharge);  // Generate Random Value for Discount Percent.
-        CreateServiceItem(ServiceItem, Customer."No.", Item."No.");
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateAndUpdateServiceLine(
-          ServiceHeader, ServiceLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2),
-          ServiceItemLine."Line No.", 0);  // Take RANDOM Value for Quantity and zero for Line Discount.
-        GetServiceLine(ServiceLine, ServiceHeader);
-        ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity / 2);  // For Partial Shipping.
-        ServiceLine.Modify(true);
     end;
 
     local procedure CreateServiceDoumentLine(var ServiceItemLine: Record "Service Item Line"; DocumentType: Enum "Service Document Type")
@@ -8209,4 +8185,3 @@ codeunit 136101 "Service Orders"
         LibraryVariableStorage.Enqueue(CreditLimitNotification.CreditLimitDetails.TotalAmountLCY.Value);
     end;
 }
-

@@ -4219,30 +4219,7 @@
           ExpectedLineDiscAmt, PurchLine."Line Discount Amount",
           StrSubstNo(AmountErr, PurchLine.FieldCaption("Line Discount Amount"), PurchLine."Line Discount Amount"));
     end;
-#if not CLEAN25
-    local procedure VerifyPurchaseInvoiceVendPostingGroup(DocumentNo: Code[20]; VendorPostingGroup: Record "Vendor Posting Group")
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-        VendLedgerEntry: Record "Vendor Ledger Entry";
-        GLEntry: Record "G/L Entry";
-    begin
-        PurchInvHeader.Get(DocumentNo);
-        PurchInvHeader.TestField("Vendor Posting Group", VendorPostingGroup.Code);
-        PurchInvHeader.CalcFields("Amount Including VAT");
 
-        VendLedgerEntry.SetRange("Vendor No.", PurchInvHeader."Buy-from Vendor No.");
-        VendLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendLedgerEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
-        VendLedgerEntry.FindFirst();
-        VendLedgerEntry.TestField("Vendor Posting Group", VendorPostingGroup.Code);
-
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
-        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
-        GLEntry.FindFirst();
-        GLEntry.TestField(Amount, -PurchInvHeader."Amount Including VAT");
-    end;
-#endif
     local procedure PurchDocLineQtyValidation()
     var
         PurchaseHeader: Record "Purchase Header";

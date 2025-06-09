@@ -898,7 +898,7 @@
     begin
         Initialize();
 
-        //[GIVEN] Set Inventory Setup 
+        //[GIVEN] Set Inventory Setup
         InventorySetup.Get();
         if not InventorySetup."Prevent Negative Inventory" then begin
             InventorySetup."Prevent Negative Inventory" := true;
@@ -3457,16 +3457,6 @@
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationGreen.Code, false);
     end;
 
-    local procedure CreateLocationWithMaxLengthCode(): Code[20]
-    var
-        Location: Record Location;
-    begin
-        LibraryWarehouse.CreateLocation(Location);
-        Location.Validate(Code, PadStr(Location.Code, MaxStrLen(Location.Code), '0'));
-        Location.Modify(true);
-        exit(Location.Code);
-    end;
-
     local procedure InvoiceDiscountSetupForSales(var CustInvoiceDisc: Record "Cust. Invoice Disc."; CustomerNo: Code[20]; InvoiceDiscPct: Decimal)
     begin
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, '', 0);
@@ -3840,7 +3830,6 @@
           SalesLineDiscount, Item, SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate(),
           LibraryRandom.RandDec(10, 2));
     end;
-#endif
 
     local procedure CreateCustomerWithCustomerDiscountGroup(CustomerDiscountGroupCode: Code[20]) CustomerNo: Code[20]
     var
@@ -3851,7 +3840,7 @@
         Customer.Modify(true);
         CustomerNo := Customer."No.";
     end;
-
+#endif
     local procedure CreateCustomerWithInvoiceDiscount(var Customer: Record Customer; InvoiceDiscPct: Decimal)
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
@@ -4035,6 +4024,7 @@
         CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
     end;
 
+#if not CLEAN25
     local procedure CreateSalesReturnOrderWithUnitPriceAndLineDiscount(CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -4046,7 +4036,7 @@
         UpdateLineDiscountOnSalesLine(SalesLine, LibraryRandom.RandInt(10));
         exit(SalesHeader."No.");
     end;
-
+#endif
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
@@ -4113,6 +4103,7 @@
         exit(VATPostingSetup."VAT %");
     end;
 
+#if not CLEAN25
     local procedure CreateSalesOrderWithDropShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, CustomerNo, ItemNo, Quantity, '');
@@ -4128,7 +4119,7 @@
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));  // Special Order as TRUE.
         SalesLine.Modify(true);
     end;
-
+#endif
     local procedure CreateSalesOrderWithMultipleLinesWithDiffPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; Quantity: Decimal; LocationCode: Code[10]): Code[20]
     var
         SalesLine: Record "Sales Line";
@@ -4527,12 +4518,13 @@
         PostedWhseShipmentLine.FindFirst();
     end;
 
+#if not CLEAN25
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange("No.", No);
         PurchaseLine.FindFirst();
     end;
-
+#endif
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; No: Code[20])
     begin
         ReturnReceiptLine.SetRange("No.", No);
@@ -4674,6 +4666,7 @@
         exit(SalesHeader."No.");
     end;
 
+#if not CLEAN25
     local procedure GetRandomCode(FieldLength: Integer): Code[20]
     var
         RandomCode: Code[20];
@@ -4684,7 +4677,7 @@
         until StrLen(RandomCode) = FieldLength;
         exit(RandomCode);
     end;
-
+#endif
     local procedure GetReturnReceiptLine(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; Qty: Decimal)
     var
         ReturnReceiptLine: Record "Return Receipt Line";
@@ -4826,12 +4819,6 @@
                 ItemStatistics.ColumnDimCode.SetValue(PeriodTxt);
         end;
         ItemStatistics.ShowMatrix.Invoke();
-    end;
-
-    local procedure OpenCustomerCard(var CustomerCard: TestPage "Customer Card"; CustomerNo: Code[20])
-    begin
-        CustomerCard.OpenEdit();  // Open Customer Card.
-        CustomerCard.FILTER.SetFilter("No.", CustomerNo);
     end;
 
     local procedure PostInventoryActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; QuantityToHandle: Decimal)
@@ -5219,12 +5206,13 @@
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure UpdateLineDiscountOnSalesLine(var SalesLine: Record "Sales Line"; LineDiscount: Decimal)
     begin
         SalesLine.Validate("Line Discount %", LineDiscount);
         SalesLine.Modify(true);
     end;
-
+#endif
     local procedure UpdateZoneAndBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; BinCode: Code[20]; ZoneCode: Code[10])
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
@@ -5390,6 +5378,7 @@
         PostedInvtPutAwayLine.TestField(Quantity, Quantity);
     end;
 
+#if not CLEAN25
     local procedure VerifyPostedSalesInvoiceLine(DocumentNo: Code[20]; UnitPrice: Decimal; LineDiscount: Decimal; Quantity: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
@@ -5408,7 +5397,7 @@
         PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.TestField("Line Discount %", LineDiscount);
     end;
-
+#endif
     local procedure VerifyQtyToInvoiceOnSalesLine(ItemNo: Code[20]; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -6086,6 +6075,7 @@
         Reservation."Summary Type".AssertEquals('');
     end;
 
+#if not CLEAN25
     local procedure MoveNegativeLines(No: Code[20])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
@@ -6095,7 +6085,7 @@
         Commit(); // Commit required before invoke Move Negative Lines.
         SalesReturnOrder.MoveNegativeLines.Invoke();
     end;
-
+#endif
     local procedure MoveNegativeLinesOnSalesOrder(SalesHeader: Record "Sales Header")
     var
         MoveNegSalesLines: Report "Move Negative Sales Lines";
@@ -6198,4 +6188,3 @@
     begin
     end;
 }
-
