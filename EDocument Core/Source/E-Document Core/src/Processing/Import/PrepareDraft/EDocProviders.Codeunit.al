@@ -29,15 +29,16 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         ServiceParticipant: Record "Service Participant";
+        EDocErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentImportHelper: Codeunit "E-Document Import Helper";
         EDocumentHasNoVendorInformation: Boolean;
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentHasNoVendorInformation := (EDocumentPurchaseHeader."Vendor GLN" = '') and (EDocumentPurchaseHeader."Vendor VAT Id" = '') and (EDocumentPurchaseHeader."Vendor External Id" = '') and (EDocumentPurchaseHeader."Vendor Company Name" = '') and (EDocumentPurchaseHeader."Vendor Address" = '');
         if EDocumentHasNoVendorInformation then
-            // We error if there's no vendor information extracted from the E-Document, unless we are aware that it is a blank draft
+            // We warn if there's no vendor information extracted from the E-Document, unless we are aware that it is a blank draft
             if EDocument."Read into Draft Impl." <> "E-Doc. Read into Draft"::"Blank Draft" then
-                Error(NoVendorInformationErr);
+                EDocErrorHelper.LogWarningMessage(EDocument, EDocumentPurchaseHeader, EDocumentPurchaseHeader.FieldNo("[BC] Vendor No."), NoVendorInformationErr);
 
         // If the E-Document has no vendor information, we can't find the vendor, so we exit early
         if EDocumentHasNoVendorInformation then

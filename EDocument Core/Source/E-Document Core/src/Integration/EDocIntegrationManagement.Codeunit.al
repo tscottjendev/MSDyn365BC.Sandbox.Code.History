@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -457,8 +457,10 @@ codeunit 6134 "E-Doc. Integration Management"
         ReceiveDocs.SetService(EDocumentService);
         ReceiveDocs.SetContext(ReceiveContext);
         ReceiveDocs.SetDocuments(Documents);
-        if not ReceiveDocs.Run() then
+        if not ReceiveDocs.Run() then begin
+            Telemetry.LogMessage('0000PKE', 'Failed to receive documents from E-Document Service', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
             exit;
+        end;
 
         // After interface call, reread the EDocumentService for the latest values.
         EDocumentService.Get(EDocumentService.Code);

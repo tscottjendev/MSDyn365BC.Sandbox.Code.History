@@ -14,6 +14,7 @@ page 6105 "Inbound E-Documents"
     SourceTable = "E-Document";
     PageType = List;
     RefreshOnActivate = true;
+    UsageCategory = Lists;
     Editable = true;
     DeleteAllowed = true;
     InsertAllowed = false;
