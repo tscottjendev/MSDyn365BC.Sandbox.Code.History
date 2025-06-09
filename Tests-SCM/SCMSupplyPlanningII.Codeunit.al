@@ -1709,7 +1709,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CustomerNo1: Code[20];
         CustomerNo2: Code[20];
     begin
-        // Scenario: Create Sales Order, use Capable-to-Promise to create requisition lines. 
+        // Scenario: Create Sales Order, use Capable-to-Promise to create requisition lines.
         // Then, create a Credit Memo with the same "Document No."" and a "Sell-to Customer No.".
         // Then change the "Sell-to Customer No" and verify that the req lines are not removed.
 
@@ -4019,17 +4019,6 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
     end;
 
-    local procedure AssignTrackingAndPostPurchaseWithUpdatedQuantity(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        UpdateQuantityOnPurchaseLine(ItemNo);
-        SelectPurchaseLine(PurchaseLine, ItemNo);
-        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-    end;
-
     local procedure AssignTrackingAndPostPurchaseWithReducedQuantity(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4696,4 +4685,3 @@ codeunit 137071 "SCM Supply Planning -II"
         Reservation."Auto Reserve".Invoke();
     end;
 }
-

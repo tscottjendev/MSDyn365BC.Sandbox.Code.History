@@ -2279,11 +2279,13 @@ table 77 "Report Selections"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event will be removed. Please use Event OnBeforeDoSaveReportAsHTMLInTempBlob instead.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoSaveReportAsHTML(ReportID: Integer; var FilePath: Text[250]; var RecordVariant: Variant; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoSaveReportAsHTMLInTempBlob(ReportID: Integer; var TemBlob: Codeunit "Temp Blob"; var RecordVariant: Variant; var IsHandled: Boolean)
     begin
@@ -2689,4 +2691,3 @@ table 77 "Report Selections"
     begin
     end;
 }
-

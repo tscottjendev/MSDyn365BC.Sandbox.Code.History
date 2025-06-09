@@ -2364,11 +2364,6 @@ codeunit 134421 "Report Selections Tests"
         exit(REPORT::Statement);
     end;
 
-    local procedure GetStandardStatementReportID(): Integer
-    begin
-        exit(REPORT::"Standard Statement");
-    end;
-
     local procedure GetCustomBodyLayout(var CustomReportLayout: Record "Custom Report Layout")
     var
         ReportLayoutList: Record "Report Layout List";
@@ -2611,30 +2606,6 @@ codeunit 134421 "Report Selections Tests"
         LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, Contact."No.", Customer."No.");
         Customer.Validate("Primary Contact No.", Contact."No.");
         Customer.Modify();
-    end;
-
-    local procedure CreateSalesQuoteCustomLayout(var CustomReportLayout: Record "Custom Report Layout")
-    begin
-        CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := 1304;
-        CustomReportLayout.Type := CustomReportLayout.Type::Word;
-        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
-        CustomReportLayout.Insert(true);
-    end;
-
-    local procedure CreatePurchaseQuoteCustomLayout(var CustomReportLayout: Record "Custom Report Layout")
-    begin
-        Clear(CustomReportLayout);
-        CustomReportLayout."Report ID" := 404;
-        CustomReportLayout.Type := CustomReportLayout.Type::Word;
-        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
-        CustomReportLayout.Insert(true);
-
-        Clear(CustomReportLayout);
-        CustomReportLayout."Report ID" := 404;
-        CustomReportLayout.Type := CustomReportLayout.Type::Word;
-        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
-        CustomReportLayout.Insert(true);
     end;
 
     local procedure StandardSalesInvoiceReportID(): Integer

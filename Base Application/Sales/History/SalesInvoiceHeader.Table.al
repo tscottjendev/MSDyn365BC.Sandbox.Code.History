@@ -1361,16 +1361,19 @@ table 112 "Sales Invoice Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised', '27.0')]
     [IntegrationEvent(true, false)]
     local procedure OnGetPaymentReference(var PaymentReference: Text)
     begin
     end;
 
+    [Obsolete('The event is never raised', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetPaymentReferenceLbl(var PaymentReferenceLbl: Text)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin

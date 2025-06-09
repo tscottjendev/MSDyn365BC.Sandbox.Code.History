@@ -10703,11 +10703,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToCodeOnBeforeValidateTaxLiable(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
     begin

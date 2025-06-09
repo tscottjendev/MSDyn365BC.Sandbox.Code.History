@@ -3168,19 +3168,6 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         WriteCAMTFooter(OutStream);
     end;
 
-    local procedure CreateOneSaleOnePmtTwoPurchTwoPmt(var CustLedgEntry: Record "Cust. Ledger Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
-    var
-        PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
-    begin
-        Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-
-        WriteCAMTHeader(OutStream, '', 'TEST');
-        OneSaleOnePmt(CustLedgEntry, OutStream);
-        PaymentReconE2ETests2.TwoPurchTwoPmt(VendLedgEntry, VendLedgEntry2, OutStream);
-        WriteCAMTFooter(OutStream);
-    end;
-
     local procedure CreateTwoSaleTwoPmtTwoPurchTwoPmt(var CustLedgEntry: Record "Cust. Ledger Entry"; var CustLedgEntry2: Record "Cust. Ledger Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntry2: Record "Vendor Ledger Entry"; var OutStream: OutStream; var TempBlobUTF8: Codeunit "Temp Blob")
     var
         PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
@@ -3387,4 +3374,3 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     end;
 
 }
-
