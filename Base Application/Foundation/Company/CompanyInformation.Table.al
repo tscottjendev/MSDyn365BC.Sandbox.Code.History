@@ -830,6 +830,7 @@ table 79 "Company Information"
     begin
     end;
 
+    // APAC only
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin

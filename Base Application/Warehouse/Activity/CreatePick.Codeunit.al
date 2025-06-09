@@ -129,7 +129,7 @@ codeunit 7312 "Create Pick"
         InitCalculationSummary(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, TotalQtytoPick, TotalQtytoPickBase);
 
         if CheckReservationAndUpdateQtyToPick(LocationCode, ItemNo, VariantCode, UnitofMeasureCode, FromBinCode, QtyPerUnitofMeasure, TotalQtytoPick, TotalQtytoPickBase) then begin
-            FinalizeCalculationSummary(); // Insert the warehouse pick calculation summary line when exiting early 
+            FinalizeCalculationSummary(); // Insert the warehouse pick calculation summary line when exiting early
             exit;
         end;
 
@@ -3517,7 +3517,6 @@ codeunit 7312 "Create Pick"
 
         exit(QtyAssgndToWhseAct + QtyAssgndToShipment + QtyAssgndToProdComp + QtyAssgndToAsmLine);
     end;
-#endif
 
     local procedure CalcTotalQtyAssgndOnWhseAct(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
@@ -3535,6 +3534,7 @@ codeunit 7312 "Create Pick"
         WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
         exit(WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
+#endif
 
     procedure CalcTotalQtyOnBinType(BinTypeFilter: Text[1024]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
@@ -4196,12 +4196,13 @@ codeunit 7312 "Create Pick"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by OnAfterSetCustomWhseSourceLine', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAssemblyLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
     end;
 
-#if not CLEAN27
     [Obsolete('Replaced by OnAfterSetCustomWhseSourceLine', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProdOrderCompLine(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")

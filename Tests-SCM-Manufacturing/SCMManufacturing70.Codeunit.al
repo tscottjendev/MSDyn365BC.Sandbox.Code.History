@@ -1814,7 +1814,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         StockkeepingUnitList: TestPage "Stockkeeping Unit List";
     begin
         // Check assignment of Routing No. and Production BOM No. from SKU
-        // Setup: Create Item, Routing Header and Production BOM 
+        // Setup: Create Item, Routing Header and Production BOM
         // [SCENARIO 555088] "Production BOM" action opens Production BOM page. Also "Prod. Active BOM Version" does the same, when there is no version.
         Initialize();
 
@@ -1900,7 +1900,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Check assignment of Routing No. and Production BOM No. from Parent  Item
-        // Setup: Create Item, Routing Header and Production BOM 
+        // Setup: Create Item, Routing Header and Production BOM
         Initialize();
 
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
@@ -2964,7 +2964,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateItem(ChildItem, ChildItem.FieldNo("Time Bucket"), TimeBucket);
         UpdateItem(ChildItem, ChildItem.FieldNo("Safety Stock Quantity"), 20 + LibraryRandom.RandInt(5));
 
-        // [GIVEN] Create Parent Item 
+        // [GIVEN] Create Parent Item
         CreateItem(
           ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::"Fixed Reorder Qty.", false,
           20 + LibraryRandom.RandInt(10), 30 + LibraryRandom.RandInt(10), 0, '');
@@ -2980,7 +2980,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         //[THEN] Run  "Calc. Item Plan - Plan Wksh." report
         LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
-        // [VERIFY] Verify Requisition Detail 
+        // [VERIFY] Verify Requisition Detail
         VerifyRequisitionLineDetails(ParentItem);
 
         // [VERIFY] Vertify Quantity Per on Planning Component
@@ -2995,7 +2995,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        // [SCENARIO 539761] Order Date is calculated correctly for Lead Time Calculation greater than one year on Calculate Plan from Req Worksheet        
+        // [SCENARIO 539761] Order Date is calculated correctly for Lead Time Calculation greater than one year on Calculate Plan from Req Worksheet
         Initialize();
         RequisitionLine.DeleteAll(true);
 
@@ -3153,7 +3153,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         i: Integer;
     begin
         // [SCENARIO 527492] Production BOM Components is considering Negative and Zero Quantity in Production Order
-        // When Production Order Created from Planning Worksheet. 
+        // When Production Order Created from Planning Worksheet.
         Initialize();
 
         // [GIVEN] Create Parent Item.
@@ -3181,7 +3181,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", '');
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        // [GIVEN] Calculate Regenerative Plan   
+        // [GIVEN] Calculate Regenerative Plan
         LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
         // [WHEN] Carry Out Action Message
@@ -3203,8 +3203,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        // [SCENARIO 556431] When Stan runs Refresh Production Order action from a 
-        // Released Production Order having Source Type as Family then Prod. Order Lines 
+        // [SCENARIO 556431] When Stan runs Refresh Production Order action from a
+        // Released Production Order having Source Type as Family then Prod. Order Lines
         // are created as per Unit of Measure Codes of Items.
         Initialize();
 
@@ -3543,7 +3543,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder: Record "Production Order";
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        // [SCENARIO 557289] When refreshing Production orders and using starting/ending dates on Production BOM Line 
+        // [SCENARIO 557289] When refreshing Production orders and using starting/ending dates on Production BOM Line
         // in a Released production order document pick correct component.
         Initialize();
 
@@ -4073,13 +4073,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
     local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
-    end;
-
-    local procedure CreateAndRefreshProdOrderWithVariantCode(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
-    begin
-        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
-        ProductionOrder.Validate("Variant Code", VariantCode);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
     end;
 
@@ -6171,4 +6164,3 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RoutingLine.Modify(true);
     end;
 }
-
