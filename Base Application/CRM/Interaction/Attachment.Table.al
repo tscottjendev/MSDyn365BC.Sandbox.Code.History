@@ -591,15 +591,6 @@ table 5062 Attachment
         "Email Message Checksum" := Checksum(MessageID);
     end;
 
-    local procedure GetEntryID() Return: Text
-    var
-        InStream: InStream;
-    begin
-        CalcFields("Email Entry ID");
-        "Email Entry ID".CreateInStream(InStream);
-        InStream.ReadText(Return);
-    end;
-
     procedure SetEntryID(EntryID: Text)
     var
         OutStream: OutStream;
@@ -870,4 +861,3 @@ table 5062 Attachment
     begin
     end;
 }
-

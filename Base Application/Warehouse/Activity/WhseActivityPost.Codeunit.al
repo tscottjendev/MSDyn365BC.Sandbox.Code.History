@@ -6,7 +6,6 @@ namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Inventory.Item;
 #if not CLEAN27
 using Microsoft.Inventory.Journal;
 #endif
@@ -56,15 +55,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     var
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label 'Warehouse Activity    #1##########\\';
-        Text001: Label 'Checking lines        #2######\';
-        Text002: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         Location: Record Location;
-        Item: Record Item;
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
@@ -90,17 +81,18 @@ codeunit 7324 "Whse.-Activity-Post"
         LineCount: Integer;
         PostingReference: Integer;
         HideDialog: Boolean;
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text005: Label 'The source document %1 %2 is not released.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         InvoiceSourceDoc: Boolean;
         PrintDoc: Boolean;
         SuppressCommit: Boolean;
         IsPreview: Boolean;
         PostingDateErr: Label 'is before the posting date';
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
+#pragma warning disable AA0074, AA0470
+        Text005: Label 'The source document %1 %2 is not released.';
+        Text000: Label 'Warehouse Activity    #1##########\\';
+        Text001: Label 'Checking lines        #2######\';
+        Text002: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0074, AA0470
 
     local procedure "Code"()
     var
@@ -1145,12 +1137,6 @@ codeunit 7324 "Whse.-Activity-Post"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
-    end;
-
-    local procedure GetItem(ItemNo: Code[20])
-    begin
-        if Item."No." <> ItemNo then
-            Item.Get(ItemNo);
     end;
 
     local procedure LockPostedTables(WarehouseActivityHeader: Record "Warehouse Activity Header")

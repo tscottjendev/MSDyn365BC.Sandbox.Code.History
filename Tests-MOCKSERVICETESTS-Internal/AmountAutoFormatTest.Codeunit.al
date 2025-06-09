@@ -98,7 +98,7 @@ codeunit 132583 "Amount Auto Format Test"
         InitializeCurrency('3:3', '0:1', '$', 'USD');
 
         // [GIVEN] A test table with the values to format
-        // In this case the values need to be in a table because they are declared as Decimal but they will be converted in text if 
+        // In this case the values need to be in a table because they are declared as Decimal but they will be converted in text if
         // there are symbols (e.g: $) in the final formatted result
         InitializeTestTable();
 
@@ -221,13 +221,6 @@ codeunit 132583 "Amount Auto Format Test"
         GLSetup."LCY Code" := LCYCode;
         GLSetup."Amount Rounding Precision" := 0.00001;
         GLSetup.Insert(true);
-    end;
-
-    local procedure DeleteGLSetupTable()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        GLSetup.DeleteAll(true);
     end;
 
     local procedure InitializeCurrency(DecimalPlaces: Text[5]; UnitDecimalPlaces: Text[5]; CurrencySymbol: Text[1]; CurrencyCode: Text[3])

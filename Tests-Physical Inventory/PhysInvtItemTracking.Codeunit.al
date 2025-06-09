@@ -352,7 +352,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         Initialize();
 
-        // [GIVEN] Warehouse location with one bin "B"; item "I" 
+        // [GIVEN] Warehouse location with one bin "B"; item "I"
         CreateLocationAndBin(Location, true);
         ItemNo := LibraryInventory.CreateItemNo();
         LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
@@ -365,7 +365,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
 
         // [WHEN] Run "Calc. Phys. Invt. Order (Bins)" for the bin "B"
-        // [THEN] Message is displayed informing that one order line was created 
+        // [THEN] Message is displayed informing that one order line was created
         LibraryVariableStorage.Enqueue(StrSubstNo(LinesCreatedMsg, 1));
         RunCalcPhysInvtOrderBins(PhysInvtOrderHeader, Bin);
 
@@ -390,7 +390,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         Initialize();
 
-        // [GIVEN] Warehouse location with one bin "B"; two items "I1" and "I2" 
+        // [GIVEN] Warehouse location with one bin "B"; two items "I1" and "I2"
         CreateLocationAndBin(Location, true);
         LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
 
@@ -410,7 +410,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         // [WHEN] Run "Calc. Phys. Invt. Order (Bins)" for the bin "B"
         // [THEN] Message is displayed informing that there are blocked items that have been skipped
-        // [THEN] Message is displayed informing that one order line was created 
+        // [THEN] Message is displayed informing that one order line was created
         LibraryVariableStorage.Enqueue(BlockedItemMsg);
         LibraryVariableStorage.Enqueue(StrSubstNo(LinesCreatedMsg, 1));
         RunCalcPhysInvtOrderBins(PhysInvtOrderHeader, Bin);
@@ -706,7 +706,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, GetNoOfLocationsWithoutBinMandatory());
 
-        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS
         PhysInvtOrderLine.FindSet();
         repeat
             PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
@@ -739,7 +739,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, (GetNoOfLocationsWithoutBinMandatory() + 1));
 
-        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS
         PhysInvtOrderLine.FindSet();
         repeat
             PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
@@ -779,7 +779,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, 3 * GetNoOfLocationsWithoutBinMandatory());
 
-        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS
         PhysInvtOrderLine.FindSet();
         repeat
             PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
@@ -819,7 +819,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
         Assert.RecordCount(PhysInvtOrderLine, 3 * (GetNoOfLocationsWithoutBinMandatory() + 1));
 
-        // [THEN] Physical Inventory Order Lines are created with 0 PCS 
+        // [THEN] Physical Inventory Order Lines are created with 0 PCS
         PhysInvtOrderLine.FindSet();
         repeat
             PhysInvtOrderLine.TestField("Qty. Expected (Base)", 0);
@@ -1145,20 +1145,6 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CODEUNIT.Run(CODEUNIT::"Phys. Invt.-Calc. Qty. All", PhysInvtOrderHeader);
     end;
 
-    local procedure CalculatePhysInventoryLineBins(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; LocationCode: Code[10]; ItemNo: Code[20])
-    var
-        PhysInventoryOrder: TestPage "Physical Inventory Order";
-    begin
-        Commit();  // COMMIT required for explicit commit used in CalculateLines - OnAction, Page 5005350 Phys. Inventory Order.
-        // Enqueue value for use in CalcPhysOrderLinesBinsRequestPageHandler.
-        LibraryVariableStorage.Enqueue(LocationCode);
-        LibraryVariableStorage.Enqueue(ItemNo);
-        PhysInventoryOrder.OpenEdit();
-        PhysInventoryOrder.FILTER.SetFilter("No.", PhysInvtOrderHeader."No.");
-        PhysInventoryOrder.CalculateLinesBins.Invoke();  // Invokes CalcPhysOrderLinesBinsRequestPageHandler.
-        CODEUNIT.Run(CODEUNIT::"Phys. Invt.-Calc. Qty. All", PhysInvtOrderHeader);
-    end;
-
     local procedure CopyPhysInvtRecordingLine(var CopyOfPhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     var
         LineNo: Integer;
@@ -1236,14 +1222,6 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         ItemJournalBatch.Modify(true);
     end;
 
-    local procedure SelectRecordingQty(Item: Record Item; PositiveRecording: Boolean): Integer
-    begin
-        Item.CalcFields(Inventory);
-        if PositiveRecording then
-            exit(Item.Inventory + LibraryRandom.RandInt(5));
-        exit(Item.Inventory - LibraryRandom.RandInt(5));
-    end;
-
     local procedure ShowDuplicatePhysInventoryLine(No: Code[20])
     var
         PhysInventoryOrder: TestPage "Physical Inventory Order";
@@ -1252,38 +1230,6 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInventoryOrder.OpenEdit();
         PhysInventoryOrder.FILTER.SetFilter("No.", No);
         PhysInventoryOrder."Show &Duplicate Lines".Invoke();  // Invokes PhysInventoryOrderLinesPageHandler.
-    end;
-
-    local procedure VerifyPhysInvtItemTrackingList(ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Positive: Boolean; LotNo: Code[50])
-    var
-        PhysInvtItemTrackList: TestPage "Phys. Invt. Item Track. List";
-    begin
-        if not Positive then
-            Quantity := -Quantity;
-        PhysInvtItemTrackList.OpenEdit();
-        PhysInvtItemTrackList.FILTER.SetFilter("Item No.", ItemNo);
-        PhysInvtItemTrackList.FILTER.SetFilter(Positive, Format(Positive));
-        PhysInvtItemTrackList."Location Code".AssertEquals(LocationCode);
-        PhysInvtItemTrackList.Quantity.AssertEquals(Quantity);
-        PhysInvtItemTrackList."Lot No.".AssertEquals(LotNo);
-    end;
-
-    local procedure VerifyPostedPhysInventoryTracking(ItemNo: Code[20]; Quantity: Decimal)
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-    begin
-        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemNo);
-        PstdPhysInvtOrderLine.SetRange("Item No.", ItemNo);
-        PstdPhysInvtOrderLine.FindFirst();
-
-        // Enqueue values for use in PostedItemTrackingLinesPageHandler and PostExpPhInTrackListPageHandler.
-        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Lot No.");
-        LibraryVariableStorage.Enqueue(-ItemLedgerEntry.Quantity + Quantity);
-        PstdPhysInvtOrderLine.ShowPostedItemTrackingLines();  // Invokes PostedItemTrackingLinesPageHandler.
-        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Lot No.");
-        LibraryVariableStorage.Enqueue(ItemLedgerEntry.Quantity);
-        PstdPhysInvtOrderLine.ShowPostExpPhysInvtTrackLines();  // Invokes PostExpPhInTrackListPageHandler.
     end;
 
     local procedure VerifyPostedPhysInventoryOrderLine(PreAssignedNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
