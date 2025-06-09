@@ -827,19 +827,6 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateUnitCostPerOnProdOrderRoutingLine(ProdOrderNo: Code[20]; RoutingNo: Code[20])
-    var
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-    begin
-        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
-        ProdOrderRoutingLine.FindSet();
-        repeat
-            ProdOrderRoutingLine.Validate("Unit Cost per", LibraryRandom.RandInt(10));
-            ProdOrderRoutingLine.Modify(true);
-        until ProdOrderRoutingLine.Next() = 0;
-    end;
-
     local procedure ExplodeRoutingAndPostOutputJournal(ProductionOrderNo: Code[20])
     begin
         OutputJournalExplodeRouting(ProductionOrderNo);

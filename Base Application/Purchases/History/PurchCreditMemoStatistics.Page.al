@@ -199,13 +199,6 @@ page 401 "Purch. Credit Memo Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
-    local procedure GetVATPct(PurchCrMemoLine: Record "Purch. Cr. Memo Line"): Decimal
-    begin
-        if PurchCrMemoLine."VAT Calculation Type" = PurchCrMemoLine."VAT Calculation Type"::"Reverse Charge VAT" then
-            exit(0);
-        exit(PurchCrMemoLine."VAT %");
-    end;
-
     local procedure CalculateTotals()
     var
         IsHandled: Boolean;
@@ -257,4 +250,3 @@ page 401 "Purch. Credit Memo Statistics"
     begin
     end;
 }
-

@@ -338,14 +338,14 @@ page 489 "Column Layout"
         DimCaptionsInitialized: Boolean;
         CurrentDescription: Text[80];
         InternalDescription: Text[250];
-
+#if not CLEAN27
     local procedure CurrentColumnNameOnAfterValida()
     begin
         CurrPage.SaveRecord();
         AccSchedManagement.SetColumnName(CurrentColumnName, Rec);
         CurrPage.Update(false);
     end;
-
+#endif
     local procedure GetDescriptions()
     var
         ColumnLayoutName: Record "Column Layout Name";
@@ -363,4 +363,3 @@ page 489 "Column Layout"
         CurrentColumnName := NewColumnName;
     end;
 }
-
