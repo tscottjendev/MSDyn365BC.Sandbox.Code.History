@@ -28,9 +28,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         PurchaseOrder: Record "Purchase Header";
         EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
         EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
-        LineToAccountLLMMatching: Codeunit "Line To Account LLM Matching";
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
-        CopilotCapability: Codeunit "Copilot Capability";
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
         IPurchaseLineProvider: Interface IPurchaseLineProvider;
         IPurchaseOrderProvider: Interface IPurchaseOrderProvider;
@@ -64,7 +62,6 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             exit;
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
-        EDocumentPurchaseLine.SetFilter("[BC] Purchase Type No.", '=%1', '');
         if EDocumentPurchaseLine.FindSet() then
             repeat
                 // Look up based on text-to-account mapping
@@ -75,19 +72,38 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 
                 if EDocPurchaseHistMapping.FindRelatedPurchaseLineInHistory(EDocumentPurchaseHeader."[BC] Vendor No.", EDocumentPurchaseLine, EDocPurchaseLineHistory) then
                     EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory, EDocumentPurchaseLine);
-                EDocumentPurchaseLine.Modify();
-                // Mark the lines that are not matched yet
-                if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then
-                    EDocumentPurchaseLine.Mark(true);
-            until EDocumentPurchaseLine.Next() = 0;
-        EDocumentPurchaseLine.MarkedOnly(true);
 
-        // Ask Copilot to try to match the marked ones (those that are not matched yet)
-        if (not EDocumentPurchaseLine.IsEmpty()) and CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
-            if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
-                LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);
+                EDocumentPurchaseLine.Modify();
+            until EDocumentPurchaseLine.Next() = 0;
+
+        // Ask Copilot to try to find fields that are suited to be matched
+        if EDocumentPurchaseHeader."[BC] Vendor No." <> '' then
+            CopilotLineMatching(EDocument."Entry No");
 
         exit("E-Document Type"::"Purchase Invoice");
+    end;
+
+    local procedure CopilotLineMatching(EDocumentEntryNo: Integer)
+    var
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        CopilotCapability: Codeunit "Copilot Capability";
+        LineToAccountLLMMatching: Codeunit "Line To Account LLM Matching";
+        EDocLineMatcherDeferral: Codeunit "E-Doc Line Matcher - Deferral";
+    begin
+        EDocumentPurchaseLine.SetLoadFields("E-Document Entry No.", "[BC] Purchase Type No.", "[BC] Deferral Code");
+        EDocumentPurchaseLine.ReadIsolation(IsolationLevel::ReadCommitted);
+
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
+        EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
+        if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+            if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+                LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);
+        Clear(EDocumentPurchaseLine);
+
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
+        EDocumentPurchaseLine.SetRange("[BC] Deferral Code", '');
+        if EDocumentPurchaseLine.FindSet() then
+            EDocLineMatcherDeferral.ApplyPurchaseLineMatchingProposals(EDocumentPurchaseLine);
     end;
 
     procedure OpenDraftPage(var EDocument: Record "E-Document")
