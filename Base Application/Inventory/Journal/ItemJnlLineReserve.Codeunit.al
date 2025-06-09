@@ -698,11 +698,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
-
+#endif
     // codeunit Create Reserv. Entry
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
@@ -805,4 +807,3 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     end;
 
 }
-
