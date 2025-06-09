@@ -58,9 +58,6 @@
       "path": "./Tests-Integration-Internal"
     },
     {
-      "path": "./Tests-Invoicing"
-    },
-    {
       "path": "./Tests-Job"
     },
     {
@@ -158,8 +155,8 @@
     }
   ],
   "settings": {
-    "al.enableCodeActions": false,
     "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },

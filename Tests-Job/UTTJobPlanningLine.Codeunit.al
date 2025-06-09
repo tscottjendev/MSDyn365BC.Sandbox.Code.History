@@ -1551,13 +1551,13 @@ codeunit 136353 "UT T Job Planning Line"
         PriceListLine: Record "Price List Line";
 #endif
         JobPlanningLine: Record "Job Planning Line";
-#if CLEAN25        
+#if CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         CostFactor: Decimal;
         UnitPrice: Decimal;
     begin
-        // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor" 
+        // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor"
         Initialize();
         // [GIVEN] A job with a job task
         LibraryJob.CreateJob(Job);
@@ -1609,7 +1609,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobJournalLine2: Record "Job Journal Line";
         JobTransferLine: Codeunit "Job Transfer Line";
     begin
-        // [SCENARIO] Job planning lines for non-inventory items with location set. 
+        // [SCENARIO] Job planning lines for non-inventory items with location set.
         // Location should be transfered to job journal lines.
         Initialize();
 
@@ -1857,7 +1857,7 @@ codeunit 136353 "UT T Job Planning Line"
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        // [SCENARIO 480325] Verify Description on Job Planning Line for Variant with Item Translation 
+        // [SCENARIO 480325] Verify Description on Job Planning Line for Variant with Item Translation
         Initialize();
 
         // [GIVEN] Create Item
@@ -1882,7 +1882,7 @@ codeunit 136353 "UT T Job Planning Line"
             JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", Item."No.");
 
-        // [WHEN] Validate Variant on Job Planning Line        
+        // [WHEN] Validate Variant on Job Planning Line
         JobPlanningLine.Validate("Variant Code", ItemVariant.Code);
 
         // [THEN] Verify Description on Job Planning Line
@@ -1897,7 +1897,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // [SCENARIO 547563] When Stan enters the Description of an Item in "No." field of 
+        // [SCENARIO 547563] When Stan enters the Description of an Item in "No." field of
         // Job Planning Line having Type selected as Item, then "No." field of Job Planning Line
         // Is updated with the value of "No." field of the Item without any error.
         Initialize();
@@ -2556,7 +2556,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobLedgEntry."Entry Type" := JLEntryType;
         JobLedgEntry.Insert();
     end;
-
+#if not CLEAN25
     local procedure SetAllowLineDiscOfCustPostGroup(var Job: Record Job; AllowLineDisc: Boolean): Code[10]
     var
         CustomerPriceGroup: Record "Customer Price Group";
@@ -2568,7 +2568,7 @@ codeunit 136353 "UT T Job Planning Line"
         Job.Modify(true);
         exit(CustomerPriceGroup.Code);
     end;
-
+#endif
     local procedure OpenOrderPromissingPage(var JobPlanningLine: Record "Job Planning Line")
     var
         JobPlanningLines: TestPage "Job Planning Lines";
@@ -2693,4 +2693,3 @@ codeunit 136353 "UT T Job Planning Line"
         ItemList.OK().Invoke();
     end;
 }
-
