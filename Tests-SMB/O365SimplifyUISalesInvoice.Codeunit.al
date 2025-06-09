@@ -22,7 +22,6 @@
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTemplates: Codeunit "Library - Templates";
-        LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         SelectCustErr: Label 'You must select an existing customer.';
@@ -31,7 +30,6 @@
         SellToCustomerName4HandlerFunction: Text[100];
         LeaveDocWithoutPostingTxt: Label 'This document is not posted.';
         CopyItemsOption: Option "None",All,Selected;
-        RefDocType: Option Quote,"Order",Invoice,"Credit Memo";
         ControlShouldBeDisabledErr: Label 'Control should be disabled';
         ControlShouldBeEnabledErr: Label 'Control should be enabled';
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
@@ -3938,16 +3936,6 @@
         Vendor.Modify();
     end;
 
-    local procedure CreateVendorNoWithDefaultDimension() VendorNo: Code[20]
-    var
-        DefaultDim: Record "Default Dimension";
-        DimValue: Record "Dimension Value";
-    begin
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        LibraryDimension.CreateDimWithDimValue(DimValue);
-        LibraryDimension.CreateDefaultDimensionVendor(DefaultDim, VendorNo, DimValue."Dimension Code", DimValue.Code);
-    end;
-
     local procedure CreateTwoCustomersSameName(var Customer: Record Customer)
     var
         Customer1: Record Customer;
@@ -4344,17 +4332,6 @@
         Item.Modify();
     end;
 
-    local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimValue: Record "Dimension Value"; ValuePosting: Enum "Default Dimension Value Posting Type")
-    var
-        DefaultDim: Record "Default Dimension";
-    begin
-        LibrarySmallBusiness.CreateItem(Item);
-        LibraryDimension.CreateDimWithDimValue(DimValue);
-        LibraryDimension.CreateDefaultDimensionItem(DefaultDim, Item."No.", DimValue."Dimension Code", '');
-        DefaultDim.Validate("Value Posting", ValuePosting);
-        DefaultDim.Modify(true);
-    end;
-
     local procedure SetupDataForDiscountTypePct(var Item: Record Item; var ItemQuantity: Integer; var Customer: Record Customer; var DiscPct: Decimal)
     var
         MinAmt: Decimal;
@@ -4431,15 +4408,6 @@
         Vendor.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         Vendor.Modify(true);
         exit(Vendor."No.");
-    end;
-
-    local procedure CreateSalesLineWithItemAndDimValue(var SalesHeader: Record "Sales Header"; Item: Record Item; DimValue: Record "Dimension Value")
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandInt(10));
-        SalesLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code));
-        SalesLine.Modify(true);
     end;
 
     local procedure CreateNewSalesLineWithDescription(SalesHeader: Record "Sales Header")
@@ -4599,24 +4567,6 @@
         SalesOrder.CreatePurchaseOrder.Invoke();
     end;
 
-    local procedure SalesOrderCreatePurchaseOrders(var SalesHeader: Record "Sales Header"; PurchaseOrderList: TestPage "Purchase Order List")
-    var
-        SalesOrder: TestPage "Sales Order";
-    begin
-        PurchaseOrderList.Trap();
-        SalesOrder.OpenEdit();
-        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CreatePurchaseOrder.Invoke();
-    end;
-
-    local procedure PostPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order")
-    begin
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
-        LibrarySales.DisableConfirmOnPostingDoc();
-
-        PurchaseOrder.Post.Invoke();
-    end;
-
     local procedure PostPurchaseInvoice(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
         PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
@@ -4624,58 +4574,6 @@
         LibrarySales.DisableConfirmOnPostingDoc();
 
         PurchaseInvoice.Post.Invoke();
-    end;
-
-    local procedure GetNewCustNoWithStandardSalesCodeForCode(DocType: Option; Mode: Integer; SalesCode: code[10]): Code[20]
-    var
-        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
-    begin
-        StandardCustomerSalesCode.Init();
-        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo());
-        StandardCustomerSalesCode.Validate(Code, SalesCode);
-        case DocType of
-            RefDocType::Quote:
-                StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
-            RefDocType::Order:
-                StandardCustomerSalesCode."Insert Rec. Lines On Orders" := Mode;
-            RefDocType::Invoice:
-                StandardCustomerSalesCode."Insert Rec. Lines On Invoices" := Mode;
-            RefDocType::"Credit Memo":
-                StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
-        end;
-        StandardCustomerSalesCode.Insert();
-
-        exit(StandardCustomerSalesCode."Customer No.");
-    end;
-
-    local procedure CreateStandardSalesCodeWithItemLineAndCommentLine(): Code[10]
-    var
-        StandardSalesLine: array[2] of Record "Standard Sales Line";
-        LibraryInventory: Codeunit "Library - Inventory";
-    begin
-        StandardSalesLine[1].Init();
-        StandardSalesLine[1]."Standard Sales Code" := CreateStandardSalesCode();
-        StandardSalesLine[1]."Line No." := 10000;
-        StandardSalesLine[1].Type := StandardSalesLine[1].Type::Item;
-        StandardSalesLine[1]."No." := LibraryInventory.CreateItemNo();
-        StandardSalesLine[1].Quantity := LibraryRandom.RandDec(10, 2);
-        StandardSalesLine[1].Insert();
-
-        StandardSalesLine[2].Init();
-        StandardSalesLine[2]."Line No." := StandardSalesLine[1]."Line No." + 10000;
-        StandardSalesLine[2]."Standard Sales Code" := StandardSalesLine[1]."Standard Sales Code";
-        StandardSalesLine[2].Type := StandardSalesLine[2].Type::" ";
-        StandardSalesLine[2].Insert();
-
-        exit(StandardSalesLine[2]."Standard Sales Code")
-    end;
-
-    local procedure CreateStandardSalesCode(): Code[10]
-    var
-        StandardSalesCode: Record "Standard Sales Code";
-    begin
-        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
-        exit(StandardSalesCode.Code);
     end;
 
     [ModalPageHandler]
@@ -4929,23 +4827,6 @@
             VendorList.OK().Invoke();
     end;
 
-    local procedure VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader: Record "Sales Header"; VendorNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesLine: Record "Sales Line";
-        DimManagement: Codeunit DimensionManagement;
-        DimSetIDArr: array[10] of Integer;
-    begin
-        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
-        DimSetIDArr[1] := SalesLine."Dimension Set ID";
-        VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        DimSetIDArr[2] := PurchaseHeader."Dimension Set ID";
-        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(
-            DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
-        Assert.AreEqual(DimSetIDArr[1], PurchaseLine."Dimension Set ID", '');
-    end;
 
     local procedure VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var SalesHeader: Record "Sales Header")
     var

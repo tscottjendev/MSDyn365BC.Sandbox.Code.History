@@ -750,7 +750,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     /// <summary>
-    /// Creates and inserts VAT Entry for the Gen. Journal Line that is being posted. 
+    /// Creates and inserts VAT Entry for the Gen. Journal Line that is being posted.
     /// If Calculation Type is Sales Tax, VAT Entries are filled with Tax related information.
     /// VAT Posting Parameter is created to be used for the VAT Entry.
     /// </summary>
@@ -1703,7 +1703,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             OnAfterVendLedgEntryInsert(VendLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
 #if not CLEAN25
             OnAfterVendLedgEntryInsertInclPreviewMode(VendLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
-#endif        
+#endif
             if DtldLedgEntryInserted then
                 if IsTempGLEntryBufEmpty() then
                     DtldVendLedgEntry.SetZeroTransNo(NextTransactionNo);
@@ -2157,7 +2157,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     /// <summary>
-    /// If new transaction needs to be started, Unrealized VAT is check and posted, global values initialized for the new transaction. 
+    /// If new transaction needs to be started, Unrealized VAT is check and posted, global values initialized for the new transaction.
     /// Currency is updated for the new Gen. Journal Line that is being posted, current Balance of the posting is updated.
     /// </summary>
     /// <param name="GenJnlLine">Gen. Journal Line that is being posted.</param>
@@ -2206,7 +2206,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     /// <summary>
-    /// Checks if transaction is balanced for both local and additional currencies, inserts all G/L Entries that were created for the Gen. Journal Line. 
+    /// Checks if transaction is balanced for both local and additional currencies, inserts all G/L Entries that were created for the Gen. Journal Line.
     /// If posting is performed for application purpose, original Customer and Vendor Ledger Entries are updated to reflect that.
     /// Cost journal line is posted if cost accounting setup is setup for this purpose.
     /// </summary>
@@ -2806,42 +2806,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
             BalanceCheckAddCurrAmount := 0;
             BalanceCheckAddCurrAmount2 := 0;
         end;
-    end;
-
-    local procedure CalcPmtDiscPossible(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
-    var
-        PaymentDiscountDateWithGracePeriod: Date;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCalcPmtDiscPossible(GenJnlLine, CVLedgEntryBuf, IsHandled, AmountRoundingPrecision);
-        if IsHandled then
-            exit;
-
-        if GenJnlLine."Amount (LCY)" <> 0 then begin
-            PaymentDiscountDateWithGracePeriod := CVLedgEntryBuf."Pmt. Discount Date";
-            GLSetup.GetRecordOnce();
-            if PaymentDiscountDateWithGracePeriod <> 0D then
-                PaymentDiscountDateWithGracePeriod :=
-                  CalcDate(GLSetup."Payment Discount Grace Period", PaymentDiscountDateWithGracePeriod);
-            if (PaymentDiscountDateWithGracePeriod >= CVLedgEntryBuf."Posting Date") or
-               (PaymentDiscountDateWithGracePeriod = 0D)
-            then begin
-                if GLSetup."Pmt. Disc. Excl. VAT" then begin
-                    if GenJnlLine."Sales/Purch. (LCY)" = 0 then
-                        CVLedgEntryBuf."Original Pmt. Disc. Possible" := (GenJnlLine."Amount (LCY)" + TotalVATAmountOnJnlLines(GenJnlLine)) * GenJnlLine.Amount / GenJnlLine."Amount (LCY)"
-                    else
-                        CVLedgEntryBuf."Original Pmt. Disc. Possible" := GenJnlLine."Sales/Purch. (LCY)" * GenJnlLine.Amount / GenJnlLine."Amount (LCY)"
-                end else
-                    CVLedgEntryBuf."Original Pmt. Disc. Possible" := GenJnlLine.Amount;
-                OnCalcPmtDiscPossibleOnBeforeOriginalPmtDiscPossible(GenJnlLine, CVLedgEntryBuf, AmountRoundingPrecision);
-                CVLedgEntryBuf."Original Pmt. Disc. Possible" :=
-                    Round(CVLedgEntryBuf."Original Pmt. Disc. Possible" * GenJnlLine."Payment Discount %" / 100, AmountRoundingPrecision);
-            end;
-            CVLedgEntryBuf."Remaining Pmt. Disc. Possible" := CVLedgEntryBuf."Original Pmt. Disc. Possible";
-        end;
-
-        OnAfterCalcPmtDiscPossible(GenJnlLine, CVLedgEntryBuf);
     end;
 
     local procedure CalcPmtTolerancePossible(GenJnlLine: Record "Gen. Journal Line"; PmtDiscountDate: Date; var PmtDiscToleranceDate: Date; var MaxPaymentTolerance: Decimal)
@@ -3752,7 +3716,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     /// <summary>
-    /// Calculates the difference in local currency between the actual remaining amount of the c/v ledger entry and the remaining amount based on the adjusted currency factor. 
+    /// Calculates the difference in local currency between the actual remaining amount of the c/v ledger entry and the remaining amount based on the adjusted currency factor.
     /// If there is a difference then detailed CV ledger entries are created and posted to equate the difference.
     /// </summary>
     /// <param name="CVLedgEntryBuf">Cv ledger entry that the adjustment should be calculated for.</param>
@@ -7511,7 +7475,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     /// <summary>
     /// Sets the global variable OverrideDimErr for the current instance of the codeunit.
-    /// If OverrideDimErr is not set dimension check is performed before posting gen. journal line 
+    /// If OverrideDimErr is not set dimension check is performed before posting gen. journal line
     /// </summary>
     procedure SetOverDimErr()
     begin
@@ -9914,11 +9878,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcPmtDiscPossible(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcPmtDiscTolerance(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line"; var PmtDiscTol: Decimal; var PmtDiscTolLCY: Decimal; var PmtDiscTolAddCurr: Decimal)
     begin
@@ -9979,11 +9945,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPmtDiscPossible(var GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var IsHandled: Boolean; RoundingPrecision: Decimal)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustPostApplyCustLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var CustLedgEntryPostApply: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -10924,11 +10892,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalcPmtDiscPossibleOnBeforeOriginalPmtDiscPossible(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; AmountRoundingPrecision: Decimal)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnPrepareTempCustLedgEntryOnAfterSetFiltersByAppliesToId(var OldCustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; Customer: Record Customer)
     begin
@@ -11569,11 +11539,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostCustOnBeforeInsertDtldCVLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var TempDetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnPostDtldCustLedgEntriesOnBeforeNextEntryNo(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; CustomerPostingGroup: Record "Customer Posting Group"; LedgEntryInserted: Boolean; var NextEntryNo: Integer; var SavedEntryNo: Integer; var IsHandled: Boolean)
     begin

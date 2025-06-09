@@ -10519,6 +10519,8 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised', '27.0')]
     /// <summary>
     /// Event triggered before calculating the "Due Date" based on the payment terms during the validation of the "Payment Terms Code" field.
     /// This event allows developers to add custom logic or override the default calculation for the "Due Date".
@@ -10531,6 +10533,7 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    [Obsolete('The event is never raised', '27.0')]
     /// <summary>
     /// Event triggered before calculating the "Pmt. Discount Date" based on the payment terms during the validation of the "Payment Terms Code" field.
     /// This event allows developers to add custom logic or override the default calculation for the "Pmt. Discount Date".
@@ -10542,7 +10545,7 @@ table 81 "Gen. Journal Line"
     local procedure OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     /// <summary>
     /// Event triggered before validating the "Amount" field during the validation of the "Bal. VAT Base Amount" field.
     /// This event allows developers to add custom logic before the "Amount" field has been validated.

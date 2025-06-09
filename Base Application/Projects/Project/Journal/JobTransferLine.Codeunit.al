@@ -908,14 +908,6 @@ codeunit 1004 "Job Transfer Line"
                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
     end;
 
-    local procedure GetNonDeductibleVATAmtPerUnitCost(JobJnlLine: Record "Job Journal Line"; var NonDeductibleVATAmtPerUnitLCY: Decimal; var NonDeductibleVATAmtPerUnit: Decimal)
-    begin
-        if JobJnlLine."Unit Cost" > 0 then begin
-            NonDeductibleVATAmtPerUnit := Abs(NonDeductibleVATAmtPerUnit);
-            NonDeductibleVATAmtPerUnitLCY := Abs(NonDeductibleVATAmtPerUnitLCY);
-        end;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsCreatedFromJob(var SalesLine: Record "Sales Line"; var Result: Boolean)
     begin
@@ -1021,4 +1013,3 @@ codeunit 1004 "Job Transfer Line"
     begin
     end;
 }
-

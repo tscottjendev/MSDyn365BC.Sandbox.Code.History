@@ -207,16 +207,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
         exit(GetAsText(JToken, Result));
     end;
 
-    local procedure GetAsText(JArray: JsonArray; Index: Integer; var Result: SecretText): Boolean
-    var
-        JToken: JsonToken;
-    begin
-        if not JArray.Get(Index, JToken) then
-            exit(false);
-
-        exit(GetAsText(JToken, Result));
-    end;
-
     [NonDebuggable]
     local procedure GetAsSecretText(JArray: JsonArray; Index: Integer; var SecretResult: SecretText): Boolean
     var
@@ -243,22 +233,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
 
     [NonDebuggable]
     local procedure GetAsText(JToken: JsonToken; var Result: Text): Boolean
-    var
-        JValue: JsonValue;
-    begin
-        if not JToken.IsValue() then
-            exit(false);
-
-        JValue := JToken.AsValue();
-        if JValue.IsUndefined() or JValue.IsNull() then
-            exit(false);
-
-        Result := JValue.AsText();
-        exit(true);
-    end;
-
-    [NonDebuggable]
-    local procedure GetAsText(JToken: JsonToken; var Result: SecretText): Boolean
     var
         JValue: JsonValue;
     begin

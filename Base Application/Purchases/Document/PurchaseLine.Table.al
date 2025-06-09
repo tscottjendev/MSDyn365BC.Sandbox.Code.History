@@ -8551,13 +8551,6 @@ table 39 "Purchase Line"
         exit("Include in VAT Transac. Rep.");
     end;
 
-    local procedure CalcAmtLCY(OperationOccurredDate: Date; CurrencyCode: Code[10]; CurrencyFactor: Decimal; ReportAmount: Decimal): Decimal
-    begin
-        if CurrencyCode <> '' then
-            exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(OperationOccurredDate, CurrencyCode, ReportAmount, CurrencyFactor)));
-        exit(ReportAmount);
-    end;
-
     local procedure CheckWMS()
     begin
         if CurrFieldNo <> 0 then

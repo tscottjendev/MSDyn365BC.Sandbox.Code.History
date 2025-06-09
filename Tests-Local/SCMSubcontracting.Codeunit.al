@@ -18,14 +18,14 @@ codeunit 144081 "SCM Subcontracting"
     // 15. Verify error at the time creating Return Subcontracting Transfer Order from Subcontracting Order while all goods has been returned.
     // 16. Verify Subcontracting Transfer Order cannot be created after posting Subcontracting Transfer Order
     // 17. Verify Return Subcontracting Transfer Order can be created after post Subcontracting Transfer Order and partial post Subcontracting Order
-    // 
+    //
     // Work Item ID :346240
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // CalcConsumptionWithoutSubconProcurement                                                                          155671,155663
     // CalcConsumptionAfterRelProdOrderWithProcurement,CalcConsumptionAfterRelProdOrderWithoutProcurement               280620
-    // 
+    //
     // Covers Test Cases for WI - 346321
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
@@ -34,35 +34,35 @@ codeunit 144081 "SCM Subcontracting"
     // ChangeCurrencySubcontractingOrderError                                                                            154620
     // ChangeBuyFromVendorNoSubcontractingOrderError                                                                     154621
     // SubcontractingOrderLocationCodeChange                                                                             154622
-    // 
+    //
     // Covers Test Cases for WI - 347016
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // SubcontractingOrderWithBin                                                                                        155633
     // MultipleSubconOrderWithOneReleasedProdOrder                                                                       207054
-    // 
+    //
     // Covers Test Cases for WI - 346319
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // ChangeStatusProdOrderError                                                                                        280621
     // SubcontractingLocationCodeBlankError,WorkCenterWithoutVendorError                                                 280573
-    // 
+    //
     // Covers Test Cases for Merged Bug
-    // 
+    //
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // ShipSubcontractingTransferOrderWithPostedShptNos                                                                  66339
-    // 
+    //
     // Covers Test Cases for WI - 347104
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
     // --------------------------------------------------------------------------------------------------------------------------------
     // ReturnSubconTransferOrderWithoutProcurement                                                                       155664,155672
     // ReturnSubconTransferOrderAfterAllGoodsReturnedError                                                               173852,173853
-    // 
+    //
     // Covers Request Hotfix for WI - 351298
     // --------------------------------------------------------------------------------------------------------------------------------
     //    Test Case Name                                                                                                 TFS-ID
@@ -791,7 +791,7 @@ codeunit 144081 "SCM Subcontracting"
         OptionString: Option Open,Post;
     begin
         // [FEATURE] [Subcontracting] [WIP Item]
-        // [SCENARIO 353097] Transfer Receipt Header uses NoSeries from TransportReasonCode."Posted Rcpt. Nos." 
+        // [SCENARIO 353097] Transfer Receipt Header uses NoSeries from TransportReasonCode."Posted Rcpt. Nos."
         Initialize();
 
         // [GIVEN] Create Subcontracting Location and Subcontracting Order
@@ -850,13 +850,13 @@ codeunit 144081 "SCM Subcontracting"
         // [GIVEN] Transfer Order to the subcontractor's location.
         CreateSubcontractingTransferOrderWithWIPAndOrdinaryItems(SubcontractingTransferHeader, CompItem, TransferRoute."Transfer-from Code", TransferRoute."Transfer-to Code");
 
-        // [WHEN] Ship the Subcontracting Transfer Order        
+        // [WHEN] Ship the Subcontracting Transfer Order
         LibraryInventory.PostTransferHeader(SubcontractingTransferHeader, true, false);
 
-        // [THEN] Verify WIP Shipped Qty. on Subcontracting Transfer Line        
+        // [THEN] Verify WIP Shipped Qty. on Subcontracting Transfer Line
         VerifyShippedQty(SubcontractingTransferHeader);
 
-        // [THEN] Receive the Subcontracting Transfer Order        
+        // [THEN] Receive the Subcontracting Transfer Order
         LibraryInventory.PostTransferHeader(SubcontractingTransferHeader, false, true);
     end;
 
@@ -1905,12 +1905,6 @@ codeunit 144081 "SCM Subcontracting"
         Assert.AreEqual(SubcontractingTransferLine."WIP Qty. To Ship", 0, NotShippedQtyForWIPItemErr);
     end;
 
-    local procedure FindSubcontractingTransferOrder(var SubcontractingTransferHeader: Record "Transfer Header"; VendorNo: Code[20])
-    begin
-        SubcontractingTransferHeader.SetRange("Source No.", VendorNo);
-        SubcontractingTransferHeader.FindFirst();
-    end;
-
     local procedure FindCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; WorkCenterNo: Code[20])
     begin
         CapacityLedgerEntry.SetRange("Work Center No.", WorkCenterNo);
@@ -2084,4 +2078,3 @@ codeunit 144081 "SCM Subcontracting"
         ProductionJournal.Post.Invoke();
     end;
 }
-

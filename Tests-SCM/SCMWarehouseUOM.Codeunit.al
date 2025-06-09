@@ -3929,7 +3929,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // [GIVEN] Create Item with additional UoM
         CreateItemWithAdditionalUOMs(Item, BaseUOMCode, AltUOMCode, 12);
 
-        // [GIVEN] Register Warehouse Journal 
+        // [GIVEN] Register Warehouse Journal
         CreateAndRegisterWarehouseJournalLine(Bin, Item, 1000, Item."Base Unit of Measure");
 
         // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal Line
@@ -4620,7 +4620,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // [GIVEN] Find Bin
         FindBin(Bin, LocationWhite.Code);
 
-        // [GIVEN] Create and Register Warehouse Journal Line        
+        // [GIVEN] Create and Register Warehouse Journal Line
         CreateAndRegisterWarehouseJournalLine(Bin, Item, 8000, Item."Base Unit of Measure");
 
         // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal Line
@@ -4630,7 +4630,7 @@ codeunit 137150 "SCM Warehouse UOM"
         CreateMovementWorksheetLine(Bin, Item."No.", 8000);
         CreateMovement(WhseWorksheetLine, Item."No.", ItemTrackingMode::" ", false);
 
-        // [WHEN] Change Unit of Measure on Place Line        
+        // [WHEN] Change Unit of Measure on Place Line
         FindPlaceWhseActivityLine(WarehouseActivityLine, Item."No.");
         LibraryWarehouse.ChangeUnitOfMeasure(WarehouseActivityLine);
 
@@ -4753,16 +4753,6 @@ codeunit 137150 "SCM Warehouse UOM"
             ItemJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             ItemJournalBatch.Modify(true);
         end;
-    end;
-
-    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; ItemNo: Code[20]; Quantity: Decimal)
-    var
-        WarehouseJournalBatch: Record "Warehouse Journal Batch";
-    begin
-        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplateType, Bin."Location Code");
-        LibraryWarehouse.CreateWhseJournalLine(
-          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
-          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
     end;
 
     local procedure CreateAndPostWarehouseReceiptFromTransferOrder(var TransferHeader: Record "Transfer Header")
@@ -6566,27 +6556,6 @@ codeunit 137150 "SCM Warehouse UOM"
         AltUOMCode := AdditionalItemUOM.Code;
     end;
 
-    local procedure CreateWarehousePickFromShipment(WarehouseShipmentLine: Record "Warehouse Shipment Line") WhsePickNo: Code[20]
-    var
-        CreatePickParameters: Record "Create Pick Parameters";
-        WhseWkshLine: Record "Whse. Worksheet Line";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-        CreatePick: Codeunit "Create Pick";
-        FirstWhseDocNo: Code[20];
-    begin
-        ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
-          WhseWkshLine."Whse. Document Type"::Shipment, WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.",
-          WarehouseShipmentLine."Source Type", WarehouseShipmentLine."Source Subtype", WarehouseShipmentLine."Source No.", WarehouseShipmentLine."Source Line No.", 0);
-
-        CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
-        CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
-        CreatePick.SetParameters(CreatePickParameters);
-        CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
-        CreatePick.SetTempWhseItemTrkgLine(WarehouseShipmentLine."No.", DATABASE::"Warehouse Shipment Line", '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code");
-        CreatePick.CreateTempLine(WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Item No.", '', '', '', WarehouseShipmentLine."Bin Code", 1, WarehouseShipmentLine.Quantity, WarehouseShipmentLine."Qty. (Base)");
-        CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
-    end;
-
     local procedure CreateItemWithMultipleUOM(var Item: Record Item; var BaseUnitOfMeasure: Record "Unit of Measure"; var UnitOfMeasure: Record "Unit of Measure"; QtyPerUnitOfMeasure: Decimal)
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -6944,4 +6913,3 @@ codeunit 137150 "SCM Warehouse UOM"
         WhseChangeUnitOfMeasure.OK().Invoke();
     end;
 }
-

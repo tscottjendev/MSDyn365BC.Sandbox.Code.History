@@ -2349,7 +2349,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryErrorMessage.TrapErrorMessages();
         asserterror RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, true);
 
-        // [THEN] Error messages page opened with error "Depreciation Expense Acc. is missing in FA Posting Setup." 
+        // [THEN] Error messages page opened with error "Depreciation Expense Acc. is missing in FA Posting Setup."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(
@@ -4388,21 +4388,6 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass2, FAClass2.Code, '');
     end;
 
-    local procedure CancelFALedgerEntry(DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; FANo: Code[20])
-    var
-        FALedgerEntry: Record "FA Ledger Entry";
-        FALedgerEntries: TestPage "FA Ledger Entries";
-    begin
-        FALedgerEntries.OpenEdit();
-        FALedgerEntry.SetFilter("Depreciation Book Code", DepreciationBookCode);
-        FALedgerEntry.SetFilter("FA Posting Type", Format(FAPostingType));
-        FALedgerEntry.SetFilter("FA No.", FANo);
-        FALedgerEntry.FindLast();
-        FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
-        FALedgerEntries.CancelEntries.Invoke();  // Open handler - CancelFAEntriesRequestPageHandler.
-        FALedgerEntries.OK().Invoke();
-    end;
-
     local procedure CreateFixedAssetWithFAClassFASubclassFAPostingGroup(var FixedAsset: Record "Fixed Asset"; FAClass: Code[10]; FASubclass: Code[10]; FAPostingGroup: Code[20])
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
@@ -4578,4 +4563,3 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
-

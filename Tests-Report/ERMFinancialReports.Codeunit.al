@@ -1155,7 +1155,7 @@ codeunit 134982 "ERM Financial Reports"
         Commit();
         REPORT.Run(REPORT::"Detail Trial Balance");
 
-        // [THEN] There should be only 1 worksheet in excel 
+        // [THEN] There should be only 1 worksheet in excel
         LibraryReportValidation.OpenExcelFile();
         Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), '');
         LibraryVariableStorage.AssertEmpty();
@@ -1395,7 +1395,7 @@ codeunit 134982 "ERM Financial Reports"
         FindGenJournalLine(GenJournalLine2, GenJournalBatch, DocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
 
-        // [THEN] New Created Both GL Account "Source Currency Balance" Should be Zero 
+        // [THEN] New Created Both GL Account "Source Currency Balance" Should be Zero
         GLAccount.CalcFields("Source Currency Balance");
         GLAccount2.CalcFields("Source Currency Balance");
         Assert.AreEqual(0, GLAccount."Source Currency Balance", SourceBalanceErr);
@@ -1862,16 +1862,6 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.Modify(true);
     end;
 
-    local procedure CreateNoSeries(): Code[20]
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-    begin
-        LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        exit(NoSeries.Code);
-    end;
-
     local procedure MockVATEntryForCustomer(Customer: Record Customer)
     var
         VATEntry: Record "VAT Entry";
@@ -1895,12 +1885,6 @@ codeunit 134982 "ERM Financial Reports"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindLast();
         exit(GLEntry."Transaction No.");
-    end;
-
-    local procedure FindNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20])
-    begin
-        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLine.FindFirst();
     end;
 
     local procedure FixedAssetDetailReport(No: Code[20]; DepreciationBookCode: Code[10]; PrintOnlyOnePerPage: Boolean; IncludeReverseEntries: Boolean)
