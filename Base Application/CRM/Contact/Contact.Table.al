@@ -341,11 +341,11 @@ table 5050 Contact
                 SetSearchEmail();
             end;
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AS0086
 #endif
         field(103; "Home Page"; Text[255])
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
         {
@@ -2039,10 +2039,10 @@ table 5050 Contact
     local procedure FilterBusinessRelations(var ContactBusinessRelation: Record "Contact Business Relation"; ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     begin
         ContactBusinessRelation.Reset();
-        if("Company No." = '') or ("Company No." = "No.") then
+        if ("Company No." = '') or ("Company No." = "No.") then
             ContactBusinessRelation.SetRange("Contact No.", "No.")
         else
-        ContactBusinessRelation.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
+            ContactBusinessRelation.SetFilter("Contact No.", '%1|%2', "No.", "Company No.");
 
         if not All then
             ContactBusinessRelation.SetFilter("No.", '<>''''');
