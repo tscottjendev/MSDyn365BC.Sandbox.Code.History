@@ -161,6 +161,8 @@ codeunit 6104 "Import E-Document Process"
                 begin
                     IEDocumentFinishDraft := EDocument."Document Type";
                     IEDocumentFinishDraft.RevertDraftActions(EDocument);
+                    Clear(EDocument."Document Record ID");
+                    EDocument.Modify();
                 end;
             Step::"Prepare draft":
                 begin
