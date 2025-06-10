@@ -266,11 +266,11 @@ table 5744 "Transfer Shipment Header"
                 Rec.ShowDimensions();
             end;
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AS0086
 #endif
         field(12100; "Package Tracking No."; Text[50])
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
         {

@@ -354,11 +354,11 @@ table 5050 Contact
                 SetSearchEmail();
             end;
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AS0086
 #endif
         field(103; "Home Page"; Text[255])
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
         {
