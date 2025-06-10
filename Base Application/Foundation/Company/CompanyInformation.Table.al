@@ -280,11 +280,11 @@ table 79 "Company Information"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning disable AS0086
 #endif
         field(35; "Home Page"; Text[255])
-#if not CLEAN25
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
         {
@@ -450,7 +450,13 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
-        field(11620; ABN; Text[11])
+#if not CLEAN27
+#pragma warning disable AS0086
+#endif
+        field(11620; ABN; Text[13])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'ABN';
             Numeric = true;
