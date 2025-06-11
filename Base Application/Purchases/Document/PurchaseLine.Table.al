@@ -6386,7 +6386,7 @@ table 39 "Purchase Line"
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
-                  Round(CalcLineAmount() / (1 + ("VAT %" + "EC %") / 100), Currency."Amount Rounding Precision")
+                  Round(CalcLineAmount() / (1 + "VAT %" / 100), Currency."Amount Rounding Precision") + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
             else
                 ItemChargeAssgntLineAmt := CalcLineAmount();
 
