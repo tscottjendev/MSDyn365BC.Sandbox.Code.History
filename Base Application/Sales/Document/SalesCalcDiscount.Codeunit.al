@@ -68,8 +68,26 @@ codeunit 60 "Sales-Calc. Discount"
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
+        ProgressDialog: Dialog;
+        CalculatingInvoiceDiscountMsg: Label 'Calculating Invoice Discount...\';
+        DocumentMsg: Label 'Document #1##################\', Comment = '#1=Sales Header."No."';
+        StepMsg: Label '#2##################', Comment = '#2=Step description';
+        ProcessingServiceChargesMsg: Label 'Processing Service Charges...';
+        CalculatingVATAmountsMsg: Label 'Calculating VAT Amounts...';
+        ProcessingDiscountsMsg: Label 'Processing Discounts...';
+        UpdatingHeaderMsg: Label 'Updating Header...';
+        FinalizingMsg: Label 'Finalizing...';
     begin
         OnBeforeCalculateInvoiceDiscount(SalesHeader, SalesLine2, UpdateHeader);
+
+        // Initialize progress dialog
+        if GuiAllowed() then begin
+            ProgressDialog.Open(
+                CalculatingInvoiceDiscountMsg +
+                DocumentMsg +
+                StepMsg);
+            ProgressDialog.Update(1, SalesHeader."No.");
+        end;
 
         SalesSetup.Get();
         if UpdateHeader then
@@ -83,6 +101,9 @@ codeunit 60 "Sales-Calc. Discount"
         SalesLine.LockTable();
         SalesHeader.TestField("Customer Posting Group");
         CustPostingGr.Get(SalesHeader."Customer Posting Group");
+
+        // Update progress - Processing Service Charges
+        UpdateProgressDialog(ProgressDialog, ProcessingServiceChargesMsg);
 
         SalesLine2.Reset();
         SalesLine2.SetRange("Document Type", SalesLine."Document Type");
@@ -106,6 +127,10 @@ codeunit 60 "Sales-Calc. Discount"
         SalesLine2.SetFilter(Type, '<>0');
         OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
         if SalesLine2.FindFirst() then;
+
+        // Update progress - Calculating VAT Amounts
+        UpdateProgressDialog(ProgressDialog, CalculatingVATAmountsMsg);
+
         SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
         InvDiscBase :=
           TempVATAmountLine.GetTotalInvDiscBaseAmount(
@@ -123,6 +148,9 @@ codeunit 60 "Sales-Calc. Discount"
             CurrencyDate := SalesHeader."Posting Date";
 
         CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
+
+        // Update progress - Processing Discounts
+        UpdateProgressDialog(ProgressDialog, ProcessingDiscountsMsg);
 
         OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
         if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
@@ -276,6 +304,9 @@ codeunit 60 "Sales-Calc. Discount"
               SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group", SalesLine2."Gen. Prod. Posting Group",
               SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
+            // Update progress - Updating Header
+            UpdateProgressDialog(ProgressDialog, UpdatingHeaderMsg);
+
             UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");
 
             SalesLine2.SetSalesHeader(SalesHeader);
@@ -297,7 +328,14 @@ codeunit 60 "Sales-Calc. Discount"
             UpdatePrepmtLineAmount(SalesHeader);
         end;
 
+        // Update progress - Finalizing
+        UpdateProgressDialog(ProgressDialog, FinalizingMsg);
+
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
+
+        if GuiAllowed() then
+            ProgressDialog.Close();
+
         OnAfterCalcSalesDiscount(SalesHeader, TempVATAmountLine, SalesLine2);
     end;
 
@@ -421,6 +459,14 @@ codeunit 60 "Sales-Calc. Discount"
                     end;
                 until SalesLine.Next() = 0;
         end;
+    end;
+
+    local procedure UpdateProgressDialog(var ProgressDialog: Dialog; StepDescription: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        ProgressDialog.Update(2, StepDescription);
     end;
 
     [IntegrationEvent(false, false)]
