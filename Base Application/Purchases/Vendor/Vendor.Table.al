@@ -2176,8 +2176,9 @@ table 23 Vendor
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst() and (Vendor.Count() = 1) then
-            exit(Vendor."No.");
+        if Vendor.FindFirst() then
+            if Vendor.Count() = 1 then
+                exit(Vendor."No.");
         Vendor.SetRange(Name);
 
         VendorFilterFromStart := '''@' + VendorWithoutQuote + '*''';
@@ -2187,7 +2188,8 @@ table 23 Vendor
         Vendor.SetFilter(Name, VendorFilterFromStart);
         OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(Vendor);
         if Vendor.FindFirst() then
-            exit(Vendor."No.");
+            if Vendor.Count() = 1 then
+                exit(Vendor."No.");
 
         VendorFilterContains := '''@*' + VendorWithoutQuote + '*''';
 
