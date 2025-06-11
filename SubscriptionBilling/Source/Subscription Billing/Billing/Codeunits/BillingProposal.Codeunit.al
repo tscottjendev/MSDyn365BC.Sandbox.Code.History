@@ -144,7 +144,7 @@ codeunit 8062 "Billing Proposal"
         end;
     end;
 
-    internal procedure CreateBillingProposal(BillingTemplateCode: Code[20]; BillingDate: Date; BillingToDate: Date)
+    procedure CreateBillingProposal(BillingTemplateCode: Code[20]; BillingDate: Date; BillingToDate: Date)
     var
         BillingTemplate: Record "Billing Template";
         CustomerContract: Record "Customer Subscription Contract";
