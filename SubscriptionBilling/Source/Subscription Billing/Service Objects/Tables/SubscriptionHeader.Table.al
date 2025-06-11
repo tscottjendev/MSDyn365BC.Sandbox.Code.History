@@ -1075,7 +1075,7 @@ table 8057 "Subscription Header"
         OnAfterGetCustomerSubscriptionContractSetup(Rec, ServiceContractSetup, CurrFieldNo);
     end;
 
-    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
