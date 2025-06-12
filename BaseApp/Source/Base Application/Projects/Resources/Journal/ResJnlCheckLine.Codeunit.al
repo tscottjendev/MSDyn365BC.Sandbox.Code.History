@@ -50,6 +50,7 @@ codeunit 211 "Res. Jnl.-Check Line"
         ResJnlLine.TestField("Resource No.", ErrorInfo.Create());
         ResJnlLine.TestField("Posting Date", ErrorInfo.Create());
         ResJnlLine.TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
+        ResJnlLine.TestField("Document No.", ErrorInfo.Create());
 
         CheckPostingDate(ResJnlLine);
 
