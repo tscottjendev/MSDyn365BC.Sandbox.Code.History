@@ -147,7 +147,7 @@ codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
         AOAIDeployments: Codeunit "AOAI Deployments";
         SuggestMatchingForPurchaseLineLbl: label 'Suggest matching for purchase line - Deferral', Locked = true;
     begin
-        AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT4oLatest());
+        AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT4oPreview());
         AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"E-Document Matching Assistance");
         AOAIChatCompletionParams.SetMaxTokens(4096);
         AOAIChatCompletionParams.SetTemperature(0);
