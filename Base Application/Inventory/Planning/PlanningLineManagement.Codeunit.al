@@ -119,8 +119,7 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent."Position 2" := AsmBOMComp[Level]."Position 2";
                                 PlanningComponent."Position 3" := AsmBOMComp[Level]."Position 3";
                                 PlanningComponent."Lead-Time Offset" := AsmBOMComp[Level]."Lead-Time Offset";
-                                PlanningComponent.Validate("Routing Link Code");
-                                PlanningComponent.Validate("Scrap %", 0);
+                                OnTransferASMBOMOnAfterSetAsmBOMComp(PlanningComponent);
                                 PlanningComponent.Validate("Calculation Formula", PlanningComponent."Calculation Formula"::" ");
                                 GetPlanningParameters.AtSKU(
                                   CompSKU,
@@ -186,7 +185,7 @@ codeunit 99000809 "Planning Line Management"
             repeat
                 PlanningComponent.BlockDynamicTracking(Blocked);
                 PlanningComponent.SetRequisitionLine(ReqLine);
-                PlanningComponent.Validate("Routing Link Code");
+                OnCalculateComponentsOnbeforePlanningComponentModify(PlanningComponent);
                 PlanningComponent.Modify();
                 PlanningAssignment.ChkAssignOne(PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code", PlanningComponent."Due Date");
             until PlanningComponent.Next() = 0;
@@ -244,7 +243,7 @@ codeunit 99000809 "Planning Line Management"
             if ReqLine."Planning Level" = 0 then
                 ReqLine.DeleteMultiLevel();
             if (ReqLine."Replenishment System" = ReqLine."Replenishment System"::Assembly) or
-               ((ReqLine."Replenishment System" = ReqLine."Replenishment System"::"Prod. Order") and (ReqLine."Production BOM No." <> ''))
+               ((ReqLine."Replenishment System" = ReqLine."Replenishment System"::"Prod. Order") and ReqLine.IsProductionBOM())
             then begin
                 Item.Get(ReqLine."No.");
                 GetPlanningParameters.AtSKU(SKU, ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code");
@@ -426,8 +425,7 @@ codeunit 99000809 "Planning Line Management"
                 end;
                 PlanningComp."Supplied-by Line No." := ReqLine3."Line No.";
                 PlanningComp.Modify();
-                ReqLine3.Validate("Production BOM No.");
-                ReqLine3.Validate("Routing No.");
+                OnCheckMultiLevelStructureOnBeforeReqLineModify(ReqLine3);
                 ReqLine3.Modify();
                 Calculate(ReqLine3, 1, CalcRouting, CalcComponents, PlanningLevel + 1);
                 ReqLine3.Modify();
@@ -897,6 +895,21 @@ codeunit 99000809 "Planning Line Management"
         var RequisitionLine: Record "Requisition Line"; Item: Record Item; var PlanningComponent: Record "Planning Component";
         var TempPlanningErrorLog: Record "Planning Error Log" temporary; var TempPlanningComponent: Record "Planning Component" temporary;
         SKU: Record "Stockkeeping Unit"; PlanningResiliency: Boolean; var NextPlanningCompLineNo: Integer; Blocked: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnTransferASMBOMOnAfterSetAsmBOMComp(var PlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateComponentsOnbeforePlanningComponentModify(var PlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckMultiLevelStructureOnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -333,8 +333,6 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     local procedure CalcActualCapacityCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     var
-        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
-        ShareOfTotalCapCost: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -342,29 +340,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if IsHandled then
             exit;
 
-        ShareOfTotalCapCost := CalcShareOfCapCost(InvtAdjmtEntryOrder);
-
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.");
-        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
-        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
-        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
-        IsHandled := false;
-        OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
-        if not IsHandled then
-            if CapLedgEntry.Find('-') then
-                repeat
-                    CapLedgEntry.CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
-                    if CapLedgEntry.Subcontracting then
-                        InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost(CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" *
-                          ShareOfTotalCapCost)
-                    else
-                        InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
-                          CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" * ShareOfTotalCapCost);
-                    InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
-                      CapLedgEntry."Overhead Cost" * ShareOfTotalCapCost, CapLedgEntry."Overhead Cost (ACY)" * ShareOfTotalCapCost);
-                until CapLedgEntry.Next() = 0;
+        OnCalcActualCapacityCostsInternal(InvtAdjmtEntryOrder);
     end;
 
     procedure CalcOutputQty(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OnlyInbounds: Boolean) OutputQty: Decimal
@@ -384,38 +360,6 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         OnCalcOutputQtyOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
         ItemLedgEntry.CalcSums(Quantity);
         OutputQty := ItemLedgEntry.Quantity;
-    end;
-
-    local procedure CalcShareOfCapCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)") ShareOfCapCost: Decimal
-    var
-        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCalcShareOfCapCost(InvtAdjmtEntryOrder, ShareOfCapCost, IsHandled);
-        if IsHandled then
-            exit(ShareOfCapCost);
-
-        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Assembly then
-            exit(1);
-
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
-        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-        CapLedgEntry.SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
-        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
-        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
-        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
-        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
-        ShareOfCapCost := CapLedgEntry."Output Quantity";
-
-        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
-            CapLedgEntry.SetRange("Order Line No.");
-        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
-        if CapLedgEntry."Output Quantity" <> 0 then
-            ShareOfCapCost := ShareOfCapCost / CapLedgEntry."Output Quantity"
-        else
-            ShareOfCapCost := 1;
     end;
 
     local procedure CopyILEToILE(var FromItemLedgEntry: Record "Item Ledger Entry"; var ToItemLedgEntry: Record "Item Ledger Entry")
@@ -502,10 +446,18 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
+    begin
+        OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InventoryAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
+    end;
+
+    [Obsolete('Moved to codeunit MfgInventoryAdjmtOrder', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnCalcActualMaterialCostsOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CalculateActualMaterialCost: Query "Calculate Actual Material Cost"; var IsHandled: Boolean)
@@ -537,13 +489,26 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeCalcShareOfCapCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ShareOfCapCost: Decimal; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcShareOfCapCost(InvtAdjmtEntryOrder, ShareOfCapCost, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgInventoryAdjmtEntryOrder', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcShareOfCapCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ShareOfCapCost: Decimal; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcExactCostReversingQty(ItemLedgEntry: Record "Item Ledger Entry"; var Qty: Decimal)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCalcActualCapacityCostsInternal(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }
