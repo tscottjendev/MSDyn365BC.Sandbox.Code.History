@@ -96,6 +96,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Check that discount from Subscription Line is applied in the invoice and usage data is updated accordingly
 
         // [GIVEN] Create Subscription Item
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
         Item."Unit Cost" := LibraryRandom.RandDec(1000, 2);
@@ -145,7 +146,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Action Usage Data should be disabled if there is no Usage Data for Contract Line and should be enabled if there is Usage Data for Contract Line
 
         // [GIVEN] Create Customer Subscription Contract with line
-        ResetAll();
+        Initialize();
         UsageBasedBTestLibrary.MockCustomerContractLine(CustomerContractLine1);
 
         // [WHEN] Contract line is selected
@@ -175,7 +176,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Action Usage Data should be disabled if there is no Usage Data for Document line and should be enabled if there is Usage Data for Document Line
 
         // [GIVEN] Create Sales Invoice
-        ResetAll();
+        Initialize();
         LibraryInventory.CreateNonInventoryTypeItem(Item1);
         LibrarySales.CreateSalesHeader(SalesHeader1, SalesHeader1."Document Type"::Invoice, '');
         LibrarySales.CreateSalesLine(SalesLine1, SalesHeader1, SalesLine1.Type::Item, Item1."No.", LibraryRandom.RandInt(100));
@@ -204,7 +205,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Action Usage Data should be disabled if there is no Usage Data for Billing Line and should be enabled if there is Usage Data for Billing Line
 
         // [GIVEN] Create Billing Line
-        ResetAll();
+        Initialize();
         UsageBasedBTestLibrary.MockBillingLine(BillingLine1);
 
         // [WHEN] Billing line is selected
@@ -233,7 +234,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Action Usage Data should be disabled if there is no Usage Data for Subscription Line Line and should be enabled if there is Usage Data for Subscription Line Line
 
         // [GIVEN] Create Subscription Line
-        ResetAll();
+        Initialize();
         UsageBasedBTestLibrary.MockServiceCommitmentLine(ServiceCommitment1);
 
         // [WHEN] Subscription Line line is selected
@@ -447,7 +448,7 @@ codeunit 148153 "Usage Based Billing Test"
     [HandlerFunctions('MessageHandler,ExchangeRateSelectionModalPageHandler')]
     procedure TestCreateContractInvoiceWithUsageBasedServiceCommitmentsWithUsageData()
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.InitContractsApp();
 
         // [GIVEN] Usage data billing for a contract
@@ -484,7 +485,7 @@ codeunit 148153 "Usage Based Billing Test"
         TestSubscribers: Codeunit "Usage Based B. Test Subscr.";
         QuantityOfServiceCommitments: Integer;
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.InitContractsApp();
         // [GIVEN] Multiple Contracts with Usage based Subscription Lines and Usage Data Billing
         ContractTestLibrary.CreateCustomer(Customer);
@@ -523,7 +524,7 @@ codeunit 148153 "Usage Based Billing Test"
         TestSubscribers: Codeunit "Usage Based B. Test Subscr.";
         QuantityOfServiceCommitments: Integer;
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.InitContractsApp();
         // [GIVEN] Multiple Contracts with Usage based Subscription Lines and Usage Data Billing
         ContractTestLibrary.CreateCustomer(Customer);
@@ -618,7 +619,7 @@ codeunit 148153 "Usage Based Billing Test"
     [HandlerFunctions('MessageHandler,CreateCustomerBillingDocumentPageHandler')]
     procedure TestDailyServiceCommitmentWithDailyUsageData()
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item."Unit Price" := 2;
         Item."Unit Cost" := 1;
@@ -635,7 +636,7 @@ codeunit 148153 "Usage Based Billing Test"
     [HandlerFunctions('MessageHandler,CreateCustomerBillingDocumentPageHandler')]
     procedure TestDailyServiceCommitmentWithMonthlyUsageData()
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item."Unit Price" := 2;
         Item."Unit Cost" := 1;
@@ -735,7 +736,7 @@ codeunit 148153 "Usage Based Billing Test"
     [HandlerFunctions('MessageHandler,CreateCustomerBillingDocumentPageHandler')]
     procedure TestMonthlyServiceCommitmentWithDailyUsageData()
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item."Unit Price" := 2;
         Item."Unit Cost" := 1;
@@ -862,6 +863,7 @@ codeunit 148153 "Usage Based Billing Test"
         ExpectedResult: Decimal;
         RoundingPrecision: Decimal;
     begin
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         Item."Unit Price" := LibraryRandom.RandDec(100, 2);
         Item."Unit Cost" := LibraryRandom.RandDec(100, 2);
@@ -922,6 +924,7 @@ codeunit 148153 "Usage Based Billing Test"
         ExpectedResult: Decimal;
         Result: Decimal;
     begin
+        Initialize();
         BaseAmount := 100;
         Evaluate(BillingBasePeriod, '1D');
         ChargeStartDate := CalcDate('<-CY>', WorkDate());
@@ -943,6 +946,7 @@ codeunit 148153 "Usage Based Billing Test"
         ExpectedResult: Decimal;
         Result: Decimal;
     begin
+        Initialize();
         BaseAmount := 100;
         Evaluate(BillingBasePeriod, '1M');
         ChargeStartDate := CalcDate('<-CY>', WorkDate());
@@ -972,6 +976,7 @@ codeunit 148153 "Usage Based Billing Test"
         Result: Decimal;
         NoOfDaysInMonth1: Integer;
     begin
+        Initialize();
         BaseAmount := 100;
         Evaluate(BillingBasePeriod, '1M');
         ChargeStartDate := CalcDate('<-CY>', WorkDate());
@@ -995,6 +1000,7 @@ codeunit 148153 "Usage Based Billing Test"
         ExpectedResult: Decimal;
         Result: Decimal;
     begin
+        Initialize();
         BaseAmount := 100;
         Evaluate(BillingBasePeriod, '12M');
         ChargeStartDate := CalcDate('<-CY>', WorkDate());
@@ -1021,7 +1027,7 @@ codeunit 148153 "Usage Based Billing Test"
     [HandlerFunctions('MessageHandler,ExchangeRateSelectionModalPageHandler')]
     procedure TestSkipUsageBasedServiceCommitmentsWithoutUsageData()
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.InitContractsApp();
 
         // [GIVEN] Setup simple Customer Subscription Contract with Subscription Line marked as Usage based billing
@@ -1321,7 +1327,7 @@ codeunit 148153 "Usage Based Billing Test"
     var
         UsageDataBilling2: Record "Usage Data Billing";
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         //In order to avoid rounding issues, set the Unit price to number of days in the period; This way Daily price will always be 1
         Item."Unit Price" := CalcDate('<1Y>', WorkDate()) - WorkDate();
@@ -1348,7 +1354,7 @@ codeunit 148153 "Usage Based Billing Test"
     var
         UsageDataBilling2: Record "Usage Data Billing";
     begin
-        ClearAll();
+        Initialize();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         //In order to avoid rounding issues, set the Unit price to number of days in the period; This way Daily price will always be 1
         Item."Unit Price" := CalcDate('<1Y>', WorkDate()) - WorkDate();
@@ -1431,7 +1437,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Validate Billing Line No. table relation in Usage Data Billings
 
         // [GIVEN] Create Billing Lines and Billing Lines Archive, Create Usage Data from Billing Lines and Billing Lines Archive
-        ResetAll();
+        Initialize();
         MockBillingLine(BillingLines[1], "Service Partner"::Customer, "Rec. Billing Document Type"::Invoice);
         MockBillingLine(BillingLines[2], "Service Partner"::Customer, "Rec. Billing Document Type"::"Credit Memo");
         MockBillingLine(BillingLines[3], "Service Partner"::Vendor, "Rec. Billing Document Type"::Invoice);
@@ -1473,7 +1479,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Verify filtering of Usage Data Billings when a Document No. is either assigned or not to the lines
 
         // [GIVEN] Create 2 Billing Lines and Usage Data Billings
-        ResetAll();
+        Initialize();
         UsageBasedBTestLibrary.MockBillingLineWithServObjectNo(BillingLines[1]);
         UsageBasedBTestLibrary.MockBillingLine(BillingLines[2]);
         BillingLines[2]."Subscription Header No." := BillingLines[1]."Subscription Header No.";
@@ -1510,6 +1516,7 @@ codeunit 148153 "Usage Based Billing Test"
         // [SCENARIO] Verify that usage data import with multiple usage data generic imports creates correct billing and invoices
 
         // [GIVEN] Initialize the contracts and usage-based billing applications
+        Initialize();
         ContractTestLibrary.InitContractsApp();
 
         // [GIVEN] Create a Subscription Item
