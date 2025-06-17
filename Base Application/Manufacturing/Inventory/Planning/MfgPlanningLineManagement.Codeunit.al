@@ -466,6 +466,25 @@ codeunit 99000819 "Mfg. Planning Line Management"
         TransferRouting(RequisitionLine, TempPlanningErrorLog, PlanningResiliency);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnTransferASMBOMOnAfterSetAsmBOMComp', '', true, true)]
+    local procedure OnTransferASMBOMOnAfterSetAsmBOMComp(var PlanningComponent: Record "Planning Component")
+    begin
+        PlanningComponent.Validate("Routing Link Code");
+        PlanningComponent.Validate("Scrap %", 0);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnCalculateComponentsOnbeforePlanningComponentModify', '', true, true)]
+    local procedure OnCalculateComponentsOnbeforePlanningComponentModify(var PlanningComponent: Record "Planning Component")
+    begin
+        PlanningComponent.Validate("Routing Link Code");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnCheckMultiLevelStructureOnBeforeReqLineModify', '', true, true)]
+    local procedure OnCheckMultiLevelStructureOnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line")
+    begin
+        RequisitionLine.Validate("Production BOM No.");
+        RequisitionLine.Validate("Routing No.");
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsPlannedCompFound(var PlanningComp: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var IsFound: Boolean; var SKU: Record "Stockkeeping Unit")

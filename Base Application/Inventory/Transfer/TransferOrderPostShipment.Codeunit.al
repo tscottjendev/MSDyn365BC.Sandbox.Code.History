@@ -61,13 +61,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(TransferHeader2, HideValidationDialog, SuppressCommit, IsHandled);
+        OnBeforeOnRun(TransferHeader2, HideValidationDialog, SuppressCommit, PreviewMode, IsHandled);
         if not IsHandled then begin
             ReleaseDocument(TransferHeader2);
             TransHeader := TransferHeader2;
             TransHeader.SetHideValidationDialog(HideValidationDialog);
 
-            OnBeforeTransferOrderPostShipment(TransHeader, SuppressCommit);
+            OnBeforeTransferOrderPostShipment(TransHeader, SuppressCommit, PreviewMode);
 
             TransHeader.CheckBeforePost();
 
@@ -230,7 +230,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             FinalizePosting(TransHeader, TransLine);
 
-            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader, SuppressCommit);
+            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader, SuppressCommit, PreviewMode);
             if not (InvtPickPutaway or TransHeader."Direct Transfer" or SuppressCommit or PreviewMode) then begin
                 Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
@@ -243,7 +243,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             TransferHeader2 := TransHeader;
         end;
-        OnAfterTransferOrderPostShipment(TransferHeader2, SuppressCommit, TransShptHeader, InvtPickPutaway);
+        OnAfterTransferOrderPostShipment(TransferHeader2, SuppressCommit, PreviewMode, TransShptHeader, InvtPickPutaway);
     end;
 
     var
@@ -311,7 +311,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         CreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
         ReserveItemJnlLine(ItemJnlLine, TransferLine, WhseShip, WhseShptHeader2);
 
-        OnBeforePostItemJournalLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2, SuppressCommit);
+        OnBeforePostItemJournalLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2, SuppressCommit, PreviewMode);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -545,11 +545,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
                     TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next() = 0;
-                OnAfterInsertShptEntryRelation(TransLine, WhseShip, 0, SuppressCommit);
+                OnAfterInsertShptEntryRelation(TransLine, WhseShip, 0, SuppressCommit, PreviewMode);
                 exit(0);
             end;
         end else begin
-            OnAfterInsertShptEntryRelation(TransLine, WhseShip, ItemJnlLine."Item Shpt. Entry No.", SuppressCommit);
+            OnAfterInsertShptEntryRelation(TransLine, WhseShip, ItemJnlLine."Item Shpt. Entry No.", SuppressCommit, PreviewMode);
             exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
     end;
@@ -574,7 +574,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         OnBeforeGenNextNo(TransShptHeader, TransHeader);
         if TransShptHeader."No." = '' then
             TransShptHeader."No." := NoSeriesCodeunit.GetNextNo(TransShptHeader."No. Series", TransHeader."Posting Date");
-        OnBeforeInsertTransShptHeader(TransShptHeader, TransHeader, SuppressCommit);
+        OnBeforeInsertTransShptHeader(TransShptHeader, TransHeader, SuppressCommit, PreviewMode);
         TransShptHeader.Insert();
         OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
     end;
@@ -634,18 +634,18 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     CreatePostedShptLineFromWhseShptLine(TransShptLine);
             end;
             ShouldRunPosting := WhsePosting;
-            OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, WhsePosting, ShouldRunPosting);
+            OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, PreviewMode, WhsePosting, ShouldRunPosting);
             if ShouldRunPosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase);
         end;
 
         IsHandled := false;
-        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, IsHandled, TransShptHeader);
+        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, PreviewMode, IsHandled, TransShptHeader);
         if IsHandled then
             exit;
 
         TransShptLine.Insert();
-        OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, TransShptHeader);
+        OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, PreviewMode, TransShptHeader);
     end;
 
     local procedure CreatePostedShptLineFromWhseShptLine(var TransferShipmentLine: Record "Transfer Shipment Line")
@@ -979,12 +979,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferShipmentHeader: Record "Transfer Shipment Header"; TransferShipmentLine: Record "Transfer Shipment Line"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferShipmentHeader: Record "Transfer Shipment Header"; TransferShipmentLine: Record "Transfer Shipment Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean)
+    local procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -999,7 +999,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var TransferHeader: Record "Transfer Header"; var HideValidationDialog: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var TransferHeader: Record "Transfer Header"; var HideValidationDialog: Boolean; var SuppressCommit: Boolean; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1029,12 +1029,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferShipmentHeader: Record "Transfer Shipment Header"; InvtPickPutaway: Boolean)
+    local procedure OnAfterTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var TransferShipmentHeader: Record "Transfer Shipment Header"; InvtPickPutaway: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertShptEntryRelation(var TransLine: Record "Transfer Line"; WhseShip: Boolean; EntryNo: Integer; CommitIsSuppressed: Boolean)
+    local procedure OnAfterInsertShptEntryRelation(var TransLine: Record "Transfer Line"; WhseShip: Boolean; EntryNo: Integer; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -1044,12 +1044,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; TransShptHeader: Record "Transfer Shipment Header")
+    local procedure OnAfterInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; TransShptHeader: Record "Transfer Shipment Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransShptHeader(var TransShptHeader: Record "Transfer Shipment Header"; TransHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeInsertTransShptHeader(var TransShptHeader: Record "Transfer Shipment Header"; TransHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -1084,7 +1084,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TransShptHeader: Record "Transfer Shipment Header")
+    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var IsHandled: Boolean; TransShptHeader: Record "Transfer Shipment Header")
     begin
     end;
 
@@ -1149,7 +1149,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
+    local procedure OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; SuppressCommit: Boolean; PreviewMode: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
     begin
     end;
 
@@ -1164,7 +1164,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var SuppressCommit: Boolean)
+    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var SuppressCommit: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -1229,4 +1229,3 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 }
-

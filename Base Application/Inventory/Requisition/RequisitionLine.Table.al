@@ -37,8 +37,10 @@ table 246 "Requisition Line"
     DataCaptionFields = "Journal Batch Name", "Line No.";
     DrillDownPageID = "Requisition Lines";
     LookupPageID = "Requisition Lines";
+#if not CLEAN27
     Permissions = TableData Microsoft.Manufacturing.Routing."Routing Header" = r,
                   TableData Microsoft.Manufacturing.ProductionBOM."Production BOM Header" = r;
+#endif
     DataClassification = CustomerContent;
 
     fields
@@ -2564,7 +2566,7 @@ table 246 "Requisition Line"
                     LeadTime := LeadTimeMgt.PurchaseLeadTime("No.", "Location Code", "Variant Code", "Vendor No.");
             "Ref. Order Type"::"Prod. Order":
                 begin
-                    OnRoutingLineExists(Rec, RoutingExists); // TODO
+                    OnRoutingLineExists(Rec, RoutingExists);
                     if RoutingExists then
                         exit;
 
@@ -2573,7 +2575,7 @@ table 246 "Requisition Line"
                 end;
             "Ref. Order Type"::Assembly:
                 begin
-                    OnRoutingLineExists(Rec, RoutingExists); // TODO
+                    OnRoutingLineExists(Rec, RoutingExists);
                     if RoutingExists then
                         exit;
 
@@ -2614,7 +2616,7 @@ table 246 "Requisition Line"
                         "No.", "Location Code", "Variant Code", "Vendor No.");
             "Ref. Order Type"::"Prod. Order":
                 begin
-                    OnRoutingLineExists(Rec, RoutingExists); // TODO
+                    OnRoutingLineExists(Rec, RoutingExists);
                     if RoutingExists then
                         exit;
 
@@ -2623,7 +2625,7 @@ table 246 "Requisition Line"
                 end;
             "Ref. Order Type"::Assembly:
                 begin
-                    OnRoutingLineExists(Rec, RoutingExists); // TODO
+                    OnRoutingLineExists(Rec, RoutingExists);
                     if RoutingExists then
                         exit;
 
@@ -3320,6 +3322,11 @@ table 246 "Requisition Line"
         OnIsProdOrder(Rec, Result);
     end;
 
+    procedure IsProductionBOM() Result: Boolean
+    begin
+        OnIsProductionBOM(Rec, Result);
+    end;
+
     procedure IsProdDemand() Result: Boolean
     begin
         OnIsProdDemand(Rec, Result);
@@ -3852,6 +3859,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsProdOrder(var RequisitionLine: Record "Requisition Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProductionBOM(var RequisitionLine: Record "Requisition Line"; var Result: Boolean)
     begin
     end;
 
