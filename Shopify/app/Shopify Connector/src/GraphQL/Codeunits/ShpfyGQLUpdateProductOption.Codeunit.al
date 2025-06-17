@@ -1,9 +1,9 @@
 namespace Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Codeunit Shpfy GQL ProductVariantDelete (ID 30344) implements Interface Shpfy IGraphQL.
+/// Codeunit Shpfy GQL UpdateProductOption (ID 30344) implements Interface Shpfy IGraphQL.
 /// </summary>
-codeunit 30344 "Shpfy GQL ProductVariantDelete" implements "Shpfy IGraphQL"
+codeunit 30344 "Shpfy GQL UpdateProductOption" implements "Shpfy IGraphQL"
 {
     Access = Internal;
 
@@ -13,9 +13,9 @@ codeunit 30344 "Shpfy GQL ProductVariantDelete" implements "Shpfy IGraphQL"
     /// <returns>Return value of type Text.</returns>
     internal procedure GetGraphQL(): Text
     begin
-        exit('{"query":"mutation {productVariantDelete(id: \"gid://shopify/ProductVariant/{{VariantId}}\") {deletedProductVariantId userErrors{field message}}}"}');
+        exit('{"query": "mutation { productOptionUpdate(productId: \"gid://shopify/Product/{{ProductId}}\", option: {id: \"gid://shopify/ProductOption/{{OptionId}}\", name: \"{{OptionName}}\"}) { product { id } userErrors { field message } } }"}');
     end;
-
+    
     /// <summary>
     /// GetExpectedCost.
     /// </summary>
