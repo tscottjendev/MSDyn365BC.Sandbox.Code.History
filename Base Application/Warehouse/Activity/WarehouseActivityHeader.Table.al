@@ -431,9 +431,9 @@ table 5766 "Warehouse Activity Header"
         if "No." = '' then begin
             TestNoSeries();
             "No. Series" := GetNoSeriesCode();
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 
         end;
 
