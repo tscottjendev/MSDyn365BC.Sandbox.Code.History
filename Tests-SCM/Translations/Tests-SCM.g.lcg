@@ -1022,6 +1022,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType CommentCountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3810126422 - NamedType 2493551865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected confirm dialog was not shown]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType ConfirmDialogErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1549229238 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3]]></Val>
@@ -8132,6 +8141,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType OutputIsMissingQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3862164203 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity update should be possible in %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Table Name.]D;]A;(LookupHint=Codeunit SCM PS Bugs-I - NamedType QuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 2995628168" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2.]]></Val>
@@ -8193,6 +8211,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchase Correct Invoice - NamedType CommentCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 642181707 - NamedType 2493551865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected confirm dialog was not shown]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchase Correct Invoice - NamedType ConfirmDialogErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 642181707 - NamedType 1864455598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
