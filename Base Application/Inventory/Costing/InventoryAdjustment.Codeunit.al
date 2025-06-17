@@ -1989,8 +1989,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         ItemJnlLine."External Document No." := OrigValueEntry."External Document No.";
         ItemJnlLine."Quantity (Base)" := OrigValueEntry."Valued Quantity";
         ItemJnlLine."Invoiced Qty. (Base)" := InvoicedQty;
-        if OrigValueEntry."Item Ledger Entry Type" = OrigValueEntry."Item Ledger Entry Type"::Output then
-            ItemJnlLine."Output Quantity (Base)" := ItemJnlLine."Quantity (Base)";
         ItemJnlLine."Item Charge No." := OrigValueEntry."Item Charge No.";
         ItemJnlLine."Variance Type" := VarianceType;
         ItemJnlLine.Adjustment := true;
