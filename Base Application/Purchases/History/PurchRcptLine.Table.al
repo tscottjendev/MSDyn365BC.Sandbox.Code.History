@@ -1260,6 +1260,11 @@ table 121 "Purch. Rcpt. Line"
         OnIsProdOrder(Rec, Result);
     end;
 
+    procedure TestWorkCenterNo() Result: Boolean
+    begin
+        OnTestWorkCenterNo(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPurchRcptLine(var PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TempPurchLine: Record "Purchase Line")
     begin
@@ -1362,6 +1367,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsProdOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestWorkCenterNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
     end;
 }
