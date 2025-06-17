@@ -414,4 +414,13 @@ codeunit 99000781 "Mfg. Calculate BOM Tree"
         ProductionBOMHeader.SetRange("No.", BOMNo);
         ProductionBOMHeader.ModifyAll("Low-Level Code", CalculateLowLevelCode);
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"BOM Component", 'OnCopyFromItemOnAfterGetParentItem', '', false, false)]
+    local procedure OnCopyFromItemOnAfterGetParentItem(var Item: Record Item; ParentItem: Record Item)
+    var
+        CalcLowLevelCode: Codeunit Microsoft.Manufacturing.ProductionBOM."Calculate Low-Level Code";
+    begin
+        CalcLowLevelCode.SetRecursiveLevelsOnItem(Item, ParentItem."Low-Level Code" + 1, true);
+    end;
+
 }
