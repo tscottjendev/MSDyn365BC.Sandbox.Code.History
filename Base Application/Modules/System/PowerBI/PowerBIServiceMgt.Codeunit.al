@@ -14,7 +14,6 @@ codeunit 6301 "Power BI Service Mgt."
 {
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
 #if not CLEAN27
@@ -154,6 +153,7 @@ codeunit 6301 "Power BI Service Mgt."
     procedure GetEnglishContext(): Code[30]
     var
         AllProfile: Record "All Profile";
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         // Returns an English profile ID for the Report Selection
         ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
