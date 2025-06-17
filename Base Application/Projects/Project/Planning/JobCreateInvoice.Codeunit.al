@@ -983,6 +983,7 @@ codeunit 1002 "Job Create-Invoice"
                 if SalesHeader."Ship-to Code" = '' then begin
                     SalesHeader."Ship-to Contact" := Job."Ship-to Contact";
                     SalesHeader."Ship-to Name" := Job."Ship-to Name";
+                    SalesHeader."Ship-to Name 2" := Job."Ship-to Name 2";
                     SalesHeader."Ship-to Address" := Job."Ship-to Address";
                     SalesHeader."Ship-to Address 2" := Job."Ship-to Address 2";
                     SalesHeader."Ship-to City" := Job."Ship-to City";
@@ -1033,6 +1034,7 @@ codeunit 1002 "Job Create-Invoice"
             if SalesHeader."Ship-to Code" = '' then begin
                 SalesHeader."Ship-to Contact" := JobTask."Ship-to Contact";
                 SalesHeader."Ship-to Name" := JobTask."Ship-to Name";
+                SalesHeader."Ship-to Name 2" := JobTask."Ship-to Name 2";
                 SalesHeader."Ship-to Address" := JobTask."Ship-to Address";
                 SalesHeader."Ship-to Address 2" := JobTask."Ship-to Address 2";
                 SalesHeader."Ship-to City" := JobTask."Ship-to City";
