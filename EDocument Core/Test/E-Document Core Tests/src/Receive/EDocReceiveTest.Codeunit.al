@@ -13,6 +13,7 @@ codeunit 139628 "E-Doc. Receive Test"
         PurchaseHeader, CreatedPurchaseHeader : Record "Purchase Header";
         PurchaseLine, CreatedPurchaseLine : Record "Purchase Line";
         Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryEDoc: Codeunit "Library - E-Document";
@@ -136,6 +137,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
         Item.FindFirst();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -336,6 +338,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Order";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
         Item.FindFirst();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -1438,6 +1441,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor.SetRange("VAT Registration No.", 'GB123456789');
         Vendor.DeleteAll();
         EDocument.DeleteAll();
+        LibraryERM.FindCountryRegion(CountryRegion);
     end;
 
     local procedure CheckPurchaseHeadersAreEqual(var PurchHeader1: Record "Purchase Header"; var PurchHeader2: Record "Purchase Header")
@@ -1497,6 +1501,7 @@ codeunit 139628 "E-Doc. Receive Test"
         DocumentVendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         DocumentVendor."VAT Registration No." := 'GB123456789';
         DocumentVendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Order";
+        DocumentVendor."Country/Region Code" := CountryRegion.Code;
         DocumentVendor.Modify(false);
     end;
 
@@ -1679,6 +1684,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
         Item.FindFirst();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -1879,6 +1885,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Vendor."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Vendor."VAT Registration No." := 'GB123456789';
         Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Order";
+        Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify();
         Item.FindFirst();
         Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
