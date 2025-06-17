@@ -399,6 +399,7 @@ codeunit 7307 "Whse.-Activity-Register"
             RegisteredInvtMovementHdr.TransferFields(WhseActivHeader);
             RegisteredInvtMovementHdr."No." := WhseActivHeader."Registering No.";
             RegisteredInvtMovementHdr."Invt. Movement No." := WhseActivHeader."No.";
+            RegisteredInvtMovementHdr."Registering Date" := WorkDate();
             OnBeforeRegisteredInvtMovementHdrInsert(RegisteredInvtMovementHdr, WhseActivHeader);
             RegisteredInvtMovementHdr.Insert();
             RecordLinkManagement.CopyLinks(WhseActivHeader, RegisteredInvtMovementHdr);

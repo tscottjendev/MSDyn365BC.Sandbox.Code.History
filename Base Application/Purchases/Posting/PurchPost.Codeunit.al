@@ -7840,7 +7840,8 @@ codeunit 90 "Purch.-Post"
         ReturnShipmentLine.TestField("Job No.", PurchaseLine."Job No.");
         ReturnShipmentLine.TestField("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
         ReturnShipmentLine.TestField("Variant Code", PurchaseLine."Variant Code");
-        ReturnShipmentLine.TestField("Prod. Order No.", PurchaseLine."Prod. Order No.");
+
+        OnAfterCheckFieldsOnReturnShipmentLine(ReturnShipmentLine, PurchaseLine);
     end;
 
     local procedure PostItemTrackingForShipmentCondition(PurchLine: Record "Purchase Line"; ReturnShipmentLine: Record "Return Shipment Line"): Boolean
@@ -9181,6 +9182,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFieldsOnReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckFieldsOnReturnShipmentLine(ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 

@@ -125,7 +125,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 repeat
                     if (FromPurchLine.Quantity <> 0) and
                        (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
-                       (FromPurchLine."Work Center No." = '') and
+                       (not FromPurchLine.IsWorkCenter()) and
                        ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
                        FromPurchLine."Allow Item Charge Assignment"
                     then begin
@@ -181,7 +181,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if IsHandled then
             exit;
 
-        FromPurchRcptLine.TestField("Work Center No.", '');
+        FromPurchRcptLine.TestWorkCenterNo();
     end;
 
     procedure CreateTransferRcptChargeAssgnt(var FromTransRcptLine: Record "Transfer Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")

@@ -149,4 +149,12 @@ codeunit 99000784 "Mfg. Undo Purch. Rcpt. Line"
 
         exit(OutputEntriesExist);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Posting Management", 'OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty', '', true, true)]
+    local procedure OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    begin
+        if ItemJournalLine.Correction and ItemJournalLine.Subcontracting then
+            ItemJournalLine."Output Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
+    end;
+
 }
