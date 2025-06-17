@@ -472,6 +472,7 @@ codeunit 1501 "Workflow Management"
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
         Workflow.SetRange(Enabled, true);
+        WorkflowStepInstance.ReadIsolation(WorkflowStepInstance.ReadIsolation::ReadUncommitted);
         if WorkflowStepInstance.IsEmpty() and Workflow.IsEmpty() then begin
             GetTelemetryDimensions(FunctionName, '', TelemetryDimensions);
             Session.LogMessage('0000DZE', WorkflowNotFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);

@@ -8,6 +8,7 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Substitution;
 
 codeunit 99000857 "Prod. Order Line-Planning"
 {
@@ -224,6 +225,20 @@ codeunit 99000857 "Prod. Order Line-Planning"
         UnplannedDemand.Insert();
         UnplannedDemand.Copy(UnplannedDemand2);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertAltSupplyLocationOnAfterSelectSubstitution', '', false, false)]
+    local procedure OnInsertAltSupplyLocationOnAfterSelectSubstitution(var RequisitionLine: Record "Requisition Line"; var TempItemSub: Record "Item Substitution" temporary)
+    var
+        ProdOrderComp: Record "Prod. Order Component";
+        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
+    begin
+        ProdOrderComp.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.", RequisitionLine."Demand Ref. No.");
+        MfgItemSubstitution.UpdateProdOrderComp(ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
+        ProdOrderComp.Modify(true);
+        ProdOrderComp.AutoReserve();
+    end;
+
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUnplannedProdOrderComp(var UnplannedDemand: Record "Unplanned Demand"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component");
