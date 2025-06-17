@@ -136,7 +136,8 @@ codeunit 6103 "E-Document Subscription"
         if ShouldDocumentTotalAmountsBeChecked then
             exit;
         EDocument.SetRange(SystemId, PurchaseHeader."E-Document Link");
-        ShouldDocumentTotalAmountsBeChecked := not EDocument.IsEmpty();
+        if EDocument.FindFirst() then
+            ShouldDocumentTotalAmountsBeChecked := EDocument.GetEDocumentService()."Verify Purch. Total Amounts";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchases & Payables Setup", OnCanDocumentTotalAmountsBeEditable, '', false, false)]
