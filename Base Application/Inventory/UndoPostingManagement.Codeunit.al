@@ -659,8 +659,7 @@ codeunit 5817 "Undo Posting Management"
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
             ItemJnlLine."Invoiced Qty. (Base)" := -TempApplyToItemLedgEntry."Invoiced Quantity";
-            if ItemJnlLine.Correction and ItemJnlLine.Subcontracting then
-                ItemJnlLine."Output Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
+            OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(ItemJnlLine, TempApplyToItemLedgEntry);
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
             if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
                 ItemJnlLine.CopyNewTrackingFromOldItemLedgerEntry(TempApplyToItemLedgEntry);
@@ -1503,6 +1502,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineAppliedToListOnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineAppliedToListOnAfterSetInvoicedQty(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 

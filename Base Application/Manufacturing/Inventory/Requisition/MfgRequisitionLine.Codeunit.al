@@ -73,6 +73,12 @@ codeunit 99000866 "Mfg. Requisition Line"
         Result := RequisitionLine."Prod. Order No." <> '';
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnIsProductionBOM', '', false, false)]
+    local procedure OnIsProductionBOM(var RequisitionLine: Record "Requisition Line"; var Result: Boolean)
+    begin
+        Result := RequisitionLine."Production BOM No." <> '';
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnIsProdDemand', '', false, false)]
     local procedure OnIsProdDemand(var RequisitionLine: Record "Requisition Line"; var Result: Boolean)
     begin
