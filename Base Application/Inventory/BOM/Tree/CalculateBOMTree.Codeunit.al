@@ -783,7 +783,7 @@ codeunit 5870 "Calculate BOM Tree"
         ShowTotalAvailability := NewShowTotalAvailability;
     end;
 
-    local procedure HasBomStructure(ItemNo: Code[20]): Boolean
+    local procedure HasBomStructure(ItemNo: Code[20]) Result: Boolean
     var
         Item: Record Item;
     begin
@@ -796,9 +796,11 @@ codeunit 5870 "Calculate BOM Tree"
                         exit(true);
                 end;
             Item."Replenishment System"::"Prod. Order":
-                if Item."Production BOM No." <> '' then
+                if Item.IsProductionBOM() then
                     exit(true);
         end;
+
+        OnHasBOMStructure(Item, Result);
     end;
 
     local procedure IsProductionOrAssemblyItem(ItemNo: Code[20]): Boolean
@@ -1114,6 +1116,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(true, false)]
     local procedure OnGenerateItemSubTreeOnSetIsLeaf(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; var ItemFilter: Record Item; var EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasBOMStructure(var Item: Record Item; var Result: Boolean)
     begin
     end;
 }

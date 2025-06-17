@@ -20,6 +20,7 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Tracking;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -27,6 +28,7 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
 #pragma warning disable AA0470
         CannotChangeFieldErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 %2 - field captions, %3 - field value';
         CannotInsertItemErr: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
+        CannotDefineItemTrackingErr: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
 #pragma warning restore AA0470
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnIsMfgItem', '', false, false)]
@@ -617,6 +619,20 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
                 end;
             OldCapNo := CapNo;
             OldCapType := CapType;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl. Line-Reserve", 'OnCallItemTrackingOnCheckItemPosting', '', false, false)]
+    local procedure OnCallItemTrackingOnCheckItemPosting(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        if not ItemJournalLine.ItemPosting() then begin
+            ReservationEntry.InitSortingAndFilters(false);
+            ItemJournalLine.SetReservationFilters(ReservationEntry);
+            ReservationEntry.ClearTrackingFilter();
+            if ReservationEntry.IsEmpty() then
+                Error(CannotDefineItemTrackingErr, ItemJournalLine.FieldCaption("Operation No."), ItemJournalLine."Operation No.");
         end;
     end;
 }

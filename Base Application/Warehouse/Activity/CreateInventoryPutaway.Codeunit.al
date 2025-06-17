@@ -876,9 +876,9 @@ codeunit 7321 "Create Inventory Put-away"
                 OnBeforeNewWhseActivLineInsertFromSales(WarehouseActivityLine, RecordVariant);
             Database::"Transfer Line":
                 OnBeforeNewWhseActivLineInsertFromTransfer(WarehouseActivityLine, RecordVariant);
-            Database::Microsoft.Manufacturing.Document."Prod. Order Line":
+            5406: // Database::"Prod. Order Line"
                 OnBeforeNewWhseActivLineInsertFromProd(WarehouseActivityLine, RecordVariant);
-            Database::Microsoft.Manufacturing.Document."Prod. Order Component":
+            5407: // Database::"Prod. Order Component"
                 OnBeforeNewWhseActivLineInsertFromComp(WarehouseActivityLine, RecordVariant);
 
         end;

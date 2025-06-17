@@ -844,7 +844,7 @@ table 5870 "BOM Buffer"
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
-                    if Item."Production BOM No." <> '' then
+                    if Item.IsProductionBOM() then
                         exit(true);
                     if LogWarning then
                         SetItemWarningLog(BOMWarningLog, Item, Text007);

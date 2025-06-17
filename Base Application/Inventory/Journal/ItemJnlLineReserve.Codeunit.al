@@ -32,7 +32,6 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         Text003Err: Label 'must not be filled in when a quantity is reserved';
         Text004Err: Label 'must not be changed when a quantity is reserved';
         Text005Err: Label 'Codeunit is not initialized correctly.';
-        Text006Err: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
         ItemJournalTxt: Label 'Item Journal';
         SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
@@ -391,7 +390,6 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure CallItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
-        ReservationEntry: Record "Reservation Entry";
         ItemTrackingLines: Page "Item Tracking Lines";
         IsHandled: Boolean;
     begin
@@ -401,13 +399,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             exit;
 
         ItemJournalLine.TestField("Item No.");
-        if not ItemJournalLine.ItemPosting() then begin
-            ReservationEntry.InitSortingAndFilters(false);
-            ItemJournalLine.SetReservationFilters(ReservationEntry);
-            ReservationEntry.ClearTrackingFilter();
-            if ReservationEntry.IsEmpty() then
-                Error(Text006Err, ItemJournalLine.FieldCaption("Operation No."), ItemJournalLine."Operation No.");
-        end;
+        OnCallItemTrackingOnCheckItemPosting(ItemJournalLine);
 
         IsHandled := false;
         OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(ItemJournalLine, IsHandled);
@@ -675,6 +667,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnCheckItemPosting(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
