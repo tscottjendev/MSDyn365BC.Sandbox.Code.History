@@ -386,6 +386,17 @@ page 5871 "Item Availability by BOM Level"
                     ShowWarningsForAllLines();
                 end;
             }
+            action("Item Card")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Item';
+                Image = Item;
+                RunObject = Page "Item Card";
+                RunPageLink = "No." = field("No.");
+                RunPageView = sorting("No.");
+                ShortcutKey = 'Shift+F7';
+                ToolTip = 'View detailed information for the child item.';
+            }
         }
         area(reporting)
         {
@@ -415,6 +426,9 @@ page 5871 "Item Availability by BOM Level"
                 {
                 }
                 actionref("Show Warnings_Promoted"; "Show Warnings")
+                {
+                }
+                actionref("Item Card_Promoted"; "Item Card")
                 {
                 }
             }
