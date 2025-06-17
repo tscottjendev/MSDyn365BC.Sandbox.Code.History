@@ -312,7 +312,7 @@ codeunit 30189 "Shpfy Variant API"
         if ShopifyVariant.SKU = '' then
             exit(false);
 
-        Parameters.Add('SKU', ShopifyVariant.SKU);
+        Parameters.Add('SKU', ShopifyVariant.SKU.Replace('.', '\\\\.'));
         JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType::FindVariantBySKU, Parameters);
         if JsonHelper.GetJsonArray(JResponse, JArray, 'data.productVariants.edges') then
             if JArray.Count = 1 then

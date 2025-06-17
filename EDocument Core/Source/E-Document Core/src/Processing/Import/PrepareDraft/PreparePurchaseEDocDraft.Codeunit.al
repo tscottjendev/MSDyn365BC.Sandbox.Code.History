@@ -95,6 +95,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
         EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
+        if EDocumentPurchaseLine.FindSet() then;
         if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
             if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
                 LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);

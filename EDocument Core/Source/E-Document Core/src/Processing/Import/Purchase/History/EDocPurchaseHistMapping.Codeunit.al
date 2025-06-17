@@ -13,6 +13,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.History;
 using Microsoft.eServices.EDocument;
+using System.Log;
 
 codeunit 6120 "E-Doc. Purchase Hist. Mapping"
 {
@@ -123,15 +124,22 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
 
     procedure UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History"; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
     var
+        PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
         DeferralTemplate: Record "Deferral Template";
         UnitOfMeasure: Record "Unit of Measure";
+        ExplanationTxt: Label 'Line value was retrieved from posted purchase invoice history. See source for details.';
     begin
         if not PurchInvLine.GetBySystemId(EDocPurchaseLineHistory."Purch. Inv. Line SystemId") then
             exit;
+
+        PurchInvHeader.SetRange("No.", PurchInvLine."Document No.");
+
         if EDocumentPurchaseLine."[BC] Deferral Code" = '' then
-            if DeferralTemplate.Get(PurchInvLine."Deferral Code") then
+            if DeferralTemplate.Get(PurchInvLine."Deferral Code") then begin
                 EDocumentPurchaseLine."[BC] Deferral Code" := PurchInvLine."Deferral Code";
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), ExplanationTxt, PurchInvHeader);
+            end;
         if EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" = '' then
             if PurchInvLine."Shortcut Dimension 1 Code" <> '' then
                 EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
@@ -145,12 +153,32 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
             if PurchInvLine.Type <> Enum::"Purchase Line Type"::" " then
                 EDocumentPurchaseLine."[BC] Purchase Line Type" := PurchInvLine.Type;
         if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then
-            if PurchInvLine."No." <> '' then
+            if PurchInvLine."No." <> '' then begin
                 EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."No.";
+                PurchInvLine.SetRange("Document No.", PurchInvLine."Document No.");
+                PurchInvLine.SetRange("Line No.", PurchInvLine."Line No.");
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), ExplanationTxt, PurchInvHeader);
+            end;
         if EDocPurchaseLineHistory."Entry No." <> 0 then
             EDocumentPurchaseLine."E-Doc. Purch. Line History Id" := EDocPurchaseLineHistory."Entry No.";
 
         EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'Line History', true);
+    end;
+
+    local procedure SetActivityLog(SystemId: Guid; FieldNo: Integer; Reasoning: Text[250]; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
+    var
+        EDocActivityLogBuilder: Codeunit "Activity Log Builder";
+        RecordRef: RecordRef;
+        HistoricalExplanationTxt: Label 'Posted Purch. Invoice %1', Comment = '%1 - Invoice number';
+    begin
+        RecordRef.Open(Database::"Purch. Inv. Header");
+        RecordRef.Copy(PurchInvHeader);
+        EDocActivityLogBuilder
+            .Init(Database::"E-Document Purchase Line", FieldNo, SystemId)
+            .SetExplanation(Reasoning)
+            .SetReferenceSource(Page::"Posted Purchase Invoice", RecordRef)
+            .SetReferenceTitle(StrSubstNo(HistoricalExplanationTxt, PurchInvHeader.GetFilter("No.")))
+            .Log();
     end;
 
     /// <summary>

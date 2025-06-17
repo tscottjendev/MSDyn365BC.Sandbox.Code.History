@@ -859,7 +859,7 @@ codeunit 30161 "Shpfy Import Order"
         if Enum::"Shpfy Cancel Reason".Names().Contains(Value) then
             exit(Enum::"Shpfy Cancel Reason".FromInteger(Enum::"Shpfy Cancel Reason".Ordinals().Get(Enum::"Shpfy Cancel Reason".Names().IndexOf(Value))))
         else
-            exit(Enum::"Shpfy Cancel Reason"::Unknown);
+            exit(Enum::"Shpfy Cancel Reason"::" ");
     end;
 
     local procedure UpdateLocationIdAndDeliveryMethodOnOrderLine(var OrderLine: Record "Shpfy Order Line")
