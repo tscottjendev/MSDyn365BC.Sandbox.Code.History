@@ -1926,7 +1926,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             if (ReduceQty <= DampenerQty) and (SupplyInvtProfile."Planning Level Code" = 0) then
                 PlanningTransparency.LogPlanningSurplus(
                   SupplyInvtProfile."Line No.", 0,
-                  Database::Microsoft.Manufacturing.Setup."Manufacturing Setup", SupplyInvtProfile."Source ID",
+                  99000765, SupplyInvtProfile."Source ID", // Database::"Manufacturing Setup"
                   DampenerQty, SurplusType::DampenerQty);
             exit(false);
         end;
@@ -4515,9 +4515,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure ReservedForProdComponent(ReservationEntry: Record "Reservation Entry"): Boolean
     begin
         if not ReservationEntry.Positive then
-            exit(ReservationEntry."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component");
+            exit(ReservationEntry."Source Type" = 5407); //  Database::"Prod. Order Component"
         if ReservationEntry.Get(ReservationEntry."Entry No.", false) then
-            exit(ReservationEntry."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component");
+            exit(ReservationEntry."Source Type" = 5407);  //  Database::"Prod. Order Component"
     end;
 
     local procedure ShouldInsertTrackingEntry(FromTrkgReservEntry: Record "Reservation Entry"): Boolean

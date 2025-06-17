@@ -84,4 +84,11 @@ codeunit 99000890 "Mfg. Purch.-Post"
     local procedure OnAfterPostItemJnlLineCopyProdOrder(var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; QtyToBeReceived: Decimal; CommitIsSupressed: Boolean; QtyToBeInvoiced: Decimal)
     begin
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterCheckFieldsOnReturnShipmentLine', '', true, true)]
+    local procedure OnAfterCheckFieldsOnReturnShipmentLine(ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        ReturnShipmentLine.TestField("Prod. Order No.", PurchaseLine."Prod. Order No.");
+    end;
+
 }
