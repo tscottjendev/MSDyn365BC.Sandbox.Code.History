@@ -2975,6 +2975,31 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
+    [HandlerFunctions('SourceDocumentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteringDateIsSetInRegisteredInventoryMovement()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
+    begin
+        // [SCENARIO] The registering date of the Registered Inventory Movement must be set to the WorkDate
+        // [FEATURE] [Inventory Movement]
+        Initialize();
+
+        // [GIVEN] Inventory Movement ready to be registered
+        CreateItemMovementSetup(WarehouseActivityHeader);
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register the Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Verify that the "Registering Date" of the Registered Inventory Movement is set
+        RegisteredInvtMovementHdr.SetRange("Invt. Movement No.", WarehouseActivityHeader."No.");
+        RegisteredInvtMovementHdr.FindFirst();
+        Assert.AreEqual(WorkDate(), RegisteredInvtMovementHdr."Registering Date", RegisteredInvtMovementHdr.FieldCaption("Registering Date"));
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesHandler2')]
     [Scope('OnPrem')]
     procedure ItemTrackingOnPickAfterOrderToOrderPurchReceiptPosted()

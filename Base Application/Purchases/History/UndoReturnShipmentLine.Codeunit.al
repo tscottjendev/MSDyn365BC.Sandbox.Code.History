@@ -164,7 +164,7 @@ codeunit 5814 "Undo Return Shipment Line"
             Error(Text004);
 
         if ReturnShptLine.Type = ReturnShptLine.Type::Item then begin
-            ReturnShptLine.TestField("Prod. Order No.", '');
+            ReturnShptLine.TestProdOrder();
 
             UndoPostingMgt.TestReturnShptLine(ReturnShptLine);
             IsHandled := false;

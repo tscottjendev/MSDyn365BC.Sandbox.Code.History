@@ -65,6 +65,12 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
         Result := PurchaseLine."Prod. Order No." <> '';
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnIsWorkCenter', '', false, false)]
+    local procedure OnIsWorkCenter(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
+    begin
+        Result := PurchaseLine."Work Center No." <> '';
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnIsSubcontractingCreditMemo', '', false, false)]
     local procedure OnIsSubcontractingCreditMemo(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
     begin
@@ -95,6 +101,12 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
         PurchaseLine.TestField("Prod. Order No.", '');
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnTestWorkCenterNo', '', false, false)]
+    local procedure OnTestWorkCenterNo(var PurchaseLine: Record "Purchase Line")
+    begin
+        PurchaseLine.TestField("Work Center No.", '');
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Line", 'OnGetItemLedgEntryOnShouldExit', '', false, false)]
     local procedure OnGetItemLedgEntryOnShouldExit(var PurchInvLine: Record "Purch. Inv. Line"; var ShouldExit: Boolean);
     begin
@@ -112,6 +124,24 @@ codeunit 99000789 "Mfg. Purchase Document Mgt."
     local procedure PurchRcptLineOnIsProdOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
     begin
         Result := PurchRcptLine."Prod. Order No." <> '';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Return Shipment Line", 'OnIsProdOrder', '', false, false)]
+    local procedure ReturnShipmentLineOnIsProdOrder(var ReturnShipmentLine: Record "Return Shipment Line"; var Result: Boolean)
+    begin
+        Result := ReturnShipmentLine."Prod. Order No." <> '';
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Rcpt. Line", 'OnTestWorkCenterNo', '', false, false)]
+    local procedure PurchRcptLineOnTestWorkCenterNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Result: Boolean)
+    begin
+        PurchRcptLine.TestField("Work Center No.", '');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Return Shipment Line", 'OnTestProdOrder', '', false, false)]
+    local procedure ReturnShipmentLineOnTestProdOrder(var ReturnShipmentLine: Record "Return Shipment Line"; var Result: Boolean)
+    begin
+        ReturnShipmentLine.TestField("Prod. Order No.", '');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purchase-Post Prepayments", 'OnCreateDimensionsOnAfterAddDimSources', '', false, false)]
