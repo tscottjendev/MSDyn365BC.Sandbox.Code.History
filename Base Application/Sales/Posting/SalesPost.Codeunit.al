@@ -216,6 +216,7 @@ codeunit 80 "Sales-Post"
         DropShipOrder: Boolean;
         DocumentIsReadyToBeChecked: Boolean;
         PostponedValueEntries: List of [Integer];
+        ItemsToAdjust: List of [Code[20]];
         CannotAssignInvoicedErr: Label 'You cannot assign item charges to the %1 %2 = %3,%4 = %5, %6 = %7, because it has been invoiced.', Comment = '%1 = Sales Line, %2/%3 = Document Type, %4/%5 - Document No.,%6/%7 = Line No.';
         InvoiceMoreThanReceivedErr: Label 'You cannot invoice more than you have received for return order %1.', Comment = '%1 = Order No.';
         ReturnReceiptLinesDeletedErr: Label 'The return receipt lines have been deleted.';
@@ -7622,7 +7623,7 @@ codeunit 80 "Sales-Post"
             IsHandled := false;
             OnBeforeMakeInventoryAdjustment(InvtSetup, InvtAdjmtHandler, IsHandled);
             if not IsHandled then
-                InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+                InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
         end;
     end;
 
@@ -10360,6 +10361,18 @@ codeunit 80 "Sales-Post"
             exit;
         PostponedValueEntries.Add(ValueEntry."Entry No.");
         IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]
