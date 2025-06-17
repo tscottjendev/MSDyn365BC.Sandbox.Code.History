@@ -9736,9 +9736,19 @@ table 39 "Purchase Line"
         OnIsProdOrder(Rec, Result);
     end;
 
-    local procedure TestProdOrderNo()
+    procedure IsWorkCenter() Result: Boolean
+    begin
+        OnIsWorkCenter(Rec, Result);
+    end;
+
+    procedure TestProdOrderNo()
     begin
         OnTestProdOrderNo(Rec);
+    end;
+
+    procedure TestWorkCenterNo()
+    begin
+        OnTestWorkCenterNo(Rec);
     end;
 
     internal procedure ClearVATPct()
@@ -11714,12 +11724,22 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTestWorkCenterNo(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSumVATAmountLineOnBeforeModify(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnIsProdOrder(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsWorkCenter(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
     begin
     end;
 
