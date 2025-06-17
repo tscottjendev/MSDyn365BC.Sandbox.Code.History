@@ -74,6 +74,12 @@ codeunit 99000795 "Mfg. Item Integration"
             Result := true;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnIsProductionBOM', '', false, false)]
+    local procedure OnIsProductionBOM(Item: Record Item; var Result: Boolean)
+    begin
+        Result := Item."Production BOM No." <> '';
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterHasRoutingNo', '', false, false)]
     local procedure OnAfterHasRoutingNo(var Item: Record Item; var Result: Boolean);
     begin

@@ -108,10 +108,24 @@ page 506 "Item Application Entries"
                     CurrPage.Update(false);
                 end;
             }
+            action("Set/Reset Cost Application")
+            {
+                Image = ApplyEntries;
+                Caption = 'Set/Reset Cost Application';
+                ToolTip = 'Set or reset the Cost Application field to indicate whether the cost of the related outbound item entry should be forwarded or simply included in an average cost calculation.';
+
+                trigger OnAction()
+                begin
+                    Rec.SetCostApplication(not Rec."Cost Application");
+
+                    CurrPage.Update(false);
+                end;
+            }
         }
         area(Promoted)
         {
             actionref("Outbound Not Updated_Promoted"; "Outbound Not Updated") { }
+            actionref("Set/Reset Cost Application_Promoted"; "Set/Reset Cost Application") { }
         }
     }
 }
