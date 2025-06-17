@@ -1,21 +1,22 @@
 namespace System.DataAdministration;
 
 using Microsoft.EServices.EDocument;
+using Microsoft.Foundation.Company;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
-using Microsoft.Foundation.Company;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Purchases.Archive;
 using Microsoft.Sales.Archive;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.History;
-using System.Upgrade;
-using System.Diagnostics;
+using Microsoft.Warehouse.InventoryDocument;
 using System.Automation;
-using System.Utilities;
+using System.Diagnostics;
 using System.Environment.Configuration;
 using System.Threading;
-using Microsoft.Projects.Project.Archive;
+using System.Upgrade;
+using System.Utilities;
 
 #pragma warning disable AA0235
 codeunit 3999 "Reten. Pol. Install - BaseApp"
@@ -103,6 +104,15 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             AddCRMIntegrationSynch(IsInitialSetup);
             if IsInitialSetup then
                 UpgradeTag.SetUpgradeTag(GetRetenPolCRMIntegrationSynchUpgradeTag());
+        end;
+
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolInventoryTablesUpgradeTag());
+        if IsInitialSetup or ForceUpdate then begin
+            AddPostedInvtPickHeaderToAllowedTables(IsInitialSetup);
+            AddPostedInvtPutawayHeaderToAllowedTables(IsInitialSetup);
+            AddRegisteredInvtMovementHdrToAllowedTables(IsInitialSetup);
+            if IsInitialSetup then
+                UpgradeTag.SetUpgradeTag(GetRetenPolInventoryTablesUpgradeTag());
         end;
     end;
 
@@ -220,6 +230,45 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RetenPolAllowedTables.AddAllowedTable(Database::"Job Archive", JobArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
 
         OnAfterAddDocumentArchiveTablesToAllowedTables();
+    end;
+
+    local procedure AddPostedInvtPickHeaderToAllowedTables(IsInitialSetup: Boolean)
+    var
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Posted Invt. Pick Header", PostedInvtPickHeader.FieldNo("Registering Date"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Posted Invt. Pick Header", FindOrCreateRetentionPeriod(Enum::"Retention Period Enum"::"1 Year"));
+    end;
+
+    local procedure AddPostedInvtPutawayHeaderToAllowedTables(IsInitialSetup: Boolean)
+    var
+        PostedInvtPutawayHeader: Record "Posted Invt. Put-away Header";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Posted Invt. Put-away Header", PostedInvtPutawayHeader.FieldNo("Registering Date"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Posted Invt. Put-away Header", FindOrCreateRetentionPeriod(Enum::"Retention Period Enum"::"1 Year"));
+    end;
+
+    local procedure AddRegisteredInvtMovementHdrToAllowedTables(IsInitialSetup: Boolean)
+    var
+        RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Registered Invt. Movement Hdr.", RegisteredInvtMovementHdr.FieldNo("Registering Date"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Registered Invt. Movement Hdr.", FindOrCreateRetentionPeriod(Enum::"Retention Period Enum"::"1 Year"));
     end;
 
     local procedure AddDataverseEntityChange(IsInitialSetup: Boolean)
@@ -347,6 +396,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolCRMIntegrationSynchUpgradeTag(): Code[250]
     begin
         exit('MS-542758-RetenPolCRMIntegrationSynch-20240820');
+    end;
+
+    local procedure GetRetenPolInventoryTablesUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-1268-RetenPolInventoryTables-20250608');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reten. Pol. Allowed Tables", 'OnRefreshAllowedTables', '', false, false)]

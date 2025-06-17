@@ -6,13 +6,18 @@ namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Reports;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Journal;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Ledger;
 
 codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
 {
     var
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
+#if not CLEAN27
+        CalcInventoryAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
+#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text009: Label 'This %1 Order has not been adjusted.';
@@ -130,5 +135,97 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
                         PAGE::"Finished Production Order");
                 end;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Inventory Adjmt. - Order", 'OnCalcActualCapacityCostsInternal', '', true, true)]
+    local procedure OnCalcActualCapacityCostsInternal(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+        CalcActualCapacityCosts(InvtAdjmtEntryOrder);
+    end;
+
+    local procedure CalcActualCapacityCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    var
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
+        ShareOfTotalCapCost: Decimal;
+        IsHandled: Boolean;
+    begin
+        ShareOfTotalCapCost := CalcShareOfCapCost(InvtAdjmtEntryOrder);
+
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.");
+        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
+        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
+        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
+        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
+        IsHandled := false;
+        OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
+#if not CLEAN27
+        CalcInventoryAdjmtOrder.RunOnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
+#endif
+        if not IsHandled then
+            if CapLedgEntry.Find('-') then
+                repeat
+                    CapLedgEntry.CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
+                    if CapLedgEntry.Subcontracting then
+                        InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost(CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" *
+                          ShareOfTotalCapCost)
+                    else
+                        InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
+                          CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" * ShareOfTotalCapCost);
+                    InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
+                      CapLedgEntry."Overhead Cost" * ShareOfTotalCapCost, CapLedgEntry."Overhead Cost (ACY)" * ShareOfTotalCapCost);
+                until CapLedgEntry.Next() = 0;
+    end;
+
+    local procedure CalcShareOfCapCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)") ShareOfCapCost: Decimal
+    var
+        CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcShareOfCapCost(InvtAdjmtEntryOrder, ShareOfCapCost, IsHandled);
+#if not CLEAN27
+        CalcInventoryAdjmtOrder.RunOnBeforeCalcShareOfCapCost(InvtAdjmtEntryOrder, ShareOfCapCost, IsHandled);
+#endif
+        if IsHandled then
+            exit(ShareOfCapCost);
+
+        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Assembly then
+            exit(1);
+
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
+        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
+        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        CapLedgEntry.SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
+        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
+        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
+        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
+        ShareOfCapCost := CapLedgEntry."Output Quantity";
+
+        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
+            CapLedgEntry.SetRange("Order Line No.");
+        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
+        if CapLedgEntry."Output Quantity" <> 0 then
+            ShareOfCapCost := ShareOfCapCost / CapLedgEntry."Output Quantity"
+        else
+            ShareOfCapCost := 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcShareOfCapCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ShareOfCapCost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Adjustment", 'OnAfterInitAdjmtJnlLine', '', false, false)]
+    local procedure OnAfterInitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type"; InvoicedQty: Decimal)
+    begin
+        if OrigValueEntry."Item Ledger Entry Type" = OrigValueEntry."Item Ledger Entry Type"::Output then
+            ItemJnlLine."Output Quantity (Base)" := ItemJnlLine."Quantity (Base)";
     end;
 }
