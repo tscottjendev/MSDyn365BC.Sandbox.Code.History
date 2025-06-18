@@ -20,6 +20,9 @@ using System.Telemetry;
 
 codeunit 99000893 "Mfg. Create Put-away"
 {
+    Permissions = tabledata "Production Order" = rm,
+                  tabledata "Prod. Order Line" = rm;
+
     var
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
         CurrWarehouseActivityHeader: Record "Warehouse Activity Header";
