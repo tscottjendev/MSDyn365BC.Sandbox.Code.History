@@ -37,7 +37,7 @@ page 9644 "Column Picker Part"
                     AboutText = 'Displays the list of card and list pages that have the selected table as source. Select a page to view the fields available for that page.';
                     Editable = true;
                     Visible = AreTherePagesAvailable;
-                    InstructionalText = 'Select a page';
+                    InstructionalText = 'Select a page, or leave blank for all fields';
                     LookupPageId = "List and Card page picker";
                     TableRelation = "Page Metadata" where(SourceTable = field("Table No"));
 
