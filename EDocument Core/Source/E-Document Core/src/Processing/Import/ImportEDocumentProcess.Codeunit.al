@@ -9,6 +9,7 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 using System.Utilities;
 using System.IO;
 using Microsoft.Purchases.Vendor;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 /// <summary>
 /// This codeunit executes a single step of the import process, it can be configured with the step to run, whether to undo the step or not, and the E-Document to process.
@@ -128,15 +129,24 @@ codeunit 6104 "Import E-Document Process"
     local procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters")
     var
         Vendor: Record Vendor;
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         IProcessStructuredData: Interface IProcessStructuredData;
+        VendNo: Code[20];
     begin
         IProcessStructuredData := EDocument."Process Draft Impl.";
         EDocument."Document Type" := IProcessStructuredData.PrepareDraft(EDocument, EDocImportParameters);
 
-        if Vendor.Get(IProcessStructuredData.GetVendor(EDocument, EDocImportParameters."Processing Customizations")."No.") then begin
-            EDocument."Bill-to/Pay-to Name" := Vendor.Name;
-            EDocument."Bill-to/Pay-to No." := Vendor."No.";
+        VendNo := IProcessStructuredData.GetVendor(EDocument, EDocImportParameters."Processing Customizations")."No.";
+        if VendNo = '' then begin
+            EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+            VendNo := EDocumentPurchaseHeader."[BC] Vendor No.";
         end;
+
+        if VendNo <> '' then
+            if Vendor.Get(VendNo) then begin
+                EDocument."Bill-to/Pay-to Name" := Vendor.Name;
+                EDocument."Bill-to/Pay-to No." := Vendor."No.";
+            end;
         EDocument.Modify();
     end;
 
