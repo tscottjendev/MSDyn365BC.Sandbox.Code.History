@@ -11,6 +11,9 @@ using Microsoft.Warehouse.Request;
 
 codeunit 99000765 "Mfg. Whse. Activity Register"
 {
+    Permissions = tabledata "Production Order" = rm,
+                  tabledata "Prod. Order Line" = rm;
+
 #if not CLEAN27
     var
         WhseActivityRegister: Codeunit "Whse.-Activity-Register";
@@ -19,40 +22,51 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnUpdateWhseDocHeaderByWhseDocumentType', '', false, false)]
     local procedure OnUpdateWhseDocHeaderByWhseDocumentType(var WarehouseActivityLine: Record "Warehouse Activity Line")
     var
-        ProdOrder: Record "Production Order";
+        ProductionOrder: Record "Production Order";
         WhsePickRequest: Record "Whse. Pick Request";
         WhsePutAwayRequest: Record "Whse. Put-away Request";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
         case WarehouseActivityLine."Whse. Document Type" of
             WarehouseActivityLine."Whse. Document Type"::Production:
                 begin
                     if WarehouseActivityLine."Source Document" = WarehouseActivityLine."Source Document"::"Prod. Consumption" then
                         if WarehouseActivityLine."Action Type" <> WarehouseActivityLine."Action Type"::Take then begin
-                            ProdOrder.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.");
-                            ProdOrder.CalcFields("Completely Picked");
-                            if ProdOrder."Completely Picked" then begin
+                            ProductionOrder.SetLoadFields("Completely Picked");
+                            ProductionOrder.SetAutoCalcFields("Completely Picked");
+                            ProductionOrder.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.");
+                            if ProductionOrder."Completely Picked" then begin
                                 WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Production);
-                                WhsePickRequest.SetRange("Document No.", ProdOrder."No.");
+                                WhsePickRequest.SetRange("Document No.", ProductionOrder."No.");
                                 WhsePickRequest.ModifyAll("Completely Picked", true);
-                                ItemTrackingMgt.DeleteWhseItemTrkgLines(
+                                ItemTrackingManagement.DeleteWhseItemTrkgLines(
                                      Database::"Prod. Order Component", WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", '', 0, 0, '', false);
                             end;
                         end;
                     if WarehouseActivityLine."Source Document" = WarehouseActivityLine."Source Document"::"Prod. Output" then
                         if WarehouseActivityLine."Action Type" <> WarehouseActivityLine."Action Type"::Place then begin
-                            ProdOrder.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.");
-                            ProdOrder."Document Put-away Status" := ProdOrder.GetHeaderPutAwayStatus(0);
-                            ProdOrder.Modify();
-                            if ProdOrder."Document Put-away Status" = ProdOrder."Document Put-away Status"::"Completely Put Away" then begin
+                            ProductionOrder.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.");
+                            UpdateProductionOrderPutAwayStatus(ProductionOrder);
+                            if ProductionOrder."Document Put-away Status" = ProductionOrder."Document Put-away Status"::"Completely Put Away" then begin
                                 WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Production);
-                                WhsePutAwayRequest.SetRange("Document No.", ProdOrder."No.");
+                                WhsePutAwayRequest.SetRange("Document No.", ProductionOrder."No.");
                                 WhsePutAwayRequest.DeleteAll();
-                                ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                                    Database::"Prod. Order Line", 0, ProdOrder."No.", '', 0, 0, '', false);
+                                ItemTrackingManagement.DeleteWhseItemTrkgLines(
+                                    Database::"Prod. Order Line", 0, ProductionOrder."No.", '', 0, 0, '', false);
                             end;
                         end;
                 end;
+        end;
+    end;
+
+    local procedure UpdateProductionOrderPutAwayStatus(var ProductionOrder: Record "Production Order")
+    var
+        NewProductionOrderPutAwayStatus: Option;
+    begin
+        NewProductionOrderPutAwayStatus := ProductionOrder.GetHeaderPutAwayStatus(0);
+        if NewProductionOrderPutAwayStatus <> ProductionOrder."Document Put-away Status" then begin
+            ProductionOrder."Document Put-away Status" := NewProductionOrderPutAwayStatus;
+            ProductionOrder.Modify();
         end;
     end;
 
@@ -60,24 +74,24 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
     local procedure OnCheckSourceDocumentForAvailabilityBySourceDocument(var WarehouseActivityLine: Record "Warehouse Activity Line"; var RemainingQtyBase: Decimal; var RemainingQtyUoM: Code[10]; var AllowWhseOverpick: Boolean)
     var
         Item: Record Item;
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
     begin
         case WarehouseActivityLine."Source Document" of
             "Warehouse Activity Source Document"::"Prod. Consumption":
                 begin
-                    ProdOrderComp.SetLoadFields("Remaining Qty. (Base)", "Unit of Measure Code");
-                    ProdOrderComp.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.");
+                    ProdOrderComponent.SetLoadFields("Remaining Qty. (Base)", "Unit of Measure Code");
+                    ProdOrderComponent.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.");
                     Item.SetLoadFields("Allow Whse. Overpick");
                     Item.Get(WarehouseActivityLine."Item No.");
 
                     AllowWhseOverpick := Item."Allow Whse. Overpick";
-                    RemainingQtyBase := ProdOrderComp."Remaining Qty. (Base)";
-                    RemainingQtyUoM := ProdOrderComp."Unit of Measure Code";
+                    RemainingQtyBase := ProdOrderComponent."Remaining Qty. (Base)";
+                    RemainingQtyUoM := ProdOrderComponent."Unit of Measure Code";
 
-                    ProdOrderComp.SetLoadFields("Remaining Qty. (Base)", "Unit of Measure Code");
-                    ProdOrderComp.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.");
-                    RemainingQtyBase := ProdOrderComp."Remaining Qty. (Base)";
-                    RemainingQtyUoM := ProdOrderComp."Unit of Measure Code";
+                    ProdOrderComponent.SetLoadFields("Remaining Qty. (Base)", "Unit of Measure Code");
+                    ProdOrderComponent.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.");
+                    RemainingQtyBase := ProdOrderComponent."Remaining Qty. (Base)";
+                    RemainingQtyUoM := ProdOrderComponent."Unit of Measure Code";
                 end;
         end;
     end;
@@ -142,34 +156,37 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
 
     local procedure UpdateProdCompLine(WhseActivityLine: Record "Warehouse Activity Line")
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
     begin
-        ProdOrderComp.Get(WhseActivityLine."Source Subtype", WhseActivityLine."Source No.", WhseActivityLine."Source Line No.", WhseActivityLine."Source Subline No.");
-        ProdOrderComp."Qty. Picked (Base)" :=
-          ProdOrderComp."Qty. Picked (Base)" + WhseActivityLine."Qty. to Handle (Base)";
-        if WhseActivityLine."Qty. per Unit of Measure" = ProdOrderComp."Qty. per Unit of Measure" then
-            ProdOrderComp."Qty. Picked" := ProdOrderComp."Qty. Picked" + WhseActivityLine."Qty. to Handle"
+        ProdOrderComponent.Get(WhseActivityLine."Source Subtype", WhseActivityLine."Source No.", WhseActivityLine."Source Line No.", WhseActivityLine."Source Subline No.");
+        ProdOrderComponent."Qty. Picked (Base)" :=
+          ProdOrderComponent."Qty. Picked (Base)" + WhseActivityLine."Qty. to Handle (Base)";
+        if WhseActivityLine."Qty. per Unit of Measure" = ProdOrderComponent."Qty. per Unit of Measure" then
+            ProdOrderComponent."Qty. Picked" := ProdOrderComponent."Qty. Picked" + WhseActivityLine."Qty. to Handle"
         else
-            ProdOrderComp."Qty. Picked" :=
-              Round(ProdOrderComp."Qty. Picked" + WhseActivityLine."Qty. to Handle (Base)" / WhseActivityLine."Qty. per Unit of Measure");
-        ProdOrderComp."Completely Picked" :=
-          ProdOrderComp."Qty. Picked" = ProdOrderComp."Expected Quantity";
-        OnBeforeProdCompLineModify(ProdOrderComp, WhseActivityLine);
+            ProdOrderComponent."Qty. Picked" :=
+              Round(ProdOrderComponent."Qty. Picked" + WhseActivityLine."Qty. to Handle (Base)" / WhseActivityLine."Qty. per Unit of Measure");
+        ProdOrderComponent."Completely Picked" :=
+          ProdOrderComponent."Qty. Picked" = ProdOrderComponent."Expected Quantity";
+        OnBeforeProdCompLineModify(ProdOrderComponent, WhseActivityLine);
 #if not CLEAN27
-        WhseActivityRegister.RunOnBeforeProdCompLineModify(ProdOrderComp, WhseActivityLine);
+        WhseActivityRegister.RunOnBeforeProdCompLineModify(ProdOrderComponent, WhseActivityLine);
 #endif
-        ProdOrderComp.Modify();
-        OnAfterProdCompLineModify(ProdOrderComp);
+        ProdOrderComponent.Modify();
+        OnAfterProdCompLineModify(ProdOrderComponent);
 #if not CLEAN27
-        WhseActivityRegister.RunOnAfterProdCompLineModify(ProdOrderComp);
+        WhseActivityRegister.RunOnAfterProdCompLineModify(ProdOrderComponent);
 #endif
     end;
 
     local procedure UpdateProdOrderLine(WarehouseActivityLine: Record "Warehouse Activity Line")
     var
         ProdOrderLine: Record "Prod. Order Line";
+        xProdOrderLine: Record "Prod. Order Line";
     begin
         ProdOrderLine.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.");
+        xProdOrderLine := ProdOrderLine;
+
         ProdOrderLine."Qty. Put Away (Base)" :=
           ProdOrderLine."Qty. Put Away (Base)" + WarehouseActivityLine."Qty. to Handle (Base)";
         if WarehouseActivityLine."Qty. per Unit of Measure" = ProdOrderLine."Qty. per Unit of Measure" then
@@ -178,7 +195,12 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
             ProdOrderLine."Qty. Put Away" :=
               Round(ProdOrderLine."Qty. Put Away" + WarehouseActivityLine."Qty. to Handle (Base)" / WarehouseActivityLine."Qty. per Unit of Measure");
         ProdOrderLine."Put-away Status" := ProdOrderLine.GetLinePutAwayStatus();
-        ProdOrderLine.Modify();
+
+        if (ProdOrderLine."Qty. Put Away (Base)" <> xProdOrderLine."Qty. Put Away (Base)") or
+           (ProdOrderLine."Qty. Put Away" <> xProdOrderLine."Qty. Put Away") or
+           (ProdOrderLine."Put-away Status" <> xProdOrderLine."Put-away Status")
+        then
+            ProdOrderLine.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnGetSourceLineBaseQtyByWhseActivityDocumentType', '', false, false)]
@@ -201,13 +223,14 @@ codeunit 99000765 "Mfg. Whse. Activity Register"
 
     local procedure GetSourceLineBaseQty(var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
     begin
-        if ProdOrderComp.Get(
+        ProdOrderComponent.SetLoadFields("Expected Qty. (Base)");
+        if ProdOrderComponent.Get(
                 WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.",
                 WarehouseActivityLine."Source Line No.", WarehouseActivityLine."Source Subline No.")
         then
-            exit(ProdOrderComp."Expected Qty. (Base)");
+            exit(ProdOrderComponent."Expected Qty. (Base)");
 
     end;
 
