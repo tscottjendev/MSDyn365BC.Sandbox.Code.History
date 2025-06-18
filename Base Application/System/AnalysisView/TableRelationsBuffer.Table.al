@@ -53,7 +53,7 @@ table 9640 "Table Relations Buffer"
     }
     fieldgroups
     {
-        fieldgroup(DropDown; "Relation Description")
+        fieldgroup(DropDown; "Related Table Name", "Relation Description")
         {
         }
     }
@@ -77,7 +77,7 @@ table 9640 "Table Relations Buffer"
                     Rec."Related Field Name" := TableRelationsMetadata."Related Field Name";
                     Rec."Related Field No." := TableRelationsMetadata."Related Field No.";
 
-                    Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Related Table Name", TableRelationsMetadata."Field Name", TableRelationsMetadata."Related Field Name");
+                    Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Field Name", TableRelationsMetadata."Related Field Name");
 
                     if (CheckValidTable(TableRelationsMetadata."Related Table ID") and
                         CheckValidField(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.") and
@@ -99,7 +99,7 @@ table 9640 "Table Relations Buffer"
                         Rec."Related Field Name" := TableRelationsMetadata."Field Name";
                         Rec."Related Field No." := TableRelationsMetadata."Field No.";
 
-                        Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Table Name", TableRelationsMetadata."Related Field Name", TableRelationsMetadata."Field Name");
+                        Rec."Relation Description" := StrSubstNo(RelationDescriptionMsg, TableRelationsMetadata."Related Field Name", TableRelationsMetadata."Field Name");
 
                         if (CheckValidTable(TableRelationsMetadata."Table ID") and
                             CheckValidField(TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.") and
@@ -108,7 +108,7 @@ table 9640 "Table Relations Buffer"
                             if not Rec.Insert() then;
                     end;
             until TableRelationsMetadata.Next() = 0;
-        Rec.SetCurrentKey("Relation Description");
+        Rec.SetCurrentKey("Table Name");
     end;
 
     local procedure CheckValidTable(TableId: Integer): Boolean
@@ -123,7 +123,15 @@ table 9640 "Table Relations Buffer"
               (TableMetadata.Access = TableMetadata.Access::Public) and
               (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) and
               ((TableMetadata.Scope = TableMetadata.Scope::Cloud) or EnvironmentInformation.IsOnPrem()) and
-              DoesTheTableHavePages(TableId));
+              DoesTheTableHavePages(TableId) and HasReadPermission(TableId));
+    end;
+
+    local procedure HasReadPermission(TableId: Integer): Boolean
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.Open(TableId);
+        exit(RecRef.ReadPermission());
     end;
 
     local procedure DoesTheTableHavePages(TableId: Integer): Boolean
@@ -148,5 +156,5 @@ table 9640 "Table Relations Buffer"
     end;
 
     var
-        RelationDescriptionMsg: Label '%1 - Via: %2 = %3', Comment = '%1 = Related Table Name, %2 = Field Name, %3 = Related Field Name';
+        RelationDescriptionMsg: Label 'Via: %1 = %2', Comment = '%1 = Field Name, %2 = Related Field Name';
 }
