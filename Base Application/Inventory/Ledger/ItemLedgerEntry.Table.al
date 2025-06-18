@@ -987,7 +987,6 @@ table 32 "Item Ledger Entry"
         if "Serial No." = '' then
             CalcFields("Reserved Quantity")
         else begin
-            ReservationEntry.SetCurrentKey("Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
             ReservationEntry.SetRange("Serial No.", "Serial No.");
             ReservationEntry.SetRange("Source ID", '');
             ReservationEntry.SetRange("Source Ref. No.", "Entry No.");
