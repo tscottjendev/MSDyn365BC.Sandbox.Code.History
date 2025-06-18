@@ -188,6 +188,12 @@ codeunit 1605 "PEPPOL Management"
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
+    procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
+    begin
+        BuyerReference := SalesHeader."Your Reference";
+        OnAfterGetBuyerReference(SalesHeader, BuyerReference);
+    end;
+
     /// <summary>
     /// Generates a PDF attachment from report set in Report Selections.
     /// </summary>
@@ -1680,6 +1686,11 @@ codeunit 1605 "PEPPOL Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyIdentificationID(SalesHeader: Record "Sales Header"; var PartyIdentificationID: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBuyerReference(SalesHeader: Record "Sales Header"; var BuyerReference: Text)
     begin
     end;
 }
