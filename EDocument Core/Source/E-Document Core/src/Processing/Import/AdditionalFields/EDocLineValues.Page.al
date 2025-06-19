@@ -10,7 +10,7 @@ using Microsoft.eServices.EDocument;
 page 6102 "E-Doc Line Values."
 {
     PageType = Card;
-    Caption = 'E-Document additional fields';
+    Caption = 'Additional fields';
     SourceTable = "E-Document Purchase Line";
     DataCaptionExpression = DataCaption;
     InsertAllowed = false;
@@ -71,7 +71,7 @@ page 6102 "E-Doc Line Values."
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         RetrievedFromTxt, DataCaption : Text;
         HistoricalSource: Boolean;
-        PageCaptionLbl: Label '%1 - %2', Comment = '%1 - E-Document No.,%2 = Line No.';
+        PageCaptionLbl: Label 'E-Document %1, line %2', Comment = '%1 - E-Document No.,%2 = Line No.';
         HistoricSourceLbl: Label 'Historical values from invoice %1 - %2', Comment = '%1 = Invoice No., %2 = Line No.';
 
     trigger OnOpenPage()
