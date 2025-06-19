@@ -54,6 +54,7 @@ codeunit 139915 "Sales Service Commitment Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SerialNo: array[10] of Code[50];
         NoOfServiceObjects: Integer;
         NotCreatedProperlyErr: Label 'Subscription Lines are not created properly.';
@@ -1602,6 +1603,7 @@ codeunit 139915 "Sales Service Commitment Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Sales Service Commitment Test");
         ClearAll();
         ContractTestLibrary.InitContractsApp();
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Invoicing Item");
