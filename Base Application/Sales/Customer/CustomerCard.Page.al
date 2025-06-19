@@ -232,14 +232,21 @@ page 21 "Customer Card"
                 group(AddressDetails)
                 {
                     Caption = 'Address';
+#if not CLEAN27
                     group(Control1040004)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
                             ShowCaption = false;
 
                             trigger OnDrillDown()
@@ -248,16 +255,18 @@ page 21 "Customer Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -269,7 +278,9 @@ page 21 "Customer Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(City; Rec.City)
@@ -289,7 +300,7 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -297,6 +308,7 @@ page 21 "Customer Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -2329,7 +2341,9 @@ page 21 "Customer Card"
             if OpenApprovalEntriesExist then
                 OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
         end;
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnInit()
@@ -2565,7 +2579,9 @@ page 21 "Customer Card"
         ShowWorkflowStatus: Boolean;
         NoFieldVisible: Boolean;
         BalanceExhausted: Boolean;
+#if not CLEAN27        
         IsAddressLookupTextEnabled: Boolean;
+#endif        
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
         AmountOnPostedCrMemos: Decimal;
@@ -2598,7 +2614,9 @@ page 21 "Customer Card"
         EnabledApprovalWorkflowsExist: Boolean;
         AnyWorkflowExists: Boolean;
         NewMode: Boolean;
+#if not CLEAN27        
         LookupAddressLbl: Label 'Lookup address from postcode';
+#endif        
         WorkFlowEventFilter: Text;
         CaptionTxt: Text;
         CanRequestApprovalForFlow: Boolean;
@@ -2723,6 +2741,8 @@ page 21 "Customer Card"
             end;
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -2764,6 +2784,7 @@ page 21 "Customer Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     local procedure OpenCurrFiscalYearCustLedgerEntries()
     var

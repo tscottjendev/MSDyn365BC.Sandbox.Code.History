@@ -115,15 +115,22 @@ page 5200 "Employee Card"
                 group(Control13)
                 {
                     ShowCaption = false;
+#if not CLEAN27
                     group(Control1040007)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = BasicHR;
                             Editable = false;
                             ShowCaption = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
 
                             trigger OnDrillDown()
                             begin
@@ -131,17 +138,19 @@ page 5200 "Employee Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the employee''s address.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -168,7 +177,7 @@ page 5200 "Employee Card"
                         ApplicationArea = BasicHR;
                         Importance = Promoted;
                         ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -176,6 +185,7 @@ page 5200 "Employee Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
@@ -185,7 +195,9 @@ page 5200 "Employee Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(ShowMap; ShowMapLbl)
@@ -763,7 +775,9 @@ page 5200 "Employee Card"
         Employee: Record Employee;
         EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
     begin
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
 
         if not NewMode then
             exit;
@@ -782,8 +796,10 @@ page 5200 "Employee Card"
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+#if not CLEAN27         
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
+#endif        
 
         ShowMapLbl: Label 'Show on Map';
 
@@ -794,6 +810,8 @@ page 5200 "Employee Card"
         NoFieldVisible := DocumentNoVisibility.EmployeeNoIsVisible();
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -835,5 +853,6 @@ page 5200 "Employee Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 }
 

@@ -23,14 +23,21 @@ page 300 "Ship-to Address"
                 group(Control3)
                 {
                     ShowCaption = false;
+#if not CLEAN27
                     group(Control1040006)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
                             ShowCaption = false;
 
                             trigger OnDrillDown()
@@ -39,6 +46,7 @@ page 300 "Ship-to Address"
                             end;
                         }
                     }
+#endif
                     field("Code"; Rec.Code)
                     {
                         ApplicationArea = Basic, Suite;
@@ -60,13 +68,14 @@ page 300 "Ship-to Address"
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -96,7 +105,9 @@ page 300 "Ship-to Address"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(ShowMap; ShowMapLbl)
@@ -207,7 +218,9 @@ page 300 "Ship-to Address"
     trigger OnAfterGetCurrRecord()
     begin
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnAfterGetRecord()
@@ -248,11 +261,15 @@ page 300 "Ship-to Address"
     var
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
+#if not CLEAN27
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
+#endif        
 
         ShowMapLbl: Label 'Show on Map';
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -294,6 +311,7 @@ page 300 "Ship-to Address"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnNewRecord(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")

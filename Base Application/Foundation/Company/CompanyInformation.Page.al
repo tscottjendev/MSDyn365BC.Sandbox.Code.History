@@ -45,14 +45,21 @@ page 1 "Company Information"
             group(General)
             {
                 Caption = 'General';
+#if not CLEAN27
                 group(Control1040003)
                 {
                     ShowCaption = false;
                     Visible = IsAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(LookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         ShowCaption = false;
 
                         trigger OnDrillDown()
@@ -61,6 +68,7 @@ page 1 "Company Information"
                         end;
                     }
                 }
+#endif
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,13 +80,14 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s address.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                     begin
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                     end;
+#endif
                 }
                 field("Address 2"; Rec."Address 2")
                 {
@@ -107,7 +116,7 @@ page 1 "Company Information"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                     trigger OnValidate()
                     var
                         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -115,6 +124,7 @@ page 1 "Company Information"
                         PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         ShowPostcodeLookup(false, AddressTok);
                     end;
+#endif
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
@@ -125,7 +135,9 @@ page 1 "Company Information"
                     trigger OnValidate()
                     begin
                         CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                         HandleAddressLookupVisibility();
+#endif
                     end;
                 }
                 field("Contact Person"; Rec."Contact Person")
@@ -300,15 +312,22 @@ page 1 "Company Information"
             group(Shipping)
             {
                 Caption = 'Shipping';
+#if not CLEAN27                
                 group(Control1040016)
                 {
                     ShowCaption = false;
                     Visible = IsShipToAddressLookupTextEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                    ObsoleteTag = '27.0';
                     field(ShipToLookupAddress; LookupAddressLbl)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
 
                         trigger OnDrillDown()
                         begin
@@ -316,6 +335,7 @@ page 1 "Company Information"
                         end;
                     }
                 }
+#endif                
                 field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -359,7 +379,9 @@ page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
+#if not CLEAN27
                         HandleAddressLookupVisibility();
+#endif
                         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                     end;
                 }
@@ -787,7 +809,9 @@ page 1 "Company Information"
     trigger OnAfterGetCurrRecord()
     begin
         UpdateSystemIndicator();
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
     end;
 
     trigger OnClosePage()
@@ -836,14 +860,18 @@ page 1 "Company Information"
         SystemIndicatorTextEditable: Boolean;
         IBANMissing: Boolean;
         BankBranchNoOrAccountNoMissing: Boolean;
+#if not CLEAN27        
         IsAddressLookupTextEnabled: Boolean;
         IsShipToAddressLookupTextEnabled: Boolean;
+#endif 
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+#if not CLEAN27        
         LookupAddressLbl: Label 'Lookup address from postocde';
         AddressTok: Label 'ADDRESS', Locked = true;
         ShipToTok: Label 'SHIP-TO', Locked = true;
+#endif        
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
         CompanyBadgeChangedLbl: Label 'The Company badge settings have changed by UserSecurityId %1.', Locked = true;
 
@@ -881,6 +909,8 @@ page 1 "Company Information"
         IBANMissing := Rec.IBAN = ''
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean; Group: Text)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -953,6 +983,7 @@ page 1 "Company Information"
             IsShipToAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Ship-to Country/Region Code");
         end;
     end;
+#endif
 
     local procedure RestartSession()
     var

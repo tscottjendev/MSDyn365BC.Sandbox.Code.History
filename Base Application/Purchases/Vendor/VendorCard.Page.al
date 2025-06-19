@@ -198,14 +198,21 @@ page 26 "Vendor Card"
                 group(AddressDetails)
                 {
                     Caption = 'Address';
+#if not CLEAN27
                     group(Control1040003)
                     {
                         ShowCaption = false;
                         Visible = IsAddressLookupTextEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to the GetAddress.io UK Postcodes.';
+                        ObsoleteTag = '27.0';
                         field(LookupAddress; LookupAddressLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Field has been moved to the GetAddress.io UK Postcodes.';
+                            ObsoleteTag = '27.0';
                             ShowCaption = false;
 
                             trigger OnDrillDown()
@@ -214,17 +221,20 @@ page 26 "Vendor Card"
                             end;
                         }
                     }
+#endif
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the vendor''s address.';
 
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
                         begin
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                         end;
+#endif
                     }
                     field("Address 2"; Rec."Address 2")
                     {
@@ -239,7 +249,9 @@ page 26 "Vendor Card"
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+#if not CLEAN27
                             HandleAddressLookupVisibility();
+#endif
                         end;
                     }
                     field(City; Rec.City)
@@ -262,7 +274,7 @@ page 26 "Vendor Card"
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ToolTip = 'Specifies the postal code.';
-
+#if not CLEAN27
                         trigger OnValidate()
                         var
                             PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
@@ -270,6 +282,7 @@ page 26 "Vendor Card"
                             PostcodeBusinessLogic.ShowDiscoverabilityNotificationIfNeccessary();
                             ShowPostcodeLookup(false);
                         end;
+#endif
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -1868,7 +1881,9 @@ page 26 "Vendor Card"
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(Rec.RecordId);
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(Rec.RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+#if not CLEAN27
         HandleAddressLookupVisibility();
+#endif
 
         if Rec."No." <> '' then
             CurrPage.AgedAccPayableChart.PAGE.UpdateChartForVendor(Rec."No.");
@@ -1999,8 +2014,10 @@ page 26 "Vendor Card"
         SendToIncomingDocumentVisible: Boolean;
         NoFieldVisible: Boolean;
         NewMode: Boolean;
+#if not CLEAN27 
         LookupAddressLbl: Label 'Lookup address from postcode';
         IsAddressLookupTextEnabled: Boolean;
+#endif
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
@@ -2105,6 +2122,8 @@ page 26 "Vendor Card"
                     CurrPage.Close();
     end;
 
+#if not CLEAN27
+    [Obsolete('Functionality has been moved to the GetAddress.io UK Postcodes.', '27.0')]
     local procedure ShowPostcodeLookup(ShowInputFields: Boolean)
     var
         TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary;
@@ -2146,6 +2165,7 @@ page 26 "Vendor Card"
         else
             IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code");
     end;
+#endif
 
     local procedure SetNoFieldVisible()
     var
