@@ -2356,7 +2356,7 @@ codeunit 90 "Purch.-Post"
                 TransferReservToItemJnlLine(SalesOrderLine, ItemJnlLine, PurchLine, QtyToBeShippedBase, true);
                 OnBeforePostAssocItemJnlLine(ItemJnlLine, SalesOrderLine, SuppressCommit, PurchLine);
                 RunItemJnlPostLine(ItemJnlLine);
-                OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine, SalesOrderLine);
+                OnAfterPostAssocItemJnlLine(ItemJnlLine, ItemJnlPostLine, SalesOrderLine, SalesOrderHeader, TempTrackingSpecification);
                 // Handle Item Tracking
                 if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
                     if TempHandlingSpecification2.FindSet() then
@@ -8844,8 +8844,6 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertCombinedSalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
@@ -8877,7 +8875,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var SalesLineOrder: Record "Sales Line")
+    local procedure OnAfterPostAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var SalesLineOrder: Record "Sales Line"; var SalesOrderHeader: Record "Sales Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
