@@ -123,6 +123,7 @@ table 7347 "Internal Movement Line"
                     "Shelf No." := '';
                     Validate("Unit of Measure Code", '');
                 end;
+                OnValidateItemNoOnAfterSetItemFields(Rec, Item, ItemUnitOfMeasure);
 
                 if InternalMovementHeader.Get("No.") then begin
                     if "Location Code" = '' then
@@ -205,6 +206,7 @@ table 7347 "Internal Movement Line"
                     ItemVariant.Get("Item No.", "Variant Code");
                     Description := ItemVariant.Description;
                 end;
+                OnValidateVariantCodeOnAfterSetItemVariantFields(Rec, ItemVariant);
             end;
         }
         field(32; Description; Text[100])
@@ -704,6 +706,16 @@ table 7347 "Internal Movement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetItemTrackingLinesOnBeforeSetSource(var InternalMovementLine: Record "Internal Movement Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterSetItemFields(var InternalMovementLine: Record "Internal Movement Line"; Item: Record Item; ItemUnitOfMeasure: Record "Item Unit of Measure")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnAfterSetItemVariantFields(var InternalMovementLine: Record "Internal Movement Line"; ItemVariant: Record "Item Variant")
     begin
     end;
 }
