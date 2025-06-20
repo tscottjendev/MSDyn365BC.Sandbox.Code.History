@@ -333,4 +333,16 @@ codeunit 99000866 "Mfg. Requisition Line"
     local procedure OnAfterResetReqLineFields(var ReqLine: Record "Requisition Line")
     begin
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnResetReqLineFields', '', false, false)]
+    local procedure OnSetOperationNoFilterToBlank(var RequisitionLine: Record "Requisition Line")
+    begin
+        RequisitionLine.SetRange("Operation No.", '');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Req. Wksh.-Make Order", 'OnTransferFromReqLineToPurchLine', '', false, false)]
+    local procedure OnTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
+    begin
+        PurchOrderLine.TransferFromReqLineToPurchLine(PurchOrderLine, RequisitionLine);
+    end;
 }

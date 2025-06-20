@@ -830,7 +830,7 @@ codeunit 5817 "Undo Posting Management"
         end;
         OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
         PurchLine.Modify();
-        if PurchLine."Prod. Order No." = '' then
+        if not PurchLine.IsProdOrder() then
             RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
         xPurchLine."Quantity (Base)" := 0;
         PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
