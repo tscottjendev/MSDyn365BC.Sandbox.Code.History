@@ -80,7 +80,6 @@ permissionset 1002 "LOCAL READ"
 #endif
                   tabledata "Payment Lines" = R,
                   tabledata "Periodic Settlement VAT Entry" = R,
-                  tabledata "Periodic VAT Settlement Entry" = R,
                   tabledata "Posted Payment Lines" = R,
                   tabledata "Posted Vendor Bill Header" = R,
                   tabledata "Posted Vendor Bill Line" = R,
