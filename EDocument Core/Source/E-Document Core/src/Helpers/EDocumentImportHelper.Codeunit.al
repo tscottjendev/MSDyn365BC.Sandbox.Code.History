@@ -513,11 +513,25 @@ codeunit 6109 "E-Document Import Helper"
     /// <param name="VendorAddress">Vendor's address.</param>
     /// <returns>Vendor number if exists or empty string.</returns>
     procedure FindVendorByNameAndAddress(VendorName: Text; VendorAddress: Text): Code[20]
+    begin
+        exit(FindVendorByNameAndAddressWithNotification(VendorName, VendorAddress, 0));
+    end;
+
+    /// <summary>
+    /// Use it to find a vendor by name and address and raise a notification if vendor is found by name but not by address.
+    /// </summary>
+    /// <param name="VendorName">Name of a vendor</param>
+    /// <param name="VendorAddress">Address of a vendor</param>
+    /// <param name="EDocumentEntryNo">Id of e-document</param>
+    /// <returns>Vendor number if exists or empty string.</returns>
+    procedure FindVendorByNameAndAddressWithNotification(VendorName: Text; VendorAddress: Text; EDocEntryNoForNotification: Integer): Code[20]
     var
         Vendor: Record Vendor;
         RecordMatchMgt: Codeunit "Record Match Mgt.";
+        EDocumentNotification: Codeunit "E-Document Notification";
         NameNearness: Integer;
         AddressNearness: Integer;
+        MatchedByAddress: Boolean;
     begin
         Vendor.SetCurrentKey(Blocked);
         Vendor.SetLoadFields(Name, Address);
@@ -528,8 +542,13 @@ codeunit 6109 "E-Document Import Helper"
                     AddressNearness := RequiredNearness()
                 else
                     AddressNearness := RecordMatchMgt.CalculateStringNearness(VendorAddress, Vendor.Address, MatchThreshold(), NormalizingFactor());
-                if (NameNearness >= RequiredNearness()) and (AddressNearness >= RequiredNearness()) then
-                    exit(Vendor."No.");
+                if NameNearness >= RequiredNearness() then begin
+                    MatchedByAddress := AddressNearness >= RequiredNearness();
+                    if MatchedByAddress then
+                        exit(Vendor."No.");
+                    if EDocEntryNoForNotification <> 0 then
+                        EDocumentNotification.AddVendorMatchedByNameNotAddressNotification(EDocEntryNoForNotification);
+                end;
             until Vendor.Next() = 0;
     end;
 
