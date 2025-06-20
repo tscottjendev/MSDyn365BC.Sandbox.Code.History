@@ -46,7 +46,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -3409,7 +3408,6 @@ codeunit 104000 "Upgrade - BaseApp"
         LocationDataTransfer.SetTables(Database::Location, Database::Location);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', false);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', false);
-        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Prod. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Asm. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Job Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Job Consump. Whse. Handling"));
         LocationDataTransfer.CopyFields();
@@ -3418,7 +3416,6 @@ codeunit 104000 "Upgrade - BaseApp"
         LocationDataTransfer.SetTables(Database::Location, Database::Location);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', false);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', true);
-        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Prod. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Asm. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Job Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Job Consump. Whse. Handling"));
         LocationDataTransfer.CopyFields();
@@ -3427,7 +3424,6 @@ codeunit 104000 "Upgrade - BaseApp"
         LocationDataTransfer.SetTables(Database::Location, Database::Location);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', true);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', false);
-        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", Location.FieldNo("Prod. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Asm. Consump. Whse. Handling"::"Inventory Movement", Location.FieldNo("Asm. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Job Consump. Whse. Handling"::"Inventory Pick", Location.FieldNo("Job Consump. Whse. Handling"));
         LocationDataTransfer.CopyFields();
@@ -3436,37 +3432,8 @@ codeunit 104000 "Upgrade - BaseApp"
         LocationDataTransfer.SetTables(Database::Location, Database::Location);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', true);
         LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', true);
-        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location.FieldNo("Prod. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location.FieldNo("Asm. Consump. Whse. Handling"));
         LocationDataTransfer.AddConstantValue("Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location.FieldNo("Job Consump. Whse. Handling"));
-        LocationDataTransfer.CopyFields();
-        Clear(LocationDataTransfer);
-
-        LocationDataTransfer.SetTables(Database::Location, Database::Location);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', false);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', false);
-        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
-        LocationDataTransfer.CopyFields();
-        Clear(LocationDataTransfer);
-
-        LocationDataTransfer.SetTables(Database::Location, Database::Location);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', false);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', true);
-        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
-        LocationDataTransfer.CopyFields();
-        Clear(LocationDataTransfer);
-
-        LocationDataTransfer.SetTables(Database::Location, Database::Location);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', true);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', true);
-        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
-        LocationDataTransfer.CopyFields();
-        Clear(LocationDataTransfer);
-
-        LocationDataTransfer.SetTables(Database::Location, Database::Location);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', true);
-        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', false);
-        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"Inventory Put-away", Location.FieldNo("Prod. Output Whse. Handling"));
         LocationDataTransfer.CopyFields();
         Clear(LocationDataTransfer);
 

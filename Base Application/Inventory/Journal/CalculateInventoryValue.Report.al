@@ -212,15 +212,9 @@ report 5899 "Calculate Inventory Value"
                             CalculateAssemblyCost.CalcItems(Item, TempNewStdCostItem);
                             Clear(CalculateAssemblyCost);
                         end;
-                    CalcBase::"Standard Cost - Manufacturing":
-                        begin
-                            CalculateStandardCost.SetProperties(PostingDate, true, false, false, '', true);
-                            CalculateStandardCost.CalcItems(Item, TempNewStdCostItem);
-                            Clear(CalculateStandardCost);
-                        end;
                 end;
 
-                OnAfterOnPreDataItem(Item);
+                OnAfterOnPreDataItem(Item, CalcBase, PostingDate, TempNewStdCostItem);
             end;
         }
     }
@@ -339,7 +333,6 @@ report 5899 "Calculate Inventory Value"
         CalcInvtValCheck: Codeunit "Calc. Inventory Value-Check";
         NoSeriesBatch: Codeunit "No. Series - Batch";
         CalculateAssemblyCost: Codeunit Microsoft.Assembly.Costing."Calculate Assembly Cost";
-        CalculateStandardCost: Codeunit Microsoft.Manufacturing.StandardCost."Calculate Standard Cost";
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         Window: Dialog;
         CalculatePer: Enum "Inventory Value Calc. Per";
@@ -714,7 +707,7 @@ report 5899 "Calculate Inventory Value"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnPreDataItem(var Item: Record Item)
+    local procedure OnAfterOnPreDataItem(var Item: Record Item; CalcBase: Enum "Inventory Value Calc. Base"; PostingDate: Date; var TempNewStdCostItem: Record Item temporary)
     begin
     end;
 
