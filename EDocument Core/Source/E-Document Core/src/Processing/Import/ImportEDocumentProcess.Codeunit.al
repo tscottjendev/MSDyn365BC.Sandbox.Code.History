@@ -251,34 +251,53 @@ codeunit 6104 "Import E-Document Process"
         end;
     end;
 
-    procedure IndexToStatus(Index: Integer) Status: Enum "Import E-Doc. Proc. Status"
+    procedure IndexToStatus(Index: Integer; var Status: Enum "Import E-Doc. Proc. Status"): Boolean
     begin
         case Index of
             0:
-                exit(Status::Unprocessed);
+                Status := Status::Unprocessed;
             1:
-                exit(Status::Readable);
+                Status := Status::Readable;
             2:
-                exit(Status::"Ready for draft");
+                Status := Status::"Ready for draft";
             3:
-                exit(Status::"Draft ready");
+                Status := Status::"Draft ready";
             4:
-                exit(Status::Processed);
+                Status := Status::Processed;
+            else
+                exit(false);
         end;
+        exit(true)
     end;
 
-    procedure GetNextStep(Status: Enum "Import E-Doc. Proc. Status") Step: Enum "Import E-Document Steps"
+    procedure GetNextStep(Status: Enum "Import E-Doc. Proc. Status"; var NextStep: Enum "Import E-Document Steps"): Boolean
+    var
+        NextStatus: Enum "Import E-Doc. Proc. Status";
     begin
+        if not IndexToStatus(StatusStepIndex(Status) + 1, NextStatus) then
+            exit(false);
         case Status of
             Status::Unprocessed:
-                exit(Step::"Structure received data");
+                NextStep := Step::"Structure received data";
             Status::Readable:
-                exit(Step::"Read into Draft");
+                NextStep := Step::"Read into Draft";
             Status::"Ready for draft":
-                exit(Step::"Prepare draft");
+                NextStep := Step::"Prepare draft";
             Status::"Draft ready":
-                exit(Step::"Finish draft");
+                NextStep := Step::"Finish draft";
         end;
+        exit(true);
+    end;
+
+    procedure GetPreviousStep(Status: Enum "Import E-Doc. Proc. Status"; var PreviousStep: Enum "Import E-Document Steps"): Boolean
+    var
+        PreviousStatus: Enum "Import E-Doc. Proc. Status";
+    begin
+        if not IndexToStatus(StatusStepIndex(Status) - 1, PreviousStatus) then
+            exit(false);
+        if not GetNextStep(PreviousStatus, PreviousStep) then
+            exit(false);
+        exit(true);
     end;
 
     procedure GetStatusForStep(Step: Enum "Import E-Document Steps"; StepBefore: Boolean) Status: Enum "Import E-Doc. Proc. Status"
