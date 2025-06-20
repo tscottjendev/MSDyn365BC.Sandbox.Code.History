@@ -296,6 +296,11 @@ page 41 "Sales Quote"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how long the quote is valid.';
                 }
+                field("Quote Accepted"; Rec."Quote Accepted")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies that the quote was accepted by the customer.';
+                }
                 field("Quote Accepted Date"; Rec."Quote Accepted Date")
                 {
                     ApplicationArea = Suite;
