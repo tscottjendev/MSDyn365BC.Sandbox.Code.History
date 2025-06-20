@@ -80,6 +80,7 @@ permissionset 1001 "LOCAL"
 #endif
                   tabledata "Payment Lines" = RIMD,
                   tabledata "Periodic Settlement VAT Entry" = RIMD,
+                  tabledata "Periodic VAT Settlement Entry" = RIMD,
                   tabledata "Posted Payment Lines" = RIMD,
                   tabledata "Posted Vendor Bill Header" = RIMD,
                   tabledata "Posted Vendor Bill Line" = RIMD,
