@@ -42,6 +42,16 @@ tableextension 6217 "Sust. Purch. Inv. Header" extends "Purch. Inv. Header"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(6214; "Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            CalcFormula = sum("Sustainability Ledger Entry"."Energy Consumption" where("Document No." = field("No."), "Document Type" = filter(Invoice | "GHG Credit")));
+            Caption = 'Energy Consumption';
+            CaptionClass = '102,13,4';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     var

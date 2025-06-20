@@ -42,6 +42,16 @@ tableextension 6218 "Sust. Purch. Cr. Memo Header" extends "Purch. Cr. Memo Hdr.
             Editable = false;
             FieldClass = FlowField;
         }
+        field(6214; "Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            CalcFormula = sum("Sustainability Ledger Entry"."Energy Consumption" where("Document No." = field("No."), "Document Type" = filter("Credit Memo" | "GHG Credit")));
+            Caption = 'Energy Consumption';
+            CaptionClass = '102,13,4';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     var

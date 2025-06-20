@@ -27,6 +27,11 @@ pageextension 6219 "Sust. Purch. Cr. Memo. Stats." extends "Purch. Credit Memo S
                     ApplicationArea = Basic, Suite;
                     Caption = 'Emission N2O';
                 }
+                field("Energy Consumption"; Rec."Energy Consumption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Energy Consumption';
+                }
             }
         }
     }

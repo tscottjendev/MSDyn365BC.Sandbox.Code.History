@@ -164,6 +164,22 @@ table 6217 "Sustainability Setup"
                 EnableEmissionsWhenValueChainTrackingIsEnabled();
             end;
         }
+        field(26; "Energy Unit of Measure Code"; Code[10])
+        {
+            Caption = 'Energy Unit of Measure Code';
+            TableRelation = "Unit of Measure";
+        }
+        field(27; "Energy Reporting UOM Code"; Code[10])
+        {
+            Caption = 'Energy Reporting Unit of Measure Code';
+            TableRelation = "Unit of Measure";
+        }
+        field(28; "Energy Reporting UOM Factor"; Decimal)
+        {
+            InitValue = 1;
+            Caption = 'Energy Reporting UOM Factor';
+            DecimalPlaces = 0 : 10;
+        }
     }
 
     keys

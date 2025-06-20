@@ -1,5 +1,6 @@
 namespace Microsoft.Sustainability.Account;
 
+using Microsoft.Sustainability.Energy;
 using Microsoft.Sustainability.Setup;
 using Microsoft.Sustainability.Ledger;
 
@@ -131,6 +132,21 @@ table 6212 "Sustain. Account Subcategory"
 
                 CheckIfChangeAllowedAndRecalculateJournalLines(FieldCaption("Waste Intensity Factor"));
             end;
+        }
+        field(13; "Energy Source Code"; Code[20])
+        {
+            Caption = 'Energy Source Code';
+            TableRelation = "Sustainability Energy Source";
+            ToolTip = 'Specifies the code assigned to the energy source you want to add.';
+        }
+        field(14; "Energy Value Required"; Boolean)
+        {
+            Caption = 'Energy Value Required';
+        }
+        field(15; "Energy Onsite"; Boolean)
+        {
+            Caption = 'Energy Onsite';
+            ToolTip = 'Specifies the energy source used for generation is onsite or not.';
         }
     }
 

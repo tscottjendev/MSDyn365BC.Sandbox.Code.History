@@ -157,6 +157,14 @@ codeunit 148182 "Library - Sustainability"
         SustainabilitySetup.Modify();
     end;
 
+    procedure InsertSustainabilityEnergySource(var EnergySource: Record "Sustainability Energy Source")
+    begin
+        EnergySource.Init();
+        EnergySource.Validate("No.", LibraryUtility.GenerateRandomCode(EnergySource.FieldNo("No."), Database::"Sustainability Energy Source"));
+        EnergySource.Validate(Description, LibraryUtility.GenerateGUID());
+        EnergySource.Insert(true);
+    end;
+
     procedure CleanUpBeforeTesting()
     var
         SustainabilityJnlTemplate: Record "Sustainability Jnl. Template";
@@ -170,6 +178,7 @@ codeunit 148182 "Library - Sustainability"
         SustainabilityGoal: Record "Sustainability Goal";
         SustainabilityScorecard: Record "Sustainability Scorecard";
         EmissionFee: Record "Emission Fee";
+        EnergySource: Record "Sustainability Energy Source";
     begin
         SustainabilityJnlTemplate.DeleteAll();
         SustainabilityJnlBatch.DeleteAll();
@@ -182,5 +191,6 @@ codeunit 148182 "Library - Sustainability"
         SustainabilityGoal.DeleteAll();
         SustainabilityScorecard.DeleteAll();
         EmissionFee.DeleteAll();
+        EnergySource.DeleteAll();
     end;
 }

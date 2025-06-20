@@ -27,6 +27,11 @@ pageextension 6220 "Sust. Purch. Invoice Stats." extends "Purchase Invoice Stati
                     ApplicationArea = Basic, Suite;
                     Caption = 'Emission N2O';
                 }
+                field("Energy Consumption"; Rec."Energy Consumption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Energy Consumption';
+                }
             }
         }
     }

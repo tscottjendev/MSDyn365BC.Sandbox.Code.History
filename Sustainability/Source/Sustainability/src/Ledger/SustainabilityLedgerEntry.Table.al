@@ -9,6 +9,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.AuditCodes;
 using System.Security.AccessControl;
 using Microsoft.Sustainability.Setup;
+using Microsoft.Sustainability.Energy;
 
 table 6216 "Sustainability Ledger Entry"
 {
@@ -215,6 +216,18 @@ table 6216 "Sustainability Ledger Entry"
         field(38; "Water Type"; Enum "Water Type")
         {
             Caption = 'Water Type';
+        }
+        field(40; "Energy Source Code"; Code[20])
+        {
+            Caption = 'Energy Source Code';
+            TableRelation = "Sustainability Energy Source";
+        }
+        field(42; "Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Energy Consumption';
+            CaptionClass = '102,13,4';
         }
         field(5146; "Emission Scope"; Enum "Emission Scope")
         {

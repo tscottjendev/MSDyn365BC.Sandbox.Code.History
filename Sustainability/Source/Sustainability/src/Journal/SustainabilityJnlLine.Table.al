@@ -7,6 +7,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Location;
 using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Calculation;
+using Microsoft.Sustainability.Energy;
 using Microsoft.Sustainability.Setup;
 using System.Automation;
 
@@ -106,6 +107,16 @@ table 6214 "Sustainability Jnl. Line"
         {
             Caption = 'Account Subcategory';
             TableRelation = "Sustain. Account Subcategory".Code where("Category Code" = field("Account Category"));
+
+            trigger OnValidate()
+            begin
+                if Rec."Account Subcategory" <> '' then
+                    UpdateJournalLineFromAccountSubcategory()
+                else begin
+                    Rec.Validate("Energy Source Code", '');
+                    Rec.Validate("Renewable Energy", false);
+                end;
+            end;
         }
         field(11; Description; Text[100])
         {
@@ -368,6 +379,34 @@ table 6214 "Sustainability Jnl. Line"
             Caption = 'CO2e Emission';
             DecimalPlaces = 2 : 5;
         }
+        field(40; "Energy Source Code"; Code[20])
+        {
+            Caption = 'Energy Source Code';
+            TableRelation = "Sustainability Energy Source";
+
+            trigger OnValidate()
+            begin
+                if Rec."Energy Source Code" <> xRec."Energy Source Code" then
+                    Rec.Validate("Energy Consumption", 0);
+            end;
+        }
+        field(42; "Energy Consumption"; Decimal)
+        {
+            AutoFormatType = 11;
+            AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
+            Caption = 'Energy Consumption';
+            CaptionClass = '102,13,4';
+
+            trigger OnValidate()
+            begin
+                if Rec."Energy Consumption" <> 0 then
+                    Rec.TestField("Energy Source Code");
+            end;
+        }
+        field(5154; "Renewable Energy"; Boolean)
+        {
+            Caption = 'Renewable Energy';
+        }
     }
 
     keys
@@ -492,6 +531,7 @@ table 6214 "Sustainability Jnl. Line"
         SustainabilityJnlLine.Validate("Water Intensity", SignFactor * SustainabilityJnlLine."Water Intensity");
         SustainabilityJnlLine.Validate("Waste Intensity", SignFactor * SustainabilityJnlLine."Waste Intensity");
         SustainabilityJnlLine.Validate("Discharged Into Water", SignFactor * SustainabilityJnlLine."Discharged Into Water");
+        SustainabilityJnlLine.Validate("Energy Consumption", SignFactor * SustainabilityJnlLine."Energy Consumption");
     end;
 
     internal procedure ShowDimensions() IsChanged: Boolean
@@ -643,6 +683,16 @@ table 6214 "Sustainability Jnl. Line"
         ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(Rec);
         if SustJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
             ApprovalsMgmt.PreventModifyRecIfOpenApprovalEntryExistForCurrentUser(SustJournalBatch);
+    end;
+
+    local procedure UpdateJournalLineFromAccountSubcategory()
+    var
+        SustainAccountSubcategory: Record "Sustain. Account Subcategory";
+    begin
+        SustainAccountSubcategory.Get(Rec."Account Category", Rec."Account Subcategory");
+
+        Rec.Validate("Energy Source Code", SustainAccountSubcategory."Energy Source Code");
+        Rec.Validate("Renewable Energy", SustainAccountSubcategory."Renewable Energy");
     end;
 
     [IntegrationEvent(false, false)]

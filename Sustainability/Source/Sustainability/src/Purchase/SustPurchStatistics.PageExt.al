@@ -27,6 +27,11 @@ pageextension 6218 "Sust. Purch. Statistics" extends "Purchase Statistics"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Emission N2O';
                 }
+                field("Energy Consumption"; Rec."Energy Consumption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Emission N2O';
+                }
                 field("Posted Emission C02"; Rec."Posted Emission C02")
                 {
                     ApplicationArea = Basic, Suite;
@@ -41,6 +46,11 @@ pageextension 6218 "Sust. Purch. Statistics" extends "Purchase Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Emission N2O';
+                }
+                field("Posted Energy Consumption"; Rec."Posted Energy Consumption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Energy Consumption';
                 }
             }
         }

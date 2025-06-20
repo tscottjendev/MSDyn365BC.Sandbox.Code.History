@@ -143,9 +143,17 @@ page 6219 "Sustainability Journal"
                 {
                     ToolTip = 'Specifies the sustainability account subcategory.';
                 }
+                field("Energy Source Code"; Rec."Energy Source Code")
+                {
+                    ToolTip = 'Specifies the Energy Source Code.';
+                }
                 field("Manual Input"; Rec."Manual Input")
                 {
                     ToolTip = 'Specifies whether the amounts will be input manually.';
+                }
+                field("Renewable Energy"; Rec."Renewable Energy")
+                {
+                    ToolTip = 'Specifies the Renewable Energy.';
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
@@ -234,6 +242,10 @@ page 6219 "Sustainability Journal"
                 {
                     Editable = Rec."Manual Input";
                     ToolTip = 'Specifies the Waste Intensity of the entry.';
+                }
+                field("Energy Consumption"; Rec."Energy Consumption")
+                {
+                    ToolTip = 'Specifies the Energy Consumption.';
                 }
                 field("Water/Waste Intensity Type"; Rec."Water/Waste Intensity Type")
                 {

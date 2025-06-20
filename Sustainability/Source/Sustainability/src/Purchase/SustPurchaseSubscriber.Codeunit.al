@@ -38,25 +38,25 @@ codeunit 6225 "Sust. Purchase Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnInsertReceiptLineOnAfterInitPurchRcptLine', '', false, false)]
     local procedure OnInsertReceiptLineOnAfterInitPurchRcptLine(PurchLine: Record "Purchase Line"; var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
-        UpdatePostedSustainabilityEmission(PurchLine, PurchRcptLine.Quantity, 1, PurchRcptLine."Emission CO2", PurchRcptLine."Emission CH4", PurchRcptLine."Emission N2O");
+        UpdatePostedSustainabilityEmission(PurchLine, PurchRcptLine.Quantity, 1, PurchRcptLine."Emission CO2", PurchRcptLine."Emission CH4", PurchRcptLine."Emission N2O", PurchRcptLine."Energy Consumption");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnInsertReturnShipmentLineOnAfterReturnShptLineInit', '', false, false)]
     local procedure OnInsertReturnShipmentLineOnAfterReturnShptLineInit(PurchLine: Record "Purchase Line"; var ReturnShptLine: Record "Return Shipment Line")
     begin
-        UpdatePostedSustainabilityEmission(PurchLine, ReturnShptLine.Quantity, 1, ReturnShptLine."Emission CO2", ReturnShptLine."Emission CH4", ReturnShptLine."Emission N2O");
+        UpdatePostedSustainabilityEmission(PurchLine, ReturnShptLine.Quantity, 1, ReturnShptLine."Emission CO2", ReturnShptLine."Emission CH4", ReturnShptLine."Emission N2O", ReturnShptLine."Energy Consumption");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchInvLineInsert', '', false, false)]
     local procedure OnBeforePurchInvLineInsert(var PurchaseLine: Record "Purchase Line"; var PurchInvLine: Record "Purch. Inv. Line")
     begin
-        UpdatePostedSustainabilityEmission(PurchaseLine, PurchInvLine.Quantity, 1, PurchInvLine."Emission CO2", PurchInvLine."Emission CH4", PurchInvLine."Emission N2O");
+        UpdatePostedSustainabilityEmission(PurchaseLine, PurchInvLine.Quantity, 1, PurchInvLine."Emission CO2", PurchInvLine."Emission CH4", PurchInvLine."Emission N2O", PurchInvLine."Energy Consumption");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchCrMemoLineInsert', '', false, false)]
     local procedure OnBeforePurchCrMemoLineInsert(PurchLine: Record "Purchase Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
-        UpdatePostedSustainabilityEmission(PurchLine, PurchCrMemoLine.Quantity, 1, PurchCrMemoLine."Emission CO2", PurchCrMemoLine."Emission CH4", PurchCrMemoLine."Emission N2O");
+        UpdatePostedSustainabilityEmission(PurchLine, PurchCrMemoLine.Quantity, 1, PurchCrMemoLine."Emission CO2", PurchCrMemoLine."Emission CH4", PurchCrMemoLine."Emission N2O", PurchCrMemoLine."Energy Consumption");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnAfterBindSubscription', '', false, false)]
@@ -136,7 +136,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         if not SustainabilitySetup.IsValueChainTrackingEnabled() then
             exit;
 
-        if not CanPostSustainabilityJnlLine(PurchaseLine."Sust. Account No.", PurchaseLine."Sust. Account Category", PurchaseLine."Sust. Account Subcategory", CO2ToPost, CH4ToPost, N2OToPost) then
+        if not CanPostSustainabilityJnlLine(PurchaseLine, CO2ToPost, CH4ToPost, N2OToPost, 0, false) then
             exit;
 
         ItemJournalLine."Sust. Account No." := PurchaseLine."Sust. Account No.";
@@ -153,23 +153,26 @@ codeunit 6225 "Sust. Purchase Subscriber"
         PostedEmissionCO2: Decimal;
         PostedEmissionCH4: Decimal;
         PostedEmissionN2O: Decimal;
+        PostedEnergyConsumption: Decimal;
         GHGCredit: Boolean;
         Sign: Integer;
     begin
         GHGCredit := IsGHGCreditLine(TempPurchLine);
         Sign := GetPostingSign(PurchHeader, GHGCredit);
 
-        UpdatePostedSustainabilityEmission(TempPurchLine, TempPurchLine."Qty. to Invoice", Sign, PostedEmissionCO2, PostedEmissionCH4, PostedEmissionN2O);
+        UpdatePostedSustainabilityEmission(TempPurchLine, TempPurchLine."Qty. to Invoice", Sign, PostedEmissionCO2, PostedEmissionCH4, PostedEmissionN2O, PostedEnergyConsumption);
         TempPurchLine."Posted Emission CO2" += PostedEmissionCO2;
         TempPurchLine."Posted Emission CH4" += PostedEmissionCH4;
         TempPurchLine."Posted Emission N2O" += PostedEmissionN2O;
+        TempPurchLine."Posted Energy Consumption" += PostedEnergyConsumption;
     end;
 
-    local procedure UpdatePostedSustainabilityEmission(PurchaseLine: Record "Purchase Line"; Quantity: Decimal; Sign: Integer; var PostedEmissionCO2: Decimal; var PostedEmissionCH4: Decimal; var PostedEmissionN2O: Decimal)
+    local procedure UpdatePostedSustainabilityEmission(PurchaseLine: Record "Purchase Line"; Quantity: Decimal; Sign: Integer; var PostedEmissionCO2: Decimal; var PostedEmissionCH4: Decimal; var PostedEmissionN2O: Decimal; var PostedEnergyConsumption: Decimal)
     begin
         PostedEmissionCO2 := (PurchaseLine."Emission CO2 Per Unit" * Abs(Quantity) * PurchaseLine."Qty. per Unit of Measure") * Sign;
         PostedEmissionCH4 := (PurchaseLine."Emission CH4 Per Unit" * Abs(Quantity) * PurchaseLine."Qty. per Unit of Measure") * Sign;
         PostedEmissionN2O := (PurchaseLine."Emission N2O Per Unit" * Abs(Quantity) * PurchaseLine."Qty. per Unit of Measure") * Sign;
+        PostedEnergyConsumption := (PurchaseLine."Energy Consumption Per Unit" * Abs(Quantity) * PurchaseLine."Qty. per Unit of Measure") * Sign;
     end;
 
     local procedure PostSustainabilityLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SrcCode: Code[10]; GenJnlLineDocNo: Code[20])
@@ -181,6 +184,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         CO2ToPost: Decimal;
         CH4ToPost: Decimal;
         N2OToPost: Decimal;
+        EnergyConsumptionToPost: Decimal;
     begin
         GHGCredit := IsGHGCreditLine(PurchaseLine);
 
@@ -194,12 +198,14 @@ codeunit 6225 "Sust. Purchase Subscriber"
         CO2ToPost := PurchaseLine."Emission CO2 Per Unit" * Abs(PurchaseLine."Qty. to Invoice") * PurchaseLine."Qty. per Unit of Measure";
         CH4ToPost := PurchaseLine."Emission CH4 Per Unit" * Abs(PurchaseLine."Qty. to Invoice") * PurchaseLine."Qty. per Unit of Measure";
         N2OToPost := PurchaseLine."Emission N2O Per Unit" * Abs(PurchaseLine."Qty. to Invoice") * PurchaseLine."Qty. per Unit of Measure";
+        EnergyConsumptionToPost := PurchaseLine."Energy Consumption Per Unit" * Abs(PurchaseLine."Qty. to Invoice") * PurchaseLine."Qty. per Unit of Measure";
 
         CO2ToPost := CO2ToPost * Sign;
         CH4ToPost := CH4ToPost * Sign;
         N2OToPost := N2OToPost * Sign;
+        EnergyConsumptionToPost := EnergyConsumptionToPost * Sign;
 
-        if not CanPostSustainabilityJnlLine(PurchaseLine."Sust. Account No.", PurchaseLine."Sust. Account Category", PurchaseLine."Sust. Account Subcategory", CO2ToPost, CH4ToPost, N2OToPost) then
+        if not CanPostSustainabilityJnlLine(PurchaseLine, CO2ToPost, CH4ToPost, N2OToPost, EnergyConsumptionToPost, true) then
             exit;
 
         SustainabilityJnlLine.Init();
@@ -223,13 +229,16 @@ codeunit 6225 "Sust. Purchase Subscriber"
         SustainabilityJnlLine.Validate("Account Category", PurchaseLine."Sust. Account Category");
         SustainabilityJnlLine.Validate("Account Subcategory", PurchaseLine."Sust. Account Subcategory");
         SustainabilityJnlLine.Validate("Unit of Measure", PurchaseLine."Unit of Measure Code");
+        SustainabilityJnlLine.Validate("Energy Source Code", PurchaseLine."Energy Source Code");
         SustainabilityJnlLine."Dimension Set ID" := PurchaseLine."Dimension Set ID";
         SustainabilityJnlLine."Shortcut Dimension 1 Code" := PurchaseLine."Shortcut Dimension 1 Code";
         SustainabilityJnlLine."Shortcut Dimension 2 Code" := PurchaseLine."Shortcut Dimension 2 Code";
         SustainabilityJnlLine.Validate("Emission CO2", CO2ToPost);
         SustainabilityJnlLine.Validate("Emission CH4", CH4ToPost);
         SustainabilityJnlLine.Validate("Emission N2O", N2OToPost);
+        SustainabilityJnlLine.Validate("Energy Consumption", EnergyConsumptionToPost);
         SustainabilityJnlLine.Validate("Country/Region Code", PurchaseHeader."Buy-from Country/Region Code");
+        SustainabilityJnlLine.Validate("Renewable Energy", PurchaseLine."Renewable Energy");
         OnPostSustainabilityLineOnBeforeInsertLedgerEntry(SustainabilityJnlLine, PurchaseHeader, PurchaseLine);
         SustainabilityPostMgt.InsertLedgerEntry(SustainabilityJnlLine);
 
@@ -269,24 +278,28 @@ codeunit 6225 "Sust. Purchase Subscriber"
         exit(Item."GHG Credit");
     end;
 
-    local procedure CanPostSustainabilityJnlLine(AccountNo: Code[20]; AccountCategory: Code[20]; AccountSubCategory: Code[20]; CO2ToPost: Decimal; CH4ToPost: Decimal; N2OToPost: Decimal): Boolean
+    local procedure CanPostSustainabilityJnlLine(PurchaseLine: Record "Purchase Line"; CO2ToPost: Decimal; CH4ToPost: Decimal; N2OToPost: Decimal; EnergyConsumptionToPost: Decimal; CalledFromLedger: Boolean): Boolean
     var
         SustAccountCategory: Record "Sustain. Account Category";
         SustainAccountSubcategory: Record "Sustain. Account Subcategory";
     begin
-        if AccountNo = '' then
+        if PurchaseLine."Sust. Account No." = '' then
             exit(false);
 
-        if SustAccountCategory.Get(AccountCategory) then
+        if SustAccountCategory.Get(PurchaseLine."Sust. Account Category") then
             if SustAccountCategory."Water Intensity" or SustAccountCategory."Waste Intensity" or SustAccountCategory."Discharged Into Water" then
-                Error(NotAllowedToPostSustLedEntryForWaterOrWasteErr, AccountNo);
+                Error(NotAllowedToPostSustLedEntryForWaterOrWasteErr, PurchaseLine."Sust. Account No.");
 
-        if SustainAccountSubcategory.Get(AccountCategory, AccountSubCategory) then
-            if not SustainAccountSubcategory."Renewable Energy" then
-                if (CO2ToPost = 0) and (CH4ToPost = 0) and (N2OToPost = 0) then
-                    Error(EmissionMustNotBeZeroErr);
+        if CalledFromLedger then
+            if SustainAccountSubcategory.Get(PurchaseLine."Sust. Account Category", PurchaseLine."Sust. Account Subcategory") then
+                if SustainAccountSubcategory."Energy Value Required" then
+                    PurchaseLine.TestField("Energy Consumption");
 
-        if (CO2ToPost <> 0) or (CH4ToPost <> 0) or (N2OToPost <> 0) then
+        if not PurchaseLine."Renewable Energy" then
+            if (CO2ToPost = 0) and (CH4ToPost = 0) and (N2OToPost = 0) and (EnergyConsumptionToPost = 0) then
+                Error(EmissionMustNotBeZeroErr);
+
+        if (CO2ToPost <> 0) or (CH4ToPost <> 0) or (N2OToPost <> 0) or (EnergyConsumptionToPost <> 0) then
             exit(true);
     end;
 

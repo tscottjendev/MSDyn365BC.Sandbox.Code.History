@@ -250,7 +250,6 @@ codeunit 6212 "Sustainability Post Mgt"
         SustainabilityLedgerEntry.Validate("Emission Factor CO2", SustainAccountSubCategory."Emission Factor CO2");
         SustainabilityLedgerEntry.Validate("Emission Factor CH4", SustainAccountSubCategory."Emission Factor CH4");
         SustainabilityLedgerEntry.Validate("Emission Factor N2O", SustainAccountSubCategory."Emission Factor N2O");
-        SustainabilityLedgerEntry.Validate("Renewable Energy", SustainAccountSubCategory."Renewable Energy");
     end;
 
     local procedure CalcCO2ePerUnit(CO2e: Decimal; Quantity: Decimal): Decimal
