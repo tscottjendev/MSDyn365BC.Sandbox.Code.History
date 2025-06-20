@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Posting;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Journal;
 
 codeunit 99000766 "Mfg. Whse. Activity Post"
 {
@@ -207,6 +208,23 @@ codeunit 99000766 "Mfg. Whse. Activity Post"
             exit;
 
         ProdOrderRouteManagement.Check(ProdOrderLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Post", 'OnCreateWhseJnlLineOnSetReferenceDocument', '', false, false)]
+    local procedure OnCreateWhseJnlLineOnSetReferenceDocument(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseJnlLine: Record "Warehouse Journal Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+        case WarehouseActivityLine."Source Document" of
+            WarehouseActivityLine."Source Document"::"Prod. Consumption":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup."Consumption Journal";
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
+                end;
+            WarehouseActivityLine."Source Document"::"Prod. Output":
+                begin
+                    WhseJnlLine."Source Code" := SourceCodeSetup."Output Journal";
+                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
