@@ -1051,6 +1051,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = R,
                   tabledata "Named Forward Link" = R,
+                  tabledata "Nationality" = R,
                   tabledata "No. Series" = R,
                   tabledata "No. Series Line" = R,
                   tabledata "No. Series Relationship" = R,

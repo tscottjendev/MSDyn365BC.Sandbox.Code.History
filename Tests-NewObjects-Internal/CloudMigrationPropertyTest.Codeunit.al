@@ -135,6 +135,7 @@ codeunit 135160 "Cloud Migration Property Test"
         ListOfTablesToMigrate.Add(Database::"My Time Sheets");
         ListOfTablesToMigrate.Add(Database::"My Vendor");
         ListOfTablesToMigrate.Add(Database::"Named Forward Link");
+        ListOfTablesToMigrate.Add(Database::"Nationality");
         ListOfTablesToMigrate.Add(Database::"No. Series Line");
         ListOfTablesToMigrate.Add(Database::"No. Series Relationship");
         ListOfTablesToMigrate.Add(Database::"No. Series");

@@ -23,6 +23,7 @@ using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using System.Email;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 
 table 5200 Employee
@@ -470,6 +471,67 @@ table 5200 Employee
             FieldClass = FlowFilter;
             TableRelation = Currency;
         }
+        field(100; "Engagement Type"; Enum "Employee Engagement Type")
+        {
+            Caption = 'Engagement Type';
+        }
+        field(101; "Collective Bargain. Agmt. Info"; Boolean)
+        {
+            Caption = 'Collective Bargaining Agreement Info';
+        }
+        field(102; "Board Member"; Boolean)
+        {
+            Caption = 'Board Member';
+        }
+        field(103; "Manager Role"; Boolean)
+        {
+            Caption = 'Manager Role';
+        }
+        field(104; "Payroll"; Decimal)
+        {
+            Caption = 'Payroll';
+
+            trigger OnValidate()
+            begin
+                CalcPayrollLCY();
+            end;
+        }
+        field(105; "Payroll Currency Code"; Code[10])
+        {
+            Caption = 'Payroll Currency Code';
+            TableRelation = Currency;
+
+            trigger OnValidate()
+            begin
+                CalcPayrollLCY();
+            end;
+        }
+        field(106; "Payroll (LCY)"; Decimal)
+        {
+            Caption = 'Payroll (LCY)';
+
+            trigger OnValidate()
+            begin
+                CalcPayroll();
+            end;
+        }
+        field(107; "Payroll Currency Factor"; Decimal)
+        {
+            Caption = 'Payroll Currency Factor';
+        }
+        field(108; "Nationality"; Code[10])
+        {
+            Caption = 'Nationality';
+            TableRelation = Nationality;
+        }
+        field(109; "Working Type"; Enum "Employee Working Type")
+        {
+            Caption = 'Working Type';
+        }
+        field(110; "Working Hours"; Decimal)
+        {
+            Caption = 'Working Hours';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -649,6 +711,7 @@ table 5200 Employee
         ConfidentialInformation: Record "Confidential Information";
         HumanResComment: Record "Human Resource Comment Line";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         NoSeries: Codeunit "No. Series";
         EmployeeResUpdate: Codeunit "Employee/Resource Update";
         EmployeeSalespersonUpdate: Codeunit "Employee/Salesperson Update";
@@ -778,6 +841,34 @@ table 5200 Employee
     local procedure IsOnBeforeCheckBlockedEmployeeHandled(IsPosting: Boolean) IsHandled: Boolean
     begin
         OnBeforeCheckBlockedEmployee(Rec, IsPosting, IsHandled);
+    end;
+
+    local procedure CalcPayrollLCY()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if Rec."Payroll Currency Code" = '' then begin
+            Rec."Payroll (LCY)" := Rec."Payroll";
+            exit;
+        end;
+
+        GeneralLedgerSetup.GetRecordOnce();
+        Rec.Validate("Payroll Currency Factor", CurrencyExchangeRate.ExchangeRate(WorkDate(), Rec."Payroll Currency Code"));
+        Rec."Payroll (LCY)" := Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(WorkDate(), Rec."Payroll Currency Code", Rec."Payroll", Rec."Payroll Currency Factor"), GeneralLedgerSetup."Amount Rounding Precision");
+    end;
+
+    local procedure CalcPayroll()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if Rec."Payroll Currency Code" = '' then begin
+            Rec."Payroll" := Rec."Payroll (LCY)";
+            exit;
+        end;
+
+        GeneralLedgerSetup.GetRecordOnce();
+        Rec.Validate("Payroll Currency Factor", CurrencyExchangeRate.ExchangeRate(WorkDate(), Rec."Payroll Currency Code"));
+        Rec."Payroll" := Round(CurrencyExchangeRate.ExchangeAmtLCYToFCY(WorkDate(), Rec."Payroll Currency Code", Rec."Payroll (LCY)", Rec."Payroll Currency Factor"), GeneralLedgerSetup."Amount Rounding Precision");
     end;
 
     [IntegrationEvent(false, false)]
