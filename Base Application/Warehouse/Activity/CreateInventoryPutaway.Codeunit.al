@@ -876,11 +876,14 @@ codeunit 7321 "Create Inventory Put-away"
                 OnBeforeNewWhseActivLineInsertFromSales(WarehouseActivityLine, RecordVariant);
             Database::"Transfer Line":
                 OnBeforeNewWhseActivLineInsertFromTransfer(WarehouseActivityLine, RecordVariant);
+#if not CLEAN27
             5406: // Database::"Prod. Order Line"
                 OnBeforeNewWhseActivLineInsertFromProd(WarehouseActivityLine, RecordVariant);
             5407: // Database::"Prod. Order Component"
                 OnBeforeNewWhseActivLineInsertFromComp(WarehouseActivityLine, RecordVariant);
-
+#endif
+            else
+                OnRaiseOnBeforeNewWhseActivLineInsertFromEvent(WarehouseActivityLine, RecordVariant, RecordRefToCheck);
         end;
     end;
 
@@ -1022,7 +1025,7 @@ codeunit 7321 "Create Inventory Put-away"
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
-        if SourceType in [Database::Microsoft.Manufacturing.Document."Prod. Order Line", Database::"Transfer Line"] then begin
+        if SourceType in [5406, Database::"Transfer Line"] then begin // Database::"Prod. Order Line"
             ReservationEntry.SetSourceFilter(SourceType, DocType, DocNo, -1, true);
             ReservationEntry.SetRange("Source Prod. Order Line", DocLineNo)
         end else
@@ -1309,13 +1312,24 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnRaiseOnBeforeNewWhseActivLineInsertFromEvent', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNewWhseActivLineInsertFromProd(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnRaiseOnBeforeNewWhseActivLineInsertFromEvent', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRaiseOnBeforeNewWhseActivLineInsertFromEvent(var WarehouseActivityLine: Record "Warehouse Activity Line"; RecordVariant: Variant; RecordRefToCheck: RecordRef)
     begin
     end;
 
