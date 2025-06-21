@@ -66,7 +66,7 @@ table 5766 "Warehouse Activity Header"
                 GetLocation("Location Code");
                 case Type of
                     Type::"Invt. Put-away":
-                        if ((Location.Code <> '') and (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and ("Source Document" <> "Source Document"::"Prod. Output")) or
+                        if ((Location.Code <> '') and ProdWhseHandlingIsInventoryPutaway(Location) and ("Source Document" <> "Source Document"::"Prod. Output")) or
                            ((Location.Code = '') and Location.RequireReceive("Location Code") and ("Source Document" <> "Source Document"::"Prod. Output"))
                          then
                             Validate("Source Document", "Source Document"::"Prod. Output");
@@ -1028,6 +1028,11 @@ table 5766 "Warehouse Activity Header"
         Rec.Modify()
     end;
 
+    internal procedure ProdWhseHandlingIsInventoryPutaway(Location: Record Location) Result: Boolean
+    begin
+        OnProdWhseHandlingIsInventoryPutaway(Location, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
@@ -1075,6 +1080,11 @@ table 5766 "Warehouse Activity Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSourceDocumentOnAssignSourceType(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnProdWhseHandlingIsInventoryPutaway(Location: Record Location; var Result: Boolean)
     begin
     end;
 }
