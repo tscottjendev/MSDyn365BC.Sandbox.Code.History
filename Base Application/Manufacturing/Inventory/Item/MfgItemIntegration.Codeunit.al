@@ -123,6 +123,19 @@ codeunit 99000795 "Mfg. Item Integration"
         exit(false);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnShouldTryCostFromSKUOnCheckSKUCostOnMfg', '', false, false)]
+    local procedure OnShouldTryCostFromSKUOnCheckSKUCostOnMfg(var ShouldExit: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        if not ManufacturingSetup.ReadPermission() then
+            exit;
+
+        ManufacturingSetup.Get();
+        if not ManufacturingSetup."Load SKU Cost on Manufacturing" then
+            ShouldExit := true;
+    end;
+
     // Item Card
 
     [EventSubscriber(ObjectType::Page, Page::"Item Card", 'OnCreateItemFromTemplateOnBeforeIsFoundationEnabled', '', false, false)]
