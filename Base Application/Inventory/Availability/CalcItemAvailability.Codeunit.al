@@ -251,7 +251,6 @@ codeunit 5530 "Calc. Item Availability"
         ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         ProdForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
-        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
         FromDate: Date;
         ToDate: Date;
         ForecastPeriodEndDate: Date;
@@ -381,8 +380,8 @@ codeunit 5530 "Calc. Item Availability"
                             if RemainingForecastQty < 0 then
                                 RemainingForecastQty := 0;
 
-                            ProdOrderAvailabilityMgt.TransferFromForecast(
-                                InvtEventBuf, ProdForecastEntry, RemainingForecastQty,
+                            InvtEventBuf.TransferFromForecast(
+                                ProdForecastEntry, RemainingForecastQty,
                                 InventorySetup."Use Forecast on Locations", InventorySetup."Use Forecast on Variants");
                             InsertEntry(InvtEventBuf);
                             OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);

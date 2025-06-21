@@ -95,16 +95,6 @@ page 550 "VAT Rate Change Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the VAT rate change for general product posting groups.';
                 }
-                field("Update Work Centers"; Rec."Update Work Centers")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for work centers.';
-                }
-                field("Update Machine Centers"; Rec."Update Machine Centers")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for machine centers.';
-                }
             }
             group(Journals)
             {
@@ -167,11 +157,6 @@ page 550 "VAT Rate Change Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies all existing purchase documents regardless of status, including documents with a status of released, are updated.';
-                }
-                field("Update Production Orders"; Rec."Update Production Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for production orders.';
                 }
                 field("Update Reminders"; Rec."Update Reminders")
                 {

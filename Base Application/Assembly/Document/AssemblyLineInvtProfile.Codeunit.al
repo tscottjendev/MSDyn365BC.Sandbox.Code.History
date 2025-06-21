@@ -88,7 +88,7 @@ codeunit 928 "Assembly Line Invt. Profile"
                 if AssemblyLine."Due Date" <> 0D then begin
                     ReqLine.SetRefOrderFilters(
                       ReqLine."Ref. Order Type"::Assembly, AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", 0);
-                    ReqLine.SetRange("Operation No.", '');
+                    ReqLine.SetOperationNoFilterToBlank();
                     if not ReqLine.FindFirst() then
                         InsertAssemblyLineToProfile(InventoryProfile, AssemblyLine, 1, TempReservationEntry, NextLineNo);
                 end;
@@ -99,7 +99,7 @@ codeunit 928 "Assembly Line Invt. Profile"
                 if AssemblyLine."Due Date" <> 0D then begin
                     ReqLine.SetRefOrderFilters(
                         ReqLine."Ref. Order Type"::Assembly, AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", 0);
-                    ReqLine.SetRange("Operation No.", '');
+                    ReqLine.SetOperationNoFilterToBlank();
                     if not ReqLine.FindFirst() then begin
                         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
                         RemRatio := (AssemblyHeader."Quantity (Base)" - CalcSalesOrderQty(AssemblyLine)) / AssemblyHeader."Quantity (Base)";
