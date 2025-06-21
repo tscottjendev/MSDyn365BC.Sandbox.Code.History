@@ -220,8 +220,8 @@ report 99001048 "Planning Availability"
                     if SelectionReq then begin
                         NewRecordWithDetails("Due Date", "No.", Description);
                         TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Requisition Line";
-                        TempPlanningBuffer."Document No." := "Prod. Order No.";
                         TempPlanningBuffer."Planned Receipts" := "Quantity (Base)";
+                        OnRequisitionLineOnBeforeTempPlanningBufferInsert(TempPlanningBuffer, "Requisition Line");
                         TempPlanningBuffer.Insert();
                     end else begin
                         TempPlanningBuffer.SetRange("Item No.", "No.");
@@ -552,6 +552,11 @@ report 99001048 "Planning Availability"
 
     [IntegrationEvent(true, false)]
     local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnRequisitionLineOnBeforeTempPlanningBufferInsert(var TempPlanningBuffer: Record "Planning Buffer" temporary; RequisitionLine: Record "Requisition Line")
     begin
     end;
 }
