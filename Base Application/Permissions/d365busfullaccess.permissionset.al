@@ -576,6 +576,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
+                  tabledata "Nationality" = RIMD,
                   tabledata "No. Series Tenant" = RIMD,
                   tabledata "Notification Context" = RIMD,
                   tabledata "Notification Schedule" = RIMD,
