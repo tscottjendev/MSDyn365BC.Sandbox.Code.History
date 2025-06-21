@@ -6,7 +6,6 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
@@ -295,8 +294,6 @@ tableextension 99000750 "Mfg. Item" extends Item
     }
 
     var
-        InventorySetup: Record "Inventory Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
 #if not CLEAN27
         HideNonInventoryValidateOnStdCost: Boolean;
 #endif
@@ -416,19 +413,6 @@ tableextension 99000750 "Mfg. Item" extends Item
                         Error(ProductionBlockedOutputItemVariantErr, VariantCode, Item.TableCaption(), ItemNo);
             end;
         end;
-    end;
-
-    procedure ShouldTryCostFromSKU(): Boolean
-    begin
-        if Rec."Costing Method" <> Rec."Costing Method"::Standard then
-            exit(false);
-
-        ManufacturingSetup.GetRecordOnce();
-        if not ManufacturingSetup."Load SKU Cost on Manufacturing" then
-            exit(false);
-
-        InventorySetup.GetRecordOnce();
-        exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
     end;
 
     local procedure NeedUpdateLowLevelCode(): Boolean
