@@ -8,7 +8,6 @@ using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Projects.Project.Ledger;
-using Microsoft.Sales.History;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
 using Microsoft.Service.Email;
@@ -837,6 +836,22 @@ page 5975 "Posted Service Shipment"
                     Rec.Navigate();
                 end;
             }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServiceShptUpdate: Page "Posted Service Ship. - Update";
+                begin
+                    PostedServiceShptUpdate.LookupMode := true;
+                    PostedServiceShptUpdate.SetRec(Rec);
+                    PostedServiceShptUpdate.RunModal();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -844,6 +859,9 @@ page 5975 "Posted Service Shipment"
             {
                 Caption = 'Process';
 
+                actionref("Update Document_Promoted"; "Update Document")
+                {
+                }
                 actionref("&Print_Promoted"; "&Print")
                 {
                 }
@@ -901,7 +919,7 @@ page 5975 "Posted Service Shipment"
 
     trigger OnModifyRecord(): Boolean
     begin
-        CODEUNIT.Run(CODEUNIT::"Shipment Header - Edit", Rec);
+        CODEUNIT.Run(CODEUNIT::"Service Shipment Header - Edit", Rec);
         exit(false);
     end;
 
