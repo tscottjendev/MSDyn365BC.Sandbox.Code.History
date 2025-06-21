@@ -835,7 +835,14 @@ table 99000829 "Planning Component"
     end;
 
     procedure GetDefaultBin()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Quantity * xRec.Quantity > 0) and
            ("Item No." = xRec."Item No.") and
            ("Location Code" = xRec."Location Code") and
@@ -1178,6 +1185,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetToBinOnBeforeGetWMSDefaultCode(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 }
