@@ -96,6 +96,21 @@ page 5200 "Employee Card"
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the employee''s email address at the company.';
                 }
+                field("Board Member"; Rec."Board Member")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Board Member field.';
+                }
+                field("Manager Role"; Rec."Manager Role")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Manager Role field.';
+                }
+                field(Nationality; Rec.Nationality)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Nationality field.';
+                }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = BasicHR;
@@ -278,6 +293,16 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a salesperson or purchaser code for the employee.';
                 }
+                field("Engagement Type"; Rec."Engagement Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Engagement Type field.';
+                }
+                field("Collective Bargain. Agmt. Info"; Rec."Collective Bargain. Agmt. Info")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Collective Bargaining Agreement Info field.';
+                }
             }
             group(Personal)
             {
@@ -349,6 +374,35 @@ page 5200 "Employee Card"
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the employee has the account.';
+                }
+            }
+            group("Payroll")
+            {
+                Caption = 'Payroll';
+                field("Emp. Payroll"; Rec.Payroll)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll field.';
+                }
+                field("Payroll Currency Code"; Rec."Payroll Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll Currency Code field.';
+                }
+                field("Payroll (LCY)"; Rec."Payroll (LCY)")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Payroll (LCY) field.';
+                }
+                field("Working Type"; Rec."Working Type")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Type field.';
+                }
+                field("Working Hours"; Rec."Working Hours")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the value of the Working Hours field.';
                 }
             }
         }
