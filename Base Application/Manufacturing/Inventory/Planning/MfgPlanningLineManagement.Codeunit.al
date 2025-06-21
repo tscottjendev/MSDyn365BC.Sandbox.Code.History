@@ -466,6 +466,12 @@ codeunit 99000819 "Mfg. Planning Line Management"
         RequisitionLine.Validate("Routing No.");
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnTransferAsmBOMOnBeforePlanningComponentModify', '', true, true)]
+    local procedure OnTransferAsmBOMOnBeforePlanningComponentModify(var PlanningComponent: Record "Planning Component")
+    begin
+        PlanningComponent.Validate("Routing Link Code", '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsPlannedCompFound(var PlanningComp: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var IsFound: Boolean; var SKU: Record "Stockkeeping Unit")
     begin
