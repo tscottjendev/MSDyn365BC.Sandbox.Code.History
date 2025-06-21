@@ -4964,7 +4964,7 @@ table 36 "Sales Header"
             Modify();
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec, FieldNumber);
+            OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(Rec, xRec);
             if not IsNullGuid(Rec.SystemId) then
                 Modify();
             if SalesLinesExist() then
@@ -10300,7 +10300,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer)
+    local procedure OnValidateShortcutDimCodeOnBeforeUpdateAllLineDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
