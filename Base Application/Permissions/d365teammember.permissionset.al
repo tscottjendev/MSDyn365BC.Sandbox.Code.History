@@ -1056,6 +1056,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RM,
                   tabledata "Named Forward Link" = RM,
+                  tabledata "Nationality" = RM,
                   tabledata "No. Series" = RM,
                   tabledata "No. Series Line" = RM,
                   tabledata "No. Series Relationship" = RM,

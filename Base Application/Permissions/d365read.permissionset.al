@@ -1026,6 +1026,7 @@ permissionset 1044 "D365 READ"
                   tabledata "My Vendor" = RIM,
                   tabledata "Name/Value Buffer" = R,
                   tabledata "Named Forward Link" = R,
+                  tabledata "Nationality" = R,
                   tabledata "No. Series" = R,
                   tabledata "No. Series Line" = R,
                   tabledata "No. Series Relationship" = R,
