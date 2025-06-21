@@ -88,7 +88,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Visible = HasAdditionalColumns;
                     trigger OnDrillDown()
                     begin
-                        Page.RunModal(Page::"E-Doc Line Values.", Rec);
+                        Page.Run(Page::"E-Doc Line Values.", Rec);
                     end;
                 }
             }

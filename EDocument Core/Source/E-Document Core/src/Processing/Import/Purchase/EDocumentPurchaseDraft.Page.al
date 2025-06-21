@@ -293,7 +293,6 @@ page 6181 "E-Document Purchase Draft"
     var
         EDocumentsSetup: Record "E-Documents Setup";
         ImportEDocumentProcess: Codeunit "Import E-Document Process";
-        EDocumentNotification: Codeunit "E-Document Notification";
     begin
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
@@ -309,7 +308,6 @@ page 6181 "E-Document Purchase Draft"
         HasErrorsOrWarnings := false;
         HasErrors := false;
         PageEditable := ConditionallyEditable();
-        EDocumentNotification.SendPurchaseDocumentDraftNotifications(Rec."Entry No");
     end;
 
     local procedure ConditionallyEditable(): Boolean
