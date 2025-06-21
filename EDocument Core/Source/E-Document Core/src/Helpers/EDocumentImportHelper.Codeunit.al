@@ -393,7 +393,6 @@ codeunit 6109 "E-Document Import Helper"
     /// <returns>Vendor number if exists or empty string.</returns>
     procedure FindVendor(VendorNoText: Code[20]; GLN: Code[13]; VATRegistrationNo: Text[20]): Code[20]
     var
-        Vendor: Record Vendor;
         VendorNo: Code[20];
     begin
         VendorNo := FindVendorByNo(VendorNoText);
@@ -404,7 +403,7 @@ codeunit 6109 "E-Document Import Helper"
         if VendorNo <> '' then
             exit(VendorNo);
 
-        VendorNo := Vendor.FindVendorByVATRegistrationNo(VATRegistrationNo);
+        VendorNo := FindVendorByVATRegistrationNo(VATRegistrationNo);
         if VendorNo <> '' then
             exit(VendorNo);
     end;
@@ -476,7 +475,6 @@ codeunit 6109 "E-Document Import Helper"
             exit('');
 
         VendorNo := Vendor.FindVendorByVATRegistrationNo(VATRegistrationNo);
-
         exit(VendorNo);
     end;
 
