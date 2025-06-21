@@ -1610,7 +1610,7 @@ codeunit 134658 "Edit Posted Documents"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceShipmentUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
+    procedure PostedServiceShipmentUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Ship. - Update")
     begin
         PostedServiceShptUpdate."Additional Information".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate."Additional Notes".SetValue(LibraryVariableStorage.DequeueText());
@@ -1625,7 +1625,7 @@ codeunit 134658 "Edit Posted Documents"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedServiceShipmentUpdateCancelModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
+    procedure PostedServiceShipmentUpdateCancelModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Ship. - Update")
     begin
         PostedServiceShptUpdate."Additional Information".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceShptUpdate."Additional Notes".SetValue(LibraryVariableStorage.DequeueText());
