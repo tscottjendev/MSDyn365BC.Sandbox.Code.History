@@ -946,16 +946,8 @@ codeunit 7324 "Whse.-Activity-Post"
                     WhseJnlLine."Source Code" := SourceCodeSetup.Transfer;
                     WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted T. Receipt";
                 end;
-            WhseActivLine."Source Document"::"Prod. Consumption":
-                begin
-                    WhseJnlLine."Source Code" := SourceCodeSetup."Consumption Journal";
-                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
-                end;
-            WhseActivLine."Source Document"::"Prod. Output":
-                begin
-                    WhseJnlLine."Source Code" := SourceCodeSetup."Output Journal";
-                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
-                end;
+            else
+                OnCreateWhseJnlLineOnSetReferenceDocument(WhseActivLine, WhseJnlLine, SourceCodeSetup);
         end;
 
         if WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::"Invt. Put-away", WhseActivLine."Activity Type"::"Invt. Pick",
@@ -1912,6 +1904,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostProdOutput(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var PostedSourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseJnlLineOnSetReferenceDocument(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseJnlLine: Record "Warehouse Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }
