@@ -144,7 +144,7 @@ codeunit 99000809 "Planning Line Management"
                                   PlanningComponent."Quantity per" +
                                   Quantity *
                                   AsmBOMComp[Level]."Quantity per");
-                                PlanningComponent.Validate("Routing Link Code", '');
+                                OnTransferAsmBOMOnBeforePlanningComponentModify(PlanningComponent);
                                 PlanningComponent.Modify();
                             end;
 
@@ -910,6 +910,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMultiLevelStructureOnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferAsmBOMOnBeforePlanningComponentModify(var PlanningComponent: Record "Planning Component")
     begin
     end;
 }
