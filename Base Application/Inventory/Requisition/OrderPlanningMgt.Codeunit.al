@@ -395,7 +395,7 @@ codeunit 5522 "Order Planning Mgt."
         ShouldExit: Boolean;
     begin
         if (ReqLine.Type <> ReqLine.Type::Item) or
-           (ReqLine."Demand Type" <> Database::Microsoft.Manufacturing.Document."Prod. Order Component")
+           (ReqLine."Demand Type" <> 5407) // Database::"Prod. Order Component"
         then
             exit(false);
 

@@ -894,7 +894,7 @@ page 5522 "Order Planning"
         if DemandOrderNo = '' then
             exit;
 
-        if (ActualReqLine."Demand Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component") and
+        if (ActualReqLine."Demand Type" = 5407) and // Database::"Prod. Order Component"
            (ActualReqLine."Demand Subtype" = DemandSubtype) and
            (ActualReqLine."Demand Order No." = DemandOrderNo)
         then
