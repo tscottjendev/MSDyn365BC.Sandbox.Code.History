@@ -33,6 +33,7 @@ permissionset 2698 "Employee - Edit"
                   tabledata "Human Resource Comment Line" = RIMD,
                   tabledata "Misc. Article" = R,
                   tabledata "Misc. Article Information" = RIMD,
+                  tabledata "Nationality" = RIMD,
                   tabledata Qualification = R,
                   tabledata Resource = Rm,
                   tabledata "Salesperson/Purchaser" = Rm,
