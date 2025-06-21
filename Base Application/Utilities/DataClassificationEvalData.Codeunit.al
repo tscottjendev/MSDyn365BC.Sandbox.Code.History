@@ -680,6 +680,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::Qualification);
         SetTableFieldsToNormal(DATABASE::Relative);
         SetTableFieldsToNormal(DATABASE::"Human Resource Comment Line");
+        SetTableFieldsToNormal(Database::Nationality);
         SetTableFieldsToNormal(DATABASE::Union);
         SetTableFieldsToNormal(DATABASE::"Cause of Inactivity");
         SetTableFieldsToNormal(DATABASE::"Employment Contract");
