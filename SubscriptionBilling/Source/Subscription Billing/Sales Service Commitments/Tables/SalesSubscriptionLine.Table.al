@@ -772,7 +772,6 @@ table 8068 "Sales Subscription Line"
 
     internal procedure CalculateUnitCost()
     var
-        SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
         CurrencyDate: Date;
     begin

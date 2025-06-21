@@ -15,7 +15,9 @@ tableextension 6218 "Sust. Purch. Cr. Memo Header" extends "Purch. Cr. Memo Hdr.
             FieldClass = FlowField;
             CalcFormula = exist("Purch. Cr. Memo Line" where("Sust. Account No." = filter('<>'''''), "Document No." = field("No.")));
         }
+#pragma warning disable AA0232
         field(6211; "Emission C02"; Decimal)
+#pragma warning restore AA0232
         {
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));

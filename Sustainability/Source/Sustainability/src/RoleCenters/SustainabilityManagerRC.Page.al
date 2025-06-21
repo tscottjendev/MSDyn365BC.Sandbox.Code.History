@@ -140,6 +140,7 @@ page 6235 "Sustainability Manager RC"
                     RunObject = Page "Sustainability Journal";
                     Caption = 'Sustainability Journal';
                     ToolTip = 'Executes the Sustainability Journal action.';
+                    Image = Journal;
                 }
                 action(RecurringSustainabilityJnl)
                 {
@@ -147,6 +148,7 @@ page 6235 "Sustainability Manager RC"
                     RunObject = Page "Recurring Sustainability Jnl.";
                     Caption = 'Recurring Sustainability Journals';
                     ToolTip = 'Executes the Recurring Sustainability Journals action.';
+                    Image = Journal;
                 }
             }
             group(General)
@@ -158,6 +160,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'General Journal';
                     RunObject = page "General Journal";
                     Tooltip = 'Open the General Journals page.';
+                    Image = Journal;
                 }
                 action("Recurring General Jnl")
                 {
@@ -165,6 +168,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Recurring General Journal';
                     RunObject = Page "Recurring General Journal";
                     ToolTip = 'Executes the Recurring General Journals action.';
+                    Image = Journal;
                 }
             }
             group(Purchase)
@@ -176,6 +180,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Purchase Invoice';
                     RunObject = page "Purchase Invoice";
                     ToolTip = 'Create a new purchase invoice.';
+                    Image = NewPurchaseInvoice;
                 }
                 action("Purchase Order")
                 {
@@ -183,6 +188,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Purchase Order';
                     RunObject = Page "Purchase Order";
                     ToolTip = 'Create a new purchase order.';
+                    Image = NewPurchaseInvoice;
                 }
                 action("Purchase Credit Memo")
                 {
@@ -190,6 +196,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Purchase Credit Memo';
                     RunObject = Page "Purchase Credit Memo";
                     ToolTip = 'Create a new purchase credit memo.';
+                    Image = CreditMemo;
                 }
             }
             group(Production)
@@ -201,6 +208,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Consumption Journal';
                     RunObject = page "Consumption Journal";
                     Tooltip = 'Open the Consumption Journals page.';
+                    Image = Journal;
                 }
                 action("Output Journal")
                 {
@@ -208,6 +216,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Output Journal';
                     RunObject = Page "Output Journal";
                     Tooltip = 'Open the Output Journals page.';
+                    Image = OutputJournal;
                 }
                 action("Production Journal")
                 {
@@ -215,6 +224,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Production Journal';
                     RunObject = Page "Production Journal";
                     Tooltip = 'Open the Production Journals page.';
+                    Image = Journal;
                 }
             }
             group(Tasks)
@@ -226,6 +236,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Scorecards';
                     RunObject = page "Sustainability Scorecards";
                     Tooltip = 'Open the Scorecards page.';
+                    Image = NumberGroup;
                 }
                 action("Sustainability Goals")
                 {
@@ -233,6 +244,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Goals';
                     RunObject = Page "Sustainability Goals";
                     Tooltip = 'Open the Goals page.';
+                    Image = BankAccountRec;
                 }
                 action("User Tasks")
                 {
@@ -240,6 +252,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'User Tasks';
                     RunObject = Page "User Task List";
                     Tooltip = 'Open the User Tasks page.';
+                    Image = Task;
                 }
             }
             group(History)
@@ -251,6 +264,7 @@ page 6235 "Sustainability Manager RC"
                     Caption = 'Find entries...';
                     RunObject = Page Navigate;
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    Image = Navigate;
                 }
             }
         }

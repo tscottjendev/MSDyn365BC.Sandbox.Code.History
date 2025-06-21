@@ -109,7 +109,9 @@ table 6219 "Sustainability Goal"
             FieldClass = FlowFilter;
             Editable = false;
         }
+#pragma warning disable AA0232
         field(12; "Baseline for CO2"; Decimal)
+#pragma warning restore AA0232
         {
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
@@ -279,8 +281,6 @@ table 6219 "Sustainability Goal"
     }
 
     trigger OnInsert()
-    var
-        SustainabilitySetup: Record "Sustainability Setup";
     begin
         SustainabilitySetup.Get();
         Rec.Validate("Unit of Measure", SustainabilitySetup."Emission Unit of Measure Code");

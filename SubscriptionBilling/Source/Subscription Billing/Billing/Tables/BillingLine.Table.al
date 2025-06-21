@@ -237,7 +237,7 @@ table 8061 "Billing Line"
     var
         PageManagement: Codeunit "Page Management";
         DocumentExistsErr: Label 'There is an unposted invoice or credit memo for the Subscription Line. Please delete this document before updating the data.';
-        OnlyLastServiceLineCanBeDeletedErr: Label 'Only last Billing Line for Subscription Line can be deleted or all Billing Lines. Please make your selection accordingly or use the "Clear Billing Proposal" action. (%1)';
+        OnlyLastServiceLineCanBeDeletedErr: Label 'Only last Billing Line for Subscription Line can be deleted or all Billing Lines. Please make your selection accordingly or use the "Clear Billing Proposal" action. (%1)', Comment = '%1=Subscription Header No.';
         CannotDeleteBillingLinesWithDocumentNoErr: Label 'Billing line connected with a sales/purchase document cannot be deleted.';
 
     internal procedure FindFirstBillingLineForServiceCommitment(var BillingLine2: Record "Billing Line")

@@ -940,8 +940,8 @@ codeunit 8060 "Create Billing Documents"
         FRef: FieldRef;
         ContractInvoiceTextType: Enum "Contract Invoice Text Type";
         IsHandled: Boolean;
-        ReferenceNoLbl: Label 'Reference No.: %1';
-        SetupOptionNotHandledErr: Label 'Error getting a Line Description: Option %1 (Field %2 in %3) is not handled.';
+        ReferenceNoLbl: Label 'Reference No.: %1', Comment = '%1 = Customer Reference';
+        SetupOptionNotHandledErr: Label 'Error getting a Line Description: Option %1 (Field %2 in %3) is not handled.', Comment = '%1 = Contract Invoice Text Type, %2 = Field Caption, %3 = Table Caption';
     begin
         GetServiceContractSetup();
         RecRef.GetTable(ServiceContractSetup);
@@ -1190,21 +1190,21 @@ codeunit 8060 "Create Billing Documents"
         PostDocuments: Boolean;
         HideProcessingFinishedMessage: Boolean;
         Window: Dialog;
-        ProgressTxt: Label 'Creating documents...\Partner No. #1#################################\Contract No. #2#################################';
+        ProgressTxt: Label 'Creating documents...\Partner No. #1#################################\Contract No. #2#################################', Comment = '%1=Partner No., %2=Contract No.';
         OnlyOneServicePartnerErr: Label 'You can create documents only for one type of partner at a time (Customer or Vendor). Please check your filters.';
         UpdateRequiredErr: Label 'At least one Subscription Line was changed after billing proposal was created. Please check the lines marked with "Update Required" field and update the billing proposal before the billing documents can be created.';
-        ServicePeriodDescriptionTxt: Label 'Subscription period: %1 to %2';
+        ServicePeriodDescriptionTxt: Label 'Subscription period: %1 to %2', Comment = '%1=Recurring Billing from, %2=Recurring Billing to';
         NoDocumentsCreatedMsg: Label 'No documents have been created.';
-        DocumentsCreatedMsg: Label 'Creation of documents completed.\\%1 document(s) for %2 contract(s) were created.';
-        DocumentsCreatedAndPostedMsg: Label 'Creation of documents completed.\\%1 document(s) for %2 contract(s) were created and posted.';
-        ContractNoTxt: Label 'Contract No. %1';
+        DocumentsCreatedMsg: Label 'Creation of documents completed.\\%1 document(s) for %2 contract(s) were created.', Comment = '%1=Number of documents, %2=Number of contracts';
+        DocumentsCreatedAndPostedMsg: Label 'Creation of documents completed.\\%1 document(s) for %2 contract(s) were created and posted.', Comment = '%1=Number of documents, %2=Number of contracts';
+        ContractNoTxt: Label 'Contract No. %1', Comment = '%1=Contract No.';
         CustomerContractLbl: Label 'Customer Subscription Contract';
         VendorContractLbl: Label 'Vendor Subscription Contract';
         CustomerContractsLbl: Label 'Customer Subscription Contracts';
         VendorContractsLbl: Label 'Vendor Subscription Contracts';
         MultipleLbl: Label 'Multiple';
         SalesBatchPostingMsg: Label 'Batch posting of contract sales invoices.';
-        TotalInvoiceAmountIsLessThanZeroErr: Label 'The total amount of an invoice cannot be less than 0. Please check the contract %1.';
+        TotalInvoiceAmountIsLessThanZeroErr: Label 'The total amount of an invoice cannot be less than 0. Please check the contract %1.', Comment = '%1=Contract No.';
         SkipRequestPageSelection: Boolean;
         CreateContractInvoice: Boolean;
         ServiceContractSetupFetched: Boolean;

@@ -96,8 +96,8 @@ report 8051 "Contract Deferrals Release"
         PostUntilDateIsEmptyErr: Label 'You must fill in the Post Until Date field.';
         PostUntilDateMustBeBeforePostingDateErr: Label 'Posting until Date must be before then Posting Date.';
         ContractDeferralsReleaseTxt: Label 'Contract Deferrals Release...\';
-        ContractProgressTxt: Label 'Contract: #1###############\\@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
-        ReleasingOfContractNoTxt: Label 'Release Contract Deferral of %1.';
+        ContractProgressTxt: Label 'Contract: #1###############\\@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', Comment = '%1=Contract No., %2=Progress';
+        ReleasingOfContractNoTxt: Label 'Release Contract Deferral of %1.', Comment = '%1 = Posting Date in format <Month Text> <Year4>';
         AllowGUI: Boolean;
         LineNo: Integer;
 

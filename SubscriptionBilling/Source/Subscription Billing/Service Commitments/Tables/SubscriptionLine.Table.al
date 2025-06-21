@@ -600,10 +600,10 @@ table 8059 "Subscription Line"
         NegativeDateFormula: DateFormula;
         SkipArchiving: Boolean;
         SkipTestPackageCode: Boolean;
-        DateBeforeDateErr: Label '%1 cannot be before %2.';
+        DateBeforeDateErr: Label '%1 cannot be before %2.', Comment = '%1 = Next Billing Date; %2 = Subscription Line Start Date';
         OnlyOneDayBeforeErr: Label 'The %1 is only allowed to be 1 day before the %2.', Comment = '%1 = Subscription Line End Date; %2 = Next Billing Date';
-        CannotBeGreaterThanErr: Label '%1 cannot be greater than %2.';
-        CannotBeLessThanErr: Label '%1 cannot be less than %2.';
+        CannotBeGreaterThanErr: Label '%1 cannot be greater than %2.', Comment = '%1 = Amount; %2 = Max Service Amount';
+        CannotBeLessThanErr: Label '%1 cannot be less than %2.', Comment = '%1 = Amount; %2 = 0';
         OpenContractLinesExistErr: Label 'The Subscription Line cannot be deleted because it is linked to a contract line which is not yet marked as "Closed".';
         ClosedContractLineExistErr: Label 'Subscription Lines for closed contract lines may not be edited. Remove the "Finished" indicator in the contract to be able to edit the Subscription Lines.';
         DifferentCurrenciesInSerCommitmentErr: Label 'The selected Subscription Lines must be converted into different currencies. Please select only Subscription Lines with the same currency.';

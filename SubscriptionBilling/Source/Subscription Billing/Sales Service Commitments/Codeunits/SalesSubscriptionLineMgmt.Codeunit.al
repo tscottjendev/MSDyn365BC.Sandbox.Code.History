@@ -479,7 +479,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         MyNotification: Record "My Notifications";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Notify: Notification;
-        DiscountNotTransferredTxt: Label 'The %1 of %2 %3 has not been transferred to the Sales Subscription Line(s). The %1 is only transferred to Sales Subscription Line, if %4 is set to %5.';
+        DiscountNotTransferredTxt: Label 'The %1 of %2 %3 has not been transferred to the Sales Subscription Line(s). The %1 is only transferred to Sales Subscription Line, if %4 is set to %5.', Comment = '%1= Discount %, %2= Sales Line Type, %3= Sales Line No., %4= Calculation Base Type, %5= Document Price And Discount';
         DontShowAgainActionLbl: Label 'Don''t show again';
     begin
         if SalesServiceCommitment.IsEmpty() then

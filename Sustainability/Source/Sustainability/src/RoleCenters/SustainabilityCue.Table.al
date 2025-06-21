@@ -25,7 +25,9 @@ table 6220 "Sustainability Cue"
         {
             Caption = 'Primary Key';
         }
+#pragma warning disable AA0232
         field(2; "Emission CO2"; Decimal)
+#pragma warning restore AA0232
         {
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));

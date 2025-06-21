@@ -141,7 +141,7 @@ page 8005 "Contract Renewal"
                     SelectionTxt: Text;
                     Selection: Integer;
                     Counter: array[2] of Integer;
-                    SelectionLbl: Label 'All Lines (%1),Selected Lines (%2)';
+                    SelectionLbl: Label 'All Lines (%1),Selected Lines (%2)', Comment = '%1=All Lines Count, %2=Selected Lines Count';
                 begin
                     ContractRenewalLine.Reset();
                     ContractRenewalLine.CopyFilters(Rec);

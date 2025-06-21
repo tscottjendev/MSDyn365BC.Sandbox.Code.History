@@ -319,7 +319,7 @@ page 6236 "Sustainability Activities"
     trigger OnOpenPage()
     var
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
-        Camera: Codeunit Camera;
+        CameraMgt: Codeunit Camera;
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -327,7 +327,7 @@ page 6236 "Sustainability Activities"
             Rec.Insert();
         end;
         ShowAwaitingIncomingDoc := OCRServiceMgt.OcrServiceIsEnable();
-        HasCamera := Camera.IsAvailable();
+        HasCamera := CameraMgt.IsAvailable();
 
         ApplyDateFilter();
         Rec.SetRange("User ID Filter", UserId);

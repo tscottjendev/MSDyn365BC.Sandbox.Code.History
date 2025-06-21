@@ -63,7 +63,7 @@ codeunit 6219 "Sustainability Chart Mgmt."
         BussChartBuffer.Initialize();
         Index := 0;
 
-        BussChartBuffer.AddMeasure('Ratio', 0, BussChartBuffer."Data Type"::Decimal, BussChartBuffer."Chart Type"::Doughnut);
+        BussChartBuffer.AddMeasure('Ratio', 0, BussChartBuffer."Data Type"::Decimal, BussChartBuffer."Chart Type"::Doughnut.AsInteger());
 
         BussChartBuffer.SetXAxis('Scope', BussChartBuffer."Data Type"::String);
         BussChartBuffer.AddColumn('Scope 1');
@@ -106,7 +106,7 @@ codeunit 6219 "Sustainability Chart Mgmt."
         BussChartBuffer.Initialize();
         Index := 0;
 
-        BussChartBuffer.AddMeasure(EmissionGas, 0, BussChartBuffer."Data Type"::Decimal, BussChartBuffer."Chart Type"::Doughnut);
+        BussChartBuffer.AddMeasure(EmissionGas, 0, BussChartBuffer."Data Type"::Decimal, BussChartBuffer."Chart Type"::Doughnut.AsInteger());
 
         case EmissionGas of
             GetCH4(), GetCO2(), GetN2O():
