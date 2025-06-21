@@ -21,6 +21,8 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Warehouse.Reports;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -635,4 +637,29 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
                 Error(CannotDefineItemTrackingErr, ItemJournalLine.FieldCaption("Operation No."), ItemJournalLine."Operation No.");
         end;
     end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Calculate Inventory Value", 'OnAfterOnPreDataItem', '', false, false)]
+    local procedure OnAfterOnPreDataItem(var Item: Record Item; CalcBase: Enum "Inventory Value Calc. Base"; PostingDate: Date; var TempNewStdCostItem: Record Item temporary)
+    var
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        case CalcBase of
+            CalcBase::"Standard Cost - Manufacturing":
+                begin
+                    CalculateStandardCost.SetProperties(PostingDate, true, false, false, '', true);
+                    CalculateStandardCost.CalcItems(Item, TempNewStdCostItem);
+                    Clear(CalculateStandardCost);
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Inventory Movement", 'OnShouldShowOutput', '', false, false)]
+    local procedure OnShouldShowOutput(TemplateType: Enum "Item Journal Template Type"; var Result: Boolean)
+    begin
+        Result :=
+            TemplateType in ["Item Journal Template Type"::Item, "Item Journal Template Type"::Consumption,
+                             "Item Journal Template Type"::Output, "Item Journal Template Type"::"Prod. Order"];
+    end;
+
+
 }

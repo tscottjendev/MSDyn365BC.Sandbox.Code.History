@@ -4,14 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.Reports;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Foundation.NoSeries;
 
 codeunit 99000875 "Prod. Order Availability Mgt."
 {
@@ -789,11 +791,16 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 #endif
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved back to InventoryEventBuffer', '27.0')]
     procedure TransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean)
     begin
         TransferFromForecast(InventoryEventBuffer, ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, false);
     end;
+#endif
 
+#if not CLEAN27
+    [Obsolete('Moved back to InventoryEventBuffer', '27.0')]
     procedure TransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
     var
         RecRef: RecordRef;
@@ -823,10 +830,8 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         InventoryEventBuffer.Positive := not (InventoryEventBuffer."Remaining Quantity (Base)" < 0);
 
         OnAfterTransferFromForecast(InventoryEventBuffer, ProdForecastEntry);
-#if not CLEAN25
-        InventoryEventBuffer.RunOnAfterTransferFromForecast(InventoryEventBuffer, ProdForecastEntry);
-#endif
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromProdComp(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdOrderComponent: Record "Prod. Order Component")
@@ -838,10 +843,13 @@ codeunit 99000875 "Prod. Order Availability Mgt."
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved back to InventoryEventBuffer', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromForecast(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProdForecastEntry: Record "Production Forecast Entry")
     begin
     end;
+#endif
 
     // Codeunit "Available to Promise"
 
@@ -1021,4 +1029,11 @@ codeunit 99000875 "Prod. Order Availability Mgt."
           "Scheduled Receipt (Qty.)",
           "Reserved Qty. on Prod. Order");
     end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Planning Availability", 'OnRequisitionLineOnBeforeTempPlanningBufferInsert', '', false, false)]
+    local procedure OnRequisitionLineOnBeforeTempPlanningBufferInsert(var TempPlanningBuffer: Record "Planning Buffer" temporary; RequisitionLine: Record "Requisition Line")
+    begin
+        TempPlanningBuffer."Document No." := RequisitionLine."Prod. Order No.";
+    end;
+
 }

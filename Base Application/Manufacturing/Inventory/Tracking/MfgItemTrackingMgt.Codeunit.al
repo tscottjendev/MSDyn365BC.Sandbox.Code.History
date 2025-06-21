@@ -723,4 +723,23 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         Item.Get(TempTrackingSpecification."Item No.");
         AllowWhseOverpick := Item."Allow Whse. Overpick";
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", OnFindRelatedParentTrkgSpecOnSetSourceFilters, '', false, false)]
+    local procedure OnFindRelatedParentTrkgSpecOnSetSourceFilters(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+        case ItemJnlLine."Entry Type" of
+            ItemJnlLine."Entry Type"::Consumption:
+                begin
+                    if ItemJnlLine."Prod. Order Comp. Line No." = 0 then
+                        exit;
+                    TempTrackingSpecification.SetSourceFilter(Database::"Prod. Order Component", 3, ItemJnlLine."Order No.", ItemJnlLine."Prod. Order Comp. Line No.", false);
+                    TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
+                end;
+            ItemJnlLine."Entry Type"::Output:
+                begin
+                    TempTrackingSpecification.SetSourceFilter(Database::"Prod. Order Line", 3, ItemJnlLine."Order No.", -1, false);
+                    TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
+                end;
+        end;
+    end;
 }
