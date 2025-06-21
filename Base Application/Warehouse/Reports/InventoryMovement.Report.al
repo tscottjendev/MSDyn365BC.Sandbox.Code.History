@@ -69,7 +69,7 @@ report 7321 "Inventory Movement"
                 column(ItemJnlLineFilter; ItemJnlLineFilter)
                 {
                 }
-                column(ItemJnlLineHeader1ShowOutput; ItemJnlTemplate.Type in [ItemJnlTemplate.Type::Item, ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output, ItemJnlTemplate.Type::"Prod. Order"])
+                column(ItemJnlLineHeader1ShowOutput; ShouldShowOutput(ItemJnlTemplate.Type))
                 {
                 }
                 column(ItemJnlLineHeader2ShowOutput; ItemJnlTemplate.Type = ItemJnlTemplate.Type::Transfer)
@@ -246,5 +246,14 @@ report 7321 "Inventory Movement"
     begin
         ActivityType := NewActivityType;
     end;
-}
 
+    local procedure ShouldShowOutput(TemplateType: Enum "Item Journal Template Type") Result: Boolean
+    begin
+        OnShouldShowOutput(TemplateType, Result);
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnShouldShowOutput(TemplateType: Enum "Item Journal Template Type"; var Result: Boolean)
+    begin
+    end;
+}
