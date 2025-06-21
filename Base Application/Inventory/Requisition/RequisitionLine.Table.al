@@ -3317,6 +3317,11 @@ table 246 "Requisition Line"
         OnCleanProdBOMNo(Rec);
     end;
 
+    procedure SetOperationNoFilterToBlank()
+    begin
+        OnSetOperationNoFilterToBlank(Rec);
+    end;
+
     procedure IsProdOrder() Result: Boolean
     begin
         OnIsProdOrder(Rec, Result);
@@ -3337,7 +3342,7 @@ table 246 "Requisition Line"
         OnResetReqLineFields(Rec);
     end;
 
-    local procedure TestProdOrderNo()
+    procedure TestProdOrderNo()
     begin
         OnTestProdOrderNo(Rec);
     end;
@@ -3969,6 +3974,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnResetReqLineFields(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetOperationNoFilterToBlank(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

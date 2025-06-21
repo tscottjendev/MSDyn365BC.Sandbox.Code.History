@@ -669,7 +669,7 @@ codeunit 333 "Req. Wksh.-Make Order"
 
         InitPurchOrderLine(PurchOrderLine, PurchOrderHeader, ReqLine2);
 
-        PurchOrderLine.TransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
+        TransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
         OnInsertPurchOrderLineOnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine2);
 
         PurchOrderLine."Drop Shipment" := ReqLine2."Sales Order Line No." <> 0;
@@ -735,7 +735,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 ReqLine2.TestField("Location Code", SalesOrderLine."Location Code");
                 ReqLine2.TestField("Variant Code", SalesOrderLine."Variant Code");
                 ReqLine2.TestField("Bin Code", SalesOrderLine."Bin Code");
-                ReqLine2.TestField("Prod. Order No.", '');
+                ReqLine2.TestProdOrderNo();
                 ReqLine2.TestField("Qty. per Unit of Measure", ReqLine2."Qty. per Unit of Measure");
                 OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
                 SalesOrderLine.Validate("Unit Cost (LCY)");
@@ -760,6 +760,11 @@ codeunit 333 "Req. Wksh.-Make Order"
         end;
 
         OnAfterInsertPurchOrderLine(PurchOrderLine, NextLineNo, ReqLine2, PurchOrderHeader);
+    end;
+
+    local procedure TransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; ReqLine: Record "Requisition Line")
+    begin
+        OnTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine);
     end;
 
     local procedure CheckRequsitionLineQuantity(var RequisitionLine: Record "Requisition Line")
@@ -1830,6 +1835,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnCodeOnBeforeSetPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 }
