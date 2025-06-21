@@ -791,7 +791,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     SetFilterReservEntry(ReservationEntry, NewWarehouseActivityLine);
                     CopyReservEntriesToTemp(TempReservationEntry, ReservationEntry);
                     if IsInvtMovement then
-                        if NewWarehouseActivityLine."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component" then
+                        if NewWarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
                             PrepareItemTrackingFromWhse(
                               NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.",
                               '', NewWarehouseActivityLine."Source Line No.", NewWarehouseActivityLine."Source Subline No.", 1, false)
@@ -1287,7 +1287,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ReservationEntry.Reset();
         ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
         ReservationEntry.SetRange("Source ID", WarehouseActivityLine."Source No.");
-        if WarehouseActivityLine."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             ReservationEntry.SetRange("Source Ref. No.", WarehouseActivityLine."Source Subline No.")
         else
             ReservationEntry.SetRange("Source Ref. No.", WarehouseActivityLine."Source Line No.");
@@ -1300,7 +1300,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             ReservationEntry.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype");
         end;
 
-        if WarehouseActivityLine."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             ReservationEntry.SetRange("Source Prod. Order Line", WarehouseActivityLine."Source Line No.");
         ReservationEntry.SetRange(Positive, false);
     end;
@@ -1461,7 +1461,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
         TempTrackingSpecification.Init();
         TempTrackingSpecification."Entry No." := LastTempHandlingSpecNo + 1;
-        if WarehouseActivityLine."Source Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             TempTrackingSpecification.SetSource(
               WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.",
               WarehouseActivityLine."Source Subline No.", '', WarehouseActivityLine."Source Line No.")

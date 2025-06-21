@@ -3358,6 +3358,21 @@ table 27 Item
         ItemUnitOfMeasure.Insert();
     end;
 
+    procedure ShouldTryCostFromSKU(): Boolean
+    var
+        ShouldExit: Boolean;
+    begin
+        if Rec."Costing Method" <> Rec."Costing Method"::Standard then
+            exit(false);
+
+        OnShouldTryCostFromSKUOnCheckSKUCostOnMfg(ShouldExit);
+        if ShouldExit then
+            exit(false);
+
+        InventorySetup.GetRecordOnce();
+        exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+    end;
+
     procedure PickItem(var Item: Record Item): Code[20]
     var
         ItemList: Page "Item List";
@@ -4351,6 +4366,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcRelOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnShouldTryCostFromSKUOnCheckSKUCostOnMfg(var ShouldExit: Boolean)
     begin
     end;
 }
