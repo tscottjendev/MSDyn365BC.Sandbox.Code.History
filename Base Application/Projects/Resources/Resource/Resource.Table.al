@@ -729,14 +729,14 @@ table 156 Resource
         if "No." = '' then begin
             ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
-                "No. Series" := ResSetup."Resource Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := ResSetup."Resource Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Resource.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Resource.SetLoadFields("No.");
+            while Resource.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Resource.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Resource.SetLoadFields("No.");
-                while Resource.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
         end;
 
         if GetFilter("Resource Group No.") <> '' then
@@ -762,11 +762,13 @@ table 156 Resource
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         PriceListLine: Record "Price List Line";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::Resource, xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::Resource, xRec."No.", "No.");
         PriceListLine.RenameNo(PriceListLine."Asset Type"::Resource, xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Resource, xRec."No.", "No.");
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::Resource, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Resource, xRec."No.", "No.");
         "Last Date Modified" := Today;
 
