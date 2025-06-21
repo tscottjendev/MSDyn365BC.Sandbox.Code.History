@@ -72,4 +72,11 @@ codeunit 99000984 "Mfg. WhseSourceCreateDocument"
     begin
         MfgCreatePutAway.DeleteBlankBinContent(WarehouseActivityHeader);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Source Doc. Outbound", 'OnGetSingleOutboundDocOnSetFilterGroupFilters', '', true, true)]
+    local procedure OnGetSingleOutboundDocOnSetFilterGroupFilters(var WhseRqst: Record "Warehouse Request")
+    begin
+        WhseRqst.SetFilter("Source Document", '<>%1', WhseRqst."Source Document"::"Prod. Consumption");
+    end;
+
 }
