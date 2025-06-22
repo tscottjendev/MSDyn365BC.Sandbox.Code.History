@@ -4,11 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocument.Processing.Import;
 using Microsoft.Purchases.History;
+using Microsoft.eServices.EDocument;
 using System.Reflection;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 page 6104 "E-Doc. Line Additional Fields"
 {
+    Caption = 'Additional fields';
     PageType = ListPart;
     SourceTable = "EDoc. Purch. Line Field Setup";
     InsertAllowed = false;
@@ -77,8 +79,12 @@ page 6104 "E-Doc. Line Additional Fields"
         HasCustomizations: Boolean;
 
     trigger OnOpenPage()
+    var
+        EDocument: Record "E-Document";
     begin
         Rec.DeleteOmittedFieldsIfConfigured();
+        EDocument.Get(CurrentEDocumentPurchaseLine."E-Document Entry No.");
+        Rec.SetRange("E-Document Service", EDocument.GetEDocumentService().Code);
     end;
 
     trigger OnAfterGetRecord()
