@@ -322,7 +322,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJournalLine, ItemLedgerEntryNotInvoiced, SalesShipmentLine2, SalesShipmentHeader, IsHandled);
                 if not IsHandled then
                     ItemJnlPostLine.Run(ItemJournalLine);
-                OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJournalLine);
+                OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJournalLine, SalesShipmentLine2, SalesShipmentHeader, ItemJnlPostLine);
                 RemQtyBase -= ItemJournalLine.Quantity;
                 if ItemLedgerEntryNotInvoiced.Next() = 0 then;
             until (RemQtyBase = 0);
@@ -721,7 +721,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var SalesShipmentHeader: Record "Sales Shipment Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 
