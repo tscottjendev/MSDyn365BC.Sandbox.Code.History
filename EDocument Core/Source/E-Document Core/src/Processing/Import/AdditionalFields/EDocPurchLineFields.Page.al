@@ -11,7 +11,9 @@ using Microsoft.eServices.EDocument;
 page 6101 "E-Doc. Purch. Line Fields"
 {
     PageType = ListPart;
-    SourceTable = "EDoc. Purch. Line Field Setup";
+#pragma warning disable AS0035 // extensible = false, released in 26.2, changed for 26.3, this is breaking if someone uses Page.run(6104, Rec)
+    SourceTable = "ED Purchase Line Field Setup";
+#pragma warning restore AS0035
     SourceTableTemporary = true;
     InsertAllowed = false;
     DeleteAllowed = false;
@@ -78,7 +80,7 @@ page 6101 "E-Doc. Purch. Line Fields"
 
     trigger OnAfterGetRecord()
     var
-        EDocHistPurchLineFields: Record "EDoc. Purch. Line Field Setup";
+        EDocHistPurchLineFields: Record "ED Purchase Line Field Setup";
         Field: Record Field;
         NAVInstalledApp: Record "NAV App Installed App";
         AppPublishedByPlaceholderLbl: Label '%1 by %2', Comment = '%1 is the name of the app, %2 is the publisher of the app';
