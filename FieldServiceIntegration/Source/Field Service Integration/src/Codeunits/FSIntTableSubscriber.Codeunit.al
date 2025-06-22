@@ -124,8 +124,8 @@ codeunit 6610 "FS Int. Table Subscriber"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Integration Table Mapping", 'OnAfterModifyEvent', '', true, false)]
-    local procedure IntegrationTableMappingOnAfterModifyEvent(var Rec: Record "Integration Table Mapping"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Integration Table Mapping", 'OnBeforeModifyEvent', '', true, false)]
+    local procedure IntegrationTableMappingOnBeforeModifyEvent(var Rec: Record "Integration Table Mapping"; RunTrigger: Boolean)
     var
         FSConnectionSetup: Record "FS Connection Setup";
         ServiceItem: Record "Service Item";
