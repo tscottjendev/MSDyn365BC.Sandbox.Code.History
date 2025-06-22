@@ -1620,6 +1620,21 @@ table 1003 "Job Planning Line"
         OnAfterCopyFieldsFromJob(Rec, xRec, Job);
     end;
 
+    /// <summary>
+    /// Renames all Job Planning Line "No." values for the specified LineType and OldNo to NewNo.
+    /// </summary>
+    /// <param name="LineType">The type of the job planning line.</param>
+    /// <param name="OldNo">The old number to be replaced.</param>
+    /// <param name="NewNo">The new number to set.</param>
+    procedure RenameNo(LineType: Enum "Job Planning Line Type"; OldNo: Code[20]; NewNo: Code[20])
+    begin
+        Reset();
+        SetRange(Type, LineType);
+        SetRange("No.", OldNo);
+        if not Rec.IsEmpty() then
+            ModifyAll("No.", NewNo, true);
+    end;
+
     local procedure CheckQuantityPosted()
     var
         IsHandled: Boolean;
