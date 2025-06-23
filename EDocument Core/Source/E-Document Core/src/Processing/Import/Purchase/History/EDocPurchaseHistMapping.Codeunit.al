@@ -177,7 +177,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
 
     procedure ApplyHistoryValuesToPurchaseLine(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var PurchaseLine: Record "Purchase Line")
     var
-        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
+        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
         EDocPurchLineField: Record "E-Document Line - Field";
         NewPurchLineRecordRef: RecordRef;
         NewPurchLineFieldRef: FieldRef;

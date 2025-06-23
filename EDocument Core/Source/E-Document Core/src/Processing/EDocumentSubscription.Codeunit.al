@@ -283,13 +283,9 @@ codeunit 6103 "E-Document Subscription"
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"Service Participant");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Purchase Line History");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Document Line - Field");
-        DataClassificationEvalData.SetTableFieldsToNormal(Database::"ED Purchase Line Field Setup");
+        DataClassificationEvalData.SetTableFieldsToNormal(Database::"EDoc. Purch. Line Field Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Vendor Assign. History");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Record Link");
-        DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Document Notification");
-#if not CLEAN26
-        DataClassificationEvalData.SetTableFieldsToNormal(Database::"EDoc. Purch. Line Field Setup");
-#endif
     end;
 
     local procedure RunEDocumentCheck(Record: Variant; EDocumentProcPhase: Enum "E-Document Processing Phase")
