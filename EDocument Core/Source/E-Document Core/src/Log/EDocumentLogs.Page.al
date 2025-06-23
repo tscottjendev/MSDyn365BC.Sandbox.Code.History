@@ -184,10 +184,10 @@ page 6125 "E-Document Logs"
             i := ImportEDocumentProcess.StatusStepIndex(FinalState) - 1;
             if i < 0 then
                 exit;
-            PreviousState := ImportEDocumentProcess.IndexToStatus(i);
-            StepExecuted := ImportEDocumentProcess.GetNextStep(PreviousState)
+            ImportEDocumentProcess.IndexToStatus(i, PreviousState);
+            ImportEDocumentProcess.GetNextStep(PreviousState, StepExecuted);
         end else begin
-            StepExecuted := ImportEDocumentProcess.GetNextStep(FinalState);
+            ImportEDocumentProcess.GetNextStep(FinalState, StepExecuted);
             PreviousState := ImportEDocumentProcess.GetStatusForStep(StepExecuted, false);
         end;
         StepExecutedText := Format(StepExecuted) + (StepUndone ? ' ' + UndoneLbl : '');

@@ -25,6 +25,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         Telemetry: Codeunit "Telemetry";
         EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         InvoiceAlreadyExistsErr: Label 'A purchase invoice with external document number %1 already exists for vendor %2.', Comment = '%1 = Vendor Invoice No., %2 = Vendor No.';
+        DraftLineDoesNotContantTypeAndNumberErr: Label 'One of the draft lines do not contain the type and number. Please, specify these fields manually.';
 
     procedure ApplyDraftToBC(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): RecordId
     var
@@ -80,6 +81,10 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         VendorInvoiceNo: Code[35];
     begin
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+        if not AllDraftLinesHaveTypeAndNumberSpecificed(EDocumentPurchaseHeader) then begin
+            Telemetry.LogMessage('0000PLY', 'Draft line does not contain type or number', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All);
+            Error(DraftLineDoesNotContantTypeAndNumberErr);
+        end;
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");
         PurchaseHeader.SetRange("Buy-from Vendor No.", EDocumentPurchaseHeader."[BC] Vendor No."); // Setting the filter, so that the insert trigger assigns the right vendor to the purchase header
         PurchaseHeader."Document Type" := "Purchase Document Type"::Invoice;
@@ -153,6 +158,24 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
     begin
         // If document totals are setup, we just run the validation
         PurchPost.CheckDocumentTotalAmounts(PurchaseHeader);
+    end;
+
+    local procedure AllDraftLinesHaveTypeAndNumberSpecificed(EDocumentPurchaseHeader: Record "E-Document Purchase Header"): Boolean
+    var
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+    begin
+        EDocumentPurchaseLine.SetLoadFields("[BC] Purchase Line Type", "[BC] Purchase Type No.");
+        EDocumentPurchaseLine.ReadIsolation(IsolationLevel::ReadCommitted);
+        EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentPurchaseHeader."E-Document Entry No.");
+        if not EDocumentPurchaseLine.FindSet() then
+            exit(true);
+        repeat
+            if EDocumentPurchaseLine."[BC] Purchase Line Type" = EDocumentPurchaseLine."[BC] Purchase Line Type"::" " then
+                exit(false);
+            if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then
+                exit(false);
+        until EDocumentPurchaseLine.Next() = 0;
+        exit(true);
     end;
 
 }
