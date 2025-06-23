@@ -120,6 +120,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         ShowEntriesLbl: Label 'Show applied entries';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required for Line No. = %1.', Comment = '%1 - line number';
         DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
+        CreateCreditMemoQst: Label 'The invoice was posted from an order. A Sales Credit memo will be created which you complete and post manually. The quantities will be corrected in the existing Sales Order.\ \Do you want to continue?';
 
     procedure CancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
@@ -186,6 +187,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
     end;
 
     procedure CreateCreditMemoCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"): Boolean
+    var
+        SalesHdr: Record "Sales Header";
     begin
         OnBeforeCreateCreditMemoCopyDocument(SalesInvoiceHeader);
         TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader);
@@ -195,6 +198,12 @@ codeunit 1303 "Correct Posted Sales Invoice"
             ShowInvoiceAppliedNotification(SalesInvoiceHeader);
             exit(false);
         end;
+        SalesHdr.SetRange("Document Type", SalesHdr."Document Type"::Order);
+        SalesHdr.SetRange("No.", SalesInvoiceHeader."Order No.");
+        if not SalesHdr.IsEmpty then
+            if not Confirm(CreateCreditMemoQst) then
+                exit(false);
+
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
         if SalesInvoiceLinesContainJob(SalesInvoiceHeader."No.") then
