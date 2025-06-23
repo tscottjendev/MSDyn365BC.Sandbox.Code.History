@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Dimension Code, %2 = Customer no.]D;]A;(LookupHint=Codeunit ERM Auto Payment - NamedType DimensionCodeMissingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3748939737 - NamedType 930329495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 field value is not equal to the expected value %2 in the %3 table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Auto Payment - NamedType DocumentOccurrenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3748939737 - NamedType 1473052445" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The lines of G/L Book Entry is not correct after Reverse.]]></Val>
