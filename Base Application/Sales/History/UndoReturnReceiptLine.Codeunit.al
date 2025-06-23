@@ -272,7 +272,6 @@ codeunit 5816 "Undo Return Receipt Line"
 
         if ReturnRcptLine."Item Rcpt. Entry No." <> 0 then begin
             ItemJnlPostLine.Run(ItemJnlLine);
-            OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJnlLine, ReturnRcptLine, ReturnRcptHeader, ItemJnlPostLine);
             exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
 
@@ -459,11 +458,6 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCallCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptLine: Record "Return Receipt Line"; ReturnReceiptHeader: Record "Return Receipt Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 }
