@@ -3635,7 +3635,7 @@ table 83 "Item Journal Line"
         OnAfterIsEntryTypeConsumption(Rec, Result);
     end;
 
-    local procedure IsEntryTypeOutput() Result: Boolean
+    internal procedure IsEntryTypeOutput() Result: Boolean
     begin
         OnAfterIsEntryTypeOutput(Rec, Result);
     end;

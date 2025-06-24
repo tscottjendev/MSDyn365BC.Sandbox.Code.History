@@ -2101,6 +2101,7 @@ report 402 "Purchase Document - Test"
                     AddError(ErrorText);
             end;
         end;
+        OnAfterCheckPurchLine(PurchaseLine, "Purchase Header", ErrorCounter, ErrorText);
     end;
 
     local procedure CheckRcptLines(PurchLine2: Record "Purchase Line")
@@ -2472,6 +2473,11 @@ report 402 "Purchase Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundLoopOnBeforeAfterGetRecord(var PurchaseLine: Record "Purchase Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPurchLine(PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ErrorCounter: Integer; var ErrorText: Text[250])
     begin
     end;
 }
