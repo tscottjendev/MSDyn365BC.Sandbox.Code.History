@@ -2228,6 +2228,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Customer Statistics - NamedType IsNotFoundOnThePageErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1224182909 - NamedType 1603180165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lot No. should have value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Customer Statistics - NamedType LotNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1224182909 - NamedType 1436309979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Customer OverDue Balance is not correct]]></Val>
