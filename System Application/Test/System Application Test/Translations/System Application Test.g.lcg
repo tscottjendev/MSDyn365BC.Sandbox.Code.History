@@ -14,13 +14,13 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.IO)(LookupHint=Codeunit PDF Document Test - NamedType LengthErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4110520701 - Method 2546098672 - NamedType 2606339957" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4110520701 - Method 1360705399 - NamedType 2606339957" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected name at position %1 to be %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Position, %2 = Expected Name]D;]A;(Namespace=System.IO)(LookupHint=Codeunit PDF Document Test - Method Test_MultipleAttachmentNames - NamedType ExpectedNameLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Position, %2 = Expected Name]D;]A;(Namespace=System.IO)(LookupHint=Codeunit PDF Document Test - Method MultipleAttachmentNames - NamedType ExpectedNameLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1047311188 - NamedType 3372307219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
