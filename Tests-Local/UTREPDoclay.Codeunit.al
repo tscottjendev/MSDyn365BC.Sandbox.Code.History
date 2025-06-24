@@ -2,8 +2,6 @@ codeunit 144005 "UT REP Doclay"
 {
     // 1. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10576 - Order GB.
     // 2. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10579 - Blanket Purchase Order GB.
-    // 3. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10577 Purchase - Invoice GB.
-    // 4. Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop of Report 10578 Purchase - Credit Memo GB.
     // 5. Purpose of the test is to validate OnAfterGetRecord Trigger of RoundLoop of Report 10571 Order Confirmation GB.
     // 6. Purpose of the test is to validate OnAfterGetRecord Trigger of RoundLoop of Report 10574 Blanket Sales Order GB
     // 
@@ -13,8 +11,6 @@ codeunit 144005 "UT REP Doclay"
     // -----------------------------------------------------------------------
     // OnAfterGetRecordCopyLoopOrderGB                                 159587
     // OnAfterGetRecordCopyLoopBlanketPurchaseOrderGB                  159538
-    // OnAfterGetCopyLoopPurchaseInvoiceGB                             159573
-    // OnAfterGetRecCopyLoopPurchaseCreditMemoGB                       159578
     // OnAfterGetRoundLoopOrderConfirmationGB                          159558
     // OnAfterGetRoundLoopBlanketSalesOrderGB                          159541
 
@@ -71,6 +67,7 @@ codeunit 144005 "UT REP Doclay"
         VerifyDataOnReport(DocumentNoCaption, No);
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('PurchaseInvoiceGBRequestPageHandler')]
     [Scope('OnPrem')]
@@ -112,6 +109,7 @@ codeunit 144005 "UT REP Doclay"
         // Verify: Verify No_PurchCrMemoHdr on Report Purchase - Credit Memo GB.
         VerifyDataOnReport('No_PurchCrMemoHdr', No);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('OrderConfirmationGBRequestPageHandler')]
@@ -156,6 +154,7 @@ codeunit 144005 "UT REP Doclay"
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN27
     local procedure CreatePostedPurchaseCreditMemo(): Code[20]
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
@@ -185,6 +184,7 @@ codeunit 144005 "UT REP Doclay"
         LibraryVariableStorage.Enqueue(PurchInvHeader."No.");  // Enqueue required for PurchaseInvoiceGBRequestPageHandler.
         exit(PurchInvHeader."No.");
     end;
+#endif
 
     local procedure CreatePurchaseDocument(DocumentType: Enum "Purchase Document Type"): Code[20]
     var
@@ -274,6 +274,7 @@ codeunit 144005 "UT REP Doclay"
         OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoGBMemoRequestPageHandler(var PurchaseCreditMemoGB: TestRequestPage "Purchase - Credit Memo GB")
@@ -295,5 +296,6 @@ codeunit 144005 "UT REP Doclay"
         PurchaseInvoiceGB."Purch. Inv. Header".SetFilter("No.", No);
         PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 }
 

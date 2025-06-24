@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -24,6 +25,9 @@ report 10578 "Purchase - Credit Memo GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Purchases/History/PurchaseCreditMemoGB.rdlc';
     Caption = 'Purchase - Credit Memo';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -286,11 +290,9 @@ report 10578 "Purchase - Credit Memo GB"
                         column(VATIdent_PurchCrMemoLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
-#if not CLEAN27
                         column(RevCharge_PurchCrMemoLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
-#endif
                         column(DirUnitCost_PurchCrMemoLine; "Direct Unit Cost")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
@@ -302,13 +304,11 @@ report 10578 "Purchase - Credit Memo GB"
                         column(VATIdent_PurchCrMemoLine; "VAT Identifier")
                         {
                         }
-#if not CLEAN27
                         column(RevCharge_PurchCrMemoLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Purch. Cr. Memo Hdr."."Currency Code";
                             AutoFormatType = 1;
                         }
-#endif
                         column(TotalLineAmount; TotalLineAmount)
                         {
                         }
@@ -493,9 +493,7 @@ report 10578 "Purchase - Credit Memo GB"
                             TotalLineAmount += "Line Amount";
                             TotalInvoiceDiscAmount += "Inv. Discount Amount";
                             TotalAmountInclVAT += "Amount Including VAT";
-#if not CLEAN27
                             TotalReverseCharge += "Reverse Charge";
-#endif
                         end;
 
                         trigger OnPreDataItem()
@@ -932,4 +930,5 @@ report 10578 "Purchase - Credit Memo GB"
         LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
     end;
 }
+#endif
 

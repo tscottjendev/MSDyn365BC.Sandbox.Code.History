@@ -24,6 +24,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         IssuedReminderHeaderCap: Label 'No_IssuedReminderHeader';
         CurrentSaveValuesId: Integer;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('PurchaseCreditMemoGBRequestPageHandler')]
     [Scope('OnPrem')]
@@ -69,6 +70,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryReportDataset.AssertElementWithValueExists('No_PurchInvLine', PurchInvLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('Description_PurchInvLine', PurchInvLine.Description);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('FinanceChargeMemoLogInteractionRequestPageHandler')]
@@ -462,7 +464,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded();
-        
+
         if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
             FeatureKey.Enabled := FeatureKey.Enabled::None;
             FeatureKey.Modify();
@@ -500,6 +502,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         GLEntry.Insert();
     end;
 
+#if not CLEAN27
     local procedure CreatePostedPurchaseInvoiceWithMultipleLine(var PurchInvLine: Record "Purch. Inv. Line")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -542,6 +545,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchCrMemoLine.Description := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine.Insert();
     end;
+#endif
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ResponsibilityCenter: Code[10])
     var
@@ -881,6 +885,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         exit(GLEntry."Transaction No." + 1);
     end;
 
+#if not CLEAN27
     local procedure SelectPurchaseInvoiceLineNo(DocumentNo: Code[20]): Integer
     var
         PurchInvLine: Record "Purch. Inv. Line";
@@ -900,6 +905,7 @@ codeunit 144052 "UT REP Purchase & Sales"
             exit(PurchCrMemoLine."Line No." + 1);
         exit(1);
     end;
+#endif
 
     local procedure SelectReminderLine(var ReminderLine: Record "Reminder Line"; EntryNo: Integer)
     begin
@@ -920,6 +926,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoGBRequestPageHandler(var PurchaseCreditMemoGB: TestRequestPage "Purchase - Credit Memo GB")
@@ -943,6 +950,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchaseInvoiceGB."Purch. Inv. Header".SetFilter("No.", No);
         PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

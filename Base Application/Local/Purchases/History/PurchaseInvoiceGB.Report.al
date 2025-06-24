@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -26,6 +27,9 @@ report 10577 "Purchase - Invoice GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Purchases/History/PurchaseInvoiceGB.rdlc';
     Caption = 'Purchase - Invoice';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -308,13 +312,11 @@ report 10577 "Purchase - Invoice GB"
                         column(VATIdent_PurchInvLine; "VAT Identifier")
                         {
                         }
-#if not CLEAN27
                         column(RevCharge_PurchInvLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-#endif
                         column(TotalLineAmount; TotalLineAmount)
                         {
                         }
@@ -434,11 +436,9 @@ report 10577 "Purchase - Invoice GB"
                         column(VATIdent_PurchInvLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
-#if not CLEAN27
                         column(RevCharge_PurchInvLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
-#endif
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number) where(Number = filter(1 ..));
@@ -932,4 +932,5 @@ report 10577 "Purchase - Invoice GB"
         FeatureNameTok: Label 'Purchase Invoice GB', Locked = true;
         EventNameTok: Label 'Purchase Invoice GB report has been used', Locked = true;
 }
+#endif
 

@@ -3,7 +3,6 @@ codeunit 144028 "UT REP UKGEN"
     // // [FEATURE] [UI] [GB Reports]
     // Includes UKGEN test cases:
     // 
-    //  1 - 2. Test to verify the Dimension Text after running Report, Purchase/Sales - Credit Memo GB.
     //  3 - 6. Test to verify the Dimension Text after running Report Sales - Quote GB, Blanket Sales Order GB and Order Confirmation GB.
     //  7 - 8. Test to verify the Dimension Text after running Report Order GB and Blanket Purchase Order GB.
     //  8 - 9. Test to verify Archive Document field on Order GB when Archive Quotes & Orders is True/False in Purchase & Payables setup.
@@ -13,8 +12,6 @@ codeunit 144028 "UT REP UKGEN"
     //  --------------------------------------------------------------------------------------------------------------------------------------------
     //  Test Function Name                                                                                                                 TFS ID
     //  --------------------------------------------------------------------------------------------------------------------------------------------
-    //  OnAfterGetRecordDimLoopPurchaseCreditMemoGB, OnAfterGetRecordDimLoopSalesCreditMemoGB                                              159501
-    //  OnAfterGetRecordDimLoopSalesInvoiceGB                                                                                              159503
     //  OnAfterGetRecordDimLoopSalesQuoteGB, OnAfterGetRecordDimLoopOrderConfirmationGB, OnAfterGetRecordDimLoopBlanketSalesOrderGB        159506,159505
     //  OnAfterGetRecordDimLoopOrderGB                                                                                                     159502
     //  OnAfterGetRecordDimLoopBlanketPurchaseOrderGB                                                                                      159504
@@ -41,6 +38,7 @@ codeunit 144028 "UT REP UKGEN"
         DimensionFilterCap: Label '%1 %2';
         DimensionTextCap: Label 'DimText';
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('PurchaseCreditMemoGBRequestPageHandler')]
     [Scope('OnPrem')]
@@ -97,6 +95,7 @@ codeunit 144028 "UT REP UKGEN"
           REPORT::"Sales - Invoice GB", DimensionTextCap,
           StrSubstNo(DimensionFilterCap, DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesdQuoteGBRequestPageHandler,ConfirmHandlerFALSE')]
@@ -409,6 +408,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
     end;
 
+#if not CLEAN27
     local procedure CreatePostedPurchaseCreditMemoWithDimension(var DimensionSetEntry: Record "Dimension Set Entry")
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -457,6 +457,7 @@ codeunit 144028 "UT REP UKGEN"
         SalesInvoiceLine.Insert();
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value for use in SalesInvoiceGBRequestPageHandler.
     end;
+#endif
 
     local procedure CreateSalesDocumentWithDimension(var DimensionSetEntry: Record "Dimension Set Entry"; DocumentType: Enum "Sales Document Type")
     var
@@ -640,6 +641,7 @@ codeunit 144028 "UT REP UKGEN"
         OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoGBRequestPageHandler(var PurchaseCreditMemoGB: TestRequestPage "Purchase - Credit Memo GB")
@@ -651,6 +653,7 @@ codeunit 144028 "UT REP UKGEN"
         PurchaseCreditMemoGB.ShowInternalInformation.SetValue(true);
         PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -676,6 +679,7 @@ codeunit 144028 "UT REP UKGEN"
         SalesQuoteGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceGBRequestPageHandler(var SalesInvoiceGB: TestRequestPage "Sales - Invoice GB")
@@ -699,6 +703,7 @@ codeunit 144028 "UT REP UKGEN"
         SalesCreditMemoGB.ShowInternalInformation.SetValue(true);
         SalesCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

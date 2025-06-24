@@ -23,6 +23,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Warehouse.Reports;
+using Microsoft.Inventory.Reports;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -661,5 +662,9 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
                              "Item Journal Template Type"::Output, "Item Journal Template Type"::"Prod. Order"];
     end;
 
-
+    [EventSubscriber(ObjectType::Report, Report::"Calc. Inventory Value - Test", 'OnPreDataItemOnCalcStdCost', '', false, false)]
+    local procedure OnPreDataItemOnCalcStdCost(var Item: Record Item; PostingDate: Date; CalcBase: Enum "Inventory Value Calc. Base"; sender: Report "Calc. Inventory Value - Test")
+    begin
+        sender.CalculateStandardCost(Item, PostingDate, CalcBase);
+    end;
 }

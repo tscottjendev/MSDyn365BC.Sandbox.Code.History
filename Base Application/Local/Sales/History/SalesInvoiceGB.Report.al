@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -30,6 +31,9 @@ report 10572 "Sales - Invoice GB"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Sales/History/SalesInvoiceGB.rdlc';
     Caption = 'Sales - Invoice';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Reports GB app';
+    ObsoleteTag = '27.0';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
 
     dataset
@@ -340,7 +344,6 @@ report 10572 "Sales - Invoice GB"
                         column(ShipmentDate_SalesInvcLine; Format("Shipment Date"))
                         {
                         }
-#if not CLEAN27
                         column(ReverseCharge_SalesInvcLine; "Reverse Charge")
                         {
                             AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
@@ -349,7 +352,6 @@ report 10572 "Sales - Invoice GB"
                         column(SalesSetupInvcWording; SalesSetup."Invoice Wording")
                         {
                         }
-#endif
                         column(VATBaseDisc_SalesInvcHeader; "Sales Invoice Header"."VAT Base Discount %")
                         {
                         }
@@ -463,11 +465,9 @@ report 10572 "Sales - Invoice GB"
                         column(VATIdentfr_SalesInvcLineCaption; FieldCaption("VAT Identifier"))
                         {
                         }
-#if not CLEAN27
                         column(ReverseCharge_SalesInvcLineCaption; FieldCaption("Reverse Charge"))
                         {
                         }
-#endif
                         dataitem("Sales Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = sorting(Number);
@@ -568,9 +568,7 @@ report 10572 "Sales - Invoice GB"
                             TotalLineAmount += "Line Amount";
                             TotalInvoiceDiscAmount += "Inv. Discount Amount";
                             TotalAmountInclVAT += "Amount Including VAT";
-#if not CLEAN27
                             TotalReverseCharge += "Reverse Charge";
-#endif
                         end;
 
                         trigger OnPreDataItem()
@@ -1179,4 +1177,5 @@ report 10572 "Sales - Invoice GB"
         NextEntryNo := NextEntryNo + 1
     end;
 }
+#endif
 

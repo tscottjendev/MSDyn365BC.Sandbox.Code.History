@@ -35,7 +35,11 @@ using System.Utilities;
 report 402 "Purchase Document - Test"
 {
     DefaultLayout = RDLC;
+#if not CLEAN27
+    RDLCLayout = './Purchases/Reports/PurchaseDocumentTestGB.rdlc';
+#else
     RDLCLayout = './Purchases/Reports/PurchaseDocumentTest.rdlc';
+#endif
     Caption = 'Purchase Document - Test';
     WordMergeDataItem = "Purchase Header";
 
@@ -235,9 +239,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control212; "Purchase Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040000; "Purchase Header"."VAT Base Discount %")
                 {
                 }
+#endif
                 column(Purchase_Header___Payment_Discount____Control14; "Purchase Header"."Payment Discount %")
                 {
                 }
@@ -274,9 +280,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control214; "Purchase Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040002; "Purchase Header"."VAT Base Discount %")
                 {
                 }
+#endif
                 column(Purchase_Header___Vendor_Cr__Memo_No__; "Purchase Header"."Vendor Cr. Memo No.")
                 {
                 }
@@ -298,9 +306,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control216; "Purchase Header"."Prices Including VAT")
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040004; "Purchase Header"."VAT Base Discount %")
                 {
                 }
+#endif
                 column(PageCounter_Number; Number)
                 {
                 }
@@ -391,9 +401,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control212Caption; "Purchase Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040000Caption; Purchase_Header___VAT_Base_Discount____Control1040000CaptionLbl)
                 {
                 }
+#endif
                 column(Purchase_Header___Payment_Discount____Control14Caption; "Purchase Header".FieldCaption("Payment Discount %"))
                 {
                 }
@@ -430,9 +442,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control214Caption; "Purchase Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040002Caption; Purchase_Header___VAT_Base_Discount____Control1040002CaptionLbl)
                 {
                 }
+#endif
                 column(Purchase_Header___Vendor_Cr__Memo_No__Caption; "Purchase Header".FieldCaption("Vendor Cr. Memo No."))
                 {
                 }
@@ -454,9 +468,11 @@ report 402 "Purchase Document - Test"
                 column(Purchase_Header___Prices_Including_VAT__Control216Caption; "Purchase Header".FieldCaption("Prices Including VAT"))
                 {
                 }
+#if not CLEAN27
                 column(Purchase_Header___VAT_Base_Discount____Control1040004Caption; Purchase_Header___VAT_Base_Discount____Control1040004CaptionLbl)
                 {
                 }
+#endif
                 column(RemitToAddressCaption; Remit_toCaptionLbl)
                 {
                 }
@@ -711,11 +727,13 @@ report 402 "Purchase Document - Test"
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+#if not CLEAN27
                         column(TotalReverseCharge; TotalReverseCharge)
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+#endif
                         column(RoundLoop_Number; Number)
                         {
                         }
@@ -758,9 +776,11 @@ report 402 "Purchase Document - Test"
                         column(VATDiscountAmountCaption; VATDiscountAmountCaptionLbl)
                         {
                         }
+#if not CLEAN27
                         column(Reverse_ChargeCaption_Control1040006; Reverse_ChargeCaption_Control1040006Lbl)
                         {
                         }
+#endif
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number) where(Number = filter(1 ..));
@@ -1657,8 +1677,10 @@ report 402 "Purchase Document - Test"
 
                 OnAfterCheckPurchaseDoc("Purchase Header", ErrorText, ErrorCounter);
 
+#if not CLEAN27
                 ReverseCharge := 0;
                 TotalReverseCharge := 0;
+#endif
             end;
 
             trigger OnPreDataItem()
@@ -1903,9 +1925,9 @@ report 402 "Purchase Document - Test"
 #if not CLEAN27
         Text10500: Label 'Reverse charge item - please check correct VAT rate is entered. Reverse Charge %1';
         TempPurchLine2: Record "Purchase Line";
-#endif
         ReverseCharge: Decimal;
         TotalReverseCharge: Decimal;
+#endif
         Purchase_Document___TestCaptionLbl: Label 'Purchase Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';
@@ -1920,15 +1942,21 @@ report 402 "Purchase Document - Test"
         Purchase_Header___Document_Date__Control107CaptionLbl: Label 'Document Date';
         Purchase_Header___Order_Date_CaptionLbl: Label 'Order Date';
         Purchase_Header___Expected_Receipt_Date_CaptionLbl: Label 'Expected Receipt Date';
+#if not CLEAN27
         Purchase_Header___VAT_Base_Discount____Control1040000CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Purchase_Header___Due_Date__Control19CaptionLbl: Label 'Due Date';
         Purchase_Header___Pmt__Discount_Date__Control22CaptionLbl: Label 'Pmt. Discount Date';
         Purchase_Header___Posting_Date__Control112CaptionLbl: Label 'Posting Date';
         Purchase_Header___Document_Date__Control113CaptionLbl: Label 'Document Date';
+#if not CLEAN27
         Purchase_Header___VAT_Base_Discount____Control1040002CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Purchase_Header___Posting_Date__Control130CaptionLbl: Label 'Posting Date';
         Purchase_Header___Document_Date__Control131CaptionLbl: Label 'Document Date';
+#if not CLEAN27
         Purchase_Header___VAT_Base_Discount____Control1040004CaptionLbl: Label 'VAT Base Discount %';
+#endif
         Header_DimensionsCaptionLbl: Label 'Header Dimensions';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
         AmountCaptionLbl: Label 'Amount';
@@ -1937,7 +1965,9 @@ report 402 "Purchase Document - Test"
         TempPurchLine__Inv__Discount_Amount_CaptionLbl: Label 'Inv. Discount Amount';
         SubtotalCaptionLbl: Label 'Subtotal';
         VATDiscountAmountCaptionLbl: Label 'Payment Discount on VAT';
+#if not CLEAN27
         Reverse_ChargeCaption_Control1040006Lbl: Label 'Reverse Charge';
+#endif
         Line_DimensionsCaptionLbl: Label 'Line Dimensions';
         ErrorText_Number__Control103CaptionLbl: Label 'Warning!';
         VAT_Amount_SpecificationCaptionLbl: Label 'VAT Amount Specification';
@@ -2096,6 +2126,7 @@ report 402 "Purchase Document - Test"
                     AddError(ErrorText);
             end;
         end;
+        OnAfterCheckPurchLine(PurchaseLine, "Purchase Header", ErrorCounter, ErrorText);
     end;
 
     local procedure CheckRcptLines(PurchLine2: Record "Purchase Line")
@@ -2467,6 +2498,11 @@ report 402 "Purchase Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundLoopOnBeforeAfterGetRecord(var PurchaseLine: Record "Purchase Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPurchLine(PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ErrorCounter: Integer; var ErrorText: Text[250])
     begin
     end;
 }
