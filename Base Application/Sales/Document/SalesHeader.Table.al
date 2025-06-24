@@ -3077,7 +3077,7 @@ table 36 "Sales Header"
         key(Key4; "Document Type", "Bill-to Customer No.")
         {
         }
-        key(Key5; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
+        key(Key5; "Document Type", "Combine Shipments", "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
         {
         }
         key(Key6; "Sell-to Customer No.", "External Document No.")
