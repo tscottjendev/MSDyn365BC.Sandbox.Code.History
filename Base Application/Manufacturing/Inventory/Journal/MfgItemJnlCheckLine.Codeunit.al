@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +17,7 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
 #if not CLEAN26
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
 #endif
+        CannotPostTheseLinesErr: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
         WarehouseHandlingRequiredErr: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.', Comment = '%1 %3 %5 - field captions, %2 %4 %6 - field values';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckDimensionsOnAfterSetTableValues', '', false, false)]
@@ -218,6 +219,31 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
         end;
 
         exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckOutputFields', '', false, false)]
+    local procedure OnCheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        if not ItemJournalLine.IsEntryTypeOutput() then begin
+            ItemJournalLine.TestField("Run Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Setup Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Stop Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Output Quantity", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Scrap Quantity", 0, ErrorInfo.Create());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckEmptyQuantity', '', false, false)]
+    local procedure OnCheckEmptyQuantity(ItemJournalLine: Record "Item Journal Line");
+    begin
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output then begin
+            if (ItemJournalLine."Output Quantity (Base)" = 0) and (ItemJournalLine."Scrap Quantity (Base)" = 0) and
+               ItemJournalLine.TimeIsEmpty() and (ItemJournalLine."Invoiced Qty. (Base)" = 0)
+            then
+                Error(ErrorInfo.Create(CannotPosttheseLinesErr, true))
+        end else
+            if (ItemJournalLine."Quantity (Base)" = 0) and (ItemJournalLine."Invoiced Qty. (Base)" = 0) then
+                Error(ErrorInfo.Create(CannotPosttheseLinesErr, true));
     end;
 
     [IntegrationEvent(false, false)]
