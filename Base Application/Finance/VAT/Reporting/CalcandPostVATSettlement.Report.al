@@ -990,6 +990,9 @@ report 20 "Calc. and Post VAT Settlement"
             TotalSaleRounded := FiscalRoundAmount(PeriodOutputVATYearOutputVATAdvAmt + TotalSaleAmount);
             TotalPurchRounded := FiscalRoundAmount(PeriodInputVATYearInputVAT - TotalPurchaseAmount);
         end;
+        
+        if PostSettlement then
+            GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
         OnAfterPreReport("VAT Entry");
     end;
 

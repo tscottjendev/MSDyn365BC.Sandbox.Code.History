@@ -57,6 +57,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         OverrideDimErr: Boolean;
         LogErrorMode: Boolean;
         IsBatchMode: Boolean;
+        IgnoreJournalTemplNameMandatoryCheck: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'can only be a closing date for G/L entries';
@@ -384,7 +385,12 @@ codeunit 11 "Gen. Jnl.-Check Line"
         OverrideDimErr := true;
     end;
 
-    local procedure CheckDates(var GenJnlLine: Record "Gen. Journal Line")
+    procedure SetIgnoreJournalTemplNameMandatoryCheck()
+    begin
+        IgnoreJournalTemplNameMandatoryCheck := true;
+    end;
+
+    local procedure CheckDates(GenJnlLine: Record "Gen. Journal Line")
     var
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         DateCheckDone: Boolean;
@@ -404,8 +410,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
             end;
         end;
 
-        if GLSetup."Journal Templ. Name Mandatory" then
-            GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
+        if not IgnoreJournalTemplNameMandatoryCheck then
+            if GLSetup."Journal Templ. Name Mandatory" then
+                GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
         OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
         if not DateCheckDone then
             if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then

@@ -149,6 +149,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         MultiplePostingGroups: Boolean;
         SourceCodeSetupRead: Boolean;
         IsGLRegInserted: Boolean;
+        IgnoreJournalTemplNameMandatoryCheck: Boolean;
 
         EntryAmount: Decimal;
         EntryAmountLCY: Decimal;
@@ -372,6 +373,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if CheckLine then begin
             if OverrideDimErr then
                 GenJnlCheckLine.SetOverDimErr();
+            if IgnoreJournalTemplNameMandatoryCheck then
+                GenJnlCheckLine.SetIgnoreJournalTemplNameMandatoryCheck();
             OnCheckGenJnlLineOnBeforeRunCheck(GenJournalLine);
             GenJnlCheckLine.RunCheck(GenJournalLine);
         end else
@@ -7535,6 +7538,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
               DimMgt.GetDimValuePostingErr());
 
         Error(DimMgt.GetDimValuePostingErr());
+    end;
+
+    /// <summary>
+    /// Sets the global variable IgnoreJournalTemplNameMandatoryCheck for the current instance of the codeunit.
+    /// If IgnoreJournalTemplNameMandatoryCheck is not set "Journal Templ. Name Mandatory" check is performed before gen. journal line 
+    /// </summary>
+    procedure SetIgnoreJournalTemplNameMandatoryCheck()
+    begin
+        IgnoreJournalTemplNameMandatoryCheck := true;
     end;
 
     local procedure IsGainLossAccount(CurrencyCode: Code[10]; GLAccNo: Code[20]): Boolean
