@@ -6,24 +6,24 @@ namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Reports;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
-using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Warehouse.Reports;
-using Microsoft.Inventory.Reports;
 
 codeunit 99000762 "Mfg. Item Journal Mgt."
 {
@@ -32,6 +32,9 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
         CannotChangeFieldErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 %2 - field captions, %3 - field value';
         CannotInsertItemErr: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         CannotDefineItemTrackingErr: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
+        MustBeZeroErr: Label '%1 must be 0.';
+        MustBeSpecifiedErr: Label '%1 must be specified.';
+        MustBeSpecified3Err: Label '%1,%2,%3 or %4 must be specified.';
 #pragma warning restore AA0470
 
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnIsMfgItem', '', false, false)]
@@ -660,6 +663,71 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
         Result :=
             TemplateType in ["Item Journal Template Type"::Item, "Item Journal Template Type"::Consumption,
                              "Item Journal Template Type"::Output, "Item Journal Template Type"::"Prod. Order"];
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Inventory Posting - Test", 'OnAfterGetRecordOnCheckManufacturing', '', true, true)]
+    local procedure OnAfterGetRecordOnCheckManufacturing(var ItemJournalLine: Record "Item Journal Line"; var QtyError: Boolean; sender: Report "Inventory Posting - Test")
+    begin
+        if (ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::Output, ItemJournalLine."Entry Type"::Consumption]) and
+           (ItemJournalLine."Order Type" = ItemJournalLine."Order Type"::Production) and
+            not ItemJournalLine.OnlyStopTime()
+        then begin
+            if ItemJournalLine."Order No." = '' then
+                sender.AddError(StrSubstNo(MustBeSpecifiedErr, ItemJournalLine.FieldCaption("Order No.")));
+            if ItemJournalLine."Order Line No." = 0 then
+                sender.AddError(StrSubstNo(MustBeSpecifiedErr, ItemJournalLine.FieldCaption("Order Line No.")));
+
+            if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output then
+                if ((ItemJournalLine."Run Time" = 0) and (ItemJournalLine."Setup Time" = 0) and (ItemJournalLine."Output Quantity" = 0) and
+                    (ItemJournalLine."Scrap Quantity" = 0)) and not QtyError
+                then begin
+                    QtyError := true;
+                    sender.AddError(
+                        StrSubstNo(MustBeSpecified3Err,
+                            ItemJournalLine.FieldCaption("Setup Time"),
+                            ItemJournalLine.FieldCaption("Run Time"),
+                            ItemJournalLine.FieldCaption("Output Quantity"), ItemJournalLine.FieldCaption("Scrap Quantity")));
+                end;
+        end;
+
+        if ItemJournalLine."Entry Type" <> ItemJournalLine."Entry Type"::Output then begin
+            if ItemJournalLine."Setup Time" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Setup Time")));
+            if ItemJournalLine."Run Time" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Run Time")));
+            if ItemJournalLine."Stop Time" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Stop Time")));
+            if ItemJournalLine."Output Quantity" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Output Quantity")));
+            if ItemJournalLine."Scrap Quantity" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Scrap Quantity")));
+            if ItemJournalLine."Concurrent Capacity" <> 0 then
+                sender.AddError(StrSubstNo(MustBeZeroErr, ItemJournalLine.FieldCaption("Concurrent Capacity")));
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Inventory Posting - Test", 'OnAfterGetRecordOnSetManufacturingFields', '', true, true)]
+    local procedure OnAfterGetRecordOnSetManufacturingFields(
+        var ItemJournalLine: Record "Item Journal Line";
+        var OperationNo: Code[20]; var OperationNoCaption: Text; var OutputQuantity: Decimal; var OutputQuantityCaption: Text;
+        var ScrapCode: Code[10]; var ScrapCodeCaption: Text; var StopCode: Code[10]; var StopCodeCaption: Text;
+        var RunTime: Decimal; var RunTimeCaption: Text; var SetupTime: Decimal; var SetupTimeCaption: Text; var StopTime: Decimal; var StopTimeCaption: Text)
+    begin
+        OperationNo := ItemJournalLine."Operation No.";
+        OutputQuantity := ItemJournalLine."Output Quantity";
+        ScrapCode := ItemJournalLine."Scrap Code";
+        StopCode := ItemJournalLine."Stop Code";
+        RunTime := ItemJournalLine."Run Time";
+        SetupTime := ItemJournalLine."Setup Time";
+        StopTime := ItemJournalLine."Stop Time";
+
+        OperationNoCaption := ItemJournalLine.FieldCaption("Operation No.");
+        OutputQuantityCaption := ItemJournalLine.FieldCaption("Output Quantity");
+        ScrapCodeCaption := ItemJournalLine.FieldCaption("Scrap Code");
+        StopCodeCaption := ItemJournalLine.FieldCaption("Stop Code");
+        RunTimeCaption := ItemJournalLine.FieldCaption("Run Time");
+        SetupTimeCaption := ItemJournalLine.FieldCaption("Setup Time");
+        StopTimeCaption := ItemJournalLine.FieldCaption("Stop Time");
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Calc. Inventory Value - Test", 'OnPreDataItemOnCalcStdCost', '', false, false)]
