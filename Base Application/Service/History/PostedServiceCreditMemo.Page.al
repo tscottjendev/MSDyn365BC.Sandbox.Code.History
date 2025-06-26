@@ -696,6 +696,7 @@ page 5972 "Posted Service Credit Memo"
 
                 trigger OnAction()
                 begin
+                    ServCrMemoHeader := Rec;
                     CurrPage.SetSelectionFilter(ServCrMemoHeader);
                     ServCrMemoHeader.PrintRecords(true);
                 end;
