@@ -398,6 +398,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
             ItemChargeAssgntPurch.ModifyAll("Amount to Handle", 0);
             ItemChargeAssgntPurch.ModifyAll("Qty. to Handle", 0);
+            OnAssignItemChargesFromLineOnAfterItemChargeAssignmentModifyAll(PurchLine, ItemChargeAssgntPurch);
             ItemChargeAssgntPurch.FindSet();
 
             case SelectionTxt of
@@ -729,6 +730,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
           Round(ItemChargeAssgntPurch."Amount to Assign", Currency."Amount Rounding Precision");
         ItemChargeAssgntPurch."Qty. to Handle" := ItemChargeAssgntPurch."Qty. to Assign";
         ItemChargeAssgntPurch."Amount to Handle" := ItemChargeAssgntPurch."Amount to Assign";
+        OnAssignPurchItemChargeOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
         ItemChargeAssgntPurch.Modify();
     end;
 
@@ -834,6 +836,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssignmentPurch."Amount to Assign" := FromItemChargeAssignmentPurch."Amount to Assign";
         ItemChargeAssignmentPurch."Qty. to Handle" := FromItemChargeAssignmentPurch."Qty. to Handle";
         ItemChargeAssignmentPurch."Amount to Handle" := FromItemChargeAssignmentPurch."Amount to Handle";
+        OnSuggestAssgntFromLineOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssignmentPurch);
         ItemChargeAssignmentPurch.Modify();
 
         ItemChargeAssignmentPurch.SetRange("Document Type", FromItemChargeAssignmentPurch."Document Type");
@@ -1104,6 +1107,21 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSuggestAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal; var Selection: Integer; var SelectionTxt: Text; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignPurchItemChargeOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssgntFromLineOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignItemChargesFromLineOnAfterItemChargeAssignmentModifyAll(PurchLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }
