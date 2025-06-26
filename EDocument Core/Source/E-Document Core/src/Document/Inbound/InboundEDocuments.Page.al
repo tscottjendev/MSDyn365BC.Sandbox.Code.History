@@ -33,7 +33,7 @@ page 6105 "Inbound E-Documents"
                 field("Entry No"; Rec."Entry No")
                 {
                     Caption = 'Entry No.';
-                    ToolTip = 'Specifies the unique number of the electronic document.';
+                    ToolTip = 'Specifies the unique number of the document.';
                     Visible = false;
                 }
                 field("Document Name"; DocumentNameTxt)
@@ -48,44 +48,44 @@ page 6105 "Inbound E-Documents"
                 field(SystemCreatedAt; Rec.SystemCreatedAt)
                 {
                     Caption = 'Received At';
-                    ToolTip = 'Specifies the date and time when the electronic document was created.';
+                    ToolTip = 'Specifies the date and time when the document was created.';
                 }
                 field(Service; Rec.Service)
                 {
                     Visible = false;
                     Caption = 'Service';
-                    ToolTip = 'Specifies the service code of the electronic document.';
+                    ToolTip = 'Specifies the E-Document Service that retrieved the document.';
                 }
                 field("Service Integration"; Rec."Service Integration")
                 {
                     Caption = 'Source';
-                    ToolTip = 'Specifies the source of the electronic document.';
+                    ToolTip = 'Specifies the source of the document.';
                 }
                 field("Source Details"; Rec."Source Details")
                 {
                     Caption = 'Source Details';
-                    ToolTip = 'Specifies the details about the source of the electronic document.';
+                    ToolTip = 'Specifies the details about the source of the document.';
                 }
                 field("Vendor Name"; VendorNameTxt)
                 {
                     Caption = 'Sender';
-                    ToolTip = 'Specifies the vendor name of the electronic document.';
+                    ToolTip = 'Specifies the vendor name of the document.';
                 }
                 field("Import Processing Status"; Rec."Import Processing Status")
                 {
                     Caption = 'Processing Status';
-                    ToolTip = 'Specifies the processing status of the inbound electronic document.';
+                    ToolTip = 'Specifies the stage in which the processing of this document is in.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
                     Caption = 'Document Type';
-                    ToolTip = 'Specifies the document type of the electronic document.';
+                    ToolTip = 'Specifies the type of the document.';
                     StyleExpr = DocumentTypeStyleTxt;
                 }
                 field("Document Record ID"; RecordLinkTxt)
                 {
                     Caption = 'Finalized Document No.';
-                    ToolTip = 'Specifies the document created from the electronic document.';
+                    ToolTip = 'Specifies the entity created from the document.';
                     trigger OnDrillDown()
                     begin
                         Rec.ShowRecord();
@@ -159,7 +159,7 @@ page 6105 "Inbound E-Documents"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Open draft document';
-                ToolTip = 'Process the selected electronic document.';
+                ToolTip = 'Process the selected document.';
                 Image = PurchaseInvoice;
                 Enabled = Rec."Entry No" <> 0;
 

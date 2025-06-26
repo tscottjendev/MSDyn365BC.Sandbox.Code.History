@@ -5,6 +5,7 @@
 namespace Microsoft.eServices.EDocument.Processing.Import;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.Finance.Dimension;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
@@ -20,6 +21,8 @@ using Microsoft.Foundation.Attachment;
 codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft, IEDocumentCreatePurchaseInvoice
 {
     Access = Internal;
+    Permissions = tabledata "Dimension Set Tree Node" = im,
+                  tabledata "Dimension Set Entry" = im;
 
     var
         Telemetry: Codeunit "Telemetry";
