@@ -116,7 +116,6 @@ page 6105 "Inbound E-Documents"
     {
         area(Processing)
         {
-
             fileuploadaction(ImportPdf)
             {
                 Caption = 'Import PDF';
@@ -124,6 +123,7 @@ page 6105 "Inbound E-Documents"
                 AllowedFileExtensions = '.pdf';
                 AllowMultipleFiles = true;
                 Image = SendAsPDF;
+                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
@@ -137,6 +137,7 @@ page 6105 "Inbound E-Documents"
                 AllowedFileExtensions = '.xml';
                 AllowMultipleFiles = true;
                 Image = XMLFile;
+                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
@@ -149,10 +150,48 @@ page 6105 "Inbound E-Documents"
                 ToolTip = 'Create an electronic document by manually uploading a file.';
                 Image = Import;
                 AllowMultipleFiles = true;
+                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
                     NewFromFile(Files);
+                end;
+            }
+            action(AnalyzeDocument)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Analyze PDF';
+                ToolTip = 'Analyze the pdf document with Azure Document Intelligence.';
+                Image = NewPurchaseInvoice;
+                Visible = false;
+
+                trigger OnAction()
+                var
+                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    EDocImport: Codeunit "E-Doc. Import";
+                begin
+                    EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Read into Draft";
+                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                end;
+            }
+            action(PrepareDraftDocument)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Prepare Draft';
+                ToolTip = 'Prepare the draft document.';
+                Image = Process;
+                Visible = false;
+
+                trigger OnAction()
+                var
+                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    EDocImport: Codeunit "E-Doc. Import";
+                    ImportEDocumentProcess: Codeunit "Import E-Document Process";
+                begin
+                    EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare Draft";
+                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                    if ImportEDocumentProcess.IsEDocumentInStateGE(Rec, Enum::"Import E-Doc. Proc. Status"::"Ready for draft") then
+                        EDocumentHelper.OpenDraftPage(Rec)
                 end;
             }
             action(OpenDraftDocument)
