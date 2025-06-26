@@ -247,7 +247,7 @@ report 10007 "Consolidated Trial Balance"
     requestpage
     {
         AboutTitle = 'About Consolidated Trial Balance';
-        AboutText = 'Get a combined overview of general ledger entries for two or more companies in one consolidated company. Use this report to analyze consolidated financial data from multiple companies. Learn more at Set Up Company Consolidation.';
+        AboutText = 'Combines financial data across companies, allowing finance teams to analyze consolidated performance and ensure alignment across entities. Use this report when reviewing financial results across multiple companies within an organization.';
         SaveValues = true;
 
         layout
