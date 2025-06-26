@@ -277,6 +277,11 @@ page 9301 "Sales Invoice List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
