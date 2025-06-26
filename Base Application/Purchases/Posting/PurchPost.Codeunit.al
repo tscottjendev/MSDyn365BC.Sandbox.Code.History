@@ -4163,6 +4163,7 @@ codeunit 90 "Purch.-Post"
                 ItemChargeAssgntPurch."Amount to Assign" -= ItemChargeAssgntPurch."Amount to Handle";
                 ItemChargeAssgntPurch."Qty. to Handle" := 0;
                 ItemChargeAssgntPurch."Amount to Handle" := 0;
+                OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 ItemChargeAssgntPurch.Modify();
             until TempItemChargeAssgntPurch.Next() = 0;
     end;
@@ -11638,6 +11639,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }
