@@ -333,6 +333,9 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
         if PurchLine."Energy Consumption" <> 0 then
             PurchLine."Energy Consumption Per Unit" := PurchLine."Energy Consumption" / Denominator;
+
+        if Rec.Type = Rec.Type::"Charge (Item)" then
+            Rec.UpdateItemChargeAssgnt();
     end;
 
     local procedure UpdateDefaultEmissionOnPurchLine(var PurchaseLine: Record "Purchase Line")
@@ -416,8 +419,8 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             PurchaseLine.FieldNo("Sust. Account Name"):
                 begin
                     PurchaseLine.TestField("No.");
-                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource]) then
-                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource);
+                    if not (PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource, PurchaseLine.Type::"Charge (Item)"]) then
+                        Error(InvalidTypeForSustErr, PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account", PurchaseLine.Type::Resource, PurchaseLine.Type::"Charge (Item)");
 
                     if SustAccountCategory.Get(PurchaseLine."Sust. Account Category") then
                         if SustAccountCategory."Water Intensity" or SustAccountCategory."Waste Intensity" or SustAccountCategory."Discharged Into Water" then
@@ -438,6 +441,6 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
 
     var
         SustainabilitySetup: Record "Sustainability Setup";
-        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 , %2 and %3', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account, %3 - Purchase Line Type Resource';
+        InvalidTypeForSustErr: Label 'Sustainability is only applicable for Type: %1 , %2 , %3 and %4', Comment = '%1 - Purchase Line Type Item, %2 - Purchase Line Type G/L Account, %3 - Purchase Line Type Resource , %4 - Purchase Line Type Charge (Item)';
         NotAllowedToUseSustAccountForWaterOrWasteErr: Label 'It is not allowed to use Sustainability Account %1 for water or waste in purchase document.', Comment = '%1 = Sust. Account No.';
 }

@@ -49,7 +49,9 @@ codeunit 6212 "Sustainability Post Mgt"
         SustainabilityValueEntryAddedLbl: Label 'Sustainability Value Entry Added', Locked = true;
         ShouldCalcExpectedCO2e: Boolean;
     begin
-        SkipUpdateCarbonEmissionValue := ValueEntry."Item Ledger Entry Type" <> ValueEntry."Item Ledger Entry Type"::Purchase;
+        SkipUpdateCarbonEmissionValue :=
+            (ValueEntry."Item Ledger Entry Type" <> ValueEntry."Item Ledger Entry Type"::Purchase) or
+            ((ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Purchase) and (ValueEntry."Item Charge No." <> ''));
         SustainabilityValueEntry.Init();
 
         FeatureTelemetry.LogUsage('0000PH6', SustainabilityLbl, SustainabilityValueEntryAddedLbl);

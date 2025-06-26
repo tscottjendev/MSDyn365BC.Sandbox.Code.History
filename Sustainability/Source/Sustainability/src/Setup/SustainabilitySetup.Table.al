@@ -142,7 +142,6 @@ table 6217 "Sustainability Setup"
         field(22; "Item Charge Emissions"; Boolean)
         {
             Caption = 'Item Charge Emissions';
-            Editable = false;
         }
         field(23; "Resource Emissions"; Boolean)
         {
