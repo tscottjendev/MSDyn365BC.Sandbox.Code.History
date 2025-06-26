@@ -6562,6 +6562,7 @@ table 39 "Purchase Line"
                         TotalAmtToHandle -= ItemChargeAssgntPurch."Amount to Handle";
                     end;
                 end;
+                OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(Rec, ItemChargeAssgntPurch);
                 ItemChargeAssgntPurch.Modify();
             until ItemChargeAssgntPurch.Next() = 0;
             CalcFields("Qty. to Assign", "Item Charge Qty. to Handle");
@@ -12057,6 +12058,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterModifyOnAfterVerifyChange(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }
