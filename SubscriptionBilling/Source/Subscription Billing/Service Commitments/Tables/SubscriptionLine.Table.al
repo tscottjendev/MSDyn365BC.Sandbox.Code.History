@@ -766,8 +766,10 @@ table 8059 "Subscription Line"
 
     internal procedure UpdateCancellationPossibleUntil(): Boolean
     begin
-        if IsNoticePeriodEmpty() or ("Term until" = 0D) then
+        if IsNoticePeriodEmpty() then
             exit(false);
+        if "Term Until" = 0D then
+            exit;
         CalendarManagement.ReverseDateFormula(NegativeDateFormula, "Notice Period");
         "Cancellation Possible Until" := CalcDate(NegativeDateFormula, "Term Until");
         if DateTimeManagement.IsLastDayOfMonth("Term until") then

@@ -54,22 +54,15 @@ page 6181 "E-Document Purchase Draft"
                         Caption = 'Vendor No.';
                         Importance = Promoted;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the internal vendor identifier code.';
+                        ToolTip = 'Specifies the number of the vendor who delivers the products.';
                         Editable = PageEditable;
                         Lookup = true;
 
-                        trigger OnValidate()
-                        begin
-                            EDocumentPurchaseHeader.Validate("[BC] Vendor No.", EDocumentPurchaseHeader."[BC] Vendor No.");
-                            EDocumentPurchaseHeader.Modify();
-                            PrepareDraft();
-                        end;
-
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            exit(LookupVendor(Text));
+                            if LookupVendor() then
+                                PrepareDraft();
                         end;
-
                     }
                     field("Vendor Name"; EDocumentPurchaseHeader."Vendor Company Name")
                     {
@@ -279,35 +272,6 @@ page 6181 "E-Document Purchase Draft"
                 end;
             }
         }
-        area(Navigation)
-        {
-            group(Vendors)
-            {
-                Visible = false;
-                action(CreateVendorAction)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create Vendor';
-                    ToolTip = 'Creates a vendor based on the invoice details.';
-                    Image = Vendor;
-
-                    trigger OnAction()
-                    var
-                        Vendor: Record Vendor;
-                        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-                        VendorCard: Page "Vendor Card";
-                        IsHandled: Boolean;
-                    begin
-                        if VendorTemplMgt.CreateVendorFromTemplate(Vendor, IsHandled) then begin
-                            Vendor.Validate(Blocked, Enum::"Vendor Blocked"::All);
-                            Vendor.Modify();
-                            VendorCard.SetRecord(Vendor);
-                            VendorCard.Run();
-                        end;
-                    end;
-                }
-            }
-        }
         area(Promoted)
         {
             group(Category_Process)
@@ -432,7 +396,7 @@ page 6181 "E-Document Purchase Draft"
         ErrorsAndWarningsNotification.Send();
     end;
 
-    local procedure LookupVendor(var VendorNo: Text): Boolean
+    local procedure LookupVendor(): Boolean
     var
         Vendor: Record Vendor;
         VendorList: Page "Vendor List";
@@ -440,7 +404,8 @@ page 6181 "E-Document Purchase Draft"
         VendorList.LookupMode := true;
         if VendorList.RunModal() = Action::LookupOK then begin
             VendorList.GetRecord(Vendor);
-            VendorNo := Vendor."No.";
+            EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+            EDocumentPurchaseHeader.Modify();
             exit(true);
         end;
     end;

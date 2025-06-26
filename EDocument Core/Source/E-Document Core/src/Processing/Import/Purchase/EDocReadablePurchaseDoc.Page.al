@@ -243,8 +243,7 @@ page 6182 "E-Doc. Readable Purchase Doc."
     var
         ImportEDocumentProcess: Codeunit "Import E-Document Process";
     begin
-        if Rec."E-Document Entry No." = 0 then
-            Error('');
+        Rec.TestField("E-Document Entry No.");
         AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
         AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
         AIGeneratedContentNotification.Send();

@@ -33,7 +33,7 @@ page 6105 "Inbound E-Documents"
                 field("Entry No"; Rec."Entry No")
                 {
                     Caption = 'Entry No.';
-                    ToolTip = 'Specifies the unique number of the document.';
+                    ToolTip = 'Specifies the unique number of the electronic document.';
                     Visible = false;
                 }
                 field("Document Name"; DocumentNameTxt)
@@ -48,44 +48,44 @@ page 6105 "Inbound E-Documents"
                 field(SystemCreatedAt; Rec.SystemCreatedAt)
                 {
                     Caption = 'Received At';
-                    ToolTip = 'Specifies the date and time when the document was created.';
+                    ToolTip = 'Specifies the date and time when the electronic document was created.';
                 }
                 field(Service; Rec.Service)
                 {
                     Visible = false;
                     Caption = 'Service';
-                    ToolTip = 'Specifies the E-Document Service that retrieved the document.';
+                    ToolTip = 'Specifies the service code of the electronic document.';
                 }
                 field("Service Integration"; Rec."Service Integration")
                 {
                     Caption = 'Source';
-                    ToolTip = 'Specifies the source of the document.';
+                    ToolTip = 'Specifies the source of the electronic document.';
                 }
                 field("Source Details"; Rec."Source Details")
                 {
                     Caption = 'Source Details';
-                    ToolTip = 'Specifies the details about the source of the document.';
+                    ToolTip = 'Specifies the details about the source of the electronic document.';
                 }
                 field("Vendor Name"; VendorNameTxt)
                 {
                     Caption = 'Sender';
-                    ToolTip = 'Specifies the vendor name of the document.';
+                    ToolTip = 'Specifies the vendor name of the electronic document.';
                 }
                 field("Import Processing Status"; Rec."Import Processing Status")
                 {
                     Caption = 'Processing Status';
-                    ToolTip = 'Specifies the stage in which the processing of this document is in.';
+                    ToolTip = 'Specifies the processing status of the inbound electronic document.';
                 }
                 field("Document Type"; Rec."Document Type")
                 {
                     Caption = 'Document Type';
-                    ToolTip = 'Specifies the type of the document.';
+                    ToolTip = 'Specifies the document type of the electronic document.';
                     StyleExpr = DocumentTypeStyleTxt;
                 }
                 field("Document Record ID"; RecordLinkTxt)
                 {
                     Caption = 'Finalized Document No.';
-                    ToolTip = 'Specifies the entity created from the document.';
+                    ToolTip = 'Specifies the document created from the electronic document.';
                     trigger OnDrillDown()
                     begin
                         Rec.ShowRecord();
@@ -116,6 +116,7 @@ page 6105 "Inbound E-Documents"
     {
         area(Processing)
         {
+
             fileuploadaction(ImportPdf)
             {
                 Caption = 'Import PDF';
@@ -123,7 +124,6 @@ page 6105 "Inbound E-Documents"
                 AllowedFileExtensions = '.pdf';
                 AllowMultipleFiles = true;
                 Image = SendAsPDF;
-                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
@@ -137,7 +137,6 @@ page 6105 "Inbound E-Documents"
                 AllowedFileExtensions = '.xml';
                 AllowMultipleFiles = true;
                 Image = XMLFile;
-                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
@@ -150,55 +149,17 @@ page 6105 "Inbound E-Documents"
                 ToolTip = 'Create an electronic document by manually uploading a file.';
                 Image = Import;
                 AllowMultipleFiles = true;
-                Visible = false;
 
                 trigger OnAction(Files: List of [FileUpload])
                 begin
                     NewFromFile(Files);
                 end;
             }
-            action(AnalyzeDocument)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Analyze PDF';
-                ToolTip = 'Analyze the pdf document with Azure Document Intelligence.';
-                Image = NewPurchaseInvoice;
-                Visible = false;
-
-                trigger OnAction()
-                var
-                    EDocImportParameters: Record "E-Doc. Import Parameters";
-                    EDocImport: Codeunit "E-Doc. Import";
-                begin
-                    EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Read into Draft";
-                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
-                end;
-            }
-            action(PrepareDraftDocument)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Prepare Draft';
-                ToolTip = 'Prepare the draft document.';
-                Image = Process;
-                Visible = false;
-
-                trigger OnAction()
-                var
-                    EDocImportParameters: Record "E-Doc. Import Parameters";
-                    EDocImport: Codeunit "E-Doc. Import";
-                    ImportEDocumentProcess: Codeunit "Import E-Document Process";
-                begin
-                    EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare Draft";
-                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
-                    if ImportEDocumentProcess.IsEDocumentInStateGE(Rec, Enum::"Import E-Doc. Proc. Status"::"Ready for draft") then
-                        EDocumentHelper.OpenDraftPage(Rec)
-                end;
-            }
             action(OpenDraftDocument)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Open draft document';
-                ToolTip = 'Process the selected document.';
+                ToolTip = 'Process the selected electronic document.';
                 Image = PurchaseInvoice;
                 Enabled = Rec."Entry No" <> 0;
 
