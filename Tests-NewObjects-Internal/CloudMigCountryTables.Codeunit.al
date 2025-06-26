@@ -46,7 +46,9 @@ codeunit 135161 "Cloud Mig Country Tables"
         ListOfTablesToMigrate.Add(Database::"Lifo Category");
         ListOfTablesToMigrate.Add(Database::"Payment Lines");
         ListOfTablesToMigrate.Add(Database::"Periodic VAT Settlement Entry");
+#if not CLEAN27
         ListOfTablesToMigrate.Add(Database::"Periodic Settlement VAT Entry");
+#endif
         ListOfTablesToMigrate.Add(Database::"Posted Payment Lines");
         ListOfTablesToMigrate.Add(Database::"Posted Vendor Bill Header");
         ListOfTablesToMigrate.Add(Database::"Posted Vendor Bill Line");
