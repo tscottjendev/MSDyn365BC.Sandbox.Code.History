@@ -33,6 +33,7 @@ table 6212 "Sustain. Account Subcategory"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission Factor CO2';
+            CaptionClass = '102,5,1';
 
             trigger OnValidate()
             begin
@@ -47,6 +48,7 @@ table 6212 "Sustain. Account Subcategory"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission Factor CH4';
+            CaptionClass = '102,5,2';
 
             trigger OnValidate()
             begin
@@ -61,6 +63,7 @@ table 6212 "Sustain. Account Subcategory"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission Factor N2O';
+            CaptionClass = '102,5,3';
 
             trigger OnValidate()
             begin

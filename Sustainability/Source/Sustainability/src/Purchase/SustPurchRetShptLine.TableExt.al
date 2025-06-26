@@ -60,6 +60,7 @@ tableextension 6215 "Sust. Purch. Ret. Shpt. Line" extends "Return Shipment Line
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
             DataClassification = CustomerContent;
         }
         field(6218; "Emission CH4"; Decimal)
@@ -67,6 +68,7 @@ tableextension 6215 "Sust. Purch. Ret. Shpt. Line" extends "Return Shipment Line
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
             DataClassification = CustomerContent;
         }
         field(6219; "Emission N2O"; Decimal)
@@ -74,6 +76,7 @@ tableextension 6215 "Sust. Purch. Ret. Shpt. Line" extends "Return Shipment Line
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
             DataClassification = CustomerContent;
         }
         field(6223; "Energy Source Code"; Code[20])

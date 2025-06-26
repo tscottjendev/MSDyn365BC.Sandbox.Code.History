@@ -23,6 +23,7 @@ tableextension 6218 "Sust. Purch. Cr. Memo Header" extends "Purch. Cr. Memo Hdr.
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Document No." = field("No."), "Document Type" = filter("Credit Memo" | "GHG Credit")));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -32,6 +33,7 @@ tableextension 6218 "Sust. Purch. Cr. Memo Header" extends "Purch. Cr. Memo Hdr.
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Document No." = field("No."), "Document Type" = filter("Credit Memo" | "GHG Credit")));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -41,6 +43,7 @@ tableextension 6218 "Sust. Purch. Cr. Memo Header" extends "Purch. Cr. Memo Hdr.
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Document No." = field("No."), "Document Type" = filter("Credit Memo" | "GHG Credit")));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
             Editable = false;
             FieldClass = FlowField;
         }

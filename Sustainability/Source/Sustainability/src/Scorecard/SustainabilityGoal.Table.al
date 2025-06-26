@@ -116,6 +116,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for CO2';
+            CaptionClass = '102,7,1';
             FieldClass = FlowField;
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
@@ -125,6 +126,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for CH4';
+            CaptionClass = '102,7,2';
             FieldClass = FlowField;
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
@@ -134,6 +136,7 @@ table 6219 "Sustainability Goal"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Baseline for N2O';
+            CaptionClass = '102,7,3';
             FieldClass = FlowField;
             CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Baseline Period"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
@@ -146,6 +149,7 @@ table 6219 "Sustainability Goal"
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for CO2';
+            CaptionClass = '102,8,1';
         }
         field(16; "Current Value for CH4"; Decimal)
         {
@@ -155,6 +159,7 @@ table 6219 "Sustainability Goal"
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for CH4';
+            CaptionClass = '102,8,2';
         }
         field(17; "Current Value for N2O"; Decimal)
         {
@@ -164,6 +169,7 @@ table 6219 "Sustainability Goal"
             CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Posting Date" = field("Current Period Filter"), "Country/Region Code" = field("Country/Region Code Filter"), "Responsibility Center" = field("Responsibility Center Filter")));
             Editable = false;
             Caption = 'Current Value for N2O';
+            CaptionClass = '102,8,3';
         }
         field(18; "Unit of Measure"; Code[10])
         {
@@ -173,14 +179,17 @@ table 6219 "Sustainability Goal"
         field(19; "Target Value for CO2"; Decimal)
         {
             Caption = 'Target Value for CO2';
+            CaptionClass = '102,9,1';
         }
         field(20; "Target Value for CH4"; Decimal)
         {
             Caption = 'Target Value for CH4';
+            CaptionClass = '102,9,2';
         }
         field(21; "Target Value for N2O"; Decimal)
         {
             Caption = 'Target Value for N2O';
+            CaptionClass = '102,9,3';
         }
         field(22; "Main Goal"; Boolean)
         {

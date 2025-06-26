@@ -136,6 +136,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -152,6 +153,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -167,6 +169,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -182,6 +185,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission CO2';
+            CaptionClass = '102,11,1';
             Editable = false;
             DataClassification = CustomerContent;
 
@@ -196,6 +200,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission CH4';
+            CaptionClass = '102,11,2';
             Editable = false;
             DataClassification = CustomerContent;
 
@@ -210,6 +215,7 @@ tableextension 6211 "Sustainability Purch. Line" extends "Purchase Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Posted Emission N2O';
+            CaptionClass = '102,11,3';
             Editable = false;
             DataClassification = CustomerContent;
 

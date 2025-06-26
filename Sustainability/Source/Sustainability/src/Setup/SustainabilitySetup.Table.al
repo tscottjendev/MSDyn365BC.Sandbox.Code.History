@@ -2,6 +2,7 @@ namespace Microsoft.Sustainability.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.UOM;
+using Microsoft.Sustainability.Emission;
 using Microsoft.Utilities;
 using System.Utilities;
 using System.Telemetry;
@@ -180,6 +181,17 @@ table 6217 "Sustainability Setup"
             Caption = 'Energy Reporting UOM Factor';
             DecimalPlaces = 0 : 10;
         }
+        field(29; "Use All Gases As CO2e"; Boolean)
+        {
+            Caption = 'Use All Gases As CO2e';
+            ToolTip = 'Specifies that you want to enable recording all gases as CO2 equivalent values. When this field is selected, the captions for gases will change from their names to their CO2e equivalents. The values you are expected to enter will correspond to their carbon equivalent values, not the original gas values. Additionally, the Carbon Equivalent Factor in the Emission Fees will be set to 1 for all three gases.';
+
+            trigger OnValidate()
+            begin
+                if Rec."Use All Gases As CO2e" then
+                    UpdateCarbonEquivalentFactorInEmissionFee();
+            end;
+        }
     }
 
     keys
@@ -273,9 +285,16 @@ table 6217 "Sustainability Setup"
         end;
     end;
 
+    local procedure UpdateCarbonEquivalentFactorInEmissionFee()
+    var
+        EmissionFee: Record "Emission Fee";
+    begin
+        EmissionFee.SetFilter("Emission Type", '<>%1', EmissionFee."Emission Type"::" ");
+        EmissionFee.ModifyAll("Carbon Equivalent Factor", 1);
+    end;
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"Sustainability Setup", 'I')]
     internal procedure InitRecord()
-
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         SustainabilityLbl: Label 'Sustainability', Locked = true;

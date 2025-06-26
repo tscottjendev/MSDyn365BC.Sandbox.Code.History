@@ -23,6 +23,7 @@ tableextension 6217 "Sust. Purch. Inv. Header" extends "Purch. Inv. Header"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CO2" where("Document No." = field("No."), "Document Type" = filter(Invoice | "GHG Credit")));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -32,6 +33,7 @@ tableextension 6217 "Sust. Purch. Inv. Header" extends "Purch. Inv. Header"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission CH4" where("Document No." = field("No."), "Document Type" = filter(Invoice | "GHG Credit")));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -41,6 +43,7 @@ tableextension 6217 "Sust. Purch. Inv. Header" extends "Purch. Inv. Header"
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             CalcFormula = sum("Sustainability Ledger Entry"."Emission N2O" where("Document No." = field("No."), "Document Type" = filter(Invoice | "GHG Credit")));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
             Editable = false;
             FieldClass = FlowField;
         }

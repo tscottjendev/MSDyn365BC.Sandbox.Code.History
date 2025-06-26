@@ -49,6 +49,9 @@
       "path": "./SAF-T/Test/SAF-T Tests"
     },
     {
+      "path": "./Manufacturing/Test/Manufacturing Tests"
+    },
+    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {

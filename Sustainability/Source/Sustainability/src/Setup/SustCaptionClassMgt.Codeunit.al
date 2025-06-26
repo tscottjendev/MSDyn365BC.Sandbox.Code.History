@@ -29,6 +29,9 @@ codeunit 6278 "Sust. CaptionClass Mgt"
         EnergyConsumptionUnitOfMeasureLbl: Label '%1 (%2)', Comment = '%1 = Emission Type , %2 = Energy Unit of Measure Code';
         PostedEnergyConsumptionUnitOfMeasureLbl: Label 'Posted %1 (%2)', Comment = '%1 = Emission Type , %2 = Energy Unit of Measure Code';
         PostedEnergyConsumptionLbl: Label 'Posted %1', Comment = '%1 = Emission Type';
+        CO2eForCO2Txt: Label 'CO2e for CO2';
+        CO2eForCH4Txt: Label 'CO2e for CH4';
+        CO2eForN2OTxt: Label 'CO2e for N2O';
         CO2Txt: Label 'CO2';
         CH4Txt: Label 'CH4';
         N2OTxt: Label 'N2O';
@@ -121,11 +124,20 @@ codeunit 6278 "Sust. CaptionClass Mgt"
 
             case SustCaptionRef of
                 '1':
-                    exit(StrSubstNo(UsageContext, CO2Txt));
+                    if SustainabilitySetup."Use All Gases As CO2e" then
+                        exit(StrSubstNo(UsageContext, CO2eForCO2Txt))
+                    else
+                        exit(StrSubstNo(UsageContext, CO2Txt));
                 '2':
-                    exit(StrSubstNo(UsageContext, CH4Txt));
+                    if SustainabilitySetup."Use All Gases As CO2e" then
+                        exit(StrSubstNo(UsageContext, CO2eForCH4Txt))
+                    else
+                        exit(StrSubstNo(UsageContext, CH4Txt));
                 '3':
-                    exit(StrSubstNo(UsageContext, N2OTxt));
+                    if SustainabilitySetup."Use All Gases As CO2e" then
+                        exit(StrSubstNo(UsageContext, CO2eForN2OTxt))
+                    else
+                        exit(StrSubstNo(UsageContext, N2OTxt));
                 '4':
                     exit(StrSubstNo(UsageContext, EnergyConsumptionTxt));
             end

@@ -34,6 +34,8 @@ codeunit 148187 "Sust. Certificate Test"
         SustValueEntriesActionShouldBeVisibleErr: Label 'Sustainability Value Entries action should be visible in Page %1', Comment = '%1 = Page Caption';
         SustLdgEntriesActionShouldNotBeVisibleErr: Label 'Sustainability Ledger Entries action should not be visible in Page %1', Comment = '%1 = Page Caption';
         SustValueEntriesActionShouldNotBeVisibleErr: Label 'Sustainability Value Entries action should not be visible in Page %1', Comment = '%1 = Page Caption';
+        CalculateTotalCO2eActionShouldNotBeVisibleErr: Label 'Calculate Total CO2e action should not be visible in Page %1', Comment = '%1 = Page Caption';
+        CalculateTotalCO2eActionShouldBeVisibleErr: Label 'Calculate Total CO2e action should be visible in Page %1', Comment = '%1 = Page Caption';
 
     [Test]
     procedure VerifyHasValueFieldShouldThrowErrorWhenValueIsUpdated()
@@ -5162,6 +5164,496 @@ codeunit 148187 "Sust. Certificate Test"
             true,
             SustainabilitySetup."Work/Machine Center Emissions",
             StrSubstNo(FieldShouldBeEnabledErr, SustainabilitySetup.FieldCaption("Work/Machine Center Emissions"), SustainabilitySetup.TableCaption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnItemCardIfItemEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        Item: Record Item;
+        SustainabilitySetup: Record "Sustainability Setup";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 564320] Verify "Calculate Total CO2e" action should be visible on "Item Card" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Open "Item Card".
+        ItemCard.OpenView();
+        ItemCard.GoToRecord(Item);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Item Card" page If "Item Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ItemCard."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ItemCard.Caption()));
+        Assert.AreEqual(
+            false,
+            ItemCard."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, ItemCard.Caption()));
+
+        // [GIVEN] Close "Item Card".
+        ItemCard.Close();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Item Card".
+        ItemCard.OpenView();
+        ItemCard.GoToRecord(Item);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Item Card" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+           false,
+           ItemCard."Calculate CO2e".Visible(),
+           StrSubstNo(ActionShouldNotBeVisibleErr, ItemCard.Caption()));
+        Assert.AreEqual(
+           true,
+           ItemCard."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, ItemCard.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnItemListIfItemEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        Item: Record Item;
+        SustainabilitySetup: Record "Sustainability Setup";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 564320] Verify "Calculate Total CO2e" action should be visible on "Item List" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Open "Item List".
+        ItemList.OpenView();
+        ItemList.GoToRecord(Item);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Item List" page If "Item Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ItemList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ItemList.Caption()));
+        Assert.AreEqual(
+            false,
+            ItemList."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, ItemList.Caption()));
+
+        // [GIVEN] Close "Item List".
+        ItemList.Close();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Item List".
+        ItemList.OpenView();
+        ItemList.GoToRecord(Item);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Item List" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+           false,
+           ItemList."Calculate CO2e".Visible(),
+           StrSubstNo(ActionShouldNotBeVisibleErr, ItemList.Caption()));
+        Assert.AreEqual(
+           true,
+           ItemList."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, ItemList.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnProductionBOMCardIfItemEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SustainabilitySetup: Record "Sustainability Setup";
+        ProductionBOM: TestPage "Production BOM";
+    begin
+        // [SCENARIO 560219] Verify "Calculate Total CO2e" action should be visible on "Production BOM" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, 0);
+
+        // [WHEN] Open "Production BOM".
+        ProductionBOM.OpenView();
+        ProductionBOM.GoToRecord(ProductionBOMHeader);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Production BOM" page If "Item Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ProductionBOM."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ProductionBOM.Caption()));
+        Assert.AreEqual(
+            false,
+            ProductionBOM."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, ProductionBOM.Caption()));
+
+        // [GIVEN] Close "Production BOM".
+        ProductionBOM.Close();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Production BOM".
+        ProductionBOM.OpenView();
+        ProductionBOM.GoToRecord(ProductionBOMHeader);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Production BOM" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ProductionBOM."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ProductionBOM.Caption()));
+        Assert.AreEqual(
+           true,
+           ProductionBOM."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, ProductionBOM.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnProductionBOMListIfItemEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SustainabilitySetup: Record "Sustainability Setup";
+        ProductionBOMList: TestPage "Production BOM List";
+    begin
+        // [SCENARIO 560219] Verify "Calculate Total CO2e" action should be visible on "Production BOM List" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM.
+        CreateProductionBOM(ProductionBOMHeader, CompItem, 0);
+
+        // [WHEN] Open "Production BOM List".
+        ProductionBOMList.OpenView();
+        ProductionBOMList.GoToRecord(ProductionBOMHeader);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Production BOM List" page If "Item Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ProductionBOMList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ProductionBOMList.Caption()));
+        Assert.AreEqual(
+            false,
+            ProductionBOMList."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, ProductionBOMList.Caption()));
+
+        // [GIVEN] Close "Production BOM List".
+        ProductionBOMList.Close();
+
+        // [GIVEN] Update "Item Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Item Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Production BOM List".
+        ProductionBOMList.OpenView();
+        ProductionBOMList.GoToRecord(ProductionBOMHeader);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Production BOM List" page If "Item Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            ProductionBOMList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, ProductionBOMList.Caption()));
+        Assert.AreEqual(
+           true,
+           ProductionBOMList."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, ProductionBOMList.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnMachineCenterCardIfWorkMachineCenterEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        MachineCenter: Record "Machine Center";
+        SustainabilitySetup: Record "Sustainability Setup";
+        MachineCenterCard: TestPage "Machine Center Card";
+    begin
+        // [SCENARIO 537413] Verify "Calculate Total CO2e" action should be visible on "Machine Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create a Machine Center.
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, '', LibraryRandom.RandDec(10, 1));
+
+        // [WHEN] Open "Machine Center Card".
+        MachineCenterCard.OpenView();
+        MachineCenterCard.GoToRecord(MachineCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Machine Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            MachineCenterCard."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, MachineCenterCard.Caption()));
+        Assert.AreEqual(
+            false,
+            MachineCenterCard."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, MachineCenterCard.Caption()));
+
+        // [GIVEN] Close "Machine Center Card".
+        MachineCenterCard.Close();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Machine Center Card".
+        MachineCenterCard.OpenView();
+        MachineCenterCard.GoToRecord(MachineCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Machine Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            MachineCenterCard."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, MachineCenterCard.Caption()));
+        Assert.AreEqual(
+           true,
+           MachineCenterCard."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, MachineCenterCard.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnMachineCenterListIfWorkMachineCenterEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        MachineCenter: Record "Machine Center";
+        SustainabilitySetup: Record "Sustainability Setup";
+        MachineCenterList: TestPage "Machine Center List";
+    begin
+        // [SCENARIO 537413] Verify "Calculate Total CO2e" action should be visible on "Machine Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [GIVEN] Create a Machine Center.
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, '', LibraryRandom.RandDec(10, 1));
+
+        // [WHEN] Open "Machine Center List".
+        MachineCenterList.OpenView();
+        MachineCenterList.GoToRecord(MachineCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Machine Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            MachineCenterList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, MachineCenterList.Caption()));
+        Assert.AreEqual(
+            false,
+            MachineCenterList."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, MachineCenterList.Caption()));
+
+        // [GIVEN] Close "Machine Center List".
+        MachineCenterList.Close();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Machine Center List".
+        MachineCenterList.OpenView();
+        MachineCenterList.GoToRecord(MachineCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Machine Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            MachineCenterList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, MachineCenterList.Caption()));
+        Assert.AreEqual(
+           true,
+           MachineCenterList."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, MachineCenterList.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnWorkCenterCardIfWorkMachineCenterEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        WorkCenter: Record "Work Center";
+        SustainabilitySetup: Record "Sustainability Setup";
+        WorkCenterCard: TestPage "Work Center Card";
+    begin
+        // [SCENARIO 537413] Verify "Calculate Total CO2e" action should be visible on "Work Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Work Center Card".
+        WorkCenterCard.OpenView();
+        WorkCenterCard.GoToRecord(WorkCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Work Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            WorkCenterCard."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, WorkCenterCard.Caption()));
+        Assert.AreEqual(
+            false,
+            WorkCenterCard."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, WorkCenterCard.Caption()));
+
+        // [GIVEN] Close "Work Center Card".
+        WorkCenterCard.Close();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Work Center Card".
+        WorkCenterCard.OpenView();
+        WorkCenterCard.GoToRecord(WorkCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Work Center Card" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            WorkCenterCard."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, WorkCenterCard.Caption()));
+        Assert.AreEqual(
+           true,
+           WorkCenterCard."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, WorkCenterCard.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyCalculateTotalCO2eShouldbeVisibleOnWorkCenterListIfWorkMachineCenterEmissionsAndUseAllGasesAsCO2eIsEnabled()
+    var
+        WorkCenter: Record "Work Center";
+        SustainabilitySetup: Record "Sustainability Setup";
+        WorkCenterList: TestPage "Work Center List";
+    begin
+        // [SCENARIO 537413] Verify "Calculate Total CO2e" action should be visible on "Work Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Update "Enable Value Chain Tracking" in Sustainability Setup.
+        LibrarySustainability.UpdateValueChainTrackingInSustainabilitySetup(true);
+
+        // [GIVEN] Create a Work Center.
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Get Sustainability Setup.
+        SustainabilitySetup.Get();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to false in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", false);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", false);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Work Center List".
+        WorkCenterList.OpenView();
+        WorkCenterList.GoToRecord(WorkCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should not be visible on "Work Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is not enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            WorkCenterList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, WorkCenterList.Caption()));
+        Assert.AreEqual(
+            false,
+            WorkCenterList."Calculate Total CO2e".Visible(),
+            StrSubstNo(CalculateTotalCO2eActionShouldNotBeVisibleErr, WorkCenterList.Caption()));
+
+        // [GIVEN] Close "Work Center List".
+        WorkCenterList.Close();
+
+        // [GIVEN] Update "Work/Machine Center Emissions" and "Use All Gases As CO2e" to true in Sustainability Setup.
+        SustainabilitySetup.Validate("Work/Machine Center Emissions", true);
+        SustainabilitySetup.Validate("Use All Gases As CO2e", true);
+        SustainabilitySetup.Modify(true);
+
+        // [WHEN] Open "Work Center List".
+        WorkCenterList.OpenView();
+        WorkCenterList.GoToRecord(WorkCenter);
+
+        // [VERIFY] Verify "Calculate Total CO2e" action should be visible on "Work Center List" page If "Work/Machine Center Emissions" and "Use All Gases As CO2e" is enabled in Sustainability Setup.
+        Assert.AreEqual(
+            false,
+            WorkCenterList."Calculate CO2e".Visible(),
+            StrSubstNo(ActionShouldNotBeVisibleErr, WorkCenterList.Caption()));
+        Assert.AreEqual(
+           true,
+           WorkCenterList."Calculate Total CO2e".Visible(),
+           StrSubstNo(CalculateTotalCO2eActionShouldBeVisibleErr, WorkCenterList.Caption()));
     end;
 
     local procedure CreateSustainabilityAccount(var AccountCode: Code[20]; var CategoryCode: Code[20]; var SubcategoryCode: Code[20]; i: Integer): Record "Sustainability Account"

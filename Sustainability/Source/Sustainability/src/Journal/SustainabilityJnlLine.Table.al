@@ -213,6 +213,7 @@ table 6214 "Sustainability Jnl. Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CO2';
+            CaptionClass = '102,6,1';
 
             trigger OnValidate()
             begin
@@ -224,6 +225,7 @@ table 6214 "Sustainability Jnl. Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission CH4';
+            CaptionClass = '102,6,2';
 
             trigger OnValidate()
             begin
@@ -235,6 +237,7 @@ table 6214 "Sustainability Jnl. Line"
             AutoFormatType = 11;
             AutoFormatExpression = SustainabilitySetup.GetFormat(SustainabilitySetup.FieldNo("Emission Decimal Places"));
             Caption = 'Emission N2O';
+            CaptionClass = '102,6,3';
 
             trigger OnValidate()
             begin

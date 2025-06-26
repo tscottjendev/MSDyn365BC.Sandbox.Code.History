@@ -95,6 +95,9 @@ page 6221 "Sustainability Setup"
                 {
                     ToolTip = 'Specifies the enablement of sustainability value entries postings through value chain operations and the visibility of these fields in operational documents and journals.';
                 }
+                field("Use All Gases As CO2e"; Rec."Use All Gases As CO2e")
+                {
+                }
             }
             group(Calculations)
             {
@@ -221,6 +224,7 @@ page 6221 "Sustainability Setup"
     begin
         exit(
           (Rec."Emission Unit of Measure Code" <> xSustainabilitySetup."Emission Unit of Measure Code") or
-          (Rec."Energy Unit of Measure Code" <> xSustainabilitySetup."Energy Unit of Measure Code"));
+          (Rec."Energy Unit of Measure Code" <> xSustainabilitySetup."Energy Unit of Measure Code") or
+          (Rec."Use All Gases As CO2e" <> xSustainabilitySetup."Use All Gases As CO2e"));
     end;
 }
