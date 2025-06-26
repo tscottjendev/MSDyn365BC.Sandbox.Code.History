@@ -1029,6 +1029,26 @@ table 5900 "Service Header"
                     end;
             end;
         }
+        field(60; Amount; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = sum("Service Line".Amount where("Document Type" = field("Document Type"), "Document No." = field("No.")));
+            Caption = 'Amount';
+            ToolTip = 'Specifies the sum of amounts on all the lines in the document.';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(61; "Amount Including VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            CalcFormula = sum("Service Line"."Amount Including VAT" where("Document Type" = field("Document Type"), "Document No." = field("No.")));
+            Caption = 'Amount Including VAT';
+            ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document.';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(62; "Shipping No."; Code[20])
         {
             Caption = 'Shipping No.';
