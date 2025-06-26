@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "al.enableCodeActions": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
-  },
   "folders": [
     {
       "path": "./SimplifiedBankStatementImport/Test/Simplified Bank Statement Import Test"
@@ -332,5 +324,13 @@
     {
       "path": "./Shopify/test/Shopify Connector Test"
     }
-  ]
+  ],
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false
+  }
 }
