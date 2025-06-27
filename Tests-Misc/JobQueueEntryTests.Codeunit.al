@@ -580,7 +580,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedAdmin(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         // [GIVEN] An existing job queue entry
         JobQueueEntry.Init();
@@ -610,7 +610,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedAdmin(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         TestDelegatedJQ();
 
@@ -627,7 +627,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedHelpdesk(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         TestDelegatedJQ();
 

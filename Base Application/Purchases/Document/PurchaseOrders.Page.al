@@ -84,6 +84,11 @@ page 56 "Purchase Orders"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the sum of amounts in the Line Amount field on the purchase order lines.';
                 }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
+                }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Suite;

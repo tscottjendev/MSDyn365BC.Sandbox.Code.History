@@ -204,6 +204,16 @@ page 9306 "Purchase Quotes"
                     Visible = false;
                     StyleExpr = StatusStyleTxt;
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Suite;
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

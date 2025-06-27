@@ -418,6 +418,7 @@ page 5974 "Posted Service Shipments"
 
                 trigger OnAction()
                 begin
+                    ServShptHeader := Rec;
                     CurrPage.SetSelectionFilter(ServShptHeader);
                     ServShptHeader.PrintRecords(true);
                 end;

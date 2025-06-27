@@ -166,6 +166,16 @@ page 53 "Purchase List"
                     ToolTip = 'Specifies the code of the currency of the amounts on the purchase lines.';
                     Visible = false;
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

@@ -81,6 +81,6 @@ pageextension 9805 "Approval Job Queue Entries" extends "Job Queue Entries"
     var
         AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
-        IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
+        IsUserDelegated := AzureADGraphUser.IsUserDelegated();
     end;
 }
