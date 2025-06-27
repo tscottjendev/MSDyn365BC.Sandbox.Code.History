@@ -448,25 +448,65 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
+#if not CLEANSCHEMA30            
         field(10500; "Registered Name"; Text[50])
         {
             Caption = 'Registered Name';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10501; "Registered Name 2"; Text[50])
         {
             Caption = 'Registered Name 2';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10502; "Registered Address"; Text[50])
         {
             Caption = 'Registered Address';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10503; "Registered Address 2"; Text[50])
         {
             Caption = 'Registered Address 2';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10504; "Registered City"; Text[30])
         {
             Caption = 'Registered City';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -477,14 +517,31 @@ table 79 "Company Information"
                 PostCode.ValidateCity(
                   "Registered City", "Registered Post Code", "Registered County", "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif            
         }
         field(10505; "Registered County"; Text[30])
         {
             Caption = 'Registered County';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(10506; "Registered Post Code"; Code[20])
         {
             Caption = 'Registered Post Code';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+
             TableRelation = if ("Country/Region Code" = const('')) "Post Code"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
@@ -495,6 +552,7 @@ table 79 "Company Information"
                 PostCode.ValidatePostCode(
                   "Registered City", "Registered Post Code", "Registered County", "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif            
         }
         field(10507; "Branch Number"; Text[3])
         {
@@ -511,7 +569,16 @@ table 79 "Company Information"
         field(10508; "Contact Name"; Text[35])
         {
             Caption = 'Contact Name';
+            ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#endif
         }
+#endif        
     }
 
     keys

@@ -189,6 +189,14 @@ page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
+#if CLEAN27
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
+#endif
                 field(Picture; Rec.Picture)
                 {
                     ApplicationArea = Basic, Suite;
@@ -442,57 +450,89 @@ page 1 "Company Information"
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
                 }
             }
+#if not CLEAN27            
             group(Statutory)
             {
                 Caption = 'Statutory';
+                ObsoleteReason = 'This group is deprecated and will be removed in a future release.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 field("Registration No."; Rec."Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Name"; Rec."Registered Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered name.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Address"; Rec."Registered Address")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Address 2"; Rec."Registered Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional part of the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered City"; Rec."Registered City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s city.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered County"; Rec."Registered County")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the company''s registered address.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Registered Post Code"; Rec."Registered Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s registered postal code.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Branch Number"; Rec."Branch Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the three-digit numeric branch number.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Contact Name"; Rec."Contact Person")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact Name';
                     ToolTip = 'Specifies the name of the contact person in your company.';
+                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
             }
+#endif            
             group("System Indicator")
             {
                 Caption = 'Company Badge';

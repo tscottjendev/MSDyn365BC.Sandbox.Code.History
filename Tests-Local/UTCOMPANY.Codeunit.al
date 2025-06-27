@@ -39,6 +39,7 @@ codeunit 144011 "UT COMPANY"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
 
+#if not CLEAN27
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -49,6 +50,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Registered Post Code field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Post Code"));
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -61,6 +63,7 @@ codeunit 144011 "UT COMPANY"
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Post Code"));
     end;
 
+#if not CLEAN27
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -70,7 +73,7 @@ codeunit 144011 "UT COMPANY"
     begin
         // Purpose of the test is to validate that Registered City field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered City"));
-    end;
+    end;   
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -82,6 +85,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Registered Name field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Name"));
     end;
+#endif    
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -105,6 +109,7 @@ codeunit 144011 "UT COMPANY"
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo(County));
     end;
 
+#if not CLEAN27
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -114,7 +119,7 @@ codeunit 144011 "UT COMPANY"
     begin
         // Purpose of the test is to validate that Registered Address field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Address"));
-    end;
+    end;   
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -125,7 +130,7 @@ codeunit 144011 "UT COMPANY"
     begin
         // Purpose of the test is to validate that Registered Address 2 field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered Address 2"));
-    end;
+    end;    
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -137,6 +142,7 @@ codeunit 144011 "UT COMPANY"
         // Purpose of the test is to validate that Registered County field exist on the Company Information Page.
         CheckControlOnCompanyInformationPage(CompanyInformation.FieldNo("Registered County"));
     end;
+#endif    
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -160,6 +166,7 @@ codeunit 144011 "UT COMPANY"
         Assert.AreEqual(true, ControlExist, 'Control must exist');
     end;
 
+#if not CLEAN27 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -180,7 +187,7 @@ codeunit 144011 "UT COMPANY"
         // Verify: Verify that Registered Post Code field is populated correctly when validate the Registered City on Company Information Table.
         CompanyInformation.Get();
         CompanyInformation.TestField("Registered Post Code", PostCode.Code);
-    end;
+    end;     
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -202,7 +209,8 @@ codeunit 144011 "UT COMPANY"
         // Verify: Verify that Registered City field is populated correctly when validate the Registered Post Code on Company Information Table.
         CompanyInformation.Get();
         CompanyInformation.TestField("Registered City", PostCode.City);
-    end;
+    end; 
+#endif   
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
