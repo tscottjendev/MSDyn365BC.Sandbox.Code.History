@@ -90,15 +90,17 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         LineToAccountLLMMatching: Codeunit "Line To Account LLM Matching";
         EDocLineMatcherDeferral: Codeunit "E-Doc Line Matcher - Deferral";
     begin
-        EDocumentPurchaseLine.SetLoadFields("E-Document Entry No.", "[BC] Purchase Type No.", "[BC] Deferral Code");
-        EDocumentPurchaseLine.ReadIsolation(IsolationLevel::ReadCommitted);
+        if not CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+            exit;
+
+        if not CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
+            exit;
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
-        EDocumentPurchaseLine.SetRange("[BC] Purchase Type No.", '');
-        if EDocumentPurchaseLine.FindSet() then;
-        if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
-            if CopilotCapability.IsCapabilityActive(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
-                LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine);
+        if EDocumentPurchaseLine.FindSet() then
+            LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine)
+        else
+            Session.LogMessage('0000POG', 'No E-Document Purchase Lines found for the E-Document', Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'E-Document Matching Assistance');
         Clear(EDocumentPurchaseLine);
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);

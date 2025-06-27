@@ -103,9 +103,17 @@ page 6105 "Inbound E-Documents"
                             "E-Document Entry No." = field("Entry No"),
                             "E-Document Attachment" = const(true);
             }
+            part(InboundEDocPicture; "Inbound E-Doc. Picture")
+            {
+                Caption = 'Preview';
+                SubPageLink = "Entry No." = field("Unstructured Data Entry No."),
+                            "File Format" = const("E-Doc. File Format"::PDF);
+                ShowFilter = false;
+                Visible = HasPdf;
+            }
             part(InboundEDocFactbox; "Inbound E-Doc. Factbox")
             {
-                Caption = 'E-Document';
+                Caption = 'E-Document Details';
                 SubPageLink = "E-Document Entry No" = field("Entry No");
                 ShowFilter = false;
             }
@@ -306,7 +314,11 @@ page 6105 "Inbound E-Documents"
         RecordLinkTxt := EDocumentProcessing.GetRecordLinkText(Rec);
         PopulateDocumentNameTxt();
         PopulateVendorNameTxt();
-        SetDocumentTypeStyleExpresion();
+        SetDocumentTypeStyleExpression();
+
+        HasPdf := false;
+        if EDocDataStorage.Get(Rec."Unstructured Data Entry No.") then
+            HasPdf := EDocDataStorage."File Format" = Enum::"E-Doc. File Format"::PDF;
     end;
 
     local procedure PopulateDocumentNameTxt()
@@ -432,7 +444,7 @@ page 6105 "Inbound E-Documents"
         exit(Page.RunModal(Page::"E-Document Services", EDocumentService) = Action::LookupOK);
     end;
 
-    local procedure SetDocumentTypeStyleExpresion()
+    local procedure SetDocumentTypeStyleExpression()
     begin
         DocumentTypeStyleTxt := 'Standard';
         if Rec."Document Type" = Rec."Document Type"::None then
@@ -440,6 +452,8 @@ page 6105 "Inbound E-Documents"
     end;
 
     var
+        EDocDataStorage: Record "E-Doc. Data Storage";
         EDocumentHelper: Codeunit "E-Document Helper";
         RecordLinkTxt, VendorNameTxt, DocumentNameTxt, DocumentTypeStyleTxt : Text;
+        HasPdf: Boolean;
 }
