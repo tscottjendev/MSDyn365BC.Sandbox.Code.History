@@ -12,6 +12,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 
+#pragma warning disable AA0210
 codeunit 139913 "Vendor Deferrals Test"
 {
     Subtype = Test;
@@ -1086,3 +1087,4 @@ codeunit 139913 "Vendor Deferrals Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

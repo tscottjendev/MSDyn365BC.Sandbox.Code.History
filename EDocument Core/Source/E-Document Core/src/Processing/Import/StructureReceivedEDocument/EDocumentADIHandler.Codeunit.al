@@ -85,14 +85,18 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         EDocumentPurchaseHeader := TempEDocPurchaseHeader;
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseHeader.Insert();
+        OnInsertedEDocumentPurchaseHeader(EDocument, EDocumentPurchaseHeader);
 
-        if TempEDocPurchaseLine.FindSet() then
+        if TempEDocPurchaseLine.FindSet() then begin
             repeat
                 EDocumentPurchaseLine := TempEDocPurchaseLine;
                 EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
                 EDocumentPurchaseLine."Line No." := EDocumentPurchaseLine.GetNextLineNo(EDocument."Entry No");
                 EDocumentPurchaseLine.Insert();
             until TempEDocPurchaseLine.Next() = 0;
+
+            OnInsertedEDocumentPurchaseLines(EDocument, EDocumentPurchaseHeader, EDocumentPurchaseLine);
+        end;
 
         exit(Enum::"E-Doc. Process Draft"::"Purchase Document");
     end;
@@ -195,4 +199,14 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         TempEDocPurchaseLine."Total Discount" := (TempEDocPurchaseLine."Unit Price" * TempEDocPurchaseLine.Quantity) - TempEDocPurchaseLine."Sub Total";
     end;
 #pragma warning restore AA0139
+
+    [InternalEvent(false, false)]
+    local procedure OnInsertedEDocumentPurchaseHeader(EDocument: Record "E-Document"; EDocumentPurchaseHeader: Record "E-Document Purchase Header")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnInsertedEDocumentPurchaseLines(EDocument: Record "E-Document"; EDocumentPurchaseHeader: Record "E-Document Purchase Header"; EDocumentPurchaseLine: Record "E-Document Purchase Line")
+    begin
+    end;
 }

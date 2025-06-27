@@ -1626,14 +1626,14 @@ table 8057 "Subscription Header"
         end;
     end;
 
-    local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrFieldNo: Integer)
+    local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrentFieldNo: Integer)
     var
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled);
+        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrentFieldNo, IsHandled);
         if IsHandled then
             exit;
 

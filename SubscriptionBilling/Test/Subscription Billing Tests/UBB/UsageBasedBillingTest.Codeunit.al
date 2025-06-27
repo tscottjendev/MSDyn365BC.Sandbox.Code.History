@@ -15,6 +15,7 @@ using Microsoft.Sales.Setup;
 using System.IO;
 using System.TestLibraries.Utilities;
 
+#pragma warning disable AA0210
 codeunit 148153 "Usage Based Billing Test"
 {
     Subtype = Test;
@@ -2281,3 +2282,4 @@ codeunit 148153 "Usage Based Billing Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

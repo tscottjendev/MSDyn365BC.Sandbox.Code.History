@@ -6,6 +6,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Purchases.Vendor;
 
+#pragma warning disable AA0210
 codeunit 148152 "Extend Contract Test"
 {
     Subtype = Test;
@@ -521,3 +522,4 @@ codeunit 148152 "Extend Contract Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

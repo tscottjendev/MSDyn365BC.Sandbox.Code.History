@@ -23,8 +23,9 @@ page 8006 "Contract Renewal Selection"
                 field(AddVendorServicesCtrl; AddVendorServices)
                 {
                     CaptionClass = GetAddVendorServicesCaption();
+#pragma warning disable AA0219                    
                     ToolTip = 'Selecting this Option will also select and add the related Vendor Subscription Contract Lines.';
-
+#pragma warning restore AA0219
                     trigger OnValidate()
                     begin
                         CurrPage.Update();

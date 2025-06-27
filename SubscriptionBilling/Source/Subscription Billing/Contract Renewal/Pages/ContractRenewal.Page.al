@@ -96,11 +96,11 @@ page 8005 "Contract Renewal"
                 }
                 field(Partner; Rec.Partner)
                 {
-                    ToolTip = 'Determines whether the template applies to customer or Vendor Subscription Contracts.';
+                    ToolTip = 'Specifies whether the template applies to customer or Vendor Subscription Contracts.';
                 }
                 field("Error Message"; Rec."Error Message")
                 {
-                    ToolTip = 'Shows the last error that occured when processing the line.';
+                    ToolTip = 'Specifies the last error that occured when processing the line.';
 
                     trigger OnAssistEdit()
                     begin

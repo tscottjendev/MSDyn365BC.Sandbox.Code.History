@@ -45,19 +45,19 @@ codeunit 4770 "Create Mfg Item"
 
     local procedure CreateInvPostingSetup()
     var
-        ManufacturingDemoDataSetup: Record "Manufacturing Module Setup";
+        ManufacturingModuleSetup: Record "Manufacturing Module Setup";
         CommonGLAccount: Codeunit "Create Common GL Account";
         ContosoPostingSetup: Codeunit "Contoso Posting Setup";
-        MfgPostingGroup: Codeunit "Create Mfg Posting Group";
-        MfgGLAccount: Codeunit "Create Mfg GL Account";
-        CommonPostingGroup: Codeunit "Create Common Posting Group";
+        CreateMfgPostingGroup: Codeunit "Create Mfg Posting Group";
+        CreateMfgGLAccount: Codeunit "Create Mfg GL Account";
+        CreateCommonPostingGroup: Codeunit "Create Common Posting Group";
     begin
-        ManufacturingDemoDataSetup.Get();
+        ManufacturingModuleSetup.Get();
 
-        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingDemoDataSetup."Manufacturing Location", MfgPostingGroup.Finished(), MfgGLAccount.FinishedGoods(), '', MfgGLAccount.WIPAccountFinishedGoods(), MfgGLAccount.MaterialVariance(), MfgGLAccount.CapacityVariance(), MfgGLAccount.SubcontractedVariance(), MfgGLAccount.CapOverheadVariance(), MfgGLAccount.MfgOverheadVariance());
-        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingDemoDataSetup."Manufacturing Location", CommonPostingGroup.RawMaterial(), CommonGLAccount.RawMaterials(), '', MfgGLAccount.WIPAccountFinishedGoods(), '', '', '', '', '');
+        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingModuleSetup."Manufacturing Location", CreateMfgPostingGroup.Finished(), CreateMfgGLAccount.FinishedGoods(), '', CreateMfgGLAccount.WIPAccountFinishedGoods(), CreateMfgGLAccount.MaterialVariance(), CreateMfgGLAccount.CapacityVariance(), CreateMfgGLAccount.SubcontractedVariance(), CreateMfgGLAccount.CapOverheadVariance(), CreateMfgGLAccount.MfgOverheadVariance());
+        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingModuleSetup."Manufacturing Location", CreateCommonPostingGroup.RawMaterial(), CommonGLAccount.RawMaterials(), '', CreateMfgGLAccount.WIPAccountFinishedGoods(), '', '', '', '', '');
 
-        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingDemoDataSetup."Manufacturing Location", CommonPostingGroup.Resale(), CommonGLAccount.Resale(), CommonGLAccount.ResaleInterim());
+        ContosoPostingSetup.InsertInventoryPostingSetup(ManufacturingModuleSetup."Manufacturing Location", CreateCommonPostingGroup.Resale(), CommonGLAccount.Resale(), CommonGLAccount.ResaleInterim());
     end;
 
     local procedure CreateBOMAndRoutingItems()

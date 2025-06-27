@@ -7,6 +7,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.Vendor;
 
+#pragma warning disable AA0210
 codeunit 139692 "Contract Renewal Test"
 {
     Subtype = Test;
@@ -1102,3 +1103,4 @@ codeunit 139692 "Contract Renewal Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

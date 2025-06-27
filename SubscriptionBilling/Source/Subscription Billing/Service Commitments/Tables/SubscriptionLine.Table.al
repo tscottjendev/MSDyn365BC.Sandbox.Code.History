@@ -561,7 +561,14 @@ table 8059 "Subscription Line"
         {
             Clustered = true;
         }
-        key(Contract; "Subscription Contract No.", "Subscription Contract Line No.") { }
+        key(Contract; "Subscription Contract No.", "Subscription Contract Line No.")
+        {
+
+        }
+        key(Key3; "Subscription Header No.", Partner)
+        {
+
+        }
     }
 
     trigger OnInsert()
@@ -872,12 +879,12 @@ table 8059 "Subscription Line"
 
     internal procedure RecalculateAmountsFromCurrencyData()
     var
-        Currency: Record Currency;
+        Currency2: Record Currency;
     begin
         if ((Rec."Currency Factor" = 0) and (Rec."Currency Code" = '')) then
             exit;
-        Currency.Initialize("Currency Code");
-        Rec.Validate("Calculation Base Amount", Round(CurrExchRate.ExchangeAmtLCYToFCY("Currency Factor Date", "Currency Code", "Calculation Base Amount (LCY)", "Currency Factor"), Currency."Unit-Amount Rounding Precision"));
+        Currency2.Initialize("Currency Code");
+        Rec.Validate("Calculation Base Amount", Round(CurrExchRate.ExchangeAmtLCYToFCY("Currency Factor Date", "Currency Code", "Calculation Base Amount (LCY)", "Currency Factor"), Currency2."Unit-Amount Rounding Precision"));
     end;
 
     internal procedure ResetAmountsAndCurrencyFromLCY()
@@ -1277,8 +1284,10 @@ table 8059 "Subscription Line"
         ServiceCommitment.FilterOnContract(PartnerType, ContractNo);
         if ServiceCommitment.FindSet() then
             repeat
+#pragma warning disable AA0214
                 ServiceCommitment.ResetAmountsAndCurrencyFromLCY();
                 ServiceCommitment.Modify(true);
+#pragma warning restore AA0214
             until ServiceCommitment.Next() = 0;
     end;
 
@@ -1313,13 +1322,13 @@ table 8059 "Subscription Line"
 
     local procedure InitCurrencyData()
     var
-        Currency: Record Currency;
+        Currency2: Record Currency;
     begin
         if Rec."Currency Code" = '' then begin
             "Currency Factor" := 0;
             "Currency Factor Date" := 0D;
         end else begin
-            Currency.Get("Currency Code");
+            Currency2.Get("Currency Code");
             if "Currency Factor Date" = 0D then
                 "Currency Factor Date" := WorkDate();
             if (Rec."Currency Factor Date" <> xRec."Currency Factor Date") or (Rec."Currency Code" <> xRec."Currency Code") then

@@ -8,6 +8,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 
+#pragma warning disable AA0210
 codeunit 139689 "Recurring Discount Test"
 {
     Subtype = Test;
@@ -791,3 +792,4 @@ codeunit 139689 "Recurring Discount Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

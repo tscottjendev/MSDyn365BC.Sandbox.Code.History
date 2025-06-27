@@ -42,14 +42,14 @@ codeunit 5104 "Create Svc Item"
 
     local procedure CreateInventoryPostingSetup()
     var
-        SvcDemoDataSetup: Record "Service Module Setup";
+        ServiceModuleSetup: Record "Service Module Setup";
         ContosoPostingSetup: Codeunit "Contoso Posting Setup";
         CommonPostingGroup: Codeunit "Create Common Posting Group";
         CommonGLAccount: Codeunit "Create Common GL Account";
     begin
-        SvcDemoDataSetup.Get();
+        ServiceModuleSetup.Get();
 
-        ContosoPostingSetup.InsertInventoryPostingSetup(SvcDemoDataSetup."Service Location", CommonPostingGroup.Resale(), CommonGLAccount.Resale(), CommonGLAccount.ResaleInterim());
+        ContosoPostingSetup.InsertInventoryPostingSetup(ServiceModuleSetup."Service Location", CommonPostingGroup.Resale(), CommonGLAccount.Resale(), CommonGLAccount.ResaleInterim());
     end;
 
     local procedure CreateItems()

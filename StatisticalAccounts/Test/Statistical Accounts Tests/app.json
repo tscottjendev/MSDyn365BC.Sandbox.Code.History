@@ -2,7 +2,7 @@
   "id": "f963cb1a-e16e-48af-b3fd-c0dd695d0998",
   "name": "Statistical Accounts Test",
   "publisher": "Microsoft",
-  "version": "27.0.35969.0",
+  "version": "27.0.35979.0",
   "description": "Tests for the Statistical Accounts extension.",
   "brief": "Tests for the functionality of Statistical Accounts. The test are verifying the logic of tracking and reporting on non-transactional data.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -41,6 +41,15 @@
       "publisher": "Microsoft",
       "version": "27.0.0.0",
       "id": "ea130081-c669-460f-a5f4-5dde14f03131"
+    }
+  ],
+  "features": [
+    "TranslationFile"
+  ],
+  "idRanges": [
+    {
+      "from": 139683,
+      "to": 139683
     }
   ],
   "screenshots": [],

@@ -1,3 +1,15 @@
+namespace Microsoft.Test.Sustainability;
+
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Emission;
+using Microsoft.Sustainability.Journal;
+using Microsoft.Sustainability.Scorecard;
+using Microsoft.Sustainability.Certificate;
+using Microsoft.Inventory.Location;
+using Microsoft.Sustainability.Setup;
+using Microsoft.Sustainability.Energy;
+using Microsoft.Sustainability.Ledger;
+
 codeunit 148182 "Library - Sustainability"
 {
     var

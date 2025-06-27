@@ -154,7 +154,7 @@ page 8017 "Archived Billing Lines List"
                 }
                 field("User ID"; Rec."User ID")
                 {
-                    ToolTip = 'Shows the user who created the line.';
+                    ToolTip = 'Specifies the user who created the line.';
                     Visible = false;
                 }
             }

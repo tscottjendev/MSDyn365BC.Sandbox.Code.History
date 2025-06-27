@@ -6,6 +6,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Vendor;
 
+#pragma warning disable AA0210
 codeunit 148159 "Usage Based Extend Contr. Test"
 {
     Subtype = Test;
@@ -238,7 +239,8 @@ codeunit 148159 "Usage Based Extend Contr. Test"
         UsageDataGenericImport.SetRange("Supp. Subscription ID", UsageDataSupplierReference."Supplier Reference");
         UsageDataGenericImport.SetRange("Subscription Header No.", ServiceCommitment."Subscription Header No.");
         UsageDataGenericImport.SetRange("Service Object Availability", UsageDataGenericImport."Service Object Availability"::Connected);
-        UsageDataGenericImport.FindFirst();
+        if UsageDataGenericImport.IsEmpty() then
+            Error('Usage Data Generic Import is empty. It should contain records with Subscription Header No. %1 and Supp. Subscription ID %2.', ServiceCommitment."Subscription Header No.", UsageDataSupplierReference."Supplier Reference");
     end;
 
     local procedure InvokeExtendContractFromSubscription()
@@ -477,3 +479,4 @@ codeunit 148159 "Usage Based Extend Contr. Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

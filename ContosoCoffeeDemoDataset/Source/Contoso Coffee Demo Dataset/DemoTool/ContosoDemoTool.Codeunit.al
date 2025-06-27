@@ -334,9 +334,9 @@ codeunit 5193 "Contoso Demo Tool"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Company Setup", 'OnSetupNewCompanyWithDemoData', '', false, false)]
     local procedure OnSetupNewCompanyWithDemoData(NewCompanyName: Text[30]; NewCompanyData: Enum "Company Demo Data Type")
     var
-        ContosoDemoDataModule: Record "Contoso Demo Data Module" temporary;
+        TempContosoDemoDataModule: Record "Contoso Demo Data Module" temporary;
         CompanyCreationContoso: Codeunit "Company Creation Contoso";
     begin
-        CompanyCreationContoso.CreateContosoDemodataInCompany(ContosoDemoDataModule, NewCompanyName, NewCompanyData);
+        CompanyCreationContoso.CreateContosoDemodataInCompany(TempContosoDemoDataModule, NewCompanyName, NewCompanyData);
     end;
 }

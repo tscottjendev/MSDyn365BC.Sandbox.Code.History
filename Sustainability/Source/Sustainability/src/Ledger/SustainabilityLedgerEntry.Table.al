@@ -340,6 +340,12 @@ table 6216 "Sustainability Ledger Entry"
         {
             SumIndexFields = "Emission CO2", "Emission CH4", "Emission N2O";
         }
+        key(Key2; "Document Type", "Document No.")
+        {
+        }
+        key(Key3; "Journal Template Name", "Journal Batch Name")
+        {
+        }
     }
 
     var

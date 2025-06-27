@@ -1,3 +1,15 @@
+namespace Microsoft.Test.Sustainability;
+
+using Microsoft.Sustainability.Workflow;
+using System.TestLibraries.Utilities;
+using Microsoft.Sustainability.Journal;
+using System.Automation;
+using System.Security.User;
+using System.Environment.Configuration;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Setup;
+using System.Threading;
+
 codeunit 148207 "WF Sustainability Jnl. Batch"
 {
     Subtype = Test;
@@ -12,7 +24,7 @@ codeunit 148207 "WF Sustainability Jnl. Batch"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        WorkflowSetup: Codeunit "Sust. Workflow Event Handling";
+        SustWorkflowEventHandling: Codeunit "Sust. Workflow Event Handling";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySustainability: Codeunit "Library - Sustainability";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
@@ -676,21 +688,21 @@ codeunit 148207 "WF Sustainability Jnl. Batch"
     var
         NotificationSetup: Record "Notification Setup";
     begin
-        LibraryDocumentApprovals.CreateOrFindUserSetup(RequestorUserSetup, UserId);
+        LibraryDocumentApprovals.CreateOrFindUserSetup(RequestorUserSetup, CopyStr(UserId, 1, 208));
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
-        LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserId, NotificationSetup."Notification Type"::Approval, NotificationSetup."Notification Method"::Note);
+        LibraryWorkflow.CreateNotificationSetup(NotificationSetup, CopyStr(UserId, 1, 50), NotificationSetup."Notification Type"::Approval, NotificationSetup."Notification Method"::Note);
     end;
 
     local procedure CreateDirectApprovalWorkflow(var Workflow: Record Workflow)
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, CopyStr(WorkflowSetup.SustJournalBatchApprovalWorkflowCode(), 1, 17));
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, CopyStr(SustWorkflowEventHandling.SustJournalBatchApprovalWorkflowCode(), 1, 17));
     end;
 
     local procedure CreateDirectApprovalEnabledWorkflow(var Workflow: Record Workflow)
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, CopyStr(WorkflowSetup.SustJournalBatchApprovalWorkflowCode(), 1, 17));
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, CopyStr(SustWorkflowEventHandling.SustJournalBatchApprovalWorkflowCode(), 1, 17));
     end;
 
     local procedure EnableWorkflow(var Workflow: Record Workflow)
@@ -778,8 +790,8 @@ codeunit 148207 "WF Sustainability Jnl. Batch"
         ApprovalEntry."Document No." := '';
         ApprovalEntry."Table ID" := RecordID.TableNo;
         ApprovalEntry."Record ID to Approve" := RecordID;
-        ApprovalEntry."Sender ID" := UserId;
-        ApprovalEntry."Approver ID" := UserId;
+        ApprovalEntry."Sender ID" := CopyStr(UserId, 1, 50);
+        ApprovalEntry."Approver ID" := CopyStr(UserId, 1, 50);
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Sequence No." := 1;
         ApprovalEntry.Insert();

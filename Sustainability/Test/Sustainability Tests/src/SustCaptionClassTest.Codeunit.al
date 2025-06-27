@@ -1,3 +1,8 @@
+namespace Microsoft.Test.Sustainability;
+
+using Microsoft.Sustainability.Setup;
+using Microsoft.Foundation.UOM;
+
 codeunit 148209 "Sust. Caption Class Test"
 {
     Subtype = Test;

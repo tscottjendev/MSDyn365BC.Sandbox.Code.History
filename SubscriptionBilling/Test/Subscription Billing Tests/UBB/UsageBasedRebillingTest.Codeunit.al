@@ -4,6 +4,8 @@ using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.History;
+
+#pragma warning disable AA0210
 codeunit 139694 "Usage Based Rebilling Test"
 {
     Access = Internal;
@@ -656,3 +658,4 @@ codeunit 139694 "Usage Based Rebilling Test"
         FileEncoding: Option "MS-DOS","UTF-8","UTF-16",WINDOWS;
         FileType: Option Xml,"Variable Text","Fixed Text",Json;
 }
+#pragma warning restore AA0210

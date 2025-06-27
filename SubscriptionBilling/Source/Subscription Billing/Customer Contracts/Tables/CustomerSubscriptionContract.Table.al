@@ -2147,9 +2147,11 @@ table 8052 "Customer Subscription Contract"
         if CustomerContractLine.FindSet() then
             repeat
                 if not TempServiceObject.Get(CustomerContractLine."Subscription Header No.") then begin
+#pragma warning disable AA0214
                     ServiceObject.Get(CustomerContractLine."Subscription Header No.");
                     ServiceObject.UpdateServicesDates();
                     ServiceObject.Modify(false);
+#pragma warning restore AA0214
                     TempServiceObject := ServiceObject;
                     TempServiceObject.Insert(false);
                 end;

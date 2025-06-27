@@ -231,7 +231,7 @@ codeunit 8062 "Billing Proposal"
             RecalculateHarmonizedBillingFieldsBasedOnNextBillingDate(BillingLine, ContractNo);
     end;
 
-    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; var BillingDate: Date; var BillingToDate: Date)
+    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; BillingDate: Date; BillingToDate: Date)
     var
         UsageDataBilling: Record "Usage Data Billing";
         SkipServiceCommitment: Boolean;

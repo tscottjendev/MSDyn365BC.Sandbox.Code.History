@@ -1,3 +1,36 @@
+namespace Microsoft.Test.Sustainability;
+
+using System.TestLibraries.Utilities;
+using Microsoft.Sustainability.Certificate;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Document;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Ledger;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Setup;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Sustainability.Setup;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Journal;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.History;
+using Microsoft.Inventory.BOM;
+using Microsoft.Assembly.Setup;
+
 codeunit 148187 "Sust. Certificate Test"
 {
     Subtype = Test;
@@ -5820,9 +5853,11 @@ codeunit 148187 "Sust. Certificate Test"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
+#pragma warning disable AA0210
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
         ItemJournalTemplate.FindFirst();
+#pragma warning restore AA0210
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalBatch.FindFirst();
 

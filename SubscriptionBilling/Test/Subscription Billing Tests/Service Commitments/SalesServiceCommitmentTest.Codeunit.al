@@ -24,6 +24,7 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using System.TestLibraries.Utilities;
 
+#pragma warning disable AA0210
 codeunit 139915 "Sales Service Commitment Test"
 {
     Subtype = Test;
@@ -2291,3 +2292,4 @@ codeunit 139915 "Sales Service Commitment Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

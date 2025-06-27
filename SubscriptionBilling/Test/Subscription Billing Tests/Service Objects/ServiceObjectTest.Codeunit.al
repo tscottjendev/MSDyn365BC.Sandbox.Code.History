@@ -16,6 +16,7 @@ using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
 
+#pragma warning disable AA0210
 codeunit 148157 "Service Object Test"
 {
     Subtype = Test;
@@ -1985,3 +1986,4 @@ codeunit 148157 "Service Object Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

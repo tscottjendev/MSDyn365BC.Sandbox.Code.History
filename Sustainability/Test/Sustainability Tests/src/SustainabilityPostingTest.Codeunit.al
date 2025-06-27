@@ -1,3 +1,37 @@
+namespace Microsoft.Test.Sustainability;
+
+using System.TestLibraries.Utilities;
+using System.Environment.Configuration;
+using Microsoft.Sustainability.Journal;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Ledger;
+using Microsoft.Sustainability.Posting;
+using Microsoft.Sustainability.Scorecard;
+using System.Security.User;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Address;
+using Microsoft.Sustainability.Emission;
+using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Inventory.Item;
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Assembly.Posting;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Location;
+using Microsoft.Foundation.Period;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Assembly.Setup;
+using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Journal;
+
 codeunit 148184 "Sustainability Posting Test"
 {
     Subtype = Test;
@@ -5958,9 +5992,11 @@ codeunit 148184 "Sustainability Posting Test"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
+#pragma warning disable AA0210
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
         ItemJournalTemplate.FindFirst();
+#pragma warning restore AA0210
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalBatch.FindFirst();
 

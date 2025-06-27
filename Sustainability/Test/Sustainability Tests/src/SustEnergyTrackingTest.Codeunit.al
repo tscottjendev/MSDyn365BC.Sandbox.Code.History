@@ -1,3 +1,17 @@
+namespace Microsoft.Test.Sustainability;
+
+using System.TestLibraries.Utilities;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Sustainability.Energy;
+using Microsoft.Sustainability.Setup;
+using Microsoft.Sustainability.Account;
+using Microsoft.Sustainability.Journal;
+using Microsoft.Sustainability.Ledger;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.AuditCodes;
+
 codeunit 148208 "Sust. Energy Tracking Test"
 {
     Subtype = Test;

@@ -10,6 +10,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Ledger;
 
+#pragma warning disable AA0210
 codeunit 139912 "Customer Deferrals Test"
 {
     Subtype = Test;
@@ -712,8 +713,8 @@ codeunit 139912 "Customer Deferrals Test"
     [HandlerFunctions('ConfirmHandler')]
     procedure ConfirmQuestionPriceListsServiceQuantityChanged()
     var
-        SalesLine: Record "Sales Line";
-        BillingLine: Record "Billing Line";
+        SalesLine2: Record "Sales Line";
+        BillingLine2: Record "Billing Line";
         SubscriptionHeader: Record "Subscription Header";
         SubscriptionLine: Record "Subscription Line";
         CustomerSubscriptionContract: Record "Customer Subscription Contract";
@@ -725,13 +726,13 @@ codeunit 139912 "Customer Deferrals Test"
         MockSubscriptionContract(CustomerSubscriptionContract);
 
         // [GIVEN] Mock Sales Line.
-        MockSalesLine(SalesLine);
+        MockSalesLine(SalesLine2);
 
         // [GIVEN] Mock Subscription Line for Contract.
         MockSubscriptionLineForContract(SubscriptionLine, CustomerSubscriptionContract."No.");
 
         // [GIVEN] Mock Billing Line for Sales and Subscription Line.
-        MockBillingLineForSalesLineAndSubscriptionLine(BillingLine, SalesLine, SubscriptionLine);
+        MockBillingLineForSalesLineAndSubscriptionLine(BillingLine2, SalesLine2, SubscriptionLine);
 
         // [WHEN] Find and Validate Quantity on Subscription Header.
         SubscriptionHeader.Get(SubscriptionLine."Subscription Header No.");
@@ -1052,3 +1053,4 @@ codeunit 139912 "Customer Deferrals Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

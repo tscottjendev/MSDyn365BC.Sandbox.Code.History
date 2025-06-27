@@ -246,6 +246,9 @@ table 6227 "Sustainability Value Entry"
         {
             Clustered = true;
         }
+        key(Key2; "Document Type", "Document No.", "Item No.")
+        {
+        }
     }
 
     var

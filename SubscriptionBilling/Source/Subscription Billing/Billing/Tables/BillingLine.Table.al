@@ -218,6 +218,15 @@ table 8061 "Billing Line"
         key(SK3; "Subscription Contract No.", "Subscription Contract Line No.", "Billing from")
         {
         }
+        key(SK4; "Billing Template Code", "Subscription Contract No.")
+        {
+        }
+        key(SK5; "Document Type", "Document No.")
+        {
+        }
+        key(SK6; "Billing Template Code", Partner)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -322,17 +331,17 @@ table 8061 "Billing Line"
         exit(BillingLine.Amount);
     end;
 
-    local procedure GetSalesDocumentTypeForAmount(Amount: Decimal) SalesDocumentType: Enum "Sales Document Type"
+    local procedure GetSalesDocumentTypeForAmount(InputAmount: Decimal) SalesDocumentType: Enum "Sales Document Type"
     begin
-        if Amount >= 0 then
+        if InputAmount >= 0 then
             SalesDocumentType := SalesDocumentType::Invoice
         else
             SalesDocumentType := SalesDocumentType::"Credit Memo";
     end;
 
-    local procedure GetPurchaseDocumentTypeForAmount(Amount: Decimal) PurchaseDocumentType: Enum "Purchase Document Type"
+    local procedure GetPurchaseDocumentTypeForAmount(InputAmount: Decimal) PurchaseDocumentType: Enum "Purchase Document Type"
     begin
-        if Amount >= 0 then
+        if InputAmount >= 0 then
             PurchaseDocumentType := PurchaseDocumentType::Invoice
         else
             PurchaseDocumentType := PurchaseDocumentType::"Credit Memo";
