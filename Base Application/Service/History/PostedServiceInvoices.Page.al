@@ -342,6 +342,7 @@ page 5977 "Posted Service Invoices"
 
                 trigger OnAction()
                 begin
+                    ServiceInvHeader := Rec;
                     CurrPage.SetSelectionFilter(ServiceInvHeader);
                     ServiceInvHeader.PrintRecords(true);
                 end;

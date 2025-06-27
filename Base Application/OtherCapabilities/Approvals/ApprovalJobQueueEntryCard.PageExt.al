@@ -125,6 +125,6 @@ pageextension 9806 "Approval Job Queue Entry Card" extends "Job Queue Entry Card
     var
         AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
-        IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
+        IsUserDelegated := AzureADGraphUser.IsUserDelegated();
     end;
 }
