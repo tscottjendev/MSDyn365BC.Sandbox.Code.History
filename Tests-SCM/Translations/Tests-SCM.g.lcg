@@ -6512,6 +6512,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Shipment Date, %2 = Shipment Date value, %3 = Work Date value]D;]A;(LookupHint=Codeunit SCM Orders IV - NamedType ShipmentDateBeforeWorkDateMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1204784329 - NamedType 3189634262" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ship-to Address on Return Order should be company address]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders IV - NamedType ShipToAddressErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1204784329 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starting Date cannot be after Ending Date]]></Val>
