@@ -64,8 +64,7 @@ page 30101 "Shpfy Shop Card"
                             exit;
                         Rec.RequestAccessToken();
                         BulkOperationMgt.EnableBulkOperations(Rec);
-                        Rec."B2B Enabled" := Rec.GetB2BEnabled();
-                        Rec."Weight Unit" := Rec.GetShopWeightUnit();
+                        Rec.GetShopSettings();
                         Rec.SyncCountries();
                         FeatureTelemetry.LogUptake('0000HUT', 'Shopify', Enum::"Feature Uptake Status"::"Set up");
                     end;
@@ -1188,8 +1187,7 @@ page 30101 "Shpfy Shop Card"
             if AuthenticationMgt.CheckScopeChange(Rec) then
                 if Confirm(StrSubstNo(ScopeChangeConfirmLbl, Rec.Code)) then begin
                     Rec.RequestAccessToken();
-                    Rec."B2B Enabled" := Rec.GetB2BEnabled();
-                    Rec."Weight Unit" := Rec.GetShopWeightUnit();
+                    Rec.GetShopSettings();
                     Rec.Modify();
                 end else begin
                     Rec.Enabled := false;
