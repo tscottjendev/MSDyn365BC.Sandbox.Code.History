@@ -201,6 +201,13 @@ page 6181 "E-Document Purchase Draft"
                 SubPageLink = "E-Document Entry No." = field("Entry No"),
                               "E-Document Attachment" = const(true);
             }
+            part(InboundEDocPicture; "Inbound E-Doc. Picture")
+            {
+                Caption = 'E-Document Pdf Preview';
+                SubPageLink = "Entry No." = field("Unstructured Data Entry No."),
+                            "File Format" = const("E-Doc. File Format"::PDF);
+                ShowFilter = false;
+            }
             part(InboundEDocFactbox; "Inbound E-Doc. Factbox")
             {
                 Caption = 'Details';
