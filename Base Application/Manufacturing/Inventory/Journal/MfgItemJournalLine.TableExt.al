@@ -671,7 +671,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
     procedure LastOutputOperation(ItemJnlLine2: Record "Item Journal Line") Result: Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Operation: Boolean;
         IsHandled: Boolean;
     begin
@@ -696,7 +695,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
             else
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
-            Operation := not ItemJnlPostLine.NextOperationExist(ProdOrderRtngLine);
+            Operation := not ProdOrderRtngLine.NextOperationExist();
         end else
             Operation := true;
         exit(Operation);
@@ -760,18 +759,6 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
                 Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
             end;
         end;
-    end;
-
-    /// <summary>
-    /// Determines if only the stop time field of the current item journal line record is set.
-    /// </summary>
-    /// <remarks>
-    /// In order to return true, setup time and run time fields must not be set.
-    /// </remarks>
-    /// <returns>True if only the stop time is set, otherwise false.</returns>
-    procedure OnlyStopTime(): Boolean
-    begin
-        exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" <> 0));
     end;
 
     /// <summary>
