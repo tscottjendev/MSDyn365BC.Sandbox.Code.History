@@ -14,7 +14,7 @@ using Microsoft.Warehouse.Request;
 codeunit 99000760 "Mfg. Item Jnl. Check Line"
 {
     var
-#if not CLEAN26
+#if not CLEAN27
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
 #endif
         CannotPostTheseLinesErr: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
@@ -242,13 +242,20 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
            (ItemJournalLine."Output Quantity (Base)" = 0) and (ItemJournalLine."Scrap Quantity (Base)" = 0) and
            (not ItemJournalLine."WIP Item") and ItemJournalLine.TimeIsEmpty())
         then
-            Error(ErrorInfo.Create(CannotPosttheseLinesErr, true));
+            Error(ErrorInfo.Create(CannotPostTheseLinesErr, true));
+
         if (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output) and
            (ItemJournalLine."WIP Quantity" <> 0) and
            (not ItemJournalLine."WIP Item") and
            ItemJournalLine.TimeIsEmpty()
         then
             Error(ErrorInfo.Create(CannotPostTheseLinesWIPErr, true));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckBinsOnCheckForEntryTypeOutput', '', false, false)]
+    local procedure OnCheckBinsOnCheckForEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var ShouldExit: Boolean)
+    begin
+        ShouldExit := ItemJournalLine.IsEntryTypeOutput() and not ItemJournalLine.LastOutputOperation(ItemJournalLine);
     end;
 
     [IntegrationEvent(false, false)]
@@ -291,3 +298,4 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
     begin
     end;
 }
+
