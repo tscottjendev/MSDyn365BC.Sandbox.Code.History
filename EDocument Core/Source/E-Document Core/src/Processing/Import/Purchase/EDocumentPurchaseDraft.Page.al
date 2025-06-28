@@ -201,6 +201,13 @@ page 6181 "E-Document Purchase Draft"
                 SubPageLink = "E-Document Entry No." = field("Entry No"),
                               "E-Document Attachment" = const(true);
             }
+            part(InboundEDocPicture; "Inbound E-Doc. Picture")
+            {
+                Caption = 'E-Document Pdf Preview';
+                SubPageLink = "Entry No." = field("Unstructured Data Entry No."),
+                            "File Format" = const("E-Doc. File Format"::PDF);
+                ShowFilter = false;
+            }
             part(InboundEDocFactbox; "Inbound E-Doc. Factbox")
             {
                 Caption = 'Details';
@@ -428,6 +435,9 @@ page 6181 "E-Document Purchase Draft"
         CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
         CurrPage.ErrorMessagesPart.Page.Update(false);
 
+        ErrorsAndWarningsNotification.Id := GetErrorNotificationGuid();
+        ErrorsAndWarningsNotification.Scope := NotificationScope::GlobalScope;
+        if ErrorsAndWarningsNotification.Recall() then;
         ErrorsAndWarningsNotification.Message(EDocHasErrorOrWarningMsg);
         ErrorsAndWarningsNotification.Send();
     end;
@@ -452,6 +462,7 @@ page 6181 "E-Document Purchase Draft"
         CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
         CurrPage.ErrorMessagesPart.Page.Update(false);
 
+        ErrorsAndWarningsNotification.Id := GetErrorNotificationGuid();
         if ErrorsAndWarningsNotification.Recall() then;
     end;
 
@@ -545,6 +556,11 @@ page 6181 "E-Document Purchase Draft"
         Rec.Get(Rec."Entry No");
         if GuiAllowed() then
             Progress.Close();
+    end;
+
+    local procedure GetErrorNotificationGuid(): Guid
+    begin
+        exit('5d928119-f61d-42f7-ba98-43bfcf8bfaeb');
     end;
 
     var

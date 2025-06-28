@@ -92,6 +92,10 @@ codeunit 6104 "Import E-Document Process"
             EDocumentLog.SetBlob(Name, IStructuredDataType.GetFileFormat(), IStructuredDataType.GetContent());
             EDocumentLog.InsertLog();
             EDocument."Structured Data Entry No." := EDocumentLog.GetLog()."E-Doc. Data Storage Entry No.";
+
+            if IStructuredDataType.GetReadIntoDraftImpl() = Enum::"E-Doc. Read into Draft"::ADI then
+                OnADIProcessingCompleted(EDocument, EDocumentDataStorage);
+
             if EDocument."Structured Data Entry No." = 0 then
                 EDocErrorHelper.LogWarningMessage(EDocument, EDocument, EDocument.FieldNo("Structured Data Entry No."), NoStructuredDataErr);
         end
@@ -142,11 +146,14 @@ codeunit 6104 "Import E-Document Process"
             VendNo := EDocumentPurchaseHeader."[BC] Vendor No.";
         end;
 
-        if VendNo <> '' then
+        if VendNo <> '' then begin
             if Vendor.Get(VendNo) then begin
                 EDocument."Bill-to/Pay-to Name" := Vendor.Name;
                 EDocument."Bill-to/Pay-to No." := Vendor."No.";
             end;
+
+            OnFoundVendorNo(EDocument, VendNo);
+        end;
         EDocument.Modify();
     end;
 
@@ -346,6 +353,16 @@ codeunit 6104 "Import E-Document Process"
     internal procedure GetStep(): Enum "Import E-Document Steps"
     begin
         exit(Step);
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnADIProcessingCompleted(EDocument: Record "E-Document"; EDocumentDataStorage: Record "E-Doc. Data Storage")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnFoundVendorNo(EDocument: Record "E-Document"; VendNo: Code[20])
+    begin
     end;
 
     var

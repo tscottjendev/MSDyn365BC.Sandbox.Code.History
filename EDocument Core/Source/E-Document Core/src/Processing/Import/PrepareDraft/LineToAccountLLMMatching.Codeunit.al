@@ -47,8 +47,6 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
         LineDictionary: Dictionary of [Integer, Text[100]];
     begin
-        if EDocumentPurchaseLine.IsEmpty() then
-            exit(Result);
         Clear(Result);
         if not EDocument.Get(EDocumentPurchaseLine."E-Document Entry No.") then
             exit(Result);
@@ -232,11 +230,16 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         EDocumentPurchaseLine.Ascending(true);
         if EDocumentPurchaseLine.FindSet() then
             repeat
-                LocalStatementLines += '#Id: ' + Format(EDocumentPurchaseLine."Line No.");
-                LocalStatementLines += ', Description: ' + EDocumentPurchaseLine.Description;
-                LocalStatementLines += '\n';
-                LineDictionary.Add(EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine.Description);
+                if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then begin
+                    LocalStatementLines += '#Id: ' + Format(EDocumentPurchaseLine."Line No.");
+                    LocalStatementLines += ', Description: ' + EDocumentPurchaseLine.Description;
+                    LocalStatementLines += '\n';
+                    LineDictionary.Add(EDocumentPurchaseLine."Line No.", EDocumentPurchaseLine.Description);
+                end;
             until EDocumentPurchaseLine.Next() = 0;
+
+        if LineDictionary.Keys().Count() = 0 then
+            Session.LogMessage('0000POF', 'No invoice lines are being sent to Copilot. There are either none, or they all have an account number.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
 
         exit(LocalStatementLines);
     end;
