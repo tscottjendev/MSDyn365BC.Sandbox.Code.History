@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -2926,6 +2926,18 @@ table 83 "Item Journal Line"
         OnTimeIsEmpty(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if only the stop time field of the current item journal line record is set.
+    /// </summary>
+    /// <remarks>
+    /// In order to return true, setup time and run time fields must not be set.
+    /// </remarks>
+    /// <returns>True if only the stop time is set, otherwise false.</returns>
+    procedure OnlyStopTime() Result: Boolean
+    begin
+        OnOnlyStopTime(Rec, Result);
+    end;
+
     local procedure GetOrderTypeProduction() OrderType: Enum "Inventory Order Type"
     begin
         OnGetOrderTypeProduction(OrderType);
@@ -3621,7 +3633,7 @@ table 83 "Item Journal Line"
         OnAfterIsEntryTypeConsumption(Rec, Result);
     end;
 
-    internal procedure IsEntryTypeOutput() Result: Boolean
+    procedure IsEntryTypeOutput() Result: Boolean
     begin
         OnAfterIsEntryTypeOutput(Rec, Result);
     end;
@@ -5193,6 +5205,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnTimeIsEmpty(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnlyStopTime(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
     begin
     end;
 
