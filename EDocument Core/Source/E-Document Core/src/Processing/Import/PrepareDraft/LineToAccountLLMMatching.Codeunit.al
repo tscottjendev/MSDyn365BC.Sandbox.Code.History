@@ -77,7 +77,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 #pragma warning restore AS0105            
 #else
         AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT41Latest());
-#endif    
+#endif
         AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"E-Document Matching Assistance");
         AOAIChatCompletionParams.SetMaxTokens(4096);
         AOAIChatCompletionParams.SetTemperature(0);
