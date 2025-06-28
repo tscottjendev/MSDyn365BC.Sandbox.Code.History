@@ -12,6 +12,7 @@ codeunit 137045 "SCM Bugfixes"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -1092,6 +1093,49 @@ codeunit 137045 "SCM Bugfixes"
 
         // [THEN] After recalculation, a new reservation entry should NOT be created for the PO
         AssertReservationEntryCount(PurchaseHeader, 2);
+    end;
+
+    [Test]
+    procedure ChangeVATandVerifyVATAmountOnPurchInvoiceSubform()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine, PurchLine1 : Record "Purchase Line";
+        VATPostingSetup, VATPostingSetup1 : Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+        TotalVATAmount: Decimal;
+    begin
+        // [SCENARIO 571395] When using the functionality 'Get Recurring Purchase Lines' on the Purchase Invoice VAT rounding is not correct
+        Initialize();
+
+        // [GIVEN] Create two VAT Posting Setup with 21 % and 0%        
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, Enum::"Tax Calculation Type"::"Normal VAT", 21);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup1, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+
+        // [GIVEN] Create a domestic vendor and Item with 21% VAT Prod. Posting Group
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create Purchase Invoice Document with the same Item as Direct Unit Cost 10.93 and 12.5
+        LibraryPurchase.CreatePurchHeader(PurchHeader, Enum::"Purchase Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchLine, PurchHeader, ItemNo, 1, 10.93);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchLine1, PurchHeader, ItemNo, 1, 12.5);
+
+        // [WHEN] Change the First Purchase Invoice Line VAT Prod. Posting Group to NO VAT
+        PurchLine.Validate("VAT Prod. Posting Group", VATPostingSetup1."VAT Prod. Posting Group");
+        PurchLine.Modify(true);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchHeader."No.");
+        PurchaseInvoice.PurchLines.First();
+        PurchLine.RecalculateAmounts(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+
+        // [THEN] Total VAT Amount in the Purchase Invoice Subform should be 2.63 instead of 2.62
+        PurchaseInvoice.PurchLines.Next();
+        Evaluate(TotalVATAmount, PurchaseInvoice.PurchLines."Total VAT Amount".Value());
+        Assert.AreEqual(2.63, TotalVATAmount, 'Mismatch in Total VAT Amount Value');
     end;
 
     local procedure Initialize()
