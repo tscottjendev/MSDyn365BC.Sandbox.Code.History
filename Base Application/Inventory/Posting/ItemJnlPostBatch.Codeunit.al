@@ -331,7 +331,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                         OriginalQuantity := ItemJnlLine.Quantity;
                         OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
-                            ItemJnlPostLine.CheckItemTracking();
+                            ItemJnlPostLine.CheckItemTracking(ItemJnlLine);
 
                         OnHandleWhsePutAwayForProdOutput(ItemJnlLine);
 
