@@ -83,13 +83,25 @@ page 12217 "Periodic VAT Split"
                 Tooltip = 'Validates the split of VAT settlement entries.';
 
                 trigger OnAction()
+                var
+#if CLEAN27
+                    PeriodicVATSettlement: Codeunit "Periodic VAT Settlement";
+#endif
                 begin
+#if not CLEAN27
                     if ValidateSplit(Rec."VAT Period") then
                         Message(SplitIsValidMsg)
                     else
                         Message(SplitIsInvalidMsg);
+#else
+                    if PeriodicVATSettlement.ValidateSplit(Rec."VAT Period") then
+                        Message(SplitIsValidMsg)
+                    else
+                        Message(SplitIsInvalidMsg);
+#endif
                 end;
             }
+
         }
         area(Promoted)
         {
@@ -102,6 +114,7 @@ page 12217 "Periodic VAT Split"
         SplitIsValidMsg: Label 'Periodic VAT Settlement Entry is split correctly between the separate entries.';
         SplitIsInvalidMsg: Label 'Periodic VAT Settlement Entry is not split correctly between the separate entries.';
 
+#if not CLEAN27
     local procedure ValidateSplit(VATPeriod: Code[10]) Valid: Boolean
     var
         PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
@@ -129,6 +142,7 @@ page 12217 "Periodic VAT Split"
                  (PeriodicVATSettlementEntry."Prior Year Input VAT" = PriorYearInputVAT) and
                  (PeriodicVATSettlementEntry."Prior Year Output VAT" = PriorYearOutputVAT);
     end;
+#endif
 
     internal procedure SetPeriod(NewPeriod: Code[10])
     begin
