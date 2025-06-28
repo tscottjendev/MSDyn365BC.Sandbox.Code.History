@@ -11019,21 +11019,6 @@ table 39 "Purchase Line"
         ShowDeferrals(PurchaseHeader."Posting Date", PurchaseHeader."Currency Code");
     end;
 
-    procedure RecalculateAmounts(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ExcludeLineNo: Integer)
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        PurchaseLine.SetRange("Document Type", DocumentType);
-        PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.SetFilter("Line No.", '<>%1', ExcludeLineNo);
-        PurchaseLine.SetFilter("Direct Unit Cost", '<>%1', 0);
-        if PurchaseLine.FindSet(true) then
-            repeat
-                PurchaseLine.UpdateAmounts();
-                PurchaseLine.Modify(true);
-            until PurchaseLine.Next() = 0;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignResourceValues(var PurchaseLine: Record "Purchase Line"; Resource: Record Resource)
     begin
