@@ -5,9 +5,6 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using System.Text;
-#if not CLEAN27
-using System.Environment.Configuration;
-#endif
 
 #pragma warning disable AS0106 // Protected variable VATDateType was removed before AS0106 was introduced.
 page 474 "VAT Statement Preview"
@@ -27,57 +24,12 @@ page 474 "VAT Statement Preview"
             group(General)
             {
                 Caption = 'General';
-#if not CLEAN27
                 field(VATPeriod; VATPeriod)
                 {
                     ApplicationArea = VAT;
                     Caption = 'VAT Period';
-                    LookupPageID = "Periodic VAT Settl. List";
-                    TableRelation = "Periodic VAT Settlement Entry";
-                    ToolTip = 'Specifies the VAT period.';
-                    Visible = not VATSettlementByActivityCodeIsEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by VAT settlement per activity code.';
-                    ObsoleteTag = '27.0';
-
-                    trigger OnValidate()
-                    begin
-                        if VATPeriod <> '' then begin
-                            Rec.SetRange("Date Filter");
-                            Selection := Selection::Closed;
-                            PeriodSelection := PeriodSelection::"Within Period";
-                        end;
-
-                        UpdateSubForm();
-                    end;
-                }
-                field(VATPeriodByActivityCode; VATPeriod)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Period';
-                    LookupPageID = "Periodic VAT Settl. List";
-                    TableRelation = "Periodic VAT Settlement Entry";
-                    ToolTip = 'Specifies the VAT period.';
-                    Visible = VATSettlementByActivityCodeIsEnabled;
-
-                    trigger OnValidate()
-                    begin
-                        if VATPeriod <> '' then begin
-                            Rec.SetRange("Date Filter");
-                            Selection := Selection::Closed;
-                            PeriodSelection := PeriodSelection::"Within Period";
-                        end;
-
-                        UpdateSubForm();
-                    end;
-                }
-#else
-                field(VATPeriodByActivityCode; VATPeriod)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Period';
-                    LookupPageID = "Periodic VAT Settl. List";
-                    TableRelation = "Periodic VAT Settlement Entry";
+                    LookupPageID = "Periodic VAT Settlement List";
+                    TableRelation = "Periodic Settlement VAT Entry";
                     ToolTip = 'Specifies the VAT period.';
 
                     trigger OnValidate()
@@ -91,7 +43,6 @@ page 474 "VAT Statement Preview"
                         UpdateSubForm();
                     end;
                 }
-#endif
                 field(Selection; Selection)
                 {
                     ApplicationArea = Basic, Suite;
@@ -184,10 +135,6 @@ page 474 "VAT Statement Preview"
     end;
 
     trigger OnOpenPage()
-    var
-#if not CLEAN27
-        FeatureManagementIT: Codeunit "Feature Management IT";
-#endif
     begin
         if ValuesPassed then begin
             Selection := PassedSelection;
@@ -198,9 +145,6 @@ page 474 "VAT Statement Preview"
             DateFilter := '';
         UpdateSubForm();
         PeriodSelection := PeriodSelection::"Within Period";
-#if not CLEAN27
-        VATSettlementByActivityCodeIsEnabled := FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled();
-#endif
     end;
 
     var
@@ -208,9 +152,6 @@ page 474 "VAT Statement Preview"
         PassedPeriodSelection: Enum "VAT Statement Report Period Selection";
         PassedDateFilter: Text[30];
         ValuesPassed: Boolean;
-#if not CLEAN27
-        VATSettlementByActivityCodeIsEnabled: Boolean;
-#endif
 
     protected var
         Selection: Enum "VAT Statement Report Selection";
