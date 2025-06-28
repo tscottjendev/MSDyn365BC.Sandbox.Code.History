@@ -1747,6 +1747,12 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderComponent."Due Time" := ProdOrderRoutingLine."Starting Time";
     end;
 
+    procedure NextOperationExist(): Boolean
+    begin
+        OnBeforeNextOperationExist(Rec);
+        exit("Next Operation No." <> '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer)
     begin
@@ -1914,6 +1920,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MessageText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextOperationExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }
