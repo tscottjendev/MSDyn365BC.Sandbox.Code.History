@@ -239,6 +239,7 @@ codeunit 21 "Item Jnl.-Check Line"
     var
         WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckBins(ItemJnlLine, IsHandled, CalledFromAdjustment);
@@ -260,7 +261,9 @@ codeunit 21 "Item Jnl.-Check Line"
         if ItemJnlLine."Drop Shipment" or ItemJnlLine.OnlyStopTime() or (ItemJnlLine."Quantity (Base)" = 0) or ItemJnlLine.Adjustment or CalledFromAdjustment then
             exit;
 
-        if ItemJnlLine.IsEntryTypeOutput() and not ItemJnlLine.LastOutputOperation(ItemJnlLine) then
+        ShouldExit := false;
+        OnCheckBinsOnCheckForEntryTypeOutput(ItemJnlLine, ShouldExit);
+        if ShouldExit then
             exit;
 
         IsHandled := false;
@@ -719,6 +722,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [InternalEvent(false)]
     local procedure OnCheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCheckBinsOnCheckForEntryTypeOutput(var ItemJournalLine: Record "Item Journal Line"; var ShouldExit: Boolean)
     begin
     end;
 }
