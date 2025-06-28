@@ -137,75 +137,6 @@ codeunit 148153 "Usage Based Billing Test"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,CreateCustomerBillingDocsContractPageHandler,ConfirmHandler')]
-    procedure CheckIfCreditMemoIsCreatedWhenDiscountInServiceCommitmentIs100Percent()
-    begin
-        //[SCENARIO]: Create service object with two service commitments; One has discount 100%, and the other one is marked as discount; Test that credit memo is created on recurring billing
-
-        ClearAll();
-        ContractTestLibrary.InitContractsApp();
-
-        //[GIVEN]: Create service commitment Item
-        ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
-        Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
-        Item."Unit Cost" := LibraryRandom.RandDec(1000, 2);
-        Item.Modify(false);
-
-        //[GIVEN]: Setup service object with service commitments and usage quantity
-        ContractTestLibrary.CreateServiceCommitmentTemplate(ServiceCommitmentTemplate);
-        ContractTestLibrary.CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplate.Code, ServiceCommitmentPackage, ServiceCommPackageLine);
-        ContractTestLibrary.UpdateServiceCommitmentPackageLine(ServiceCommPackageLine, '1M', 100, '1M', '1M', "Service Partner"::Customer, '');
-        ServiceCommPackageLine."Usage Based Billing" := true;
-        ServiceCommPackageLine."Usage Based Pricing" := "Usage Based Pricing"::"Usage Quantity";
-        ServiceCommPackageLine."Calculation Base Type" := "Calculation Base Type"::"Item Price";
-        ServiceCommPackageLine.Modify();
-        ContractTestLibrary.CreateServiceCommitmentPackageLine(ServiceCommPackageLine."Subscription Package Code", ServiceCommPackageLine.Template, ServiceCommPackageLine,
-                                                                 '1M', '1M', "Service Partner"::Customer);
-        ServiceCommPackageLine.Discount := true;
-        ServiceCommPackageLine."Calculation Base Type" := "Calculation Base Type"::"Item Price";
-        ServiceCommPackageLine.Modify(true);
-        ContractTestLibrary.AssignItemToServiceCommitmentPackage(Item, ServiceCommitmentPackage.Code);
-        ItemServCommitmentPackage.Get(Item."No.", ServiceCommitmentPackage.Code);
-        ItemServCommitmentPackage.Standard := true;
-        ItemServCommitmentPackage.Modify(false);
-
-        LibrarySales.CreateCustomer(Customer);
-        ContractTestLibrary.CreateServiceObjectForItem(ServiceObject, Item."No.");
-        ServiceObject.InsertServiceCommitmentsFromStandardServCommPackages(WorkDate());
-        ServiceObject."End-User Customer No." := Customer."No.";
-        ServiceObject.Validate(Quantity, 1); //mock service object quantity to avoid issues with rounding
-        ServiceObject.Modify(false);
-        CreateCustomerContractAndAssignServiceCommitments();
-
-        //[GIVEN]: Add discount to service commitment
-        ServiceCommitment.Reset();
-        ServiceCommitment.SetRange("Subscription Header No.", ServiceObject."No.");
-        ServiceCommitment.findset();
-        repeat
-            if ServiceCommitment.Discount = false then
-                ServiceCommitment.Validate("Discount Amount", ServiceCommitment.Amount) //Rounding issue; Make sure that the Discount amount is equal to Service Amount
-            else
-                ServiceCommitment.Validate(Price, LibraryRandom.RandDec(1000, 2));
-            ServiceCommitment.Modify();
-        until ServiceCommitment.Next() = 0;
-
-        //[WHEN]: Create and process simple usage data
-        ProcessUsageDataWithSimpleGenericImport(WorkDate(), WorkDate(), WorkDate(), CalcDate('<CM>', WorkDate()), 1);
-
-        //[WHEN]: Create contract invoice discounts should be applied - therefore credit memo should be created
-        ContractTestLibrary.CreateRecurringBillingTemplate(BillingTemplate, '', '', CustomerContract.GetView(), Enum::"Service Partner"::Customer);
-        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
-        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
-        BillingLine.SetRange(Partner, BillingTemplate.Partner);
-        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
-
-        //[THEN]: Test that credit memo is created
-        FilterUsageDataBillingOnUsageDataImport(UsageDataImport."Entry No.", "Service Partner"::Customer);
-        UsageDataBilling.SetRange("Document Type", UsageDataBilling."Document Type"::"Credit Memo");
-        Assert.RecordIsNotEmpty(UsageDataBilling);
-    end;
-
-    [Test]
     procedure ExistForContractLineDependsOnUsageDataForContractLine()
     var
         CustomerContractLine1: Record "Cust. Sub. Contract Line";
@@ -1677,7 +1608,6 @@ codeunit 148153 "Usage Based Billing Test"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        Currency.InitRoundingPrecision();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         ContractTestLibrary.InitSourceCodeSetup();
         IsInitialized := true;
@@ -2233,18 +2163,6 @@ codeunit 148153 "Usage Based Billing Test"
     #endregion Procedures
 
     #region Handlers
-
-    [ConfirmHandler]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    [ModalPageHandler]
-    procedure CreateCustomerBillingDocsContractPageHandler(var CreateCustomerBillingDocs: TestPage "Create Customer Billing Docs")
-    begin
-        CreateCustomerBillingDocs.OK().Invoke();
-    end;
 
     [ModalPageHandler]
     procedure CreateCustomerBillingDocumentPageHandler(var CreateCustomerBillingDocument: TestPage "Create Usage B. Cust. B. Docs")

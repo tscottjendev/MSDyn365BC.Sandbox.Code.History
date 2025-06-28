@@ -394,6 +394,7 @@ codeunit 30106 "Shpfy Upgrade Mgt."
     local procedure WebhookSubscriptionUpgrade()
     var
         WebhookSubscription: Record "Webhook Subscription";
+        NewWebhookSubscription: Record "Webhook Subscription";
         UpgradeTag: Codeunit "Upgrade Tag";
         WebhookTopic: Enum "Shpfy Webhook Topic";
     begin
@@ -404,30 +405,23 @@ codeunit 30106 "Shpfy Upgrade Mgt."
         WebhookSubscription.SetRange(Endpoint, WebhookTopic.Names.Get(WebhookTopic.Ordinals.IndexOf(WebhookTopic.AsInteger())));
         if WebhookSubscription.FindSet() then
             repeat
-                UpdateWebhookSubscriptionTopic(WebhookSubscription, WebhookTopic);
+                NewWebhookSubscription := WebhookSubscription;
+                NewWebhookSubscription.Endpoint := Format(WebhookTopic);
+                WebhookSubscription.Delete();
+                NewWebhookSubscription.Insert();
             until WebhookSubscription.Next() = 0;
 
         WebhookTopic := WebhookTopic::ORDERS_CREATE;
         WebhookSubscription.SetRange(Endpoint, WebhookTopic.Names.Get(WebhookTopic.Ordinals.IndexOf(WebhookTopic.AsInteger())));
         if WebhookSubscription.FindSet() then
             repeat
-                UpdateWebhookSubscriptionTopic(WebhookSubscription, WebhookTopic);
+                NewWebhookSubscription := WebhookSubscription;
+                NewWebhookSubscription.Endpoint := Format(WebhookTopic);
+                WebhookSubscription.Delete();
+                NewWebhookSubscription.Insert();
             until WebhookSubscription.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(GetWebhookSubscriptionUpgradeTag());
-    end;
-
-    local procedure UpdateWebhookSubscriptionTopic(var WebhookSubscription: Record "Webhook Subscription"; WebhookTopic: Enum "Shpfy Webhook Topic")
-    var
-        NewWebhookSubscription: Record "Webhook Subscription";
-    begin
-        if NewWebhookSubscription.Get(WebhookSubscription."Subscription ID", Format(WebhookTopic)) then
-            NewWebhookSubscription.Delete();
-
-        NewWebhookSubscription := WebhookSubscription;
-        NewWebhookSubscription."Endpoint" := Format(WebhookTopic);
-        NewWebhookSubscription.Insert();
-        WebhookSubscription.Delete();
     end;
 
     internal procedure GetAllowOutgoingRequestseUpgradeTag(): Code[250]
