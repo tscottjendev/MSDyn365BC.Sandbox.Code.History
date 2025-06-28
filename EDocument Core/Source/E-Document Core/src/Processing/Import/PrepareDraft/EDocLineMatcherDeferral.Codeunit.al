@@ -134,6 +134,7 @@ codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
                     EDocActivityLogBuilder
                         .Init(Database::"E-Document Purchase Line", EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), EDocumentPurchaseLine.SystemId)
                         .SetExplanation(Reasoning)
+                        .SetType(Enum::"Activity Log Type"::"AI")
                         .SetReferenceSource('')
                         .SetReferenceTitle(ActivityLogTitleTxt)
                         .Log();

@@ -140,6 +140,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
                             EDocActivityLogBuilder
                                 .Init(Database::"E-Document Purchase Line", EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), EDocumentPurchaseLine.SystemId)
                                 .SetExplanation(Reasoning)
+                                .SetType(Enum::"Activity Log Type"::"AI")
                                 .SetReferenceSource('')
                                 .SetReferenceTitle(ActivityLogTitleTxt)
                                 .Log();
