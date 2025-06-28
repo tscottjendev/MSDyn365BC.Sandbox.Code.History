@@ -454,6 +454,12 @@ codeunit 99000762 "Mfg. Item Journal Mgt."
         Result := (ItemJournalLine."Setup Time" = 0) and (ItemJournalLine."Run Time" = 0) and (ItemJournalLine."Stop Time" = 0);
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnOnlyStopTime', '', false, false)]
+    local procedure OnOnlyStopTime(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean)
+    begin
+        Result := (ItemJournalLine."Setup Time" = 0) and (ItemJournalLine."Run Time" = 0) and (ItemJournalLine."Stop Time" <> 0);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnAfterInitDefaultDimensionSources', '', false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     var
