@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Period;
 
-enum 99009602 "Period Formula Range"
+enum 921 "Period Formula Range"
 {
     value(0; Int) { }
     value(1; CP) { }
