@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Period;
 
-enum 99009603 "Period Type"
+enum 920 "Period Type"
 {
     value(0; " ") { }
     value(1; Period) { }
