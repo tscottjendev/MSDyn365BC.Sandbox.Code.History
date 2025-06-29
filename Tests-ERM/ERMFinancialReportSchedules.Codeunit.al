@@ -1,4 +1,3 @@
-/* 
 codeunit 135005 "ERM Financial Report Schedules"
 {
     Subtype = Test;
@@ -163,4 +162,3 @@ codeunit 135005 "ERM Financial Report Schedules"
         FinancialReports.Overview.Invoke();
     end;
 }
-*/
