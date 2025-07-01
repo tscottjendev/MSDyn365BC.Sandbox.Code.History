@@ -101,7 +101,7 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         if EDocumentPurchaseLine.FindSet() then
             LineToAccountLLMMatching.GetPurchaseLineAccountsWithCopilot(EDocumentPurchaseLine)
         else
-            Session.LogMessage('0000POG', 'No E-Document Purchase Lines found for the E-Document', Verbosity::Warning, DataClassification::SystemMetadata,  TelemetryScope::All, 'Category', 'E-Document Matching Assistance');
+            Session.LogMessage('0000POG', 'No E-Document Purchase Lines found for the E-Document', Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'E-Document Matching Assistance');
         Clear(EDocumentPurchaseLine);
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);

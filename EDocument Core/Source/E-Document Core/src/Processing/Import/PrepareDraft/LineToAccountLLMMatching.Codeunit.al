@@ -10,6 +10,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using System.AI;
 using System.Azure.KeyVault;
 using System.Telemetry;
+using System.Log;
 
 codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
 {
@@ -21,14 +22,18 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         MatchStatisticsTxt: label 'Purchase Document Draft line match proposal created.', Locked = true;
         FunctionNameLbl: Label 'match_lines_glaccounts', Locked = true;
         Result: Dictionary of [Integer, Code[20]];
+        ResultReasoning: Dictionary of [Integer, Text];
+        ActivityLogTitleTxt: label 'Copilot matched G/L Account';
         InstrPromptSNameLbl: label 'EDocMatchLineToGLAccount', Locked = true;
         ExceededTokenThresholdTxt: label 'Not calling LLM, token count too high.', Locked = true;
         ExceededTokenThresholdGLAccErr: label 'The list of direct-posting income statement general ledger accounts in your database is too long to send to Copilot with the purpose of matching with invoice lines.';
         FeatureNameTxt: label 'E-Document Matching Assistance', Locked = true;
+        ReasoningLabelTxt: label 'This line matches with account %1, %2.', Comment = '%1 - G/L Account number; %2 - G/L Account name';
 
     procedure GetPurchaseLineAccountsWithCopilot(var EDocumentPurchaseLine: Record "E-Document Purchase Line"): Dictionary of [Integer, Code[20]]
     var
         EDocument: Record "E-Document";
+        GLAccount: Record "G/L Account";
         EDocErrorHelper: Codeunit "E-Document Error Helper";
         AzureOpenAI: Codeunit "Azure OpenAi";
         AOAIDeployments: Codeunit "AOAI Deployments";
@@ -38,11 +43,12 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         AOAIToken: Codeunit "AOAI Token";
         EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
+        EDocActivityLogBuilder: Codeunit "Activity Log Builder";
         TelemetryCustomDimensions: Dictionary of [Text, Text];
         FindGLAccountsPromptSecTxt: SecretText;
         EDocumentPurchaseLinesTxt: Text;
         SuccessfulAssignment: Boolean;
-        GLAccountsTxt: Text;
+        GLAccountsTxt, Reasoning : Text;
         LinesMatched: Integer;
         EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
         LineDictionary: Dictionary of [Integer, Text[100]];
@@ -123,6 +129,21 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
                         if SuccessfulAssignment then begin
                             EDocumentPurchaseLine.Modify();
                             LinesMatched += 1;
+
+                            Reasoning := '';
+                            if GLAccount.Get(EDocumentPurchaseLine."[BC] Purchase Type No.") then
+                                Reasoning := StrSubstNo(ReasoningLabelTxt, GLAccount."No.", GLAccount.Name)
+                            else
+                                if ResultReasoning.ContainsKey(EDocumentPurchaseLine."Line No.") then
+                                    Reasoning := ResultReasoning.Get(EDocumentPurchaseLine."Line No.");
+
+                            EDocActivityLogBuilder
+                                .Init(Database::"E-Document Purchase Line", EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), EDocumentPurchaseLine.SystemId)
+                                .SetExplanation(Reasoning)
+                                .SetType(Enum::"Activity Log Type"::"AI")
+                                .SetReferenceSource('')
+                                .SetReferenceTitle(ActivityLogTitleTxt)
+                                .Log();
                         end;
                         EDocImpSessionTelemetry.SetLineBool(EDocumentPurchaseLine.SystemId, 'GL Acc. CM Assigned', SuccessfulAssignment);
                     end;
@@ -314,10 +335,13 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
     var
         LineNo: Integer;
         GLAccountNo: Code[20];
+        Reason: Text;
     begin
         LineNo := Arguments.GetInteger('lineId');
         GLAccountNo := CopyStr(Arguments.GetText('accountId'), 1, MaxStrLen(GLACcountNo));
+        Reason := Arguments.GetText('reasoning');
         Result.Add(LineNo, GLAccountNo);
+        ResultReasoning.Add(LineNo, Reason);
         exit('');
     end;
 

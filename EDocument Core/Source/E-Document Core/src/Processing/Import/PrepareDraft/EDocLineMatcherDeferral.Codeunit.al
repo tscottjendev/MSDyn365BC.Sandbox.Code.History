@@ -9,6 +9,7 @@ using System.AI;
 using System.Telemetry;
 using Microsoft.Finance.Deferral;
 using System.Azure.KeyVault;
+using System.Log;
 
 codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
 {
@@ -112,7 +113,10 @@ codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
     local procedure SetMatchedEDocumentPurchaseLines()
     var
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        EDocActivityLogBuilder: Codeunit "Activity Log Builder";
         CountMatchedDeferral, CountMistakes : Integer;
+        Reasoning: Text;
+        ActivityLogTitleTxt: Label 'Copilot identified deferral account';
         ApplyLineMatchingProposalsTok: Label 'Apply line matching proposals - Deferral', Locked = true;
     begin
         Clear(this.TempGlobalEDocLineMatchBuffer);
@@ -123,8 +127,19 @@ codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
                     continue;
                 end;
 
-                if TryValidateDeferralCode(TempGlobalEDocLineMatchBuffer, EDocumentPurchaseLine) then
+                if TryValidateDeferralCode(TempGlobalEDocLineMatchBuffer, EDocumentPurchaseLine) then begin
                     CountMatchedDeferral += 1;
+
+                    Reasoning := TempGlobalEDocLineMatchBuffer."Deferral Reason";
+                    EDocActivityLogBuilder
+                        .Init(Database::"E-Document Purchase Line", EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), EDocumentPurchaseLine.SystemId)
+                        .SetExplanation(Reasoning)
+                        .SetType(Enum::"Activity Log Type"::"AI")
+                        .SetReferenceSource('')
+                        .SetReferenceTitle(ActivityLogTitleTxt)
+                        .Log();
+
+                end;
 
                 EDocumentPurchaseLine.Modify(true);
             until this.TempGlobalEDocLineMatchBuffer.Next() = 0;
@@ -266,6 +281,9 @@ codeunit 6129 "E-Doc Line Matcher - Deferral" implements "AOAI Function"
         this.TempGlobalEDocLineMatchBuffer."E-Document Entry No." := this.EDocumentNo;
         this.TempGlobalEDocLineMatchBuffer."Line No." := Arguments.GetInteger('lineId');
         this.TempGlobalEDocLineMatchBuffer."Deferral Code" := CopyStr(ProposedDeferralCode, 1, MaxStrLen(TempGlobalEDocLineMatchBuffer."Deferral Code"));
+
+        if Arguments.Contains('deferralReasoning') then
+            this.TempGlobalEDocLineMatchBuffer."Deferral Reason" := CopyStr(Arguments.GetText('deferralReasoning'), 1, 250);
 
         // Guarding insert as LLM result could be contain duplicate line numbers.
         if this.TempGlobalEDocLineMatchBuffer.Insert() then;
