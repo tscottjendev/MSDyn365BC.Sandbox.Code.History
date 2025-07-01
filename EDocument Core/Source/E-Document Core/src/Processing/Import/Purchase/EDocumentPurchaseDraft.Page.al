@@ -285,6 +285,20 @@ page 6181 "E-Document Purchase Draft"
                     EDocImport.ViewExtractedData(Rec);
                 end;
             }
+            action(ClearErrors)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Clear errors';
+                ToolTip = 'Clears all error messages for the E-Document.';
+                Image = ClearLog;
+                Visible = HasErrorsOrWarnings;
+
+                trigger OnAction()
+                begin
+                    EDocumentErrorHelper.ClearErrorMessages(Rec);
+                    ClearErrorsAndWarnings();
+                end;
+            }
         }
         area(Navigation)
         {
@@ -326,6 +340,9 @@ page 6181 "E-Document Purchase Draft"
                 {
                 }
                 actionref(Promoted_ViewFile; ViewFile)
+                {
+                }
+                actionref(Promoted_ClearErrors; ClearErrors)
                 {
                 }
             }
@@ -436,7 +453,7 @@ page 6181 "E-Document Purchase Draft"
         CurrPage.ErrorMessagesPart.Page.Update(false);
 
         ErrorsAndWarningsNotification.Id := GetErrorNotificationGuid();
-        ErrorsAndWarningsNotification.Scope := NotificationScope::GlobalScope;
+        ErrorsAndWarningsNotification.Scope := NotificationScope::LocalScope;
         if ErrorsAndWarningsNotification.Recall() then;
         ErrorsAndWarningsNotification.Message(EDocHasErrorOrWarningMsg);
         ErrorsAndWarningsNotification.Send();
@@ -577,7 +594,7 @@ page 6181 "E-Document Purchase Draft"
         HasErrorsOrWarnings, HasErrors : Boolean;
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
-        EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
+        EDocHasErrorOrWarningMsg: Label 'Errors occurred when processing this draft. See errors in the "Error messages" section at the bottom of the page.';
         FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
         FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
         ProcessingDocumentMsg: Label 'Processing document...';
