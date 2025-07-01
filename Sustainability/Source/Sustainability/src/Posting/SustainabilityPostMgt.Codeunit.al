@@ -10,7 +10,6 @@ using System.Telemetry;
 
 codeunit 6212 "Sustainability Post Mgt"
 {
-    Access = Internal;
     Permissions =
         tabledata "Sustainability Ledger Entry" = i,
         tabledata "Sustainability Value Entry" = i;

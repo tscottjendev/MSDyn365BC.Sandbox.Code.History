@@ -147,6 +147,9 @@ page 6221 "Sustainability Setup"
                 {
                     ToolTip = 'Specifies the unit of measure factor that is used to register Energy.';
                 }
+                field("Posted ESG Reporting Nos."; Rec."Posted ESG Reporting Nos.")
+                {
+                }
             }
         }
 

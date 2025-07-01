@@ -4,6 +4,7 @@ using Microsoft.Sustainability.Account;
 using Microsoft.Sustainability.Certificate;
 using Microsoft.Sustainability.Emission;
 using Microsoft.Sustainability.Energy;
+using Microsoft.Sustainability.ESGReporting;
 using Microsoft.Sustainability.FinancialReporting;
 using Microsoft.Sustainability.RoleCenters;
 using Microsoft.Sustainability.Scorecard;
@@ -30,5 +31,10 @@ permissionset 6212 "Sustainability Admin"
         tabledata "Sustainability Goal" = IMD,
         tabledata "Sustainability Goal Cue" = IMD,
         tabledata "Sustainability Scorecard" = IMD,
-        tabledata "Sustainability Energy Source" = IMD;
+        tabledata "Sustainability Energy Source" = IMD,
+        tabledata "Sust. ESG Reporting Template" = IMD,
+        tabledata "Sust. ESG Reporting Name" = IMD,
+        tabledata "Sust. ESG Reporting Line" = IMD,
+        tabledata "Sust. Posted ESG Report Header" = IMD,
+        tabledata "Sust. Posted ESG Report Line" = IMD;
 }

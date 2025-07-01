@@ -1,6 +1,7 @@
 namespace Microsoft.Sustainability.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
 using Microsoft.Sustainability.Emission;
 using Microsoft.Utilities;
@@ -190,6 +191,12 @@ table 6217 "Sustainability Setup"
                 if Rec."Use All Gases As CO2e" then
                     UpdateCarbonEquivalentFactorInEmissionFee();
             end;
+        }
+        field(30; "Posted ESG Reporting Nos."; Code[20])
+        {
+            Caption = 'Posted ESG Reporting Nos.';
+            TableRelation = "No. Series";
+            ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted ESG Reporting nos.';
         }
     }
 
