@@ -897,11 +897,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       CustomerIdentificationCode,
                       DummyVar);
 
-                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS(
+                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30(
                       SalesHeader,
                       CustPartyTaxSchemeCompanyID,
                       CustPartyTaxSchemeCompIDSchID,
-                      CustTaxSchemeID);
+                      CustTaxSchemeID,
+                      TempVATAmtLine);
 
                     PEPPOLMgt.GetAccountingCustomerPartyLegalEntityBIS(
                       SalesHeader,
