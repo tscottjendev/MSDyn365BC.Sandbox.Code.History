@@ -276,14 +276,16 @@ table 290 "VAT Amount Line"
     var
         VATAmountLine: Record "VAT Amount Line";
         IsHandled: Boolean;
+        SkipZeroVatAmounts: Boolean;
     begin
         IsHandled := false;
         Result := true;
-        OnInsertLine(Rec, IsHandled, Result);
+        SkipZeroVatAmounts := true;
+        OnInsertLine(Rec, IsHandled, Result, SkipZeroVatAmounts);
         if IsHandled then
             exit(Result);
 
-        if not (("VAT Base" <> 0) or ("Amount Including VAT" <> 0)) then
+        if (("VAT Base" = 0) or ("Amount Including VAT" = 0)) and SkipZeroVatAmounts then
             exit(false);
 
         Validate(Positive, "Line Amount" >= 0);
@@ -1047,7 +1049,7 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; var Result: Boolean; var SkipZeroVatAmounts: Boolean)
     begin
     end;
 
