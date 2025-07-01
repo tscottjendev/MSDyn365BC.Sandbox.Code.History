@@ -2,6 +2,7 @@ codeunit 144561 "ERM Split VAT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -376,11 +377,13 @@ codeunit 144561 "ERM Split VAT"
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        ERMSplitVAT: Codeunit "ERM Split VAT";
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Full VAT] [Invoice]
         // [SCENARIO 376310] "Service - Invoice" report should not print VAT Reversal line in the Invoice body section
         Initialize();
+        BindSubscription(ERMSplitVAT);
 
         // [GIVEN] Posted Service Invoice with Split VAT line with Full VAT
         CreateServiceDocWithSplitVATLineFullVAT(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice);
@@ -403,11 +406,13 @@ codeunit 144561 "ERM Split VAT"
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        ERMSplitVAT: Codeunit "ERM Split VAT";
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Service] [Full VAT] [Credit Memo]
         // [SCENARIO 376310] "Service - Credit Memo" report should not print VAT Reversal line in the Invoice body section
         Initialize();
+        BindSubscription(ERMSplitVAT);
 
         // [GIVEN] Posted Service Credit Memo with Split VAT line with Full VAT
         CreateServiceDocWithSplitVATLineFullVAT(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo");
@@ -421,6 +426,12 @@ codeunit 144561 "ERM Split VAT"
         // [THEN] Both VAT lines are shown in the VAT Amount Specification section (TFS 376615)
         // [THEN] VAT Amount line with VAT% = 0 has "Line Amount" = 0, "Inv. Disc. Base Amount" = 0 (TFS 376615)
         VerifyServiceCreditMemoReport(ServiceLine);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"VAT Amount Line", 'OnInsertLine', '', false, false)]
+    local procedure UpdateSkipZeroVatAmountsOnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; var Result: Boolean; var SkipZeroVatAmounts: Boolean)
+    begin
+        SkipZeroVatAmounts := false;
     end;
 
     [Test]
