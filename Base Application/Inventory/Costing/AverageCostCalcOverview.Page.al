@@ -293,9 +293,13 @@ page 5847 "Average Cost Calc. Overview"
     end;
 
     trigger OnOpenPage()
+    var
+        ProgressDialog: Dialog;
     begin
+        ProgressDialog.Open(LoadingAvgCalcLbl);
         InitTempTable();
         ExpandAll(TempAvgCostCalcOverview);
+        ProgressDialog.Close();
 
         SetRecFilters();
         CurrPage.Update(false);
@@ -315,6 +319,7 @@ page 5847 "Average Cost Calc. Overview"
         ItemLedgerEntryNoHideValue: Boolean;
         EntryTypeHideValue: Boolean;
         DocumentLineNoHideValue: Boolean;
+        LoadingAvgCalcLbl: Label 'Loading average cost calculations...';
 
     procedure SetExpansionStatus()
     begin
@@ -343,7 +348,7 @@ page 5847 "Average Cost Calc. Overview"
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
         Rec.Reset();
         Rec.DeleteAll();
-        if TempAvgCostCalcOverview.Find('-') then
+        if TempAvgCostCalcOverview.FindSet() then
             repeat
                 if TempAvgCostCalcOverview.Level = 0 then begin
                     Rec := TempAvgCostCalcOverview;
