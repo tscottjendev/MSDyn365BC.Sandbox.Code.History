@@ -122,7 +122,12 @@ codeunit 448 "Job Queue Dispatcher"
         OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs, JobQueueLogEntry."System Task Id");
     end;
 
-    local procedure IsWithinStartEndTime(var CurrJobQueueEntry: Record "Job Queue Entry"): Boolean
+    /// <summary>
+    /// Checks if the current time is within the start and end time of the job queue entry.
+    /// </summary>
+    /// <param name="CurrJobQueueEntry">The Job Queue Entry to check.</param>
+    /// <returns>True if the current time is within the start and end time, otherwise false.</returns>
+    procedure IsWithinStartEndTime(var CurrJobQueueEntry: Record "Job Queue Entry"): Boolean
     var
         CurrTime: Time;
     begin
@@ -280,7 +285,10 @@ codeunit 448 "Job Queue Dispatcher"
     local procedure RescheduleAsWaiting(var JobQueueEntry: Record "Job Queue Entry")
     begin
         Clear(JobQueueEntry."System Task ID"); // to avoid canceling this task, which has already been executed
+#if not CLEAN27
         OnRescheduleOnBeforeJobQueueEnqueue(JobQueueEntry);
+#endif
+        OnRescheduleOnBeforeJobQueueEnqueueAsWaiting(JobQueueEntry);
         JobQueueEntry."System Task ID" := TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue Dispatcher", CODEUNIT::"Job Queue Error Handler", false, JobQueueEntry.CurrentCompany(), JobQueueEntry."Earliest Start Date/Time", JobQueueEntry.RecordId());
         JobQueueEntry.Status := JobQueueEntry.Status::Waiting;
         JobQueueEntry.Modify();
@@ -544,6 +552,11 @@ codeunit 448 "Job Queue Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnRescheduleOnBeforeJobQueueEnqueue(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRescheduleOnBeforeJobQueueEnqueueAsWaiting(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 
