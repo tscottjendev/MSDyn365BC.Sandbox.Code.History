@@ -21,6 +21,7 @@ codeunit 99000821 "Mfg. CalcItemPlanPlanWksh"
         Item.CopyFilter("Variant Filter", PlannedProdOrderLine."Variant Code");
         Item.CopyFilter("Location Filter", PlannedProdOrderLine."Location Code");
         PlannedProdOrderLine.SetRange("Item No.", Item."No.");
+        OnOnAfterReqLineExternDeleteOnAfterSetPlannedProdOrderLineFilters(PlannedProdOrderLine, Item);
         if PlannedProdOrderLine.Find('-') then
             repeat
                 if ProdOrder.Get(PlannedProdOrderLine.Status, PlannedProdOrderLine."Prod. Order No.") then begin
@@ -33,7 +34,6 @@ codeunit 99000821 "Mfg. CalcItemPlanPlanWksh"
             until PlannedProdOrderLine.Next() = 0;
     end;
 
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Item Plan - Plan Wksh.", 'OnProdOrderLineIsEmpty', '', false, false)]
     local procedure OnProdOrderLineIsEmpty(var Item: Record Item; var Result: Boolean)
     var
@@ -43,5 +43,10 @@ codeunit 99000821 "Mfg. CalcItemPlanPlanWksh"
         ProdOrderLine.SetRange("Item No.", Item."No.");
         ProdOrderLine.SetRange("MPS Order", true);
         Result := ProdOrderLine.IsEmpty();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnAfterReqLineExternDeleteOnAfterSetPlannedProdOrderLineFilters(var PlannedProdOrderLine: Record "Prod. Order Line"; var Item: Record Item)
+    begin
     end;
 }
