@@ -13,6 +13,7 @@ using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
 using System.Email;
+using System.Text;
 
 page 5201 "Employee List"
 {
@@ -492,4 +493,12 @@ page 5201 "Employee List"
     var
         CanSendEmail: Boolean;
 
+    procedure GetSelectionFilter(): Text
+    var
+        Employee: Record Employee;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+    begin
+        CurrPage.SetSelectionFilter(Employee);
+        exit(SelectionFilterManagement.GetSelectionFilterForEmployee(Employee));
+    end;
 }
