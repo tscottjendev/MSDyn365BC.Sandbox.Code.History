@@ -142,6 +142,7 @@ table 1383 "Vendor Templ."
         field(26; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
         }
         field(27; "Payment Terms Code"; Code[10])
         {
