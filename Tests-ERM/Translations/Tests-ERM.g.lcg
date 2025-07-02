@@ -2201,6 +2201,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Document Line Tracking - NamedType BlanketSalesOrderLinesTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3211301344 - NamedType 1603180165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lot No. should have value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Document Line Tracking - NamedType LotNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3211301344 - NamedType 780598364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posted Purchase Credit Memo Lines]]></Val>
