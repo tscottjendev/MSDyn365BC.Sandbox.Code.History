@@ -118,6 +118,7 @@ table 1382 "Item Templ."
         field(16; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
 
             trigger OnValidate()
             begin

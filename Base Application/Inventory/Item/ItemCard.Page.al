@@ -188,6 +188,11 @@ page 30 "Item Card"
                     ToolTip = 'Specifies whether a variant must be selected if variants exist for the item. ';
                     Visible = not ShowVariantMandatoryDefaultYes;
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group(InventoryGrp)
             {
