@@ -129,6 +129,9 @@ tableextension 8052 Item extends Item
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
+        if Rec."Subscription Option" = xRec."Subscription Option" then
+            exit;
+
         if IsServiceCommitmentItem() then begin
             Rec.Validate("Allow Invoice Disc.", false);
 #if not CLEAN25
