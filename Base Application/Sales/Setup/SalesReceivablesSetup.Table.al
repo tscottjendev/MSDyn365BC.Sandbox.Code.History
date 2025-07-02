@@ -724,7 +724,9 @@ table 311 "Sales & Receivables Setup"
         field(10500; "Posting Date Check on Posting"; Boolean)
         {
             Caption = 'Posting Date Check on Posting';
+#if not CLEAN27
             InitValue = true;
+#endif
         }
 #if not CLEANSCHEMA30
         field(10501; "Reverse Charge VAT Posting Gr."; Code[20])

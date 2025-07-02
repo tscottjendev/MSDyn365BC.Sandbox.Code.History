@@ -472,15 +472,12 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(11320; "Check Doc. Total Amounts"; Boolean)
-        {
-            Caption = 'Check Doc. Total Amounts';
-            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
-        }
         field(10500; "Posting Date Check on Posting"; Boolean)
         {
             Caption = 'Posting Date Check on Posting';
+#if not CLEAN27
             InitValue = true;
+#endif
         }
 #if not CLEANSCHEMA30
         field(10501; "Reverse Charge VAT Posting Gr."; Code[20])
@@ -510,6 +507,11 @@ table 312 "Purchases & Payables Setup"
 #endif
         }
 #endif
+        field(11320; "Check Doc. Total Amounts"; Boolean)
+        {
+            Caption = 'Check Doc. Total Amounts';
+            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
+        }
     }
 
     keys
