@@ -231,6 +231,11 @@ page 21 "Customer Card"
                     Importance = Additional;
                     Visible = false;
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group("Address & Contact")
             {
