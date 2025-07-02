@@ -754,8 +754,8 @@ page 9807 "User Card"
     local procedure EditUserTelemetryId()
     var
         ZeroGUID: Guid;
-        MenuTextMsg: Label 'Set field to null GUID, Set field to random GUID';
-        SelectionTextMsg: Label 'Choose one of the following options:';
+        MenuTextMsg: Label 'Empty GUID,Random GUID';
+        SelectionTextMsg: Label 'Choose how to update the telemetry ID used for troubleshooting:';
     begin
         case StrMenu(MenuTextMsg, 2, SelectionTextMsg) of
             1:
