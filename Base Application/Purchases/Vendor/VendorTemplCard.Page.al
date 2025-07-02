@@ -83,6 +83,11 @@ page 1386 "Vendor Templ. Card"
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                     Visible = false;
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group(AddressAndContact)
             {
