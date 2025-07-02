@@ -749,6 +749,7 @@ codeunit 6620 "Copy Document Mgt."
     begin
         FromSalesHeader.CalcFields("Work Description");
         ToSalesHeader.TransferFields(FromSalesHeader, false);
+        UpdateShipToAddress(ToSalesHeader);
         UpdateSalesHeaderWhenCopyFromSalesHeader(ToSalesHeader, OldSalesHeader, FromDocType);
         SetReceivedFromCountryCode(FromDocType, ToSalesHeader);
         OnAfterCopySalesHeader(ToSalesHeader, OldSalesHeader, FromSalesHeader, FromDocType);
