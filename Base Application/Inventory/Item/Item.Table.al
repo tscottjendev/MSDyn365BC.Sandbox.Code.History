@@ -254,6 +254,7 @@ table 27 Item
         field(16; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
         }
         field(17; "Commission Group"; Integer)
         {

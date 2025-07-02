@@ -212,6 +212,11 @@ page 26 "Vendor Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the size of the vendor''s company.';
                 }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
             }
             group("Address & Contact")
             {
