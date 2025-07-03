@@ -2218,7 +2218,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 1);
 
         // [WHEN] Create warehouse pick to collect the components.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [THEN] The warehouse pick is created.
         // [THEN] A breakbulk line of 1 "BOX of "C2" is included in the pick.
@@ -3248,7 +3248,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 2 * Qty);
 
         // [GIVEN] Create warehouse pick and register it in two iterations, each for 1 pc.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateQuantityToHandleInWarehouseActivityLine(ProductionOrder."No.", Qty);
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
@@ -3259,7 +3259,7 @@ codeunit 137408 "SCM Warehouse VI"
         ProdOrderLine.Modify(true);
 
         // [WHEN] Create warehouse pick for the remaining 1 pc.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [THEN] The warehouse pick can be registered.
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
