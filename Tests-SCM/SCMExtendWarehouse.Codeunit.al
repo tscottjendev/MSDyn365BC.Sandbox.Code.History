@@ -21,7 +21,6 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPlanning: Codeunit "Library - Planning";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -1184,7 +1183,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ReserveComponentLine(ProdOrderComponent, false, 2 * QtyUnit);
 
         // [GIVEN] Created warehouse pick from production, partly registered and deleted rest
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateQtyToHandleRegisterPickAndDeleteRest(ProdOrderComponent, 2 * QtyUnit, 0.9);
 
         Clear(ProductionOrder);
@@ -1193,7 +1192,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // [WHEN] Create new production order for same item and warehouse pick from production
         CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         FindComponent(ProdOrderComponent, ProductionOrder, ItemComponent, 1);
 
         // [THEN] Warehouse activity lines are created just for the remaining quantity
@@ -5434,7 +5433,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -5517,7 +5516,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -5611,7 +5610,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateFullWMSLocation(LocationW, 10);
 
         // Set components at location
-        LibraryPlanning.SetComponentsAtLocation(LocationSilv.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationSilv.Code);
 
         // Create and refresh production order on WHITE like location
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationW.Code, LocationW."From-Production Bin Code");
@@ -5764,7 +5763,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ChangeBinForComponent(ProdOrderComponent, FromBin[1].Code);
 
         // Create warehouse pick
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         AssertActivityHdr(WarehouseActivityHeader, Location, WarehouseActivityHeader.Type::Pick,
           "Warehouse Activity Source Document"::" ", '', 1, MSG_WHSE_PICK);
