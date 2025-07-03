@@ -1165,7 +1165,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Assign Global variable for Page Handler.
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0, false);  // Create New Lot No -True, Assign Tracking as Serial No and Tracking Quantity not required.
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LocationGreen.Code, Quantity);
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         FindWarehouseActivityHeader(
           WarehouseActivityHeader, ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption");
         UpdateQtyToHandleOnWarehouseActivityLine(
