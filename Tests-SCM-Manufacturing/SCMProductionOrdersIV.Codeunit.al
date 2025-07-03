@@ -3210,7 +3210,7 @@ codeunit 137083 "SCM Production Orders IV"
         Initialize();
 
         // [GIVEN] Set location code in Manufacturing Setup.
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Create an Item with BOM and Routing.
         CreateItemWithBOMAndRouting(Item, ChildItem, LibraryRandom.RandIntInRange(2, 5));
@@ -4073,7 +4073,7 @@ codeunit 137083 "SCM Production Orders IV"
         Initialize();
 
         // [GIVEN] Set location code in Manufacturing Setup.
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Generate "Quantity Per", Quantity and Partial Quantity.
         QuantityPer := LibraryRandom.RandIntInRange(2, 5);
@@ -4158,7 +4158,7 @@ codeunit 137083 "SCM Production Orders IV"
         Initialize();
 
         // [GIVEN] Set location code in Manufacturing Setup.
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Generate "Quantity Per", Quantity and Partial Quantity.
         QuantityPer := LibraryRandom.RandIntInRange(2, 5);

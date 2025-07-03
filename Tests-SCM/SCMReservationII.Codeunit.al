@@ -420,7 +420,7 @@ codeunit 137065 "SCM Reservation II"
           LocationWhite."To-Production Bin Code");
 
         // Exercise: Create Warehouse Pick from the Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Verify: Verify the values on Warehouse Activity Lines.
         VerifyWarehouseActivityLine(
@@ -1123,7 +1123,7 @@ codeunit 137065 "SCM Reservation II"
         // Create and refresh a Released Production Order and create Pick from it.
         if CreatePick then begin
             CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, Item2."No.", Quantity, LocationYellow.Code, '');
-            LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+            LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         end;
 
         // Verify: Verify the posted Wraehouse Receipt.
@@ -1661,7 +1661,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Create and Refresh Production Order, create and register Whse. Pick
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo[1], Quantity, LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(
           ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption",
           WarehouseActivityLine."Activity Type"::Pick);
@@ -1757,7 +1757,7 @@ codeunit 137065 "SCM Reservation II"
         RemoveProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.", ChildItem."No.");
 
         // Create Wharehouse Pick from the Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Exercise and Verify: Register the Pick and verify no error pops up.
         RegisterWarehouseActivity(
@@ -2262,7 +2262,7 @@ codeunit 137065 "SCM Reservation II"
         CreateProdOrderWithAutoreservedComponent(ProductionOrder, ParentItem."No.", ProdOrderQty[1], LocationWhite.Code);
 
         // [GIVEN] Create and register warehouse pick from production order "PO1"
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(
           ProductionOrder."No.", WhseActivityLine."Source Document"::"Prod. Consumption", WhseActivityLine."Action Type"::Take);
 
@@ -2367,7 +2367,7 @@ codeunit 137065 "SCM Reservation II"
         // [GIVEN] Create and register warehouse pick for component "COMP".
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", 2 * Qty, LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
           CompItem."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Qty);
         UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
@@ -3067,7 +3067,7 @@ codeunit 137065 "SCM Reservation II"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // [GIVEN] Create Warehouse Pick from Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [WHEN] Update quantity in Warehouse Pick Lines.
         UpdateQuantityWarehousePickFromPage(ProductionOrder."No.", Location.Code, UpdatedQuantity);
@@ -3439,7 +3439,7 @@ codeunit 137065 "SCM Reservation II"
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item2."No.", Quantity, LocationWhite.Code,
           LocationWhite."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
           Item."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Quantity);
         UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
@@ -3717,7 +3717,7 @@ codeunit 137065 "SCM Reservation II"
         ProductionOrder.Get(ProdOrderLine.Status::Released, ProdOrderLine."Prod. Order No.");
 
         // Create Warehouse Pick from the Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
     end;
 
     local procedure CreateAndReleaseSalesOrderWithReservation(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
@@ -4601,7 +4601,7 @@ codeunit 137065 "SCM Reservation II"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         UpdateLotNoAndQtyToHandleOnWarehouseActivityLine(
           CompItem[1]."No.", ProductionOrder."No.", WarehouseActivityLine."Action Type"::Place, Quantity);
