@@ -4187,14 +4187,14 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItemNo, LocationYellow2.Code, '', Qty);
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
-        LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
+        LibraryManufacturing.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
         FindProdOrderComponent(ProdOrderComponent, ProdOrderLine, CompItemNo);
         if ProdOrderComponent.Quantity <> ProdOrderComponent."Expected Quantity" then begin
             ProdOrderComponent.Validate(Quantity, ProdOrderComponent."Expected Quantity");
             ProdOrderComponent.Validate("Quantity (Base)", ProdOrderComponent."Expected Qty. (Base)");
             ProdOrderComponent.Modify();
         end;
-        LibraryItemTracking.CreateProdOrderCompItemTracking(
+        LibraryManufacturing.CreateProdOrderCompItemTracking(
           ReservationEntry, ProdOrderComponent, '', CompLotNo, ProdOrderComponent."Quantity (Base)");
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
     end;

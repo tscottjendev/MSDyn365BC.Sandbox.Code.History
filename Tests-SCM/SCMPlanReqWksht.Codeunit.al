@@ -3917,7 +3917,7 @@
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
         // [GIVEN] Set Location at "Component At Location"
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create two Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, '<1W>', 13);
@@ -3955,7 +3955,7 @@
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
         // [GIVEN] Set Location at "Component At Location"
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create three Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, '<1W>');
@@ -3997,7 +3997,7 @@
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
 
         // [GIVEN] Set Location at "Component At Location"
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create two Manufacturing Items
         CreateManufacturingItems(ParentItem, ChildItem, 5, 50);
@@ -4708,7 +4708,7 @@
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Validate Components at Location
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create Lot for Lot Item[1] with Replenishment System and Assembly Policy.
         CreateLotForLotItemWithReplenishmentSystemAndAssemblyPolicy(

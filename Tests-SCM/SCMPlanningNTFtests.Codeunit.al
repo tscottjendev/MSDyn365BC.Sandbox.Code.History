@@ -2867,7 +2867,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
         // Verify planning worksheet lines - check in doc section more info on the TDS
@@ -3006,7 +3006,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           SalesHeader, Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 
@@ -3086,7 +3086,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           TransferHeader, Item."No.", LocationOne.Code, LocationWhite.Code, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), 1);
         CreateRelProdOrderAndRefresh(
           ProductionOrder, Item."No.", 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehousePick(LocationWhite, 1);
         SalesPlan(Item, 1, CalcDate(PlanningStartDate, CalcDate('<+1W+1D>', WorkDate())), LocationWhite.Code, LocationWhite.Code);
 

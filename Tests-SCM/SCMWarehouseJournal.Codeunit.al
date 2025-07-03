@@ -31,7 +31,6 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryPlanning: Codeunit "Library - Planning";
         isInitialized: Boolean;
         RegisterJournalLines: Label 'Do you want to register the journal lines?';
         HandlingError: Label 'There is nothing to register.';
@@ -2206,7 +2205,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, DemandQty);
 
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -2263,7 +2262,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Post item stock of 100 PCS with lot no. = "L1"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, DemandQty + SurplusQty);
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines, set "Qty. to Handle" = 2 to pick partial quantitiy
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -2328,7 +2327,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Post item stock of 2 PCS with lot no. = "L1"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, StockQty);
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines, set "Qty. to Handle" = 2 to pick partial quantitiy
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -4382,7 +4381,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivityWithLotNo(
           WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
           WarehouseActivityLine."Activity Type"::Pick, LotNo);
@@ -4447,7 +4446,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         CreateWMSLocationWithProductionBin(Location);
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
     end;
 
     local procedure CreateDimensionSet() DimSetID: Integer
@@ -5443,7 +5442,7 @@ codeunit 137153 "SCM Warehouse - Journal"
           ProductionOrder, Item."No.",
           Location.Code, Location."To-Production Bin Code", 1);
         // Create and register Pick from Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(
           WarehouseActivityLine."Source Document"::"Prod. Consumption",
           ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
