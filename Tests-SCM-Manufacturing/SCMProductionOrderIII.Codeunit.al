@@ -899,7 +899,7 @@ codeunit 137079 "SCM Production Order III"
           ProductionOrder, Item."No.", Quantity, LocationWhite.Code, LocationWhite."To-Production Bin Code");
 
         // Exercise: Create Pick from Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Verify: Verify that new Unit of Measure is updated on Warehouse Pick Line.
         FindWhseActivityLine(
@@ -995,7 +995,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationWhite.Code,
           LocationWhite."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);  // Register the Pick created.
 
         // Exercise & Verify: Open Production Journal for the Released Production Order. Verify the Consumption Entry on Production Journal through ProductionJournalPageHandler.
@@ -1237,7 +1237,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationWhite.Code,
           LocationWhite."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Exercise: Register the Whse Pick.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1271,7 +1271,7 @@ codeunit 137079 "SCM Production Order III"
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationWhite.Code,
           LocationWhite."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Register the Whse Pick. Refresh the Production Order again.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1279,7 +1279,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // Exercise: Create Whse Pick again.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Verify: Verify the Take and Place Pick lines created after refresh Production Order twice.
         FindWhseActivityLine(
@@ -1336,7 +1336,7 @@ codeunit 137079 "SCM Production Order III"
           ProductionOrder, Item."No.", Quantity, LocationWhite.Code, LocationWhite."To-Production Bin Code");
 
         // Exercise: Create Whse Pick from Released Production Order. Register the Whse Pick created.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         if RegisterPick then
             RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityHeader.Type::Pick);
 
@@ -2036,7 +2036,7 @@ codeunit 137079 "SCM Production Order III"
         // Create and refresh 1st Released Production Order. Create and register the Whse. Pick created from Released Production Order.
         CreateAndRefreshReleasedProductionOrder(
           ProductionOrder, Item."No.", Quantity, LocationSilver.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
 
         // Create 2nd Released Production Order.
@@ -2143,7 +2143,7 @@ codeunit 137079 "SCM Production Order III"
           LocationWhite.Code, LocationWhite."To-Production Bin Code");
 
         // Create and register Pick from Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
 
         // Exercise: Open Production Journal and post by PostProductionJournalHandler.
@@ -2283,7 +2283,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [GIVEN] Create Released Production Order "PO", make Whse. Pick, register Pick and Post Consumption Journal
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Quantity, Location.Code, '');
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         FindAndRegisterWhseActivity(Location.Code, ProductionOrder."No.");
         CalculateAndPostConsumptionJournal(ProductionOrder."No.");
 
@@ -3244,7 +3244,7 @@ codeunit 137079 "SCM Production Order III"
         // [GIVEN] Create inbound warehouse request and inventory put-away from the production order.
         LibraryVariableStorage.Enqueue(InboundWhseRequestCreatedMsg);
         LibraryVariableStorage.Enqueue(PutawayActivitiesCreatedMsg);
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityLine."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
 
@@ -4001,7 +4001,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [GIVEN] Create warehouse pick.
         // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
 
         WarehouseActivityLine.FindSet();
@@ -4056,7 +4056,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [GIVEN] Create warehouse pick.
         // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
 
         WarehouseActivityLine.FindSet();
@@ -4310,7 +4310,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.TestField("Expected Qty. (Base)", 144);
 
         // [GIVEN] Create and register pick for the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(ProductionOrder."No.", "Warehouse Activity Type"::Pick);  // Register the Pick created.
 
         // [WHEN] Consumption is calculated and posted. 
@@ -5162,7 +5162,7 @@ codeunit 137079 "SCM Production Order III"
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
         for i := 1 to ArrayLen(LotNos) do begin
             LotNos[i] := LibraryUtility.GenerateGUID();
-            LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', LotNos[i], 20.546);
+            LibraryManufacturing.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', LotNos[i], 20.546);
         end;
 
         // [GIVEN] Calculate subcontracting and create purchase order for subcontractor.

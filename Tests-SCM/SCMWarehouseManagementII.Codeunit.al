@@ -2224,7 +2224,7 @@ codeunit 137154 "SCM Warehouse Management II"
             CreatePickFromPickWorksheetLine(WhseWorksheetName, '', ProductionBOMLine."No.");
         end else begin
             ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
-            LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+            LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         end;
         RegisterWarehouseActivity(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrderNo,
