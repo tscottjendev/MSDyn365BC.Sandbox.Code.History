@@ -1361,7 +1361,7 @@
         Initialize();
 
         // [GIVEN] Setup with Components at Location "X"
-        LibraryPlanning.SetComponentsAtLocation(LocationBlue.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
         UpdateLocationMandatory(false);
 
         // [GIVEN] Item "I" with "Fixed Reorder Qty." and "Reorder Quantity" = "Q"
@@ -1393,7 +1393,7 @@
 
         // [GIVEN] Inventory Setup with Location Mandatory = TRUE
         UpdateLocationMandatory(true);
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Item "I" with no SKU
         Qty := LibraryRandom.RandDec(10, 2);
@@ -1421,7 +1421,7 @@
 
         // [GIVEN] Inventory Setup with Location Mandatory = FALSE
         UpdateLocationMandatory(false);
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Item "I" with no SKU
         Qty := LibraryRandom.RandDec(10, 2);
@@ -1462,7 +1462,7 @@
         CreateSalesOrderWithLocation(Item."No.", Qty, Location.Code);
 
         // [GIVEN] Set "Components at Location" = "L"
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -1501,7 +1501,7 @@
         CreateSalesOrderWithLocationAndVariant(Item."No.", Qty, Location.Code, ItemVariant.Code);
 
         // [GIVEN] Set "Components at Location" = "L"
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
