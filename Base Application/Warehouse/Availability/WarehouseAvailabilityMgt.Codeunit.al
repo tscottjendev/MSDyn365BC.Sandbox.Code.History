@@ -495,6 +495,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseEntry: Record "Warehouse Entry";
         QtyInBin: Decimal;
     begin
+        TempBinContentBuffer.Reset();
         TempBinContentBuffer.DeleteAll();
 
         Location.Get(LocationCode);
