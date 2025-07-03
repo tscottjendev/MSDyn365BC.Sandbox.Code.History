@@ -2839,7 +2839,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Set up components at location = "BLUE"
-        LibraryPlanning.SetComponentsAtLocation(LocationBlue.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
 
         // [GIVEN] Create assembly structure: item "COMP" is a component of item "INTERMD", which is a component of item "FINAL".
         // [GIVEN] All items are set up for "Order" reordering policy.
@@ -4160,7 +4160,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         FindProductionOrderNo(ProductionOrder, ProductionOrder."Source Type"::Item, ProducedItem."No.", 1);
 
         // [GIVEN] Create Warehouse Pick for Released Production Order to move Component Item from ComponentStoringBin to ToProductionBin.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Register create Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
