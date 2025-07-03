@@ -1935,7 +1935,7 @@ codeunit 137159 "SCM Warehouse VII"
         Initialize();
 
         // [GIVEN] Item called ComponentItem with "Replenishment System" as "Prod. Order" and "Reordering Policy" as "Lot-for-Lot" at Stockkeeping Unit.
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
         QtyPer := LibraryRandom.RandInt(10);
         ItemQty := LibraryRandom.RandInt(20);
         ComponentQty := ItemQty * QtyPer + LibraryRandom.RandInt(100);
@@ -2589,7 +2589,7 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         // [SCENARIO 560520] After calculating planning worksheet, expiration date field of an item tracking line of a released production order has been cleared
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
 
         // [GIVEN] Item with "Replenishment System" as "Prod. Order" and Stockkeeping Unit as "Prod. Order" with "Lot-for-Lot" and Transfer with "Fixed Reorder Qty."
         CreateTransferRoute(LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
