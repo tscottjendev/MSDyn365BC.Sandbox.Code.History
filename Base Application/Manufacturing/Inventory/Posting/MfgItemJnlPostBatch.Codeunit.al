@@ -54,6 +54,7 @@ codeunit 99000823 "Mfg. Item Jnl.-Post Batch"
         if ItemJnlLine."Order Type" <> ItemJnlLine."Order Type"::Production then
             exit;
 
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetRange("Item No.", SKU."Item No.");
         ReservationEntry.SetRange("Location Code", SKU."Location Code");
         ReservationEntry.SetRange("Variant Code", SKU."Variant Code");
