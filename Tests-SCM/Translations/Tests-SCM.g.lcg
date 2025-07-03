@@ -8105,6 +8105,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation V - NamedType WrongQuantityErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1767918677 - NamedType 917089156" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation Worksheet - NamedType ChangeLocationMessage)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1767918677 - NamedType 2987122714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Start Date Formula must be less than or equal to End Date Formula]]></Val>
