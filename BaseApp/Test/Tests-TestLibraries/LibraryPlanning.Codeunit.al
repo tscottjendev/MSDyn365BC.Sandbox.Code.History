@@ -13,18 +13,17 @@ codeunit 132203 "Library - Planning"
         InventorySetup: Record "Inventory Setup";
         LibraryUtility: Codeunit "Library - Utility";
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; DocumentNo: Code[20]; SourceNo: Code[20])
     var
-        SalesOrderPlanning: Page "Sales Order Planning";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        SalesOrderPlanning.SetSalesOrder(DocumentNo);
-        SalesOrderPlanning.BuildForm();
-        SalesOrderPlanning.CreateProdOrder();
-        Clear(ProductionOrder);
-        ProductionOrder.SetRange(Status, Status);
-        ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindLast();
+        LibraryManufacturing.CreateProdOrderUsingPlanning(ProductionOrder, Status, DocumentNo, SourceNo);
     end;
+#pragma warning restore AL0801
+#endif
 
     [Normal]
     procedure CreateRequisitionWkshName(var RequisitionWkshName: Record "Requisition Wksh. Name"; WorksheetTemplateName: Code[10])
@@ -252,15 +251,17 @@ codeunit 132203 "Library - Planning"
         PlanningComponent.Insert(true);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreatePlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; OperationNo: Code[10])
+    var
+        LibraryManfacturing: Codeunit "Library - Manufacturing";
     begin
-        PlanningRoutingLine.Init();
-        PlanningRoutingLine.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-        PlanningRoutingLine.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-        PlanningRoutingLine.Validate("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.Validate("Operation No.", OperationNo);
-        PlanningRoutingLine.Insert(true);
+        LibraryManfacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
     end;
+#pragma warning restore AL0801
+#endif
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ItemNo: Code[20])
     begin
@@ -439,13 +440,16 @@ codeunit 132203 "Library - Planning"
         InventorySetup.Modify();
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure SetComponentsAtLocation(LocationCode: Code[10])
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationCode);
-        ManufacturingSetup.Modify();
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
     end;
+#pragma warning restore AL0801
+#endif
 }
 
