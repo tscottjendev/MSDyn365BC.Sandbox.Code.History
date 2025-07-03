@@ -25,7 +25,6 @@ codeunit 137017 "SCM Reservations Data Driven"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -444,7 +443,7 @@ codeunit 137017 "SCM Reservations Data Driven"
     begin
         if Qty <= 0 then
             exit;
-        LibraryPlanning.SetComponentsAtLocation(LocationCode);
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
         LibraryInventory.CreateItem(Item);
         ProductionBOMLine.SetCurrentKey(Type, "No.");
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
@@ -781,7 +780,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             Location."Bin Capacity Policy" := TempLocation."Bin Capacity Policy";
             Location.Modify(true);
         end;
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
     end;
 
     [Normal]
