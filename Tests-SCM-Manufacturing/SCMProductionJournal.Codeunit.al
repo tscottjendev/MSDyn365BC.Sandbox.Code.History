@@ -1410,7 +1410,7 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrderLine2.Modify(true);
 
         // Create  Inbound Whse. Request
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
 
         // Create Inventory Put-away
         LibraryWarehouse.CreateInvtPutPickMovement(
@@ -2079,7 +2079,7 @@ codeunit 137034 "SCM Production Journal"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         WarehouseRequest.SetRange("Location Code", LocationCode);
         WarehouseRequest.FindFirst();
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, false, false);
