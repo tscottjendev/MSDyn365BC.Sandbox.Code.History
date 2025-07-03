@@ -16,7 +16,6 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
@@ -44,7 +43,7 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         // set Manufacturing Setup Component @ Location = blank
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Flushing Method", ManufacturingSetup."Default Flushing Method"::"Pick + Manual");
         ManufacturingSetup.Modify(true);
@@ -1348,7 +1347,7 @@ codeunit 137502 "SCM Dedicated Bins"
         end else
             if Location."Require Pick" then begin
                 // for warehouse picks, create and register pick
-                LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+                LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
                 WhseActivityLine.SetRange("Source Type", DATABASE::"Prod. Order Component");
                 WhseActivityLine.SetRange("Source Subtype", ProductionOrder.Status);
                 WhseActivityLine.SetRange("Source No.", ProductionOrder."No.");
