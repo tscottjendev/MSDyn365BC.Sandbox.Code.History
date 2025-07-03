@@ -2388,7 +2388,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateProdOrderComponent(ProductionOrder, ProdOrderLine, Item."No.", Location.Code);
 
         // [GIVEN] Create a Warehouse Pick from Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Update the "Lot No." and register the Warehouse Pick.
         WhseActivityline.SetRange("Source No.", ProductionOrder."No.");

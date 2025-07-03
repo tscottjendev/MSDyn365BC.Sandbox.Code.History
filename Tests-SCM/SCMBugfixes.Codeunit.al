@@ -924,7 +924,7 @@ codeunit 137045 "SCM Bugfixes"
         UpdateProductionOrderComponentLine(ProdOrderLine);
 
         // [GIVEN] Update Component at Location
-        LibraryPlanning.SetComponentsAtLocation(LocationCode);
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
 
         // [WHEN]  Create Sales Order.
         CreateSalesOrder(SalesHeader, Item[2]."No.", LocationCode, LibraryRandom.RandIntInRange(80, 80), SalesHeader."Document Type"::Order);
