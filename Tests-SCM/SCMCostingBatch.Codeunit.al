@@ -328,7 +328,7 @@ codeunit 137402 "SCM Costing Batch"
         CreateMachineCenter(MachineCenter);
         StandardCostWorksheetName := CreateStandardCostWorksheetName();
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
 
         // Exercise: Run Implement Standard Cost Change.
@@ -428,7 +428,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Run Implement Standard Cost Change.
         StandardCostAdjustmentFactor := LibraryRandom.RandInt(5);  // Use random value for Standard Cost Adjustment Factor.
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, StandardCostAdjustmentFactor, StandardCostRoundingMethod);
 
         // Verify: Verify New Standard Cost for Work Center and Machine Center on Standard Cost Worksheet.
@@ -678,7 +678,7 @@ codeunit 137402 "SCM Costing Batch"
         // Exercise: Run Update Unit Cost report.
         RemainingQuantity := ProductionBOMLine."Quantity per" * ProductionOrder.Quantity;
         ExpectedUnitCost := (RemainingQuantity * Item."Unit Cost") / ProductionOrder.Quantity;
-        LibraryCosting.UpdateUnitCost(ProductionOrder, CalcMethod, UpdateReservations);
+        LibraryManufacturing.UpdateUnitCost(ProductionOrder, CalcMethod, UpdateReservations);
 
         // Verify: Unit Cost gets updated based on the Unit Cost of Component Item.
         VerifyUnitCostInProductionOrderLine(ProductionOrder, ExpectedUnitCost);
@@ -744,7 +744,7 @@ codeunit 137402 "SCM Costing Batch"
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter);
         StandardCostWorksheetName := CreateStandardCostWorksheetName();
-        LibraryCosting.SuggestCapacityStandardCost(
+        LibraryManufacturing.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), StandardCostRoundingMethod);  // Use random value for Standard Cost Adjustment Factor.
         StandardCostWorksheetName2 := CreateStandardCostWorksheetName();  // Create new Worksheet Name.
 

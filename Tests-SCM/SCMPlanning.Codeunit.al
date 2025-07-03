@@ -18,6 +18,7 @@ codeunit 137020 "SCM Planning"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -4904,7 +4905,7 @@ codeunit 137020 "SCM Planning"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Validate Component at Location in Manufacturing Setup.
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Select Item Journal Template.
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
