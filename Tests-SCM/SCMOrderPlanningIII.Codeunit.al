@@ -336,7 +336,7 @@ codeunit 137088 "SCM Order Planning - III"
         FindRequisitionLine(RequisitionLine, ProductionOrder."No.", ChildItem."No.", LocationRed.Code);
         CreateWorkCenter(WorkCenter);
         OperationNo := FindLastOperationNo(ChildItem."Routing No.") + Format(LibraryRandom.RandInt(5));
-        LibraryPlanning.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
+        LibraryManufacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
         UpdatePlanningRoutingLine(
           PlanningRoutingLine, WorkCenter."No.", FindLastOperationNo(ChildItem."Routing No."), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Random Value Required.
@@ -1601,7 +1601,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine."Planning Line Origin" := RequisitionLine."Planning Line Origin"::"Order Planning";
         RequisitionLine.Insert();
 
-        LibraryPlanning.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, LibraryUtility.GenerateGUID());
+        LibraryManufacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, LibraryUtility.GenerateGUID());
 
         PlanningRoutingLine.TestField("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
     end;
@@ -3042,7 +3042,7 @@ codeunit 137088 "SCM Order Planning - III"
         CreateSalesOrder(SalesHeader, ProductItem."No.", '', 1, 1);
 
         // [WHEN] Created Released Prod. Order From Sales Order Using Planning
-        LibraryPlanning.CreateProdOrderUsingPlanning(ProductionOrder, Status::"Firm Planned", SalesHeader."No.", ProductItem."No.");
+        LibraryManufacturing.CreateProdOrderUsingPlanning(ProductionOrder, Status::"Firm Planned", SalesHeader."No.", ProductItem."No.");
         RelesedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // [WHEN] Find Released Production Order Component

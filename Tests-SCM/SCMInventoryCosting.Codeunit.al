@@ -134,7 +134,7 @@ codeunit 137007 "SCM Inventory Costing"
         UnitAmount := CreateAndPostItemJournalLine(ChildItem."No.", ProductionOrder.Quantity, '');
 
         // Exercise: Run Update Unit Cost batch Report.
-        LibraryCosting.UpdateUnitCost(ProductionOrder, CalcMethod::"One Level", false);
+        LibraryManufacturing.UpdateUnitCost(ProductionOrder, CalcMethod::"One Level", false);
 
         // Verify: Verify that Unit Cost on Prod. Order Line is updated from Child Item Unit Amount.
         VerifyUnitCostInProductionOrderLine(ProductionOrder, UnitAmount);

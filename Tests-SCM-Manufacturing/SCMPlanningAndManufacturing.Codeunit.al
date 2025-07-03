@@ -1545,7 +1545,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
         // [GIVEN] The production is reserved to the sales with order-to-order link.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
@@ -1595,7 +1595,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [GIVEN] Create firm planned production order out of the sales order using "Planning" functionality to cover the demand.
         // [GIVEN] The new production order has quantity = 100 pcs.
         // [GIVEN] The production is reserved to the sales with order-to-order link.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // [GIVEN] Reduce the quantity on the sales line to 60.
@@ -2318,7 +2318,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         CreateBinsOnLocation(Bins, LocationSilver);
 
         // [GIVEN] Add Silver Location
-        LibraryPlanning.SetComponentsAtLocation(LocationSilver.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationSilver.Code);
 
         // [GIVEN] Work center with Location
         CreateWorkCenterWithLocation(WorkCenter, LocationSilver.Code);
@@ -3500,7 +3500,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
     local procedure UpdateCurrentDemandForecastAndComponentsAtLocation(CurrentProductionForecast: Code[10]; ComponentsAtLocation: Code[10])
     begin
         LibraryPlanning.SetDemandForecast(CurrentProductionForecast);
-        LibraryPlanning.SetComponentsAtLocation(ComponentsAtLocation);
+        LibraryManufacturing.SetComponentsAtLocation(ComponentsAtLocation);
     end;
 
     local procedure UpdateUseForecastOnLocationsInManufacturingSetup(UseForecastOnLocations: Boolean)
