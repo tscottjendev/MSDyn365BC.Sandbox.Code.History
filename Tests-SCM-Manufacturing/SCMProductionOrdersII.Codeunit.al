@@ -151,7 +151,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for child Item. Create and refresh a Released Production Order.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
         CreateItemsSetup(Item, Item2);
@@ -182,7 +182,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production Order. Reserve Component.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationGreen.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
@@ -208,7 +208,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for child Item with Tracking. Create and refresh a Released Production Order.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationGreen.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
 
@@ -236,7 +236,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for child Item with Tracking. Create and refresh a Released Production Order.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationGreen.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
 
@@ -263,7 +263,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for Items. Create and refresh a Released Production Order.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, Item2);
         CreateAndPostItemJournalLine(Item2."No.", 100, Bin.Code, LocationRed.Code, false);  // Using Tracking FALSE.
@@ -271,7 +271,7 @@ codeunit 137072 "SCM Production Orders II"
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandInt(100), LocationRed.Code, Bin.Code);
 
         // Exercise: Create Pick from Released Production Order.
-        asserterror LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        asserterror LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Verify: Verify that Pick is not created.
         Assert.ExpectedError(NothingToHandleErr);
@@ -387,7 +387,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for child Item with Tracking. Create and refresh a Released Production Order.
-        LibraryPlanning.SetComponentsAtLocation(LocationYellow.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationYellow.Code);
         LibraryWarehouse.FindBin(Bin, LocationYellow.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemSetupWithLotTracking(Item, Item2);
@@ -482,14 +482,14 @@ codeunit 137072 "SCM Production Orders II"
         // Create Warehouse Pick from the Released Production Order.
         Initialize();
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandInt(100);  // Integer value required.
         CreateItemsSetup(Item, Item2);
         UpdateInventoryWithWhseItemJournal(Item2, LocationWhite, Quantity);
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", Quantity, LocationWhite.Code,
           LocationWhite."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // Exercise: Update Bin on Warehouse Activity Line. Register the Pick created.
         UpdateBinCodeOnWarehouseActivityLine(ProductionOrder."No.");
@@ -539,7 +539,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for child Item. Create and refresh a Released Production Order, create and register Pick from it.
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandInt(100);  // Integer value required.
         CreateItemsSetup(Item, Item2);
         UpdateInventoryWithWhseItemJournal(Item2, LocationWhite, Quantity);
@@ -596,7 +596,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production order.
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandInt(100);  // Integer value required.
         CreateItemsSetup(Item, Item2);
         UpdateInventoryWithWhseItemJournal(Item2, LocationWhite, Quantity);
@@ -666,7 +666,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Create and post Purchase Order as Receive and Invoice. Create and refresh a Released Production Order.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, ChildItem);
         UpdateUnitCostOnItem(ChildItem);
@@ -1395,7 +1395,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationGreen2.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationGreen2.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemsSetup(Item, ChildItem);
         UpdateItemParametersForPlanning(Item);
@@ -1426,7 +1426,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateLotForLotItemSetupWithInventoryOnLocation(Item, ChildItem, LocationWhite, Quantity);
         CreateDemandForCalculatePlanAndCarryOutAction(Item."No.", Quantity);
@@ -1460,7 +1460,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Stup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
         Initialize();
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateLotForLotItemSetupWithInventoryOnLocation(Item, ChildItem, LocationWhite, Quantity);
         CreateDemandForCalculatePlanAndCarryOutAction(Item."No.", Quantity);
@@ -2324,7 +2324,7 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
 
         // [GIVEN] Update Manuf. Setup: setting "Components at Location" field with 'white' location code.
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
 
         // [GIVEN] BOM structure of 3 items "I1".."I3" created with "Make-to-Order" manufacturing policy.
         // [GIVEN] "I1" is a component of "I2", "I2" is a component of "I3". I1 - 'Grandchild', I2 - 'Child', I3 - 'Parent'
@@ -2359,7 +2359,7 @@ codeunit 137072 "SCM Production Orders II"
           LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No."));
 
         // [WHEN] Create Whse. Pick from Released Prod. Order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         FindWarehouseActivityLine(
           WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption",
           WarehouseActivityLine."Action Type"::Take);
@@ -2517,7 +2517,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Manufacturing Setup with "Components at Location" = "Loc"
         CreateAndUpdateLocation(Location, false, false, false, false);
-        LibraryPlanning.SetComponentsAtLocation(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
 
         // [GIVEN] Make-To Order Item "Comp Item" has an item as component
         // [GIVEN] Make-To Order Item "Prod Item" has "Comp Item" as component
@@ -3295,7 +3295,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Create firm planned production order from the sales order.
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
         LibraryVariableStorage.Enqueue('Prod. Order');
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ParentItem."No.");
 
         // [GIVEN] Ensure that the sales line is now reserved.
@@ -3351,7 +3351,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Create firm planned production order from the sales order.
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
         LibraryVariableStorage.Enqueue('Prod. Order');
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ParentItem."No.");
 
         // [GIVEN] Move "Shipment Date" on the sales order line 30 days adead.
@@ -4001,7 +4001,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndRefreshProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
 
         // [GIVEN] Create Warehouse Pick for Released Production Order 1.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[1]);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[1]);
 
         // [GIVEN] Register Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -4010,7 +4010,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndRefreshProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
 
         // [WHEN] Create Warehouse Pick for Released Production Order 2.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[2]);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[2]);
 
         // [THEN] Verify lines of created Warehouse Pick.
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
@@ -4149,7 +4149,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndRefreshProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
 
         // [GIVEN] Create Warehouse Pick for Released Production Order 1.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[1]);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[1]);
 
         // [GIVEN] Register Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -4158,7 +4158,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndRefreshProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
 
         // [WHEN] Create Warehouse Pick for Released Production Order 2.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[2]);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[2]);
 
         // [THEN] Verify lines of created Warehouse Pick.
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
@@ -4206,7 +4206,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Activate Optimize Low Level Code Calculation on Manufacturing Setup
         LibraryPlanning.SetDemandForecast('');
-        LibraryPlanning.SetComponentsAtLocation(LocationBlue.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
 
         // [GIVEN] Set Mandatory Location on Inventory Setup
         LibraryInventory.SetLocationMandatory(true);
@@ -4858,7 +4858,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.PostItemJournalLine(ItemJournalLine[2]."Journal Template Name", ItemJournalLine[2]."Journal Batch Name");
 
         // [GIVEN] Create Warehouse Pick from Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Register Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -4872,7 +4872,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.PostItemJournalLine(ItemJournalLine[3]."Journal Template Name", ItemJournalLine[3]."Journal Batch Name");
 
         // [GIVEN] Create Warehouse Pick from Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Register Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -5212,7 +5212,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Activate Optimize Low Level Code Calculation on Manufacturing Setup
         LibraryPlanning.SetDemandForecast('');
-        LibraryPlanning.SetComponentsAtLocation(LocationBlue.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
 
         // [GIVEN] Set Mandatory Location on Inventory Setup
         LibraryInventory.SetLocationMandatory(true);
@@ -5290,7 +5290,7 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
 
         // [GIVEN] Update Manufacturing Setup Components in Location.
-        LibraryPlanning.SetComponentsAtLocation(LocationWhite.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationWhite.Code);
 
         // [WHEN] Update "Prod. Output Whse. Handling" in Location.
         asserterror LocationWhite.Validate("Prod. Output Whse. Handling", LocationWhite."Prod. Output Whse. Handling"::"Inventory Put-away");
@@ -5320,7 +5320,7 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
 
         // [GIVEN] Update Manufacturing Setup Components in Location.
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
 
         // [GIVEN] Update "Prod. Output Whse. Handling" in Location.
         LocationRed.Validate("Prod. Output Whse. Handling", LocationRed."Prod. Output Whse. Handling"::"Warehouse Put-away");
@@ -5381,7 +5381,7 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
 
         // [GIVEN] Update Manufacturing Setup Components in Location.
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
 
         // [GIVEN] Update "Prod. Output Whse. Handling" in Location.
         LocationRed.Validate("Prod. Output Whse. Handling", LocationRed."Prod. Output Whse. Handling"::"Warehouse Put-away");
@@ -5439,7 +5439,7 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
 
         // [GIVEN] Update Manufacturing Setup Components in Location.
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
 
         // [GIVEN] Update "Prod. Output Whse. Handling" in Location.
         LocationRed.Validate("Prod. Output Whse. Handling", LocationRed."Prod. Output Whse. Handling"::"Warehouse Put-away");
@@ -5520,7 +5520,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
 
         // [GIVEN] Update Manufacturing Setup Components in Location.
-        LibraryPlanning.SetComponentsAtLocation(LocationRed.Code);
+        LibraryManufacturing.SetComponentsAtLocation(LocationRed.Code);
 
         // [GIVEN] Update "Use Put-away Worksheet" and "Prod. Output Whse. Handling" in Location.
         LocationRed.Validate("Use Put-away Worksheet", true);
@@ -7753,7 +7753,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         CreateAndRefreshProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ItemNo, Quantity, Location.Code, Location."To-Production Bin Code");
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateBinCodeOnWarehouseActivityLine(ProductionOrder."No.");
         RegisterWarehouseActivity(
           ProductionOrder."No.", WarehouseActivityLine."Source Document"::"Prod. Consumption", WarehouseActivityLine."Action Type"::Take);
@@ -7878,7 +7878,7 @@ codeunit 137072 "SCM Production Orders II"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
     end;
 
     local procedure CreateLotForLotItemSetupWithInventoryOnLocation(var Item: Record Item; var ChildItem: Record Item; Location: Record Location; Quantity: Decimal)

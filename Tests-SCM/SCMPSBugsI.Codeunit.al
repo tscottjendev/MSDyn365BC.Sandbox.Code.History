@@ -402,7 +402,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // Create Sales Order and Create Firm Planned Prod order using order Planning.Change Status to Released.
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10));
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
         ProdOrderNo :=
           LibraryManufacturing.ChangeProuctionOrderStatus(
@@ -554,7 +554,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Clear(SalesHeader);
         Item.CalcFields(Inventory);
         CreateSalesOrder(SalesHeader, Item."No.", Item.Inventory);
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", Item."No.");
 
         // 2. Execute : Find firm planned order and Change Status to released with Update unit cost as TRUE.
@@ -1221,10 +1221,10 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // [THEN] Quantity should be able to updated when Item is Non-Inventory.
         Assert.AreEqual(
-            Quantity, 
-            PlanningComponent.Quantity, 
+            Quantity,
+            PlanningComponent.Quantity,
             StrSubstNo(
-                QuantityErr, 
+                QuantityErr,
                 PlanningComponent.TableName()));
     end;
 
