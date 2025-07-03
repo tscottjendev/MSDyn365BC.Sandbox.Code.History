@@ -58,7 +58,7 @@ codeunit 131009 "Library - Setup Storage"
     [Scope('OnPrem')]
     procedure SaveManufacturingSetup()
     begin
-        Save(DATABASE::"Manufacturing Setup");
+        Save(99000765); // DATABASE::"Manufacturing Setup"
     end;
 
     [Scope('OnPrem')]

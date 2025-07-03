@@ -1411,7 +1411,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // Exercise : Change Bin on Production Order Line.
         UpdateBinOnProdOrderLine(ParentItem."No.", Bin.Code);
         LibraryVariableStorage.Enqueue(InboundWarehouseCreated);  // Enqueue for MessageHandler.
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryVariableStorage.Enqueue(PutAwayCreated);  // Enqueue for MessageHandler.
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityLine."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
@@ -5189,7 +5189,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
             SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ItemNo);
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         UpdateTrackingNoOnWarehouseActivityLine(
           WarehouseActivityLine, ItemLedgerEntry,

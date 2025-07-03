@@ -29,7 +29,6 @@ codeunit 137016 "SCM Create Pick Data Driven"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ErrorNothingToHandle: Label 'Nothing to handle.';
@@ -667,7 +666,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         if Qty <= 0 then
             exit;
 
-        LibraryPlanning.SetComponentsAtLocation(LocationCode);
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
 
         LibraryInventory.CreateItem(Item);
         ProductionBOMLine.SetCurrentKey(Type, "No.");
@@ -1159,7 +1158,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
             Location."Bin Capacity Policy" := TempLocation."Bin Capacity Policy";
             Location.Modify(true);
         end;
-        LibraryPlanning.SetComponentsAtLocation('');
+        LibraryManufacturing.SetComponentsAtLocation('');
     end;
 }
 
