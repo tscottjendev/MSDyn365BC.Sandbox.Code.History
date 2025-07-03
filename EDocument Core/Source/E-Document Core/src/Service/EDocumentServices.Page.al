@@ -18,7 +18,7 @@ page 6103 "E-Document Services"
     CardPageID = "E-Document Service";
     PageType = List;
     SourceTable = "E-Document Service";
-    SourceTableView = where(Code = filter(<> 'MSEOCADI' & <> 'AGENT'));
+    SourceTableView = where(Code = filter(<> 'MSEOCADI' & <> 'AGENT' & <> 'E-DOC DEMO DATA'));
     AdditionalSearchTerms = 'EServices,Service,edoc,edocument';
     DataCaptionFields = Code;
     Editable = false;
