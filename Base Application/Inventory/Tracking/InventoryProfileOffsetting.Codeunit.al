@@ -3572,6 +3572,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         LeadTimeEndDate := AtDate;
 
+        OnCreateSupplyForwardOnBeforeLoopQtyToOrderMoreThanZero(TempSKU, QtyToOrder, SupplyWithinLeadtime, TempSupplyInvtProfile);
+
         while QtyToOrder > 0 do begin
             // In case of max order the new supply could be split in several new supplies:
             if HasLooped then begin
@@ -6127,6 +6129,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnScheduleAllOutChangesSequenceOnBeforeCheckIfRescheduleIsNeeded(SupplyInventoryProfile: Record "Inventory Profile"; var NextRecExists: Integer; var IsHandled: Boolean; NewDate: Date; var NumberofSupplies: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSupplyForwardOnBeforeLoopQtyToOrderMoreThanZero(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var QtoToOrder: Decimal; SupplyWithinLeadtime: Decimal; var SupplyInvtProfile: Record "Inventory Profile")
     begin
     end;
 }
