@@ -104,6 +104,7 @@ table 8006 "Usage Data Billing"
         {
             Caption = 'Charge Start Date';
         }
+#if not CLEANSCHEMA29
         field(17; "Charge Start Time"; Time)
         {
             Caption = 'Charge Start Time';
@@ -116,10 +117,12 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(18; "Charge End Date"; Date)
         {
             Caption = 'Charge End Date';
         }
+#if not CLEANSCHEMA29
         field(19; "Charge End Time"; Time)
         {
             Caption = 'Charge End Time';
@@ -132,13 +135,17 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(20; "Charged Period (Days)"; Decimal)
         {
             Caption = 'Charged Period (Days)';
+            AutoFormatType = 0;
         }
+#if not CLEANSCHEMA29
         field(21; "Charged Period (Hours)"; Decimal)
         {
             Caption = 'Charged Period (Hours)';
+            AutoFormatType = 0;
 #if not CLEAN26
             ObsoleteState = Pending;
             ObsoleteTag = '26.0';
@@ -148,28 +155,34 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(22; Quantity; Decimal)
         {
             Caption = 'Quantity';
+            AutoFormatType = 0;
         }
         field(23; "Unit Cost"; Decimal)
         {
             Caption = 'Unit Cost';
+            AutoFormatType = 2;
             AutoFormatExpression = "Currency Code";
         }
         field(24; "Cost Amount"; Decimal)
         {
             Caption = 'Cost Amount';
+            AutoFormatType = 1;
             AutoFormatExpression = "Currency Code";
         }
         field(25; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
+            AutoFormatType = 2;
             AutoFormatExpression = "Currency Code";
         }
         field(26; Amount; Decimal)
         {
             Caption = 'Amount';
+            AutoFormatType = 1;
             AutoFormatExpression = "Currency Code";
         }
         field(27; "Currency Code"; Code[10])
@@ -183,6 +196,7 @@ table 8006 "Usage Data Billing"
         field(29; "Pricing Unit Cost Surcharge %"; Decimal)
         {
             Caption = 'Pricing Unit Cost Surcharge %';
+            AutoFormatType = 0;
         }
         field(30; "Billing Line Entry No."; Integer)
         {

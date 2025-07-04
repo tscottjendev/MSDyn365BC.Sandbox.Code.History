@@ -73,7 +73,8 @@ table 8002 "Planned Subscription Line"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -94,6 +95,7 @@ table 8002 "Planned Subscription Line"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -106,6 +108,7 @@ table 8002 "Planned Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -120,6 +123,7 @@ table 8002 "Planned Subscription Line"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(13; "Discount Amount"; Decimal)
         {
@@ -127,12 +131,14 @@ table 8002 "Planned Subscription Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(14; Amount; Decimal)
         {
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
 
         }
         field(15; "Billing Base Period"; DateFormula)
@@ -260,6 +266,7 @@ table 8002 "Planned Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(32; "Discount Amount (LCY)"; Decimal)
         {
@@ -268,6 +275,7 @@ table 8002 "Planned Subscription Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(33; "Service Amount (LCY)"; Decimal)
         {
@@ -275,6 +283,7 @@ table 8002 "Planned Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(34; "Currency Code"; Code[10])
         {
@@ -288,6 +297,7 @@ table 8002 "Planned Subscription Line"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(36; "Currency Factor Date"; Date)
         {
@@ -300,6 +310,7 @@ table 8002 "Planned Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(50; "Next Price Update"; Date)
         {
@@ -327,6 +338,7 @@ table 8002 "Planned Subscription Line"
         field(101; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
 
             trigger OnValidate()

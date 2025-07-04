@@ -950,6 +950,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Production;
         WarehouseActivityLine."Whse. Document No." := ProdOrderLine."Prod. Order No.";
         WarehouseActivityLine."Whse. Document Line No." := ProdOrderLine."Line No.";
+
+        OnAfterTransferFromOutputLine(WarehouseActivityLine, ProdOrderLine);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1429,4 +1431,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         Result := Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away";
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromOutputLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
 }
