@@ -966,7 +966,13 @@ table 270 "Bank Account"
     end;
 
     procedure GetBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetBankExportImportSetup(BankExportImportSetup, IsHandled);
+        if IsHandled then
+            exit;
         TestField("Payment Export Format");
         BankExportImportSetup.Get("Payment Export Format");
     end;
@@ -1551,6 +1557,11 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCurrencyCodeOnBeforeTestBalanceFields(var BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeGetBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; var IsHandled: Boolean)
     begin
     end;
 }
