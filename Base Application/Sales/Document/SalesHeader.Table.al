@@ -265,13 +265,14 @@ table 36 "Sales Header"
             var
                 FatturaDocHelper: Codeunit "Fattura Doc. Helper";
                 IsHandled: Boolean;
+                IsHandledDoExist: Boolean;
             begin
                 TestStatusOpen();
                 BilltoCustomerNoChanged := xRec."Bill-to Customer No." <> "Bill-to Customer No.";
 
                 IsHandled := false;
-                OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled);
-                if IsHandled then
+                OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled, IsHandledDoExist);
+                if IsHandledDoExist then
                     exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
@@ -11788,7 +11789,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean; var IsHandledDoExist: Boolean)
     begin
     end;
 

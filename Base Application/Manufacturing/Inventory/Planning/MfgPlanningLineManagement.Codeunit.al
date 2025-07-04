@@ -280,7 +280,7 @@ codeunit 99000819 "Mfg. Planning Line Management"
                                     Item.SetLoadFields(Blocked);
                                     Item.Get(ProdBOMLine[Level]."No.");
                                     UpdateCondition := (ReqQty <> 0) or ((ReqQty = 0) and not (Item.Blocked));
-                                    OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled);
+                                    OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled, ReqQty);
                                     if not IsHandled then
                                         if UpdateCondition then begin
                                             if not IsPlannedComp(PlanningComponent, ReqLine, ProdBOMLine[Level], SKU) then begin
@@ -558,7 +558,7 @@ codeunit 99000819 "Mfg. Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnBeforeUpdatePlanningComp(var ProductionBOMLine: Record "Production BOM Line"; var UpdateCondition: Boolean; var IsHandled: Boolean)
+    local procedure OnTransferBOMOnBeforeUpdatePlanningComp(var ProductionBOMLine: Record "Production BOM Line"; var UpdateCondition: Boolean; var IsHandled: Boolean; var ReqQty: Decimal)
     begin
     end;
 
