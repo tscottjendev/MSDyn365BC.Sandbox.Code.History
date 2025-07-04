@@ -18,6 +18,7 @@ using System.Environment;
 using System.IO;
 using System.Telemetry;
 using System.Utilities;
+using Microsoft.Intercompany.Inbox;
 
 codeunit 431 "IC Outbox Export"
 {
@@ -293,7 +294,10 @@ codeunit 431 "IC Outbox Export"
     procedure SendToInternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
         ICPartner: Record "IC Partner";
+        TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         MoveICTransToPartnerCompany: Report "Move IC Trans. to Partner Comp";
+        ICPartnerCodeList: List of [Text];
         IsHandled: Boolean;
     begin
         if ICOutboxTrans.Find('-') then
@@ -306,6 +310,7 @@ codeunit 431 "IC Outbox Export"
                     IsHandled := false;
                     OnSendToInternalPartnerOnBeforeMoveICTransToPartnerCompany(ICOutboxTrans, IsHandled);
                     if not IsHandled then begin
+                        MoveICTransToPartnerCompany.Initialize(ICPartnerCodeList, TempAllPartnerICInboxTransaction, TempAllPartnerHandledICInboxTrans);
                         MoveICTransToPartnerCompany.SetTableView(ICOutboxTrans);
                         MoveICTransToPartnerCompany.UseRequestPage := false;
                         MoveICTransToPartnerCompany.Run();
