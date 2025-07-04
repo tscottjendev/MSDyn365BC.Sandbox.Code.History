@@ -133,7 +133,7 @@ page 1180 "Data Privacy Wizard"
                             Rec.Reset();
                             Rec.DeleteAll();
                             if PAGE.RunModal(PAGE::"Data Subject", Rec) = ACTION::LookupOK then begin
-                                EntityType := Rec."Table Caption";
+                                EntityType := CopyStr(Rec."Table Caption", 1, MaxStrLen(EntityType));
                                 EntityTypeTableNo := Rec."Table No.";
                                 if EntityType <> EntityTypeGlobal then
                                     EntityNo := '';
