@@ -35,6 +35,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         InsertedEmployeeErr: Label 'Employee inserted with wrong data';
         InsertedTemplateErr: Label 'Template inserted with wrong data';
         PaymentMethodErr: Label 'that cannot be found in the related table';
+        ItemTemplateAllowInvoiceDiscErr: Label 'Item template should have value "Allow Invoice Disc." set to %1', Comment = '%1 = value of "Allow Invoice Disc." field which can be either true or false.';
+        ItemAllowInvoiceDiscErr: Label 'Item should have received the value "Allow Invoice Disc." = % from the Item Template', Comment = '%1 = value of "Allow Invoice Disc." field which can be either true or false.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2661,6 +2663,39 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] "IT"."Reserve" = 'Never'
         ItemTempl.Get(ItemTempl.Code);
         ItemTempl.TestField(Reserve, ItemTempl.Reserve::Never);
+    end;
+
+    [Test]
+    procedure ItemTemplateAllowInvoiceDiscount()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO] Create item from template: first with "Allow Invoice Disc." = true, next with "Allow Invoice Disc." = false
+        Initialize();
+
+        // [GIVEN] Item template "IT" with "Allow Invoice Disc." = true
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        Assert.IsTrue(ItemTempl."Allow Invoice Disc.", StrSubstNo(ItemTemplateAllowInvoiceDiscErr, true));
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Allow Invoice Disc." = true
+        Assert.IsTrue(Item."Allow Invoice Disc.", StrSubstNo(ItemAllowInvoiceDiscErr, true));
+
+        // [GIVEN] Item template "IT" with "Allow Invoice Disc." = false
+        ItemTempl."Allow Invoice Disc." := false;
+        ItemTempl.Modify();
+
+        // [WHEN] Update item "I"
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Allow Invoice Disc." = false
+        Assert.IsFalse(Item."Allow Invoice Disc.", StrSubstNo(ItemAllowInvoiceDiscErr, false));
     end;
 
     [Test]
