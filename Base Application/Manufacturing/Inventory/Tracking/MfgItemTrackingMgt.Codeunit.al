@@ -314,7 +314,13 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         RemainingHandledQtyBase: Decimal;
         QtyBaseAvailableToPutAway: Decimal;
         ExitLoop: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff, SplitUpToQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
         TempProdOrdLineTrackingBuff.Reset();
         TempProdOrdLineTrackingBuff.DeleteAll();
         RemainingHandledQtyBase := SplitUpToQtyBase;
@@ -741,5 +747,10 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
                     TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSplitProdOrderLineForOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; SplitUpToQtyBase: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
