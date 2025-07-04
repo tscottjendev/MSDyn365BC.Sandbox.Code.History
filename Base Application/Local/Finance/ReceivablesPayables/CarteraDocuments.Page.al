@@ -322,9 +322,10 @@ page 7000003 "Cartera Documents"
         }
     }
 
-    trigger OnAfterGetRecord()
+    trigger OnAfterGetCurrRecord()
     begin
-        AfterGetCurrentRecord();
+        xRec := Rec;
+        UpdateStatistics();
     end;
 
     trigger OnInit()
@@ -340,7 +341,8 @@ page 7000003 "Cartera Documents"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord();
+        xRec := Rec;
+        UpdateStatistics();
     end;
 
     trigger OnOpenPage()
@@ -442,12 +444,6 @@ page 7000003 "Cartera Documents"
     begin
         Rec.SetFilter("Category Code", CategoryFilter);
         CurrPage.Update(false);
-        UpdateStatistics();
-    end;
-
-    local procedure AfterGetCurrentRecord()
-    begin
-        xRec := Rec;
         UpdateStatistics();
     end;
 }
