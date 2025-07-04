@@ -28,6 +28,8 @@ codeunit 435 "IC Inbox Import"
         TempICOutboxPurchaseHeader: Record "IC Outbox Purchase Header" temporary;
         TempICOutboxPurchaseLine: Record "IC Outbox Purchase Line" temporary;
         TempICDocDim: Record "IC Document Dimension" temporary;
+        TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         ICInboxJnlLine: Record "IC Inbox Jnl. Line";
         ICInboxSalesHeader: Record "IC Inbox Sales Header";
         ICInboxSalesLine: Record "IC Inbox Sales Line";
@@ -42,6 +44,7 @@ codeunit 435 "IC Inbox Import"
         FileName: Text;
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
+        ICPartnerCodeList: List of [Text];
     begin
         FeatureTelemetry.LogUptake('0000IKQ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKR', ICMapping.GetFeatureTelemetryName(), 'IC Inbox Import');
@@ -64,7 +67,7 @@ codeunit 435 "IC Inbox Import"
 
         if TempICOutboxTrans.Find('-') then
             repeat
-                ICInboxOutboxMgt.OutboxTransToInbox(TempICOutboxTrans, Rec, FromICPartnerCode);
+                ICInboxOutboxMgt.OutboxTransToInboxOptimized(TempICOutboxTrans, Rec, FromICPartnerCode, ICPartnerCodeList, TempAllPartnerICInboxTransaction, TempAllPartnerHandledICInboxTrans);
 
                 TempICOutboxJnlLine.SetRange("Transaction No.", TempICOutboxTrans."Transaction No.");
                 TempICOutboxJnlLine.SetRange("IC Partner Code", TempICOutboxTrans."IC Partner Code");
