@@ -84,7 +84,7 @@ codeunit 1530 "Request Page Parameters Helper"
 
     procedure ConvertParametersToFilters(RecRef: RecordRef; TempBlob: Codeunit "Temp Blob"): Boolean
     begin
-        exit(ConvertParametersToFilters(RecRef, TempBlob, TextEncoding::MSDos));
+        exit(ConvertParametersToFilters(RecRef, TempBlob, TextEncoding::UTF8));
     end;
 
     procedure ConvertParametersToFilters(RecRef: RecordRef; TempBlob: Codeunit "Temp Blob"; Encoding: TextEncoding): Boolean
