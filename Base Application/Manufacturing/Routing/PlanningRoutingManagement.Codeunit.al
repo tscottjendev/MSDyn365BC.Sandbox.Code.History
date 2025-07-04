@@ -448,6 +448,8 @@ codeunit 99000808 PlanningRoutingManagement
             ReqLine2.UpdateDatetime();
             ReqLine2.Modify();
         end;
+
+        OnAfterCalculatePlanningLineDates(ReqLine2);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnGetResiliencyErrorOnRouting', '', false, false)]
@@ -579,6 +581,11 @@ codeunit 99000808 PlanningRoutingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingOnAfterUpdateReqLine(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePlanningLineDates(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

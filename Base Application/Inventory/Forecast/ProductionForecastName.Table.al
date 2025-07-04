@@ -140,7 +140,7 @@ table 99000851 "Production Forecast Name"
         ItemFilterText: Text;
     begin
         CalcFields("Item Filter");
-        "Item Filter".CreateInStream(FiltersInStream);
+        "Item Filter".CreateInStream(FiltersInStream, TextEncoding::UTF8);
         FiltersInStream.ReadText(ItemFilterText);
         exit(ItemFilterText);
     end;
@@ -150,7 +150,7 @@ table 99000851 "Production Forecast Name"
         FiltersOutStream: OutStream;
     begin
         Clear("Item Filter");
-        "Item Filter".CreateOutStream(FiltersOutStream);
+        "Item Filter".CreateOutStream(FiltersOutStream, TextEncoding::UTF8);
         FiltersOutStream.WriteText(TextFilter);
     end;
 
@@ -159,7 +159,7 @@ table 99000851 "Production Forecast Name"
         FiltersOutStream: OutStream;
     begin
         Clear("Variant Filter");
-        "Variant Filter".CreateOutStream(FiltersOutStream);
+        "Variant Filter".CreateOutStream(FiltersOutStream, TextEncoding::UTF8);
         FiltersOutStream.WriteText(TextFilter);
     end;
 
@@ -169,7 +169,7 @@ table 99000851 "Production Forecast Name"
         VariantFilterText: Text;
     begin
         CalcFields("Variant Filter");
-        "Variant Filter".CreateInStream(FiltersInStream);
+        "Variant Filter".CreateInStream(FiltersInStream, TextEncoding::UTF8);
         FiltersInStream.ReadText(VariantFilterText);
         exit(VariantFilterText);
     end;
@@ -179,7 +179,7 @@ table 99000851 "Production Forecast Name"
         FiltersOutStream: OutStream;
     begin
         Clear("Location Filter");
-        "Location Filter".CreateOutStream(FiltersOutStream);
+        "Location Filter".CreateOutStream(FiltersOutStream, TextEncoding::UTF8);
         FiltersOutStream.WriteText(TextFilter);
     end;
 
@@ -189,7 +189,7 @@ table 99000851 "Production Forecast Name"
         LocationFilterText: Text;
     begin
         CalcFields("Location Filter");
-        "Location Filter".CreateInStream(FiltersInStream);
+        "Location Filter".CreateInStream(FiltersInStream, TextEncoding::UTF8);
         FiltersInStream.ReadText(LocationFilterText);
         exit(LocationFilterText);
     end;
