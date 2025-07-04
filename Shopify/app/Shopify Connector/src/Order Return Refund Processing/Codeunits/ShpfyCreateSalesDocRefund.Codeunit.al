@@ -330,6 +330,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesLine.Insert(true);
 
                 SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
+                Shop.TestField("Refund Account");
                 SalesLine.Validate("No.", Shop."Refund Account");
                 SalesLine.Validate(Description, RefundShippingLine.Title);
                 SalesLine.Validate(Quantity, 1);

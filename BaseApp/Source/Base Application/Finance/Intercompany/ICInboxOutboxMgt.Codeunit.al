@@ -2151,6 +2151,15 @@ codeunit 427 ICInboxOutboxMgt
 
     procedure OutboxTransToInbox(var ICOutboxTrans: Record "IC Outbox Transaction"; var ICInboxTrans: Record "IC Inbox Transaction"; FromICPartnerCode: Code[20])
     var
+        TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
+        ICPartnerCodeList: List of [Text];
+    begin
+        OutboxTransToInboxOptimized(ICOutboxTrans, ICInboxTrans, FromICPartnerCode, ICPartnerCodeList, TempAllPartnerICInboxTransaction, TempAllPartnerHandledICInboxTrans);
+    end;
+
+    procedure OutboxTransToInboxOptimized(var ICOutboxTrans: Record "IC Outbox Transaction"; var ICInboxTrans: Record "IC Inbox Transaction"; FromICPartnerCode: Code[20]; var ICPartnerCodeList: List of [Text]; var TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary; var TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary)
+    var
         TempPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
         TempPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         ICPartner: Record "IC Partner";
@@ -2192,8 +2201,26 @@ codeunit 427 ICInboxOutboxMgt
 
         ICDataExchange := ICPartner."Data Exchange Type";
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            ICDataExchange.GetICPartnerICInboxTransaction(ICPartner, TempPartnerICInboxTransaction);
-        if TempPartnerICInboxTransaction.Get(
+            if not ICPartnerCodeList.Contains(ICInboxTrans."IC Partner Code") then begin
+                ICDataExchange.GetICPartnerHandledICInboxTransaction(ICPartner, TempPartnerHandledICInboxTrans);
+                if TempPartnerHandledICInboxTrans.FindSet() then
+                    repeat
+                        TempAllPartnerHandledICInboxTrans.Init();
+                        TempAllPartnerHandledICInboxTrans.TransferFields(TempPartnerHandledICInboxTrans);
+                        TempAllPartnerHandledICInboxTrans.Insert();
+                    until TempPartnerHandledICInboxTrans.Next() = 0;
+
+                ICDataExchange.GetICPartnerICInboxTransaction(ICPartner, TempPartnerICInboxTransaction);
+                if TempPartnerICInboxTransaction.FindSet() then
+                    repeat
+                        TempAllPartnerICInboxTransaction.Init();
+                        TempAllPartnerICInboxTransaction.TransferFields(TempPartnerICInboxTransaction);
+                        TempAllPartnerICInboxTransaction.Insert();
+                    until TempPartnerICInboxTransaction.Next() = 0;
+                ICPartnerCodeList.Add(ICInboxTrans."IC Partner Code");
+            end;
+
+        if TempAllPartnerICInboxTransaction.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
@@ -2201,9 +2228,7 @@ codeunit 427 ICInboxOutboxMgt
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
               ICInboxTrans."IC Partner Code", TempPartnerICInboxTransaction.TableCaption());
 
-        if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            ICDataExchange.GetICPartnerHandledICInboxTransaction(ICPartner, TempPartnerHandledICInboxTrans);
-        if TempPartnerHandledICInboxTrans.Get(
+        if TempAllPartnerHandledICInboxTrans.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
