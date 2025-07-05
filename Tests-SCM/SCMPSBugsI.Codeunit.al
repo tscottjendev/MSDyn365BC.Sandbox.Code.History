@@ -43,6 +43,7 @@ codeunit 137035 "SCM PS Bugs-I"
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
         QuantityErr: Label 'Quantity update should be possible in %1.', Comment = '%1= Table Name.';
+        DueDateErr: Label 'Planned production order due date not match with planning worksheet due date';
 
     [Test]
     [Scope('OnPrem')]
@@ -1228,6 +1229,46 @@ codeunit 137035 "SCM PS Bugs-I"
                 PlanningComponent.TableName()));
     end;
 
+    [Test]
+    procedure CheckDueDateWhileCreatingPlannedProductionOrderFromPlanningWorksheet()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ReqLineInPlanWksh: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        SafetyLeadTime: DateFormula;
+        NewProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh";
+        DueDate: Date;
+    begin
+        // [SCENARIO 566003] Check DueDate While Creating Planned Production Order From Planning Worksheet.
+        Initialize();
+
+        // [GIVEN] Create Item with Replenishment System as Production Order.
+        CreateItem(Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Stock", Item."Reordering Policy"::" ",
+            Item."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Stock Keeping Unit.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+        Evaluate(SafetyLeadTime, '<10D>');
+        StockkeepingUnit.Validate(StockkeepingUnit."Safety Lead Time", SafetyLeadTime);
+        StockkeepingUnit.Modify(true);
+
+        // [GIVEN] Create Create Requisition Line and Modify Due Date.
+        CreateRequisitionLineForItemAndLocation(ReqLineInPlanWksh, RequisitionWkshName, Item."No.", Location.Code, DueDate);
+
+        // [WHEN] Execute : Carry Out Action Message for Reference Order Type Planned Production Order.
+        LibraryPlanning.CarryOutPlanWksh(ReqLineInPlanWksh, NewProdOrderChoice::Planned, 0, 0, 0,
+            ReqLineInPlanWksh."Worksheet Template Name", ReqLineInPlanWksh."Journal Batch Name", '', '');
+
+        // [THEN] Verify Planned Production Order Created DueDate.
+        VerifyPlannedProdOrderDueDate(ProductionOrder, ProductionOrder.Status::Planned, Item."No.", DueDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2025,6 +2066,30 @@ codeunit 137035 "SCM PS Bugs-I"
         Assert.AreNearlyEqual(
           ProductionOrder.Quantity * Item."Unit Cost", ValueEntryActCost, GeneralLedgerSetup."Amount Rounding Precision",
           ErrMessageCostNotSame);
+    end;
+
+    local procedure CreateRequisitionLineForItemAndLocation(var ReqLineInPlanWksh: Record "Requisition Line"; var RequisitionWkshName: Record "Requisition Wksh. Name"; ItemNo: Code[20]; LocationCode: Code[10]; var DueDate: Date)
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(ReqLineInPlanWksh, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        ReqLineInPlanWksh.Validate(Type, ReqLineInPlanWksh.Type::Item);
+        ReqLineInPlanWksh.Validate("No.", ItemNo);
+        ReqLineInPlanWksh.Validate("Accept Action Message", true);
+        ReqLineInPlanWksh.Validate("Location Code", LocationCode);
+        ReqLineInPlanWksh.Validate(Quantity, 1);
+        ReqLineInPlanWksh.SetCurrFieldNo(ReqLineInPlanWksh.FieldNo("Due Date"));
+        ReqLineInPlanWksh.Validate("Due Date", WorkDate());
+        ReqLineInPlanWksh.Modify(true);
+        DueDate := ReqLineInPlanWksh."Due Date";
+    end;
+
+    local procedure VerifyPlannedProdOrderDueDate(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; DueDate: Date)
+    begin
+        ProductionOrder.SetRange(Status, Status);
+        ProductionOrder.SetRange("Source No.", SourceNo);
+        ProductionOrder.FindFirst();
+
+        Assert.AreEqual(DueDate, ProductionOrder."Due Date", DueDateErr);
     end;
 
     [ConfirmHandler]
