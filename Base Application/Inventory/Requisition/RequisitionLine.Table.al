@@ -300,7 +300,7 @@ table 246 "Requisition Line"
                 if ShouldExitDueDate then
                     exit;
 
-                if (CurrFieldNo = FieldNo("Due Date")) or (CurrentFieldNo = FieldNo("Due Date")) then
+                if (CurrFieldNo = FieldNo("Due Date")) or (CurrentFieldNo = FieldNo("Due Date")) or (CurrFieldNo = FieldNo("Location Code")) then
                     if (Type = Type::Item) and
                        ("Planning Level" = 0)
                     then
@@ -384,6 +384,7 @@ table 246 "Requisition Line"
                 end;
                 GetDirectCost(FieldNo("Location Code"));
                 CreateDimFromDefaultDim();
+                Validate("Due Date");
             end;
         }
         field(18; "Recurring Method"; Option)
