@@ -8060,6 +8060,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType ConsumptionIsMissingQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3862164203 - NamedType 4176090575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Planned production order due date not match with planning worksheet due date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType DueDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 581160672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Inventory Value Calculated must be equal.]]></Val>
