@@ -82,7 +82,8 @@ table 8068 "Sales Subscription Line"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrency();
 
             trigger OnValidate()
             begin
@@ -96,6 +97,7 @@ table 8068 "Sales Subscription Line"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -109,6 +111,7 @@ table 8068 "Sales Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = GetCurrency();
 
             trigger OnValidate()
             var
@@ -128,6 +131,7 @@ table 8068 "Sales Subscription Line"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -140,6 +144,7 @@ table 8068 "Sales Subscription Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrency();
 
             trigger OnValidate()
             begin
@@ -151,6 +156,7 @@ table 8068 "Sales Subscription Line"
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrency();
 
             trigger OnValidate()
             begin
@@ -310,10 +316,13 @@ table 8068 "Sales Subscription Line"
         {
             Caption = 'Unit Cost';
             Editable = false;
+            AutoFormatType = 2;
+            AutoFormatExpression = GetCurrency();
         }
         field(101; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
 
             trigger OnValidate()
@@ -366,6 +375,7 @@ table 8068 "Sales Subscription Line"
         {
             Caption = 'Pricing Unit Cost Surcharge %';
             DataClassification = CustomerContent;
+            AutoFormatType = 0;
         }
     }
 
@@ -736,6 +746,7 @@ table 8068 "Sales Subscription Line"
                 TempSalesServiceCommitmentBuff."VAT Calculation Type" := SalesLineVAT."VAT Calculation Type";
                 TempSalesServiceCommitmentBuff."Tax Group Code" := SalesLineVAT."Tax Group Code";
                 TempSalesServiceCommitmentBuff."VAT %" := VatPercent;
+                TempSalesServiceCommitmentBuff."Currency Code" := SalesLineVAT."Currency Code";
                 TempSalesServiceCommitmentBuff.Insert(false);
             end;
             TempSalesServiceCommitmentBuff.Reset();
@@ -804,6 +815,14 @@ table 8068 "Sales Subscription Line"
     local procedure GetSalesLine(var SalesLine2: Record "Sales Line")
     begin
         GetSalesLine(Rec, SalesLine2);
+    end;
+
+    local procedure GetCurrency(): Code[10]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        GetSalesHeader(SalesHeader);
+        exit(SalesHeader."Currency Code");
     end;
 
     local procedure GetSalesLine(SalesSubscriptionLine: Record "Sales Subscription Line"; var SalesLine2: Record "Sales Line")

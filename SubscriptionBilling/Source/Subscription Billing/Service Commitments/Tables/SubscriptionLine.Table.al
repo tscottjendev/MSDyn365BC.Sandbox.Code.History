@@ -83,7 +83,8 @@ table 8059 "Subscription Line"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -104,6 +105,7 @@ table 8059 "Subscription Line"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -116,6 +118,7 @@ table 8059 "Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -135,6 +138,7 @@ table 8059 "Subscription Line"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -149,6 +153,7 @@ table 8059 "Subscription Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -162,6 +167,7 @@ table 8059 "Subscription Line"
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
 
             trigger OnValidate()
             begin
@@ -311,6 +317,7 @@ table 8059 "Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(32; "Discount Amount (LCY)"; Decimal)
         {
@@ -319,6 +326,7 @@ table 8059 "Subscription Line"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(33; "Amount (LCY)"; Decimal)
         {
@@ -326,6 +334,7 @@ table 8059 "Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(34; "Currency Code"; Code[10])
         {
@@ -348,6 +357,7 @@ table 8059 "Subscription Line"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(36; "Currency Factor Date"; Date)
         {
@@ -360,6 +370,7 @@ table 8059 "Subscription Line"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(38; Discount; Boolean)
         {
@@ -372,6 +383,7 @@ table 8059 "Subscription Line"
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Header".Quantity where("No." = field("Subscription Header No.")));
+            AutoFormatType = 0;
         }
         field(40; "Create Contract Deferrals"; Enum "Create Contract Deferrals")
         {
@@ -423,6 +435,7 @@ table 8059 "Subscription Line"
         field(101; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
 
             trigger OnValidate()
@@ -504,6 +517,7 @@ table 8059 "Subscription Line"
             Caption = 'Pricing Unit Cost Surcharge %';
             DataClassification = CustomerContent;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(8003; "Supplier Reference Entry No."; Integer)
         {

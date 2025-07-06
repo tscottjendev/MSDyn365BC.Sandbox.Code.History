@@ -182,6 +182,7 @@ page 8002 "Extend Contract"
                 {
                     Caption = 'Quantity';
                     ToolTip = 'Specifies the quantity for the Subscription Item to be created.';
+                    AutoFormatType = 0;
 
                     trigger OnValidate()
                     begin
@@ -195,6 +196,8 @@ page 8002 "Extend Contract"
                     ToolTip = 'Specifies the cost price in customer currency for the selected item.';
                     DecimalPlaces = 2 : 5;
                     Editable = false;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                 }
                 field(UnitPrice; UnitPrice)
                 {
@@ -202,6 +205,8 @@ page 8002 "Extend Contract"
                     ToolTip = 'Specifies the sales price for the selected item.';
                     DecimalPlaces = 2 : 5;
                     Editable = false;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = CustomerContract."Currency Code";
                 }
                 field(ProvisionStartDate; ProvisionStartDate)
                 {

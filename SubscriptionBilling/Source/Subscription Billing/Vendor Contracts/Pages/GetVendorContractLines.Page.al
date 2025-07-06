@@ -111,6 +111,8 @@ page 8095 "Get Vendor Contract Lines"
                     ToolTip = 'Specifies the amount to be charged.';
                     StyleExpr = LineStyleExpr;
                     Editable = IsContractLine and VendorInvoiceAmountEditable;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
 
                     trigger OnValidate()
                     begin

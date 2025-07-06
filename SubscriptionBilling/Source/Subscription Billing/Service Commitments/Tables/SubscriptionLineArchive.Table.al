@@ -65,7 +65,7 @@ table 8073 "Subscription Line Archive"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
         }
         field(12; "Calculation Base %"; Decimal)

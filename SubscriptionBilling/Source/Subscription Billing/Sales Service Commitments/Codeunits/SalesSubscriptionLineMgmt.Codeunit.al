@@ -241,6 +241,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
                 SalesServiceCommArchive."Doc. No. Occurrence" := SalesHeader."Doc. No. Occurrence";
                 SalesServiceCommArchive."Version No." := SalesHeaderArchive."Version No.";
                 SalesServiceCommArchive."Line No." := 0;
+                SalesServiceCommArchive."Currency Code" := SalesHeader."Currency Code";
                 SalesServiceCommArchive.Insert(false);
             until SalesServiceCommitment.Next() = 0;
     end;
