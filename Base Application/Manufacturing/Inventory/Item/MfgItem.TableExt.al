@@ -22,6 +22,8 @@ tableextension 99000750 "Mfg. Item" extends Item
                                                                       "Item No." = field("No.")));
             Caption = 'Cost of Open Production Orders';
             FieldClass = FlowField;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(5420; "Scheduled Receipt (Qty.)"; Decimal)
         {
@@ -37,6 +39,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
 #if not CLEANSCHEMA28
         field(5421; "Scheduled Need (Qty.)"; Decimal)
@@ -61,6 +64,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
 #endif
         field(5429; "Reserved Qty. on Prod. Order"; Decimal)
@@ -77,6 +81,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5430; "Res. Qty. on Prod. Order Comp."; Decimal)
         {
@@ -92,6 +97,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
@@ -175,6 +181,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000766; "FP Order Receipt (Qty.)"; Decimal)
         {
@@ -190,6 +197,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
         {
@@ -205,6 +213,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000769; "Planned Order Release (Qty.)"; Decimal)
         {
@@ -220,6 +229,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000777; "Qty. on Prod. Order"; Decimal)
         {
@@ -235,6 +245,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000778; "Qty. on Component Lines"; Decimal)
         {
@@ -250,6 +261,7 @@ tableextension 99000750 "Mfg. Item" extends Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
     }
 
