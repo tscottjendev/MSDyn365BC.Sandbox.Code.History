@@ -263,6 +263,7 @@ table 27 Item
         field(18; "Unit Price"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Price';
             MinValue = 0;
 
@@ -308,6 +309,7 @@ table 27 Item
         {
             Caption = 'Profit %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -346,6 +348,7 @@ table 27 Item
         field(22; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -371,6 +374,7 @@ table 27 Item
         field(24; "Standard Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Standard Cost';
             MinValue = 0;
 
@@ -403,6 +407,7 @@ table 27 Item
         field(25; "Last Direct Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Last Direct Cost';
             MinValue = 0;
         }
@@ -411,6 +416,7 @@ table 27 Item
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -470,18 +476,21 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Point';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(35; "Maximum Inventory"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Maximum Inventory';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(36; "Reorder Quantity"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(37; "Alternative Item No."; Code[20])
         {
@@ -492,6 +501,7 @@ table 27 Item
         field(38; "Unit List Price"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit List Price';
             MinValue = 0;
         }
@@ -501,6 +511,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(40; "Duty Code"; Code[10])
         {
@@ -512,24 +523,28 @@ table 27 Item
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(42; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(43; "Units per Parcel"; Decimal)
         {
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(44; "Unit Volume"; Decimal)
         {
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(45; Durability; Code[10])
         {
@@ -570,6 +585,7 @@ table 27 Item
         {
             Caption = 'Duty Unit Conversion';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(49; "Country/Region Purchased Code"; Code[10])
         {
@@ -580,15 +596,18 @@ table 27 Item
         {
             Caption = 'Budget Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(51; "Budgeted Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Budgeted Amount';
         }
         field(52; "Budget Profit"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Budget Profit';
         }
         field(53; Comment; Boolean)
@@ -683,6 +702,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(69; "Net Invoiced Qty."; Decimal)
         {
@@ -699,6 +719,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(70; "Net Change"; Decimal)
         {
@@ -717,6 +738,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(71; "Purchases (Qty.)"; Decimal)
         {
@@ -735,6 +757,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(72; "Sales (Qty.)"; Decimal)
         {
@@ -750,6 +773,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(73; "Positive Adjmt. (Qty.)"; Decimal)
         {
@@ -768,6 +792,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(74; "Negative Adjmt. (Qty.)"; Decimal)
         {
@@ -786,10 +811,12 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(77; "Purchases (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Purchase Amount (Actual)" where("Item Ledger Entry Type" = const(Purchase),
                                                                               "Item No." = field("No."),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -805,6 +832,7 @@ table 27 Item
         field(78; "Sales (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Sales Amount (Actual)" where("Item Ledger Entry Type" = const(Sale),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -820,6 +848,7 @@ table 27 Item
         field(79; "Positive Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const("Positive Adjmt."),
                                                                           "Item No." = field("No."),
                                                                           "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -835,6 +864,7 @@ table 27 Item
         field(80; "Negative Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const("Negative Adjmt."),
                                                                           "Item No." = field("No."),
                                                                           "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -850,6 +880,7 @@ table 27 Item
         field(83; "COGS (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const(Sale),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -879,6 +910,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(85; "Qty. on Sales Order"; Decimal)
         {
@@ -897,6 +929,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(87; "Price Includes VAT"; Boolean)
         {
@@ -986,10 +1019,12 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(94; "Transferred (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Sales Amount (Actual)" where("Item Ledger Entry Type" = const(Transfer),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -1065,6 +1100,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(102; "Reserved Qty. on Purch. Orders"; Decimal)
         {
@@ -1080,6 +1116,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(103; "Reserved Qty. on Sales Orders"; Decimal)
         {
@@ -1095,6 +1132,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(105; "Global Dimension 1 Code"; Code[20])
         {
@@ -1134,6 +1172,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(108; "Res. Qty. on Inbound Transfer"; Decimal)
         {
@@ -1149,6 +1188,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(109; "Res. Qty. on Sales Returns"; Decimal)
         {
@@ -1164,6 +1204,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(110; "Res. Qty. on Purch. Returns"; Decimal)
         {
@@ -1179,6 +1220,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(120; "Stockout Warning"; Option)
         {
@@ -1246,6 +1288,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(1002; "Res. Qty. on Job Order"; Decimal)
         {
@@ -1261,6 +1304,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(1217; GTIN; Code[14])
         {
@@ -1284,6 +1328,7 @@ table 27 Item
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5402; "Serial Nos."; Code[20])
         {
@@ -1304,6 +1349,7 @@ table 27 Item
         field(5404; "Rolled-up Material Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Cost';
             DecimalPlaces = 2 : 5;
             Editable = false;
@@ -1311,6 +1357,7 @@ table 27 Item
         field(5405; "Rolled-up Capacity Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Capacity Cost';
             DecimalPlaces = 2 : 5;
             Editable = false;
@@ -1321,10 +1368,12 @@ table 27 Item
             DecimalPlaces = 0 : 2;
             MaxValue = 100;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Non-Inventory Cost';
             ToolTip = 'Specifies the Non-inventory material cost of all items at all levels of the parent item''s BOM.';
             DecimalPlaces = 2 : 5;
@@ -1350,6 +1399,7 @@ table 27 Item
             Caption = 'Minimum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5412; "Maximum Order Quantity"; Decimal)
         {
@@ -1357,6 +1407,7 @@ table 27 Item
             Caption = 'Maximum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5413; "Safety Stock Quantity"; Decimal)
         {
@@ -1364,6 +1415,7 @@ table 27 Item
             Caption = 'Safety Stock Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5414; "Order Multiple"; Decimal)
         {
@@ -1371,6 +1423,7 @@ table 27 Item
             Caption = 'Order Multiple';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5415; "Safety Lead Time"; DateFormula)
         {
@@ -1417,6 +1470,7 @@ table 27 Item
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -1476,6 +1530,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5440; "Reordering Policy"; Enum "Reordering Policy")
         {
@@ -1539,6 +1594,7 @@ table 27 Item
             Caption = 'Dampener Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5447; "Overflow Level"; Decimal)
         {
@@ -1546,6 +1602,7 @@ table 27 Item
             Caption = 'Overflow Level';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5449; "Planning Transfer Ship. (Qty)."; Decimal)
         {
@@ -1560,6 +1617,7 @@ table 27 Item
             Caption = 'Planning Transfer Ship. (Qty).';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5450; "Planning Worksheet (Qty.)"; Decimal)
         {
@@ -1574,6 +1632,7 @@ table 27 Item
             Caption = 'Planning Worksheet (Qty.)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5700; "Stockkeeping Unit Exists"; Boolean)
         {
@@ -1633,6 +1692,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5708; "Trans. Ord. Receipt (Qty.)"; Decimal)
         {
@@ -1648,6 +1708,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5709; "Trans. Ord. Shipment (Qty.)"; Decimal)
         {
@@ -1663,6 +1724,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5711; "Purchasing Code"; Code[10])
         {
@@ -1680,6 +1742,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5777; "Qty. Picked"; Decimal)
         {
@@ -1691,6 +1754,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5801; "Excluded from Cost Adjustment"; Boolean)
         {
@@ -1804,6 +1868,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(6660; "Qty. on Sales Return"; Decimal)
         {
@@ -1822,6 +1887,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(7171; "No. of Substitutes"; Integer)
         {
@@ -2092,24 +2158,28 @@ table 27 Item
         field(99000752; "Single-Level Material Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Cost';
             Editable = false;
         }
         field(99000753; "Single-Level Capacity Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Capacity Cost';
             Editable = false;
         }
         field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Subcontrd. Cost';
             Editable = false;
         }
         field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Cap. Ovhd Cost';
             Editable = false;
         }
@@ -2122,6 +2192,7 @@ table 27 Item
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Overhead Rate';
 
             trigger OnValidate()
@@ -2135,18 +2206,21 @@ table 27 Item
         field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Subcontracted Cost';
             Editable = false;
         }
         field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Mfg. Ovhd Cost';
             Editable = false;
         }
         field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Cap. Overhead Cost';
             Editable = false;
         }
@@ -2164,6 +2238,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000762; "Planning Receipt (Qty.)"; Decimal)
         {
@@ -2179,6 +2254,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000768; "Planning Release (Qty.)"; Decimal)
         {
@@ -2194,6 +2270,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
@@ -2211,6 +2288,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000771; "Purch. Req. Release (Qty.)"; Decimal)
         {
@@ -2227,6 +2305,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
         {
@@ -2285,6 +2364,7 @@ table 27 Item
             Caption = 'Prod. Forecast Quantity (Base)';
             DecimalPlaces = 0 : 5;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000775; "Production Forecast Name"; Code[10])
         {
@@ -2304,13 +2384,13 @@ table 27 Item
         field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Single-Level Material Non-Inventory Cost';
             ToolTip = 'Specifies the total Non-inventory material cost of all components on the parent item''s BOM';
             Editable = false;
         }
         field(99000780; "Allow Whse. Overpick"; Boolean)
         {
-            AutoFormatType = 2;
             Caption = 'Allow Whse. Overpick';
             ToolTip = 'Specifies that the record is allowed to be created in the Warehouse Pick list against the Released Production Order more than the quantity defined in the component Line. For example, system will allow to create Pick for 10 units even if the component in the BOM is defined for 3 units.';
         }
