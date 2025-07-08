@@ -2297,7 +2297,10 @@ codeunit 22 "Item Jnl.-Post Line"
                         ItemApplnEntry."Cost Application" := true;
                     ItemJnlLine.Correction:
                         begin
-                            ApplItemLedgEntry.Get(ItemApplnEntry."Item Ledger Entry No.");
+                            if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output) and (ItemJnlLine."Order Type" = ItemJnlLine."Order Type"::Production) and ItemJnlLine.Subcontracting then
+                                ApplItemLedgEntry := GlobalItemLedgEntry
+                            else
+                                ApplItemLedgEntry.Get(ItemApplnEntry."Item Ledger Entry No.");
                             ItemApplnEntry."Cost Application" :=
                               (ApplItemLedgEntry.Quantity > 0) or (ApplItemLedgEntry."Applies-to Entry" <> 0);
                         end;
