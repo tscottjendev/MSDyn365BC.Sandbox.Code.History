@@ -450,7 +450,7 @@ table 91 "User Setup"
         FilterGroup := OriginalFilterGroup;
     end;
 
-    local procedure UpdateSalesPerson(FieldNumber: Integer)
+    procedure UpdateSalesPerson(FieldNumber: Integer)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         xSalespersonPurchaser: Record "Salesperson/Purchaser";

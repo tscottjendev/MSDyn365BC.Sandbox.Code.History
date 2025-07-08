@@ -1237,7 +1237,6 @@ table 472 "Job Queue Entry"
         OnAfterSetReportParameters(Rec);
     end;
 
-    [Scope('OnPrem')]
     procedure RunReportRequestPage()
     var
         Params: Text;
