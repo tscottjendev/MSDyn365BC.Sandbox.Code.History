@@ -42,7 +42,6 @@ codeunit 1373 "Batch Posting Print Mgt."
         PrintPurchaseDocument(RecRef);
     end;
 
-    [Scope('OnPrem')]
     procedure PrintSalesDocument(RecRef: RecordRef)
     var
         SalesHeader: Record "Sales Header";
@@ -109,7 +108,6 @@ codeunit 1373 "Batch Posting Print Mgt."
         OnAfterPrintSalesDocument(RecRef);
     end;
 
-    [Scope('OnPrem')]
     procedure PrintPurchaseDocument(RecRef: RecordRef)
     var
         PurchaseHeader: Record "Purchase Header";
