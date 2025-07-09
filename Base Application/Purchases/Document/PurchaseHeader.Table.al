@@ -1949,7 +1949,14 @@ table 38 "Purchase Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPrepmtNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PurchHeader := Rec;
                 GetPurchSetup();
                 PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
@@ -1959,7 +1966,14 @@ table 38 "Purchase Header"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtNoSeries(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prepayment No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
@@ -9252,6 +9266,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIsTotalValid(IncomingDocument: Record "Incoming Document"; PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPrepmtNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtNoSeries(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
