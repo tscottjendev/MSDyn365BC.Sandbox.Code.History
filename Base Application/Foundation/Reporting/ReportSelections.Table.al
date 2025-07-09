@@ -656,7 +656,7 @@ table 77 "Report Selections"
         exit(AccountNoFilter);
     end;
 
-    local procedure SelectTempReportSelections(var TempReportSelections: Record "Report Selections" temporary; AccountNo: Code[20]; WithCheck: Boolean; ReportUsage: Enum "Report Selection Usage"; TableNo: Integer)
+    procedure SelectTempReportSelections(var TempReportSelections: Record "Report Selections" temporary; AccountNo: Code[20]; WithCheck: Boolean; ReportUsage: Enum "Report Selection Usage"; TableNo: Integer)
     begin
         if WithCheck then begin
             Reset();
