@@ -105,11 +105,8 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
         PurchaseHeader.Insert(true);
 
-        if EDocumentPurchaseHeader."Document Date" <> 0D then
-            PurchaseHeader.Validate("Document Date", EDocumentPurchaseHeader."Document Date");
-        if EDocumentPurchaseHeader."Due Date" <> 0D then
-            PurchaseHeader.Validate("Due Date", EDocumentPurchaseHeader."Due Date");
-        PurchaseHeader."Invoice Received Date" := PurchaseHeader."Document Date";
+        PurchaseHeader."Due Date" := EDocumentPurchaseHeader."Due Date";
+        PurchaseHeader."Document Date" := EDocumentPurchaseHeader."Document Date";
         PurchaseHeader.Modify();
 
         // Validate of currency has to happen after insert.
