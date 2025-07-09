@@ -355,7 +355,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
     begin
-        // [SCENARIO 426808] Update of "Starting Date" on the price list copies both dates to all lines.
+        // [SCENARIO 426808] Updating "Starting Date" on the price list header does not modify "Ending Date" on the corresponding price list lines".
         Initialize();
         // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
         CreatePriceList(PriceListHeader, PriceListLine);
@@ -372,12 +372,21 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Starting Date" as '0D'
         PriceListHeader.Validate("Starting Date", 0D);
 
-        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        // [THEN] both Price List Lines, got "Starting Date" from the header, Status is 'Draft'
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
-        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
         PriceListLine.SetRange(Status, "Price Status"::Draft);
         Assert.RecordCount(PriceListLine, 2);
+
+        // [THEN] both Price List Lines, did not get "Ending Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
+        Assert.RecordCount(PriceListLine, 0);
+
+        // [THEN] "Ending Date" is not changed on the lines
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date" + 10);
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date" + 5);
+        Assert.RecordCount(PriceListLine, 1);
     end;
 
     [Test]
@@ -403,12 +412,21 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Ending Date" as 030320
         PriceListHeader.Validate("Ending Date", PriceListHeader."Ending Date" + 1);
 
-        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        // [THEN] both Price List Lines, got "Ending Date" from the header, Status is 'Draft'
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
-        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
         PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
         PriceListLine.SetRange(Status, "Price Status"::Draft);
         Assert.RecordCount(PriceListLine, 2);
+
+        // [THEN] both Price List Lines, did not get "Starting Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
+        Assert.RecordCount(PriceListLine, 0);
+
+        // [THEN] "Starting Date" is not changed on the lines
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date" - 10);
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date" - 5);
+        Assert.RecordCount(PriceListLine, 1);
     end;
 
     [Test]
