@@ -94,7 +94,10 @@ report 790 "Calculate Inventory"
                                                 OnItemLedgerEntryOnAfterGetRecordOnBeforeUpdateBuffer(WhseEntry);
                                                 UpdateBuffer(WhseEntry."Bin Code", WhseEntry."Qty. (Base)", false);
                                             end;
-                                            WhseEntry.Find('+');
+                                            IsHandled := false;
+                                            OnWhseEntryLoopOnBeforeFindlast(WhseEntry, IsHandled);
+                                            if not IsHandled then
+                                                WhseEntry.Find('+');
                                             Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
                                         until WhseEntry.Next() = 0;
                                     end;
@@ -1155,6 +1158,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(true, false)]
     local procedure OnInsertQuantityOnHandBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseEntryLoopOnBeforeFindlast(var WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
     begin
     end;
 }
