@@ -41,6 +41,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         BusinessUnitConsentErr: Label 'The business unit %1 needs to consent for their data to be transferred to the consolidation company. Open the page Consolidation Setup in that company and enable the company as subsidiary.', Comment = '%1 - Business unit code';
         ExchangeRateNotDefinedInBusinessUnitErr: Label 'Exchange rate for %1 is not defined in Business Unit.', Comment = '%1 - Currency Code';
         PostingDateFilterTok: Label 'postingDate ge %1 and postingDate le %2', Locked = true, Comment = '%1 - Starting date, %2 - Ending date';
+        PostingClosingDateFilterTok: Label 'postingDate gt %1 and postingDate lt %2', Locked = true, Comment = '%1 - Starting date, %2 - Ending date';
         CurrencyCodeFilterTok: Label 'currencyCode eq ''%1''', Locked = true, Comment = '%1 - Currency code';
         DimensionCodeFilterTok: Label 'code eq ''%1''', Locked = true, Comment = '%1 - Dimension code';
         DimensionConsolidationCodeFilterTok: Label 'consolidationCode eq ''%1''', Locked = true, Comment = '%1 - Dimension code';
@@ -531,7 +532,12 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         // GLEntries are obtained from the GL Accounts of interest. Each request to GLEntries filters by a maximum of GLAccountBatchLimit GL Accounts
         GLAccountBatchLimit := 60;
 
-        DateFilter := StrSubstNo(PostingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(EndingDate));
+        // If the starting date is a closing date then the ending date will be the same closing date
+        if StartingDate = ClosingDate(StartingDate) then
+            DateFilter := StrSubstNo(PostingClosingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(CalcDate('<+1D>',EndingDate)))
+        else
+            DateFilter := StrSubstNo(PostingDateFilterTok, FormatDateForAPICall(StartingDate), FormatDateForAPICall(EndingDate));
+
         Consolidate.GetGLAccounts(TempGLAccount);
         First := true;
         if not TempGLAccount.FindSet() then
