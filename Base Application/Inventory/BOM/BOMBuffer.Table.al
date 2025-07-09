@@ -546,6 +546,7 @@ table 5870 "BOM Buffer"
     procedure TransferFromProdComp(var EntryNo: Integer; ProdBOMLine: Record "Production BOM Line"; NewIndentation: Integer; ParentQtyPer: Decimal; ParentScrapQtyPer: Decimal; ParentScrapPct: Decimal; NeedByDate: Date; ParentLocationCode: Code[10]; ParentItem: Record Item; BOMQtyPerUOM: Decimal)
     var
         BOMItem: Record Item;
+        MainItem: Record Item;
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         IsHandled: Boolean;
@@ -558,6 +559,8 @@ table 5870 "BOM Buffer"
             "Entry No." := EntryNo;
             Type := Type::Item;
 
+            MainItem.Get(ParentItem."No.");
+
             BOMItem.Get(ProdBOMLine."No.");
             InitFromItem(BOMItem);
 
@@ -568,7 +571,7 @@ table 5870 "BOM Buffer"
             "Qty. per Parent" :=
               MfgCostCalcMgt.CalcCompItemQtyBase(
                 ProdBOMLine, WorkDate(),
-                MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), ParentItem."Routing No.", true) /
+                MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), MainItem."Routing No.", true) /
               UOMMgt.GetQtyPerUnitOfMeasure(BOMItem, ProdBOMLine."Unit of Measure Code") /
               BOMQtyPerUOM / ParentItem."Lot Size";
             "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision());
