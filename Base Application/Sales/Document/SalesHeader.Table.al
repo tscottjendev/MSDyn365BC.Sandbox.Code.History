@@ -2059,7 +2059,13 @@ table 36 "Sales Header"
             trigger OnLookup()
             var
                 NoSeries: Codeunit "No. Series";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPrepmtNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 SalesHeader := Rec;
                 GetSalesSetup();
                 SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
@@ -2071,7 +2077,13 @@ table 36 "Sales Header"
             trigger OnValidate()
             var
                 NoSeries: Codeunit "No. Series";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePrepmtNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prepayment No. Series" <> '' then begin
                     GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
@@ -11554,6 +11566,16 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyBillToCustomerAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPrepmtNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePrepmtNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
