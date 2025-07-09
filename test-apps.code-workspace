@@ -219,6 +219,9 @@
       "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
+      "path": "./System Application/Test/System Application Partner Test"
+    },
+    {
       "path": "./System Application/Test/System Application Test Library"
     },
     {
