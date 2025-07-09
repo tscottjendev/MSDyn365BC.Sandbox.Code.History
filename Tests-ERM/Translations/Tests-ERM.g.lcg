@@ -4694,13 +4694,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType QuantityShippedMustNotBeGreaterErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3058997361 - NamedType 3976488397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3058997361 - NamedType 2564981962" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sales Order Line must be found.]]></Val>
+      <Val><![CDATA[Sales Order Line does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType SalesOrderLineMustBeFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType SalesOrderLineDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3058997361 - NamedType 1785547107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
