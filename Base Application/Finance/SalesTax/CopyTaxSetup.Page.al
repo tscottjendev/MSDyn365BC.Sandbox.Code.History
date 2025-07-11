@@ -12,7 +12,7 @@ page 476 "Copy Tax Setup"
     ApplicationArea = SalesTax;
     Caption = 'Copy Tax Setup';
     PageType = StandardDialog;
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {
