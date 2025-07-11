@@ -1224,8 +1224,10 @@ codeunit 139026 "Test Job Queue"
 
     local procedure Initialize()
     begin
+        OnBeforeInitialize();
         LibraryVariableStorage.Clear();
         DeleteAllJobQueueEntries();
+        OnAfterInitialize();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; ObjectType: Integer; ObjectID: Integer; JQEntryStatus: Option)
@@ -1719,5 +1721,15 @@ codeunit 139026 "Test Job Queue"
     procedure ServiceConfirmHandler(ConfirmMessage: Text[1024]; var Result: Boolean)
     begin
         Result := false;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeInitialize()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterInitialize()
+    begin
     end;
 }

@@ -413,6 +413,15 @@ table 23 Vendor
             OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
+#pragma warning disable AA0232
+        field(52; "First Transaction Date"; Date)
+        {
+            Caption = 'Vendor Since';
+            ToolTip = 'Specifies the date of the first transaction with the vendor.';
+            FieldClass = FlowField;
+            CalcFormula = min("Vendor Ledger Entry"."Posting Date" where("Vendor No." = field("No.")));
+        }
+#pragma warning restore AA0232
         field(53; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';

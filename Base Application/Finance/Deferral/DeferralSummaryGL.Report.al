@@ -8,6 +8,10 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 
+/// <summary>
+/// Report that summarizes G/L deferral activity by account and period.
+/// Provides detailed analysis of deferred amounts and recognition patterns for G/L transactions.
+/// </summary>
 report 1700 "Deferral Summary - G/L"
 {
     DefaultLayout = RDLC;
@@ -241,6 +245,11 @@ report 1700 "Deferral Summary - G/L"
         PreviousAccount: Code[20];
         DeferralAccount: Code[20];
 
+    /// <summary>
+    /// Initializes report parameters for the GL deferral summary report.
+    /// </summary>
+    /// <param name="NewPrintOnlyOnePerPage">Whether to print each account on a separate page</param>
+    /// <param name="NewBalanceAsOfDateFilter">Balance as of date filter for calculations</param>
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean; NewBalanceAsOfDateFilter: Date)
     begin
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
