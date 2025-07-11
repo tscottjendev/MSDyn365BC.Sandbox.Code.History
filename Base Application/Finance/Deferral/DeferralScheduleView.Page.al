@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Read-only worksheet page for viewing posted deferral schedules.
+/// Displays historical deferral schedule information after posting has occurred.
+/// </summary>
 page 1704 "Deferral Schedule View"
 {
     Caption = 'Deferral Schedule View';
