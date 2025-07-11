@@ -12,6 +12,11 @@ using Microsoft.Foundation.Period;
 using System.DataAdministration;
 using System.Utilities;
 
+/// <summary>
+/// Date compression report for bank account ledger entries to optimize database storage.
+/// Combines multiple closed bank account ledger entries within specified date ranges into single summarized entries,
+/// preserving audit trails while reducing database size and improving query performance.
+/// </summary>
 report 1498 "Date Compress Bank Acc. Ledger"
 {
     ApplicationArea = Suite;
@@ -435,6 +440,11 @@ report 1498 "Date Compress Bank Acc. Ledger"
         DimBufMgt.DeleteAllDimEntryNo();
     end;
 
+    /// <summary>
+    /// Initializes a new compressed bank account ledger entry with default values and sequence numbering.
+    /// Sets up the entry structure for combining multiple source entries during date compression.
+    /// </summary>
+    /// <param name="NewBankAccLedgEntry">New bank account ledger entry to initialize for compression.</param>
     procedure InitNewEntry(var NewBankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
         LastEntryNo := LastEntryNo + 1;
@@ -494,6 +504,17 @@ report 1498 "Date Compress Bank Acc. Ledger"
         UseDataArchive := DataArchiveProviderExists;
     end;
 
+    /// <summary>
+    /// Initializes date compression parameters and settings for the bank account ledger compression process.
+    /// Configures date ranges, period length, field retention options, and data archiving preferences.
+    /// </summary>
+    /// <param name="StartingDate">Start date for the compression range.</param>
+    /// <param name="EndingDate">End date for the compression range.</param>
+    /// <param name="PeriodLength">Period length option for compression grouping.</param>
+    /// <param name="Description">Description for the compressed entries.</param>
+    /// <param name="NewDateComprRetainFields">Field retention configuration for compression.</param>
+    /// <param name="RetainDimensionText">Dimension retention settings as text.</param>
+    /// <param name="DoUseDataArchive">Whether to use data archive functionality during compression.</param>
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; NewDateComprRetainFields: Record "Date Compr. Retain Fields"; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeParameter();
@@ -539,6 +560,12 @@ report 1498 "Date Compress Bank Acc. Ledger"
         Session.LogMessage('0000F4J', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
+    /// <summary>
+    /// Integration event raised before inserting a new compressed bank account ledger entry.
+    /// Allows subscribers to modify the entry or add custom processing before database insertion.
+    /// </summary>
+    /// <param name="BankAccountLedgerEntry">Bank account ledger entry being inserted during compression.</param>
+    /// <param name="DimEntryNo">Dimension entry number associated with the compressed entry.</param>
     [IntegrationEvent(false, false)]
     local procedure OnInsertNewEntryOnBeforeInsert(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; DimEntryNo: Integer)
     begin
