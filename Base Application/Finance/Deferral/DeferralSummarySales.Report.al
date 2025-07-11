@@ -9,6 +9,10 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Report that summarizes sales deferral activity by customer and period.
+/// Provides detailed analysis of deferred revenue amounts and recognition patterns for sales transactions.
+/// </summary>
 report 1701 "Deferral Summary - Sales"
 {
     DefaultLayout = RDLC;
@@ -333,6 +337,13 @@ report 1701 "Deferral Summary - Sales"
         DocumentCaptionLbl: Label 'Document:';
         CustomerCaptionLbl: Label 'Customer:';
 
+    /// <summary>
+    /// Initializes report parameters for the sales deferral summary report.
+    /// </summary>
+    /// <param name="NewPrintOnlyOnePerPage">Whether to print each customer on a separate page</param>
+    /// <param name="NewBalanceAsOfDateFilter">Balance as of date filter for calculations</param>
+    /// <param name="NewDocumentNoFilter">Document number filter to apply</param>
+    /// <param name="NewCustomerNoFilter">Customer number filter to apply</param>
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean; NewBalanceAsOfDateFilter: Date; NewDocumentNoFilter: Text; NewCustomerNoFilter: Text)
     begin
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
