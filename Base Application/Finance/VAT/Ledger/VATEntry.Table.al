@@ -529,6 +529,9 @@ table 254 "VAT Entry"
                 if not VATDateReportingMgt.IsVATDateModifiable() then
                     Error(VATDateNotModifiableErr);
 
+                if Closed then
+                    Error(VATDateModifiableClosedErr);
+
                 VATDateReportingMgt.CheckDateAllowed("VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), false);
                 VATDateReportingMgt.CheckDateAllowed(xRec."VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), true, false);
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
@@ -711,6 +714,7 @@ table 254 "VAT Entry"
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
         VATDateNotModifiableErr: Label 'Modification of the VAT Date on the VAT Entry is restricted by the current setting for VAT Reporting Date Usage in the General Ledger Setup.';
+        VATDateModifiableClosedErr: Label 'The VAT Entry is marked as closed, modification of the VAT Date is therefore not allowed.';
 
     internal procedure SetVATDateFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
