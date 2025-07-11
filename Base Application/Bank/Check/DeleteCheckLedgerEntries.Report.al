@@ -9,6 +9,15 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
+/// <summary>
+/// Removes non-printed check ledger entries from the database to manage storage space.
+/// Maintains audit trail through date compression register while safely cleaning historical data.
+/// </summary>
+/// <remarks>
+/// Data source: Check Ledger Entry with filtering for non-printed entries only.
+/// Creates date compression register entries for audit trail compliance.
+/// Excludes printed checks to preserve complete payment history.
+/// </remarks>
 report 1495 "Delete Check Ledger Entries"
 {
     Caption = 'Delete Check Ledger Entries';
@@ -202,6 +211,11 @@ report 1495 "Delete Check Ledger Entries"
         InitRegister();
     end;
 
+    /// <summary>
+    /// Initializes the date range parameters for check ledger entry deletion.
+    /// </summary>
+    /// <param name="StartingDate">Starting date for deletion range</param>
+    /// <param name="EndingDate">Ending date for deletion range</param>
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date)
     begin
         EntrdDateComprReg."Starting Date" := StartingDate;
