@@ -542,6 +542,15 @@ table 18 Customer
             TableRelation = "Language Selection"."Language Tag";
             ToolTip = 'Specifies the Format Region to be used on printouts for this customer.';
         }
+#pragma warning disable AA0232
+        field(52; "First Transaction Date"; Date)
+        {
+            Caption = 'Customer Since';
+            ToolTip = 'Specifies the date of the first transaction with the customer.';
+            FieldClass = FlowField;
+            CalcFormula = min("Cust. Ledger Entry"."Posting Date" where("Customer No." = field("No.")));
+        }
+#pragma warning restore AA0232
         field(53; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';

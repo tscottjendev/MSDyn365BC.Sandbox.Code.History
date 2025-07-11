@@ -6,6 +6,14 @@ namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Foundation.Period;
 
+/// <summary>
+/// Displays comprehensive statistical information and key performance indicators for bank accounts.
+/// Provides summary view of balances, transaction volumes, and period-based analysis.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Read-only statistical view with calculated fields.
+/// Features balance summaries, transaction counts, and period-based comparative analysis.
+/// </remarks>
 page 375 "Bank Account Statistics"
 {
     Caption = 'Bank Account Statistics';

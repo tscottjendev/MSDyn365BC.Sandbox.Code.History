@@ -22,6 +22,11 @@ page 152 "Vendor Statistics"
             group(General)
             {
                 Caption = 'General';
+                field(VendorSince; Rec."First Transaction Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
