@@ -25,6 +25,14 @@ using Microsoft.Bank.Deposit;
 using Microsoft.Purchases.Reports;
 using Microsoft.Sales.Reports;
 
+/// <summary>
+/// Primary interface for managing bank account master data and configuration.
+/// Provides comprehensive bank account setup including contact information, posting groups, and payment settings.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Includes actions for bank reconciliation, statement import, and balance display.
+/// Key features: Multi-currency support, dimension setup, payment export configuration.
+/// </remarks>
 page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
@@ -1144,6 +1152,13 @@ page 370 "Bank Account Card"
         REPORT.RunModal(ReportNumber, true, true, BankAccount);
     end;
 
+    /// <summary>
+    /// Integration event raised before opening the Bank Account Card page.
+    /// Enables custom initialization or setup before page display.
+    /// </summary>
+    /// <remarks>
+    /// Raised during page OnOpenPage trigger before standard page initialization.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage()
     begin
