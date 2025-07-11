@@ -301,4 +301,3 @@ page 9094 "Vendor Statistics FactBox"
         VendorLedgerEntry.SetRange(Reversed, false);
     end;
 }
-
