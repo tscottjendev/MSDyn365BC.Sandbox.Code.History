@@ -6,6 +6,10 @@ namespace Microsoft.Finance.Deferral;
 
 using System.Telemetry;
 
+/// <summary>
+/// List page for browsing and managing deferral templates.
+/// Provides overview of all available deferral templates and navigation to the template card.
+/// </summary>
 page 1701 "Deferral Template List"
 {
     ApplicationArea = Suite;
