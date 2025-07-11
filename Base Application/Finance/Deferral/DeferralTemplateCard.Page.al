@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Card page for creating and editing deferral templates.
+/// Provides interface for defining deferral calculation methods, accounts, and schedule parameters.
+/// </summary>
 page 1700 "Deferral Template Card"
 {
     Caption = 'Deferral Template Card';

@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Read-only worksheet page for viewing archived deferral schedules.
+/// Displays historical deferral schedule information from archived documents.
+/// </summary>
 page 1706 "Deferral Schedule Archive"
 {
     Caption = 'Deferral Schedule Archive';

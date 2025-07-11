@@ -13,6 +13,14 @@ using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Provides formatted preview of check layout and content before final printing.
+/// Displays payer information, payee details, and check amounts in standard check format.
+/// </summary>
+/// <remarks>
+/// Source Table: Gen. Journal Line. Integrates with company information and address formatting.
+/// Shows complete check preview including routing numbers, amounts, and remittance details.
+/// </remarks>
 page 404 "Check Preview"
 {
     Caption = 'Check Preview';
@@ -373,11 +381,35 @@ page 404 "Check Preview"
         Str := DelChr(Str, '<>', ', ');
     end;
 
+    /// <summary>
+    /// Integration event raised before formatting text fields for check display.
+    /// Enables custom formatting logic or field population before standard check formatting.
+    /// </summary>
+    /// <param name="CheckToAddr">Array of address text fields for the check</param>
+    /// <param name="CheckAmount">Amount value for the check</param>
+    /// <param name="GenJournalLine">General journal line associated with the check</param>
+    /// <param name="Customer">Customer record when balance account type is Customer</param>
+    /// <param name="BankAccount">Bank account record for the check</param>
+    /// <param name="Employee">Employee record when balance account type is Employee</param>
+    /// <param name="Vendor">Vendor record when balance account type is Vendor</param>
+    /// <param name="Rec">Current record context for the check preview</param>
+    /// <param name="IsHandled">Set to true to skip standard text field formatting</param>
+    /// <remarks>
+    /// Raised from FormatTextFieldsForCheck procedure before standard check text formatting.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100]; CheckAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; var BankAccount: Record "Bank Account"; Employee: Record Employee; var Vendor: Record Vendor; Rec: Record "Gen. Journal Line"; var IsHandled: Boolean; var BankAccount2: Record "Bank Account"; CheckDateFormat: Option; DateSeparator: Option; CheckLanguage: Integer; CheckStyle: Option; CheckDateText: Text[30])
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after formatting text fields for check display.
+    /// Enables custom modifications to formatted check text fields.
+    /// </summary>
+    /// <param name="CheckToAddr">Array of formatted address text fields for the check</param>
+    /// <remarks>
+    /// Raised from FormatTextFieldsForCheck procedure after standard check text formatting.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnAfterFormatTextFieldsForCheck(var CheckToAddr: array[8] of Text[100])
     begin
