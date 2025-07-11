@@ -123,7 +123,7 @@ table 254 "VAT Entry"
             else
             if (Type = const(Sale)) Customer;
             ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -151,7 +151,7 @@ table 254 "VAT Entry"
         {
             Caption = 'EU 3-Party Trade';
             ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -194,7 +194,7 @@ table 254 "VAT Entry"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
             ToolTip = 'Specifies the country/region of the address.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -410,7 +410,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Registration No.';
             ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             var
                 VATRegNoFormat: Record "VAT Registration No. Format";
@@ -528,6 +528,9 @@ table 254 "VAT Entry"
                 Validate(Type);
                 if not VATDateReportingMgt.IsVATDateModifiable() then
                     Error(VATDateNotModifiableErr);
+
+                if Closed then
+                    Error(VATDateModifiableClosedErr);
 
                 VATDateReportingMgt.CheckDateAllowed("VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), false);
                 VATDateReportingMgt.CheckDateAllowed(xRec."VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), true, false);
@@ -654,6 +657,7 @@ table 254 "VAT Entry"
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
         VATDateNotModifiableErr: Label 'Modification of the VAT Date on the VAT Entry is restricted by the current setting for VAT Reporting Date Usage in the General Ledger Setup.';
+        VATDateModifiableClosedErr: Label 'The VAT Entry is marked as closed, modification of the VAT Date is therefore not allowed.';
 
     internal procedure SetVATDateFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
