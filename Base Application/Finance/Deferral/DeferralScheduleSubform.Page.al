@@ -4,6 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Subform page displaying detailed deferral schedule lines.
+/// Shows individual period amounts and posting dates for a deferral schedule.
+/// </summary>
 page 1703 "Deferral Schedule Subform"
 {
     Caption = 'Deferral Schedule Detail';
@@ -95,6 +99,10 @@ page 1703 "Deferral Schedule Subform"
             TotalDeferral := DeferralLineTemp.Amount;
     end;
 
+    /// <summary>
+    /// Gets the changed status of the deferral schedule subform.
+    /// </summary>
+    /// <returns>True if the subform data has been modified, false otherwise</returns>
     procedure GetChanged(): Boolean
     begin
         exit(Changed);

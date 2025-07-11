@@ -9,6 +9,10 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Report that summarizes purchasing deferral activity by vendor and period.
+/// Provides detailed analysis of deferred expense amounts and recognition patterns for purchase transactions.
+/// </summary>
 report 1702 "Deferral Summary - Purchasing"
 {
     DefaultLayout = RDLC;
@@ -333,6 +337,13 @@ report 1702 "Deferral Summary - Purchasing"
         DocumentCaptionLbl: Label 'Document:';
         VendorCaptionLbl: Label 'Vendor:';
 
+    /// <summary>
+    /// Initializes report parameters for the purchasing deferral summary report.
+    /// </summary>
+    /// <param name="NewPrintOnlyOnePerPage">Whether to print each vendor on a separate page</param>
+    /// <param name="NewBalanceAsOfDateFilter">Balance as of date filter for calculations</param>
+    /// <param name="NewDocumentNoFilter">Document number filter to apply</param>
+    /// <param name="NewVendorNoFilter">Vendor number filter to apply</param>
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean; NewBalanceAsOfDateFilter: Date; NewDocumentNoFilter: Text; NewVendorNoFilter: Text)
     begin
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
