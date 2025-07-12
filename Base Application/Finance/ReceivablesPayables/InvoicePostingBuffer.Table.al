@@ -341,6 +341,13 @@ table 55 "Invoice Posting Buffer"
             ObsoleteTag = '26.0';
         }
 #endif
+        field(12102; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
     }
 
     keys
