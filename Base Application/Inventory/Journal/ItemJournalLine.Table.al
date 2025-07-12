@@ -235,6 +235,8 @@ table 83 "Item Journal Line"
                         OnValidateEntryTypeOnUpdateByEntryType(Rec);
                 end;
 
+                OnValidateEntryTypeBeforeValidateLocationCode(Rec);
+
                 if xRec."Location Code" = '' then
                     if Location.Get("Location Code") then
                         if Location."Directed Put-away and Pick" then
@@ -5234,6 +5236,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetOrderTypeService(var OrderType: Enum "Inventory Order Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateEntryTypeBeforeValidateLocationCode(var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 }
