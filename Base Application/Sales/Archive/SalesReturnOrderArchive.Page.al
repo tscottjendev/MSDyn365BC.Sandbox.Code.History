@@ -44,6 +44,12 @@ page 6627 "Sales Return Order Archive"
                     Caption = 'Customer';
                     Importance = Promoted;
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Customer Name 2';
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -290,6 +296,12 @@ page 6627 "Sales Return Order Archive"
                         ApplicationArea = Suite;
                         Caption = 'Name';
                         Importance = Promoted;
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {

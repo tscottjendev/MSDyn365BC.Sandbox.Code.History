@@ -98,6 +98,13 @@ page 44 "Sales Credit Memo"
                         CurrPage.Update();
                     end;
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 field("Registration Number"; Rec."Registration Number")
                 {
                     ApplicationArea = VAT;
@@ -590,6 +597,14 @@ page 44 "Sales Credit Memo"
 
                             CurrPage.Update();
                         end;
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {

@@ -93,6 +93,14 @@ page 49 "Purchase Quote"
                         CurrPage.Update();
                     end;
                 }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
@@ -644,6 +652,16 @@ page 49 "Purchase Quote"
 
                                 CurrPage.Update();
                             end;
+                        }
+                        field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = PayToOptions = PayToOptions::"Another Vendor";
+                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Pay-to Address"; Rec."Pay-to Address")
                         {
@@ -1197,7 +1215,7 @@ page 49 "Purchase Quote"
                 {
                     AccessByPermission = TableData "Vendor Invoice Disc." = R;
                     ApplicationArea = Suite;
-	                    Caption = 'Calculate &Invoice Discount';
+                    Caption = 'Calculate &Invoice Discount';
                     Image = CalculateInvoiceDiscount;
                     ToolTip = 'Calculate the invoice discount for the purchase quote.';
 
