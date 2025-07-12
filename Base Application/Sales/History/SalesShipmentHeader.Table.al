@@ -89,6 +89,7 @@ table 110 "Sales Shipment Header"
         {
             Caption = 'Bill-to Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -356,6 +357,7 @@ table 110 "Sales Shipment Header"
         {
             Caption = 'Sell-to Customer Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(81; "Sell-to Address"; Text[100])
         {

@@ -109,6 +109,13 @@ page 41 "Sales Quote"
                         CurrPage.Update();
                     end;
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Name 2';
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -829,6 +836,16 @@ page 41 "Sales Quote"
 
                                 CurrPage.Update();
                             end;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = BillToOptions = BillToOptions::"Another Customer";
+                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {

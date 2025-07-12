@@ -48,6 +48,13 @@ page 130 "Posted Sales Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the name of customer at the sell-to address.';
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Name 2';
+                    Editable = false;
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -399,6 +406,14 @@ page 130 "Posted Sales Shipment"
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer that you sent the invoice to.';
+                }
+                field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Name 2';
+                    Editable = false;
+                    Importance = Additional;
+                    Visible = false;
                 }
                 field("Bill-to Address"; Rec."Bill-to Address")
                 {
