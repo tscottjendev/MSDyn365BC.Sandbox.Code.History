@@ -321,6 +321,13 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
+        field(12102; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
     }
 
     keys
