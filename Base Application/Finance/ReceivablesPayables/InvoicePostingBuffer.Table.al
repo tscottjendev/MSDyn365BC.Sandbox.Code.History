@@ -336,6 +336,13 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Non Ded. VAT Amt. (ACY)';
             DataClassification = SystemMetadata;
         }
+        field(12102; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
     }
 
     keys
