@@ -671,6 +671,11 @@ page 55 "Purch. Invoice Subform"
                     ToolTip = 'Specifies, if the type is Fixed Asset, that information on the line is to be posted to all the assets defined depreciation books. ';
                     Visible = false;
                 }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
+                    Visible = false;
+                }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;

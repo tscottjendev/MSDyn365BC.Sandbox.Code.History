@@ -337,6 +337,13 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Adjustment Applies-to';
             DataClassification = SystemMetadata;
         }
+        field(12102; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
         field(28040; "WHT Business Posting Group"; Code[20])
         {
             Caption = 'WHT Business Posting Group';
