@@ -456,6 +456,7 @@ table 167 Job
         {
             Caption = 'Bill-to Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer who pays for the project.';
         }
         field(80; "Task Billing Method"; Enum "Task Billing Method")
         {
@@ -969,6 +970,7 @@ table 167 Job
         {
             Caption = 'Sell-to Customer Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(2003; "Sell-to Address"; Text[100])
         {
