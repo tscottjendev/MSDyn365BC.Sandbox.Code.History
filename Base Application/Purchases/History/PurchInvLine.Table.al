@@ -685,6 +685,13 @@ table 123 "Purch. Inv. Line"
 #endif
         }
 #endif
+        field(12100; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
+            MinValue = 0;
+        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
