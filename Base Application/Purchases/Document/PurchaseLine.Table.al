@@ -3767,6 +3767,23 @@ table 39 "Purchase Line"
                     Error(Text10100);
             end;
         }
+        field(12100; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                if "No. of Fixed Asset Cards" <> 0 then begin
+                    TestField(Type, Type::"Fixed Asset");
+                    TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                    if not ("Document Type" in ["Purchase Document Type"::Invoice, "Purchase Document Type"::Order]) then
+                        Error(InvoiceOrOrderDocTypeErr, FieldCaption("Document Type"), "Purchase Document Type"::Invoice, "Purchase Document Type"::Order);
+                end;
+            end;
+        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -4149,6 +4166,7 @@ table 39 "Purchase Line"
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
+        InvoiceOrOrderDocTypeErr: Label '%1 must be either %2 or %3.', Comment = '%1 - Document Type; %2, %3 - Purchase Document Type, Invoice or Order';
 
     protected var
         HideValidationDialog: Boolean;
