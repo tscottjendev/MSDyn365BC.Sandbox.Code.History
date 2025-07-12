@@ -62,7 +62,7 @@ codeunit 99000849 "Mfg. ReservCheckDateConfl"
             exit(false);
 
         IsHandled := false;
-        OnProdOrderComponentCheckOnBeforeIssueError(ReservationEntry, ProdOrderComponent, ForceRequest, IsHandled);
+        OnProdOrderComponentCheckOnBeforeIssueError(ReservationEntry, ProdOrderComponent, ForceRequest, IsHandled, IsCritical);
 #if not CLEAN27
         ReservationCheckDateConfl.RunOnProdOrderComponentCheckOnBeforeIssueError(ReservationEntry, ProdOrderComponent, ForceRequest, IsHandled);
 #endif
@@ -120,7 +120,7 @@ codeunit 99000849 "Mfg. ReservCheckDateConfl"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProdOrderComponentCheckOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var ForceRequest: Boolean; var IsHandled: Boolean)
+    local procedure OnProdOrderComponentCheckOnBeforeIssueError(var ReservationEntry: Record "Reservation Entry"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var ForceRequest: Boolean; var IsHandled: Boolean; var IsCritical: Boolean)
     begin
     end;
 

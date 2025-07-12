@@ -3,7 +3,7 @@
   "name": "Power Automate",
   "publisher": "Microsoft",
   "description": "Provides functionality for Power Automate.",
-  "version": "27.0.0.0",
+  "version": "$(app_currentVersion)",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2104024",
@@ -13,24 +13,24 @@
         "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
         "name":  "System Application",
         "publisher":  "Microsoft",
-        "version":  "27.0.0.0"
+        "version":  "$(app_minimumVersion)"
     },
     {
       "id": "6c65bd2d-884c-4f88-9bd4-5acdefc7b3bb",
       "name": "Web Request",
       "publisher": "Microsoft",
-      "version": "27.0.0.0"
+      "version": "$(app_minimumVersion)"
     },
     {
       "id": "cfdcb306-cc79-4ab0-a686-ae349de1f1aa",
       "name": "Azure AD Authentication",
       "publisher": "Microsoft",
-      "version": "27.0.0.0"
+      "version": "$(app_minimumVersion)"
     }
   ],
   "screenshots": [],
   "internalsVisibleTo": [],
-  "platform": "27.0.0.0",
+  "platform": "$(app_platformVersion)",
   "idRanges": [
     {
       "from": 1,

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -99,11 +99,6 @@ page 55 "Purch. Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the purchase order.';
-                }
-                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the identification number of the fixed asset that is being purchased.';
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
@@ -673,6 +668,11 @@ page 55 "Purch. Invoice Subform"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies, if the type is Fixed Asset, that information on the line is to be posted to all the assets defined depreciation books. ';
+                    Visible = false;
+                }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
                     Visible = false;
                 }
                 field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")

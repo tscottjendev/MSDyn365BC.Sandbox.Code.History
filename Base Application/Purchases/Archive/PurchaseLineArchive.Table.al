@@ -970,6 +970,7 @@ table 5110 "Purchase Line Archive"
         {
             BlankZero = true;
             Caption = 'No. of Fixed Asset Cards';
+            ToolTip = 'Specifies the number of fixed assets that is being purchased.';
             MinValue = 0;
         }
         field(12101; "Deductible %"; Decimal)

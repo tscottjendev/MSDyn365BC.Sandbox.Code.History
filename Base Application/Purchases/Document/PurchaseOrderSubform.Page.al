@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -102,11 +102,6 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the purchase order.';
-                }
-                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the identification number of the fixed asset that is being purchased.';
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
@@ -974,6 +969,11 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the FA posting date if you have selected Fixed Asset in the Type field for this line.';
+                    Visible = false;
+                }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
                     Visible = false;
                 }
                 field("Attached to Line No."; Rec."Attached to Line No.")

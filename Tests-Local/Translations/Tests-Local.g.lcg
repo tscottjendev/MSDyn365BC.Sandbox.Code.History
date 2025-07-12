@@ -2723,15 +2723,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fixed Assets - NamedType CompletionStatsTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 831125063 - NamedType 66440807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[New fixed assets were not created.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fixed Assets - NamedType FixedAssetCountError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 831125063 - NamedType 2769733987" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect number of entries posted to %1 table.]]></Val>
