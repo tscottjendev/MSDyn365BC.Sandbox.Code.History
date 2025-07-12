@@ -176,6 +176,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType FirstMustBeAcquisitionCostErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 893927009 - NamedType 66440807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New fixed assets were not created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType FixedAssetCountError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 3552865637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Years must be less than 200.]]></Val>

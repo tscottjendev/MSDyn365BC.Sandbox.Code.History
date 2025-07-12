@@ -949,6 +949,11 @@ page 54 "Purchase Order Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the FA posting date if you have selected Fixed Asset in the Type field for this line.';
                 }
+                field("No. of Fixed Asset Cards"; Rec."No. of Fixed Asset Cards")
+                {
+                    ApplicationArea = FixedAssets;
+                    Visible = false;
+                }
                 field("Attached to Line No."; Rec."Attached to Line No.")
                 {
                     ApplicationArea = Basic, Suite;
