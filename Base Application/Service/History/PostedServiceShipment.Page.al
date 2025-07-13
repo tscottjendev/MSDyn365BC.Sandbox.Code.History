@@ -66,6 +66,12 @@ page 5975 "Posted Service Shipment"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer.';
                     }
+                    field("Name 2"; Rec."Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Visible = false;
+                    }
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
@@ -265,6 +271,13 @@ page 5975 "Posted Service Shipment"
                         Caption = ' Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
