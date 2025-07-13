@@ -45,6 +45,13 @@ page 6644 "Purchase Return Order Archive"
                     Caption = 'Vendor';
                     ToolTip = 'Specifies the name of the vendor to whom you will send the purchase return order.';
                 }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    Visible = false;
+                }
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
@@ -346,6 +353,13 @@ page 6644 "Purchase Return Order Archive"
                         Caption = 'Name';
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor sending the order.';
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

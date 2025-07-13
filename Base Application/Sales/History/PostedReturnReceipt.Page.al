@@ -62,6 +62,13 @@ page 6660 "Posted Return Receipt"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer.';
                     }
+                    field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Visible = false;
+                    }
                     field("Sell-to Address"; Rec."Sell-to Address")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -217,6 +224,14 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
