@@ -76,6 +76,7 @@ table 83 "Item Journal Line"
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
                     "Bin Code" := '';
+                    "Unit of Measure Code" := '';
                     if CurrFieldNo <> 0 then begin
                         GetItem();
                         if Item.IsInventoriableType() then
