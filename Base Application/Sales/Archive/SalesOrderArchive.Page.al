@@ -51,6 +51,12 @@ page 5159 "Sales Order Archive"
                         ApplicationArea = Suite;
                         Caption = 'Name';
                     }
+                    field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Visible = false;
+                    }
                     field("Sell-to Address"; Rec."Sell-to Address")
                     {
                         ApplicationArea = Suite;
@@ -208,6 +214,12 @@ page 5159 "Sales Order Archive"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Name';
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
