@@ -100,6 +100,14 @@ page 52 "Purchase Credit Memo"
                         CurrPage.Update();
                     end;
                 }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
@@ -694,6 +702,14 @@ page 52 "Purchase Credit Memo"
 
                             CurrPage.Update(false);
                         end;
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

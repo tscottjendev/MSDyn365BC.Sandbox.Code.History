@@ -57,6 +57,13 @@ page 5177 "Job Archive Card"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Customer Name 2';
+                    Importance = Additional;
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -293,6 +300,13 @@ page 5177 "Job Archive Card"
                             Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             NotBlank = true;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Jobs;
+                            Caption = 'Name 2';
+                            Importance = Additional;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {
