@@ -354,6 +354,7 @@ table 36 "Sales Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
             OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
@@ -1404,6 +1405,7 @@ table 36 "Sales Header"
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
             OptimizeForTextSearch = true;
         }
         field(81; "Sell-to Address"; Text[100])
