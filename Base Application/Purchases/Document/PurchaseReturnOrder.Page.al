@@ -100,6 +100,14 @@ page 6640 "Purchase Return Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
@@ -668,6 +676,14 @@ page 6640 "Purchase Return Order"
 
                             CurrPage.Update();
                         end;
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

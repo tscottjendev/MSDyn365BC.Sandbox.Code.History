@@ -53,6 +53,13 @@ page 5164 "Purchase Quote Archive"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the vendor who delivered the items.';
                     }
+                    field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        Visible = false;
+                    }
                     field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = Suite;
@@ -202,6 +209,13 @@ page 5164 "Purchase Quote Archive"
                         ApplicationArea = Suite;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the vendor who you received the invoice from.';
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {
