@@ -66,7 +66,7 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer associated with the sales return.';
-    
+
                     trigger OnValidate()
                     begin
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
@@ -104,6 +104,13 @@ page 6630 "Sales Return Order"
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
                     end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Sell-to")
                 {
@@ -674,6 +681,16 @@ page 6630 "Sales Return Order"
 
                             CurrPage.Update();
                         end;
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {

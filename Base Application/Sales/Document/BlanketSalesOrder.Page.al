@@ -74,7 +74,7 @@ page 507 "Blanket Sales Order"
                     var
                         Customer: Record Customer;
                     begin
-                        Selected.SetTable(Customer);    
+                        Selected.SetTable(Customer);
                         if Rec."Sell-to Customer No." <> Customer."No." then begin
                             Rec.Validate("Sell-to Customer No.", Customer."No.");
                             if Rec."Sell-to Customer No." <> Customer."No." then
@@ -89,6 +89,13 @@ page 507 "Blanket Sales Order"
                         Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
                     end;
+                }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
                 }
                 group("Sell-to")
                 {
@@ -679,6 +686,16 @@ page 507 "Blanket Sales Order"
 
                                 CurrPage.Update();
                             end;
+                        }
+                        field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Name 2';
+                            Editable = BillToOptions = BillToOptions::"Another Customer";
+                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {

@@ -115,6 +115,14 @@ page 50 "Purchase Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Importance = Additional;
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Suite;
@@ -777,6 +785,16 @@ page 50 "Purchase Order"
                                     CurrPage.Update();
                                 end;
                             end;
+                        }
+                        field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name 2';
+                            Editable = PayToOptions = PayToOptions::"Another Vendor";
+                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            Visible = false;
                         }
                         field("Pay-to Address"; Rec."Pay-to Address")
                         {

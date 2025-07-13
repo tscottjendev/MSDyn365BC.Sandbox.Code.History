@@ -75,6 +75,7 @@ table 5994 "Service Cr.Memo Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -327,6 +328,7 @@ table 5994 "Service Cr.Memo Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer on the service invoice.';
         }
         field(81; Address; Text[100])
         {

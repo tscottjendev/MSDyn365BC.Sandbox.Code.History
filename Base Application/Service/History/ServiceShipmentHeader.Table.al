@@ -75,6 +75,7 @@ table 5990 "Service Shipment Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -317,6 +318,7 @@ table 5990 "Service Shipment Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer on the posted service shipment.';
         }
         field(81; Address; Text[100])
         {
