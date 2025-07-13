@@ -76,6 +76,7 @@ table 5109 "Purchase Header Archive"
         {
             Caption = 'Pay-to Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the vendor who you receive the invoice or credit memo from.';
         }
         field(7; "Pay-to Address"; Text[100])
         {
@@ -387,6 +388,7 @@ table 5109 "Purchase Header Archive"
         {
             Caption = 'Buy-from Vendor Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the vendor that you’re buying from.';
         }
         field(81; "Buy-from Address"; Text[100])
         {
