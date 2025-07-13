@@ -80,6 +80,7 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Bill-to Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -376,6 +377,7 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Name 2';
             OptimizeForTextSearch = true;
+            ToolTip = 'Specifies an additional part of the name of the customer on the service credit memo.';
         }
         field(81; Address; Text[100])
         {
