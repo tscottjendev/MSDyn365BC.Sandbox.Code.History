@@ -57,6 +57,14 @@ page 6650 "Posted Return Shipment"
                         Editable = false;
                         ToolTip = 'Specifies the name of the vendor who delivered the items.';
                     }
+                    field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
+                    }
                     field("Buy-from Address"; Rec."Buy-from Address")
                     {
                         ApplicationArea = PurchReturnOrder;
@@ -219,6 +227,14 @@ page 6650 "Posted Return Shipment"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer who you received the invoice from.';
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {
