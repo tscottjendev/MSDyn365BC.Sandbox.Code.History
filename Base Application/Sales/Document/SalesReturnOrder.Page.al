@@ -105,6 +105,13 @@ page 6630 "Sales Return Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Customer Name 2';
+                    QuickEntry = false;
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -660,6 +667,16 @@ page 6630 "Sales Return Order"
 
                             CurrPage.Update();
                         end;
+                    }
+                    field("Bill-to Name 2"; Rec."Bill-to Name 2")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Name 2';
+                        Editable = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Enabled = Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        Visible = false;
                     }
                     field("Bill-to Address"; Rec."Bill-to Address")
                     {
