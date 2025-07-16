@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using Microsoft.Sales.Document;
@@ -672,8 +677,8 @@ codeunit 30161 "Shpfy Import Order"
             Clear(OrderLineAttribute);
             OrderLineAttribute."Order Id" := ShopifyOrderId;
             OrderLineAttribute."Order Line Id" := OrderLineId;
-            OrderLineAttribute.Key := JsonHelper.GetValueAsText(JToken, 'key', MaxStrLen(OrderLineAttribute."Key"));
-            OrderLineAttribute.Value := JsonHelper.GetValueAsText(JToken, 'value', MaxStrLen(OrderLineAttribute.Value));
+            OrderLineAttribute.Key := CopyStr(JsonHelper.GetValueAsText(JToken, 'key'), 1, MaxStrLen(OrderLineAttribute."Key"));
+            OrderLineAttribute.Value := CopyStr(JsonHelper.GetValueAsText(JToken, 'value'), 1, MaxStrLen(OrderLineAttribute.Value));
             OrderLineAttribute.Insert();
         end;
     end;

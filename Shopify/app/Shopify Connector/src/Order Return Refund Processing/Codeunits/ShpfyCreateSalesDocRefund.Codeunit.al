@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using Microsoft.Sales.Document;
@@ -6,7 +11,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 {
 
     var
-        SalesHeader: Record "Sales Header";
+        OrderSalesHeader: Record "Sales Header";
         Shop: Record "Shpfy Shop";
         RefundProcessEvents: Codeunit "Shpfy Refund Process Events";
         RefundId: BigInteger;
@@ -29,7 +34,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
     internal procedure GetSalesHeader(): Record "Sales Header";
     begin
-        exit(SalesHeader);
+        exit(OrderSalesHeader);
     end;
 
     local procedure CreateSalesDocument()
@@ -39,11 +44,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     begin
         if RefundHeader.Get(RefundId) then begin
             Shop.Get(RefundHeader."Shop Code");
-            if DoCreateSalesHeader(RefundHeader, SalesDocumentType, SalesHeader) then begin
-                CreateSalesLines(RefundHeader, SalesHeader);
+            if DoCreateSalesHeader(RefundHeader, SalesDocumentType, OrderSalesHeader) then begin
+                CreateSalesLines(RefundHeader, OrderSalesHeader);
                 RefundHeader.Get(RefundHeader."Refund Id");
-                ReleaseSalesDocument.Run(SalesHeader);
-                RefundProcessEvents.OnAfterProcessSalesDocument(RefundHeader, SalesHeader);
+                ReleaseSalesDocument.Run(OrderSalesHeader);
+                RefundProcessEvents.OnAfterProcessSalesDocument(RefundHeader, OrderSalesHeader);
             end;
         end;
     end;

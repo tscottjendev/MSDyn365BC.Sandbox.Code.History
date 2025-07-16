@@ -1,8 +1,24 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
+
 codeunit 139607 "Shpfy Order Handling Helper"
 {
     var
         Any: Codeunit Any;
-        JsonHelper: codeunit "Shpfy Json Helper";
+        JsonHelper: Codeunit "Shpfy Json Helper";
 
     internal procedure GetOrdersToImport(B2B: Boolean) JResult: JsonObject
     var
@@ -211,7 +227,7 @@ codeunit 139607 "Shpfy Order Handling Helper"
         TempShopifyVariant: Record "Shpfy Variant" temporary;
         TempTag: Record "Shpfy Tag" temporary;
         CreateProduct: Codeunit "Shpfy Create Product";
-        ProductInitTest: codeunit "Shpfy Product Init Test";
+        ProductInitTest: Codeunit "Shpfy Product Init Test";
         Id: BigInteger;
         JLine: JsonObject;
         JNull: JsonValue;

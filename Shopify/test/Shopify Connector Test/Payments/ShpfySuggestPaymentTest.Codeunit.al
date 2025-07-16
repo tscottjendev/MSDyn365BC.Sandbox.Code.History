@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Sales.Document;
+
 codeunit 139648 "Shpfy Suggest Payment Test"
 {
     Subtype = Test;
@@ -69,7 +83,9 @@ codeunit 139648 "Shpfy Suggest Payment Test"
         CreateOrderTransaction(OrderId, Amount * 0.25, 'gift_card', OrderTransaction.Type::Sale, OrderTransaction.Status::Success);
 
         // [WHEN] Create Shopify transactions are run
+#pragma warning disable AA0210
         OrderTransaction.SetRange("Shopify Order Id", OrderId);
+#pragma warning restore AA0210
         OrderTransaction.FindSet();
         repeat
             SuggestPayments.GetOrderTransactions(OrderTransaction);
@@ -172,7 +188,9 @@ codeunit 139648 "Shpfy Suggest Payment Test"
         CashReceiptJournal.SuggestShopifyPayments.Invoke();
 
         // [THEN] Only one Cash Receipt Journal line is created
+#pragma warning disable AA0210
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
+#pragma warning restore AA0210
         GenJournalLine.SetRange("Account No.", Customer."No.");
         LibraryAssert.RecordCount(GenJournalLine, 1);
         GenJournalLine.FindFirst();

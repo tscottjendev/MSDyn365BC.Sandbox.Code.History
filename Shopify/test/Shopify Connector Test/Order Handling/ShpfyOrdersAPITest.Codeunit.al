@@ -1,3 +1,19 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+using Microsoft.Sales.Document;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Foundation.Address;
+
 codeunit 139608 "Shpfy Orders API Test"
 {
     Subtype = Test;
@@ -246,7 +262,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN]
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");
@@ -291,7 +307,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN]
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");
@@ -345,7 +361,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN] Order is processed
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order with correct tax area
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");
@@ -389,7 +405,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN] Order is processed
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order with correct tax area
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");
@@ -436,7 +452,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN] Order is processed
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order with correct tax area
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");
@@ -735,7 +751,7 @@ codeunit 139608 "Shpfy Orders API Test"
 
         // [WHEN] Order is processed
         ProcessOrders.ProcessShopifyOrder(OrderHeader);
-        OrderHeader.Find();
+        OrderHeader.GetBySystemId(OrderHeader.SystemId);
 
         // [THEN] Sales document is created from Shopify order with due date
         SalesHeader.SetRange("Shpfy Order Id", OrderHeader."Shopify Order Id");

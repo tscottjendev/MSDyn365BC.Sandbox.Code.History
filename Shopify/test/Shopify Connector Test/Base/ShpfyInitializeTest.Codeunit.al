@@ -1,3 +1,23 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Item;
+using System.TestLibraries.Utilities;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Foundation.Enums;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Address;
+
 /// <summary>
 /// Codeunit Shpfy Initialize Test (ID 139561).
 /// </summary>
@@ -15,7 +35,9 @@ codeunit 139561 "Shpfy Initialize Test"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         ShopifyAccessToken: Text;
+#pragma warning disable AA0240
         DummyCustomerEmailLbl: Label 'dummy@customer.com';
+#pragma warning restore AA0240
         DummyItemDescriptionLbl: Label 'Dummy Item Description';
 
     trigger OnRun()
@@ -41,7 +63,7 @@ codeunit 139561 "Shpfy Initialize Test"
             if Shop.Get(TempShop.Code) then
                 exit(Shop);
 
-        Code := Any.AlphabeticText(MaxStrLen(Code));
+        Code := CopyStr(Any.AlphabeticText(MaxStrLen(Code)), 1, MaxStrLen(Code));
 
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup,
            VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
@@ -54,7 +76,7 @@ codeunit 139561 "Shpfy Initialize Test"
         Shop.Code := Code;
         Shop."Shopify URL" := StrSubstNo(UrlTxt, Any.AlphabeticText(20));
         Shop.Enabled := true;
-        PostingGroupCode := Any.AlphabeticText(10);
+        PostingGroupCode := CopyStr(Any.AlphabeticText(10), 1, MaxStrLen(PostingGroupCode));
         CustomerTemplateCode := CreateCustomerTemplate(PostingGroupCode);
         ItemTemplateCode := CreateItemTemplate(PostingGroupCode);
         Shop."Customer Templ. Code" := CreateCustomerTemplate(PostingGroupCode);
@@ -67,7 +89,7 @@ codeunit 139561 "Shpfy Initialize Test"
         Shop."Gen. Bus. Posting Group" := PostingGroupCode;
         Shop."VAT Bus. Posting Group" := PostingGroupCode;
         CreateCountryRegionCode(CustomerTemplateCode);
-        Shop."VAT Country/Region Code" := CustomerTemplateCode;
+        Shop."VAT Country/Region Code" := CopyStr(CustomerTemplateCode, 1, MaxStrLen(Shop."VAT Country/Region Code"));
         Shop."Refund Account" := RefundGLAccount."No.";
         if Shop.Insert() then;
         Commit();
@@ -159,7 +181,7 @@ codeunit 139561 "Shpfy Initialize Test"
         VatProductPostingGroup: Record "VAT Product Posting Group";
         NoSeries: Record "No. Series";
     begin
-        Code := Any.AlphabeticText(10);
+        Code := CopyStr(Any.AlphabeticText(10), 1, MaxStrLen(Code));
         InventoryPostingGroup := CreateInventoryPostingGroup(PostingGroupCode);
         GenProductPostingGroup := CreateGenProdPostingGroup(PostingGroupCode);
         VatProductPostingGroup := CreateVatProdPostingGroup(PostingGroupCode);
@@ -259,7 +281,7 @@ codeunit 139561 "Shpfy Initialize Test"
         GeneralPostingSetup: Record "General Posting Setup";
         VatPostingSetup: Record "VAT Posting Setup";
     begin
-        Code := Any.AlphabeticText(10);
+        Code := CopyStr(Any.AlphabeticText(10), 1, MaxStrLen(Code));
         CustomerPostingGroup := CreateCustomerPostingGroup(PostingGroupCode);
         GenBusinessPostingGroup := CreateGenBusPostingGroup(PostingGroupCode);
         VatBusinessPostingGroup := CreateVatBusPostingGroup(PostingGroupCode);
@@ -342,7 +364,7 @@ codeunit 139561 "Shpfy Initialize Test"
     var
         Headers: HttpHeaders;
         ShopifyAccessTokenTxt: Label 'X-Shopify-Access-Token', Locked = true;
-        Values: Array[1] of Text;
+        Values: array[1] of Text;
     begin
         HttpRequestMessage.GetHeaders(Headers);
         LibraryAssert.IsTrue(Headers.Contains(ShopifyAccessTokenTxt), 'access token doesn''t exist');
@@ -359,7 +381,7 @@ codeunit 139561 "Shpfy Initialize Test"
             Clear(VatPostingSetup);
             VatPostingSetup."VAT Bus. Posting Group" := BusinessPostingGroup;
             VatPostingSetup."VAT Prod. Posting Group" := ProductPostingGroup;
-            VatPostingSetup."VAT Identifier" := Any.AlphabeticText(MaxStrLen(VatPostingSetup."VAT Identifier"));
+            VatPostingSetup."VAT Identifier" := CopyStr(Any.AlphabeticText(MaxStrLen(VatPostingSetup."VAT Identifier")), 1, MaxStrLen(VatPostingSetup."VAT Identifier"));
             VatPostingSetup."VAT Calculation Type" := "Tax Calculation Type"::"Normal VAT";
             VatPostingSetup."VAT %" := 10;
             VatPostingSetup.Insert();

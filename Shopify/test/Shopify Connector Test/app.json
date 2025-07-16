@@ -94,5 +94,8 @@
   "application": "$(app_minimumVersion)",
   "resourceFolders": [
     ".resources"
+  ],
+  "features": [
+    "TranslationFile"
   ]
 }

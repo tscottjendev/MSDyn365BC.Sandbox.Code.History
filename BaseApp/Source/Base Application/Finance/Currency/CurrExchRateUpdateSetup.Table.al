@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,7 @@ using System.Integration;
 using System.IO;
 using System.Privacy;
 using System.Threading;
+using System.Telemetry;
 
 /// <summary>
 /// Manages configuration for automated currency exchange rate update services.
@@ -72,6 +73,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
 
             trigger OnValidate()
             var
+                AuditLog: Codeunit "Audit Log";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                 CurrExchRateUpdateConsentProvidedLbl: Label 'Curr. Exch. Rate Update Setup - consent provided by UserSecurityId %1.', Locked = true;
             begin
@@ -83,7 +85,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
                     VerifyDataExchangeLineDefinition();
                     AutoUpdateExchangeRates();
                     LogTelemetryWhenServiceEnabled();
-                    Session.LogAuditMessage(StrSubstNo(CurrExchRateUpdateConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                    AuditLog.LogAuditMessage(StrSubstNo(CurrExchRateUpdateConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                 end else
                     LogTelemetryWhenServiceDisabled();
             end;

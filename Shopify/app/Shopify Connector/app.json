@@ -35,7 +35,8 @@
   "application": "$(app_minimumVersion)",
   "target": "OnPrem",
   "features": [
-    "NoImplicitWith"
+    "NoImplicitWith",
+    "TranslationFile"
   ],
   "resourceFolders": [
     ".resources"

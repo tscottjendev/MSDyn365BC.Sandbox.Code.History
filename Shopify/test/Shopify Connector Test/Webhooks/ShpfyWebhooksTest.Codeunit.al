@@ -1,3 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.Integration.Shopify.Test;
+
+using Microsoft.Integration.Shopify;
+using System.TestLibraries.Utilities;
+using System.Threading;
+using System.Integration;
+
 codeunit 139612 "Shpfy Webhooks Test"
 {
     Subtype = Test;
@@ -332,8 +344,8 @@ codeunit 139612 "Shpfy Webhooks Test"
         exit(JResult);
     end;
 
-    local procedure GetShopDomain(ShopUrl: Text[250]): Text
+    local procedure GetShopDomain(ShopUrl: Text[250]): Text[150]
     begin
-        exit(ShopUrl.Replace('https://', '').Replace('.myshopify.com', '').TrimEnd('/'));
+        exit(CopyStr(ShopUrl.Replace('https://', '').Replace('.myshopify.com', '').TrimEnd('/'), 1, 150));
     end;
 }
