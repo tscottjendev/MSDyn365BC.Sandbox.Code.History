@@ -1,5 +1,7 @@
 namespace System.Threading;
 
+using System.Telemetry;
+
 page 673 "Job Queue Entry Card"
 {
     Caption = 'Job Queue Entry Card';
@@ -255,10 +257,11 @@ page 673 "Job Queue Entry Card"
 
                     trigger OnAction()
                     var
+                        AuditLog: Codeunit "Audit Log";
                         SetStatustoReadyActivatedLbl: Label 'UserSecurityId %1 set the Status of the job queue entry %2 to Ready.', Locked = true;
                     begin
                         Rec.SetStatus(Rec.Status::Ready);
-                        Session.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+                        AuditLog.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
                     end;
                 }
                 action("Set On Hold")

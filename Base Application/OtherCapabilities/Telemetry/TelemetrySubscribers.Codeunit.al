@@ -413,6 +413,7 @@ codeunit 1351 "Telemetry Subscribers"
 
     local procedure LogFinancialReportTelemetry(FinancialReport: Record "Financial Report"; EventId: Text; EventType: Text; AuditAction: Text)
     var
+        AuditLog: Codeunit "Audit Log";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
         AuditDimensions: Dictionary of [Text, Text];
@@ -429,7 +430,7 @@ codeunit 1351 "Telemetry Subscribers"
         AuditDimensions.Add('ReportDefinitionCode', FinancialReport.Name);
         AuditDimensions.Add('ReportDefinitionDesc', FinancialReport.Description);
         AuditDimensions.Add('Action', AuditAction);
-        Session.LogAuditMessage(
+        AuditLog.LogAuditMessage(
             StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportEventTxt, AuditAction, FinancialReport.Name), UserSecurityId()),
             SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
@@ -460,6 +461,7 @@ codeunit 1351 "Telemetry Subscribers"
 
     local procedure LogAccScheduleNameTelemetry(AccScheduleName: Record "Acc. Schedule Name"; EventId: Text; EventType: Text; AuditAction: Text)
     var
+        AuditLog: Codeunit "Audit Log";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
         AuditDimensions: Dictionary of [Text, Text];
@@ -476,7 +478,7 @@ codeunit 1351 "Telemetry Subscribers"
         AuditDimensions.Add('RowDefinitionCode', AccScheduleName.Name);
         AuditDimensions.Add('RowDefinitionDesc', AccScheduleName.Description);
         AuditDimensions.Add('Action', AuditAction);
-        Session.LogAuditMessage(
+        AuditLog.LogAuditMessage(
             StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportRowEventTxt, AuditAction, AccScheduleName.Name), UserSecurityId()),
             SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
@@ -507,6 +509,7 @@ codeunit 1351 "Telemetry Subscribers"
 
     local procedure LogColumnLayoutNameTelemetry(ColumnLayoutName: Record "Column Layout Name"; EventId: Text; EventType: Text; AuditAction: Text)
     var
+        AuditLog: Codeunit "Audit Log";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         TelemetryDimensions: Dictionary of [Text, Text];
         AuditDimensions: Dictionary of [Text, Text];
@@ -523,7 +526,7 @@ codeunit 1351 "Telemetry Subscribers"
         AuditDimensions.Add('ColumnDefinitionCode', ColumnLayoutName.Name);
         AuditDimensions.Add('ColumnDefinitionDesc', ColumnLayoutName.Description);
         AuditDimensions.Add('Action', AuditAction);
-        Session.LogAuditMessage(
+        AuditLog.LogAuditMessage(
             StrSubstNo(FinancialReportOperationLbl, StrSubstNo(FinancialReportColumnEventTxt, AuditAction, ColumnLayoutName.Name), UserSecurityId()),
             SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0, AuditDimensions);
     end;
