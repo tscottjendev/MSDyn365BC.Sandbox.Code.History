@@ -6,6 +6,7 @@ namespace System.Automation;
 
 using System.Threading;
 using System.Azure.Identity;
+using System.Telemetry;
 
 pageextension 9806 "Approval Job Queue Entry Card" extends "Job Queue Entry Card"
 {
@@ -23,6 +24,7 @@ pageextension 9806 "Approval Job Queue Entry Card" extends "Job Queue Entry Card
 
                 trigger OnAction()
                 var
+                    AuditLog: Codeunit "Audit Log";
                     ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     SetStatustoReadyActivatedLbl: Label 'UserSecurityId %1 set the Status of the job queue entry %2 to Ready.', Locked = true;
                 begin
@@ -31,7 +33,7 @@ pageextension 9806 "Approval Job Queue Entry Card" extends "Job Queue Entry Card
                         CurrPage.Update(false);
                     end else begin
                         Rec.SetStatus(Rec.Status::Ready);
-                        Session.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+                        AuditLog.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
                     end;
                 end;
             }
