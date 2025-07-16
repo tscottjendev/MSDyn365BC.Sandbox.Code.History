@@ -9,6 +9,7 @@ using Microsoft.Purchases.History;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Request;
 using System.Automation;
+using System.Telemetry;
 
 report 6661 "Delete Invd Purch. Ret. Orders"
 {
@@ -141,8 +142,10 @@ report 6661 "Delete Invd Purch. Ret. Orders"
     }
 
     trigger OnPostReport()
+    var
+        AuditLog: Codeunit "Audit Log";
     begin
-        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedPurchaseReturnOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+        AuditLog.LogAuditMessage(StrSubstNo(DeletedInvoicedPurchaseReturnOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
     end;
 
     var
