@@ -1,4 +1,4 @@
-﻿namespace System.Security.User;
+namespace System.Security.User;
 
 using System;
 using System.Azure.Identity;
@@ -6,6 +6,7 @@ using System.Email;
 using System.Environment;
 using System.Security.AccessControl;
 using System.Utilities;
+using System.Telemetry;
 
 page 9807 "User Card"
 {
@@ -634,6 +635,7 @@ page 9807 "User Card"
 
     local procedure ValidateAuthentication(): Boolean
     var
+        AuditLog: Codeunit "Audit Log";
         ValidationField: Text;
         ShowConfirmDisableUser: Boolean;
         IsDisableUserMsgConfirmed: Boolean;
@@ -661,7 +663,7 @@ page 9807 "User Card"
         if ShowConfirmDisableUser then begin
             IsDisableUserMsgConfirmed := Confirm(Confirm003Qst, false);
             if IsDisableUserMsgConfirmed then
-                Session.LogAuditMessage(StrSubstNo(UserDisabledLbl, Rec."Windows Security ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 2, 0);
+                AuditLog.LogAuditMessage(StrSubstNo(UserDisabledLbl, Rec."Windows Security ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 2, 0);
             exit(IsDisableUserMsgConfirmed);
         end;
 
