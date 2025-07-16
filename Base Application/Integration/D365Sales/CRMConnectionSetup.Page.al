@@ -80,6 +80,7 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     var
+                        AuditLog: Codeunit "Audit Log";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
                         Dynamics365SalesEnabledLbl: Label 'Integration to Dynamics 365 Sales has been enabled by UserSecurityId %1.', Locked = true;
@@ -88,7 +89,7 @@ page 5330 "CRM Connection Setup"
                         if Rec."Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7A', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                            Session.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                            AuditLog.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
