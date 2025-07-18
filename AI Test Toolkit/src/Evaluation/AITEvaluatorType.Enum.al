@@ -2,17 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace System.TestTools.AITestToolkit;
 
-namespace System.Test.Tooling;
-
-using System.Tooling;
-
-codeunit 144758 "BCPT Codeunit With Error"
+enum 149039 "AIT Evaluator Type"
 {
-    TableNo = "BCPT Line";
+    Extensible = true;
 
-    trigger OnRun()
-    begin
-        Error('Throw Error');
-    end;
+    value(0; "Built-in")
+    {
+    }
+
+    value(1; Custom)
+    {
+    }
 }
