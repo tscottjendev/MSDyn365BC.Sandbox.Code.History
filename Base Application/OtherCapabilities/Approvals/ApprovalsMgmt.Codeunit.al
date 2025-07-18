@@ -2371,6 +2371,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry2.SetFilter("Record ID to Approve", '%1|%2', WorkflowStepInstanceRecID, ApprovalEntry."Record ID to Approve");
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Open);
         ApprovalEntry2.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
+
+        OnFindOpenApprovalEntriesForWorkflowStepInstanceOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry, WorkflowStepInstanceRecID);
+
         exit(not ApprovalEntry2.IsEmpty);
     end;
 
@@ -3182,6 +3185,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPreventInsertRecIfOpenApprovalEntryExistElseCase(RecRef: RecordRef; Variant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindOpenApprovalEntriesForWorkflowStepInstanceOnAfterSetApprovalEntry2Filters(var ApprovalEntry2: Record "Approval Entry"; ApprovalEntry: Record "Approval Entry"; WorkflowStepInstanceRecID: RecordId)
     begin
     end;
 }
