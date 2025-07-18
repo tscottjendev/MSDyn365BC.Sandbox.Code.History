@@ -1,11 +1,11 @@
 {
   "settings": {
-    "allint.enabled": false,
-    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "al.enableCodeActions": false
   },
   "folders": [
     {
@@ -13,9 +13,6 @@
     },
     {
       "path": "./Business Foundation Test Libraries"
-    },
-    {
-      "path": "./Performance Toolkit Tests"
     },
     {
       "path": "./System Application Test Library"
@@ -154,9 +151,6 @@
     },
     {
       "path": "./Test Runner/src/DataDrivenTest"
-    },
-    {
-      "path": "./Performance Toolkit Tests/src/Mock Tests"
     },
     {
       "path": "./System Application/Email/src/Test Email"
