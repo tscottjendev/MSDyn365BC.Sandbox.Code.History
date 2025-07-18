@@ -100,16 +100,7 @@ codeunit 1302 "Customer Mgt."
         CustLedgerEntry.SetRange("Due Date", 0D, WorkDate() - 1);
         Stats.Add(CustomerCardCalculations.GetOverdueCountLabel(), CustLedgerEntry.Count().ToText());
 
-        CustLedgerEntry.SetRange("Document Type", CustLEdgerEntry."Document Type"::Payment);
-        CustLedgerEntry.SetRange("Due Date");
-        CustLedgerEntry.SetRange("Posting Date");
-        CustLedgerEntry.SetRange(Open);
-        if CustLedgerEntry.FindLast() then begin
-            CustLedgerEntry.CalcFields("Amount (LCY)");
-            Stats.Add(CustomerCardCalculations.GetLastPaymentDateLabel(), CustLedgerEntry."Posting Date".ToText());
-            Stats.Add(CustomerCardCalculations.GetLastPaymentAmountLabel(), (-CustLedgerEntry."Amount (LCY)").ToText());
-            //LastPaymentOnTime: Boolean;
-        end;
+        CalcLastPaymentInfo(CustomerNo, Stats);
 
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetCurrentKey("Posting Date");
@@ -117,6 +108,26 @@ codeunit 1302 "Customer Mgt."
         CustLedgerEntry.SetFilter("Sales (LCY)", '>%1', 0);
         if CustLedgerEntry.FindLast() then
             Stats.Add(CustomerCardCalculations.GetDaysSinceLastSaleLabel(), (WorkDate() - CustLedgerEntry."Posting Date").ToText());
+    end;
+
+    procedure CalcLastPaymentInfo(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+    begin
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange(Reversed, false);
+        if CustLedgerEntry.FindLast() then begin
+            CustLedgerEntry.CalcFields("Amount (LCY)");
+            Stats.Add(CustomerCardCalculations.GetLastPaymentDateLabel(), CustLedgerEntry."Posting Date".ToText());
+            Stats.Add(CustomerCardCalculations.GetLastPaymentAmountLabel(), (-CustLedgerEntry."Amount (LCY)").ToText());
+            CustLedgerEntry2.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+            if CustLedgerEntry2.FindLast() then
+                Stats.Add(CustomerCardCalculations.GetLastPaymentOnTimeLabel(), (CustLedgerEntry2."Closed at Date" < CustLedgerEntry2."Due Date").ToText())
+        end;
     end;
 
     procedure CalcNumberOfDistinctItemsSold(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
