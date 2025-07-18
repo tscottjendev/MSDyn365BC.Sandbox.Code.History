@@ -786,7 +786,7 @@ page 21 "Customer Card"
                     field(LastPaymentDate; LastPaymentDate)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Last Payment Date';
+                        Caption = 'Last Payment Receipt Date';
                         ToolTip = 'Specifies the date of the last payment received from the customer.';
                         Importance = Additional;
                     }
@@ -799,6 +799,13 @@ page 21 "Customer Card"
                         Importance = Additional;
                         AutoFormatType = 1;
                         AutoFormatExpression = '';
+                    }
+                    field(LastPaymentOnTime; LastPaymentOnTime)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Last Payment On Time';
+                        ToolTip = 'Specifies whether the last payment was applied before the due date.';
+                        Importance = Additional;
                     }
                 }
                 group("Sales This Year")
@@ -2557,8 +2564,7 @@ page 21 "Customer Card"
         MostFrequentInteractionType := '';
         DaysSinceLastSale := 0;
         DistinctItemsSold := 0;
-
-
+        LastPaymentOnTime := true;
 
         Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), Rec."No.");
         Args.Add(CustomerCardCalculations.GetFiltersLabel(), Rec.GetView());
@@ -2604,6 +2610,9 @@ page 21 "Customer Card"
 
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastPaymentAmountLabel(), DictionaryValue) then
                 Evaluate(LastPaymentAmount, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLastPaymentOnTimeLabel(), DictionaryValue) then
+                Evaluate(LastPaymentOnTime, DictionaryValue);
 
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetDaysSinceLastSaleLabel(), DictionaryValue) then
                 Evaluate(DaysSinceLastSale, DictionaryValue);
@@ -2731,6 +2740,7 @@ page 21 "Customer Card"
         OverdueCount: Integer;
         LastPaymentDate: Date;
         LastPaymentAmount: Decimal;
+        LastPaymentOnTime: Boolean;
         InteractionCount: Integer;
         LastInteractionDate: Date;
         LastInteractionType: Text[100];

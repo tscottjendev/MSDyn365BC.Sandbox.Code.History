@@ -52,11 +52,7 @@ codeunit 32 "Customer Card Calculations"
         AmountOnOutstandingCrMemos := CustomerMgt.CalculateAmountsOnUnpostedCrMemos(Customer."No.", NoOutstandingCrMemos);
         Totals := AmountOnPostedInvoices + AmountOnPostedCrMemos + AmountOnOutstandingInvoices + AmountOnOutstandingCrMemos;
 
-        CustomerMgt.CalculateStatistic(
-          Customer,
-          AdjmtCostLCY, AdjCustProfit, AdjProfitPct,
-          CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY,
-          CustProfit);
+        CustomerMgt.CalculateStatistic(Customer, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
         CustomerMgt.CalculatePaymentStats(Customer."No.", Results);
         CustomerMgt.CalculateInteractionStats(Customer."No.", Results);
         CustomerMgt.CalcNumberOfDistinctItemsSold(Customer."No.", Results);
@@ -120,6 +116,7 @@ codeunit 32 "Customer Card Calculations"
         OverdueCountLbl: label 'Overdue Count', Locked = true;
         LastPaymentDateLbl: label 'Last Payment Date', Locked = true;
         LastPaymentAmountLbl: label 'Last Payment Amount', Locked = true;
+        LastPaymentOnTimeLbl: label 'Last Payment On Time', Locked = true;
         InteractionCountLbl: label 'Interaction Count', Locked = true;
         LastInteractionDateLbl: label 'Last Interaction Date', Locked = true;
         LastInteractionTypeLbl: label 'Last Interaction Type', Locked = true;
@@ -170,6 +167,11 @@ codeunit 32 "Customer Card Calculations"
     internal procedure GetLastPaymentAmountLabel(): Text
     begin
         exit(LastPaymentAmountLbl);
+    end;
+
+    internal procedure GetLastPaymentOnTimeLabel(): Text
+    begin
+        exit(LastPaymentOnTimeLbl);
     end;
 
     internal procedure GetAvgDaysToPayLabel(): Text
