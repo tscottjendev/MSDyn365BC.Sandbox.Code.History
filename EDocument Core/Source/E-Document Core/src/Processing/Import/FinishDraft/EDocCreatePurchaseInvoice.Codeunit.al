@@ -51,6 +51,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
 
         // Post document creation
         DocumentAttachmentMgt.CopyAttachments(EDocument, PurchaseHeader);
+        DocumentAttachmentMgt.DeleteAttachedDocuments(EDocument);
 
         // Post document validation - Silently emit telemetry
         if not TryValidateDocumentTotals(PurchaseHeader) then
