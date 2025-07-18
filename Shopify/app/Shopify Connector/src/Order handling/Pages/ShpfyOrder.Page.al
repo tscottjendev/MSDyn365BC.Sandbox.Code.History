@@ -194,6 +194,12 @@ page 30113 "Shpfy Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the reason why the order was cancelled. Valid values are: customer, fraud, inventory, declined, other.';
                 }
+                field("Salesperson Code"; Rec."Salesperson Code")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
+                }
                 field(AppName; Rec."App Name")
                 {
                     ApplicationArea = All;

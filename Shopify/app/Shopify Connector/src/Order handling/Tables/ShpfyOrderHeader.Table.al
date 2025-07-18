@@ -867,6 +867,11 @@ table 30118 "Shpfy Order Header"
             DataClassification = CustomerContent;
             Caption = 'Payment Terms Name';
         }
+        field(1050; "Salesperson Code"; Code[20])
+        {
+            Caption = 'Salesperson Code';
+            DataClassification = CustomerContent;
+        }
     }
     keys
     {
