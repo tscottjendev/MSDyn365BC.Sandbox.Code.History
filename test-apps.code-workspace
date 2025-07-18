@@ -7,9 +7,6 @@
       "path": "./Business Foundation Test Libraries"
     },
     {
-      "path": "./Performance Toolkit Tests"
-    },
-    {
       "path": "./System Application Test Library"
     },
     {
@@ -148,9 +145,6 @@
       "path": "./Test Runner/src/DataDrivenTest"
     },
     {
-      "path": "./Performance Toolkit Tests/src/Mock Tests"
-    },
-    {
       "path": "./System Application/Email/src/Test Email"
     }
   ],
@@ -159,7 +153,7 @@
       "**.xlf": true
     },
     "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false
   }
 }
