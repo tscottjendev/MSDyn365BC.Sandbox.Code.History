@@ -3,6 +3,7 @@ codeunit 139732 "APIV1 - Default Dimensions E2E"
     // version Test,ERM,W1,All
 
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

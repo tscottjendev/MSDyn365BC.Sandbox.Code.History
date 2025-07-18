@@ -3,6 +3,7 @@ codeunit 139700 "APIV1 - Items E2E"
     // version Test,ERM,W1,All
 
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

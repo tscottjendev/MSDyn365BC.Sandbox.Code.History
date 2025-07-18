@@ -13,6 +13,7 @@ using Microsoft.Foundation.PaymentTerms;
 codeunit 139647 "Shpfy Company Import Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

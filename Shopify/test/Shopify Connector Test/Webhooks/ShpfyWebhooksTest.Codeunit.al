@@ -13,6 +13,7 @@ using System.Integration;
 codeunit 139612 "Shpfy Webhooks Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

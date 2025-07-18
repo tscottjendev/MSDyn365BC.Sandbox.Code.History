@@ -733,6 +733,7 @@ codeunit 134344 "Document Totals Pages"
 
         SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesInvoice.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -760,6 +761,7 @@ codeunit 134344 "Document Totals Pages"
 
         SalesCreditMemo.OpenEdit();
         SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesCreditMemo.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -814,6 +816,7 @@ codeunit 134344 "Document Totals Pages"
 
         BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(BlanketSalesOrder.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -1817,7 +1820,7 @@ codeunit 134344 "Document Totals Pages"
 
         LibraryVariableStorage.AssertEmpty();
     end;
-#endif    
+#endif
 
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatisticsUpdateVATAmountPageHandler')]
@@ -2595,7 +2598,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseStatistics.SubForm."VAT Amount".SetValue(
           PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
-#endif    
+#endif
 
     [PageHandler]
     [Scope('OnPrem')]
@@ -2632,4 +2635,3 @@ codeunit 134344 "Document Totals Pages"
         Assert.ExpectedMessage(InvoiceDiscountPerRoundingMsg, Message);
     end;
 }
-

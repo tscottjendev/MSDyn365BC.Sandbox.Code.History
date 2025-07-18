@@ -15,6 +15,7 @@ using Microsoft.Sales.Document;
 codeunit 139648 "Shpfy Suggest Payment Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

@@ -1,6 +1,7 @@
 codeunit 148130 "Bank Stmt File Wizard Tests"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
 

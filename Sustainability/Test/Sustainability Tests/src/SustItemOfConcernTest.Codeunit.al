@@ -23,6 +23,7 @@ using Microsoft.Sustainability.Reports;
 codeunit 148212 "Sust. Item Of Concern Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

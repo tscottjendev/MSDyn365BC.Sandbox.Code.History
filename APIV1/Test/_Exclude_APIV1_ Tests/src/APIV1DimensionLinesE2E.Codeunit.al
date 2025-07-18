@@ -3,6 +3,7 @@ codeunit 139725 "APIV1 - Dimension Lines E2E"
     // version Test,ERM,W1,All
 
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

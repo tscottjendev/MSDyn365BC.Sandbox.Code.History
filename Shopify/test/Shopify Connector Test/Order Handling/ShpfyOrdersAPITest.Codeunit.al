@@ -17,6 +17,7 @@ using Microsoft.Foundation.Address;
 codeunit 139608 "Shpfy Orders API Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

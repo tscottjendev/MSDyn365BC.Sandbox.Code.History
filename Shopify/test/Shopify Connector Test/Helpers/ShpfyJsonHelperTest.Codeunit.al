@@ -16,6 +16,7 @@ using Microsoft.Foundation.Address;
 codeunit 139574 "Shpfy Json Helper Test"
 {
     Subtype = Test;
+    RequiredTestIsolation = Disabled;
     TestPermissions = NonRestrictive;
 
     var

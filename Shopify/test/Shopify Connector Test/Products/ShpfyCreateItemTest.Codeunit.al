@@ -17,6 +17,7 @@ using Microsoft.Inventory.Item.Catalog;
 codeunit 139567 "Shpfy Create Item Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

@@ -16,6 +16,7 @@ using Microsoft.Inventory.Journal;
 codeunit 139586 "Shpfy Inventory API Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
     SingleInstance = true;

@@ -13,6 +13,7 @@ using Microsoft.Inventory.Location;
 codeunit 139611 "Shpfy Order Refund Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

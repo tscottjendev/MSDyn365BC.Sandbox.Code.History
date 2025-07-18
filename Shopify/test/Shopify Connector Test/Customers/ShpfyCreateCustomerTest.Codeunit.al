@@ -15,6 +15,7 @@ using Microsoft.Sales.Customer;
 codeunit 139565 "Shpfy Create Customer Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     EventSubscriberInstance = Manual;
     TestPermissions = Disabled;
 

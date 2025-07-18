@@ -11,6 +11,7 @@ using System.TestLibraries.Utilities;
 codeunit 139698 "Shpfy Sales Channel Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

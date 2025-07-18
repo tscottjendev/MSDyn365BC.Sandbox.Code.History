@@ -376,6 +376,9 @@ page 6181 "E-Document Purchase Draft"
         HasErrors := false;
         PageEditable := IsEditable();
         EDocumentNotification.SendPurchaseDocumentDraftNotifications(Rec."Entry No");
+
+        if Rec."Entry No" <> 0 then
+            Rec.SetRecFilter(); // Filter the record to only this instance to avoid navigation 
     end;
 
     local procedure IsEditable(): Boolean

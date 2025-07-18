@@ -12,6 +12,7 @@ using Microsoft.Sales.Customer;
 codeunit 139548 "Shpfy Customer Metafields Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var

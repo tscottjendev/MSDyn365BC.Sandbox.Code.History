@@ -3,6 +3,7 @@ codeunit 139702 "APIV1 - Customers E2E"
     // version Test,W1,All
 
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

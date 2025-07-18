@@ -12,6 +12,7 @@ using Microsoft.Sales.Customer;
 codeunit 139637 "Shpfy Company API Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var
@@ -276,7 +277,8 @@ codeunit 139637 "Shpfy Company API Test"
     begin
         BindSubscription(CompanyAPISubs);
         CompanyAPI.SetShop(Shop);
-        CompanyAPI.UpdateCompany(ShopifyCompany, CompanyLocation);
+        CompanyAPI.UpdateCompany(ShopifyCompany);
+        CompanyAPI.UpdateCompanyLocation(CompanyLocation);
         GraphQL := CompanyAPISubs.GetExecutedQuery();
         UnbindSubscription(CompanyAPISubs);
     end;

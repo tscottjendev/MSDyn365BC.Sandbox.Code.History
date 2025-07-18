@@ -17,6 +17,7 @@ using Microsoft.Foundation.Enums;
 codeunit 139546 "Shpfy Shipping Charges Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var
