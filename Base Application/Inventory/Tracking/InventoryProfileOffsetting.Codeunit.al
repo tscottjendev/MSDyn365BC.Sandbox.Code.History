@@ -2485,6 +2485,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ReservEntry.UpdateItemTracking();
                 UpdateAppliedItemEntry(ReservEntry);
                 ReservEntry.Insert();
+                OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
                 PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
                 PrevInsertedEntryNo := ReservEntry."Entry No.";
                 TempTrkgReservEntry.Delete();
@@ -6232,6 +6233,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSupplyForwardOnBeforeLoopQtyToOrderMoreThanZero(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var QtoToOrder: Decimal; SupplyWithinLeadtime: Decimal; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCommitTrackingOnAfterInsertReservationEntry(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }
