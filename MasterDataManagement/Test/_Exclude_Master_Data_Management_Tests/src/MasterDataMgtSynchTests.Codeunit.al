@@ -1,7 +1,7 @@
 codeunit 139758 "Master Data Mgt. Synch. Tests"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
 

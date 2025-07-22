@@ -16,7 +16,7 @@ using Microsoft.Utilities;
 codeunit 139695 "Shpfy Invoices Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

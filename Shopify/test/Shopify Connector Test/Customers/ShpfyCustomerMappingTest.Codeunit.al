@@ -15,7 +15,7 @@ using Microsoft.Sales.Customer;
 codeunit 139569 "Shpfy Customer Mapping Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

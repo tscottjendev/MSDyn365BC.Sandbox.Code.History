@@ -16,7 +16,7 @@ using Microsoft.Sales.Pricing;
 codeunit 139605 "Shpfy Product Price Calc. Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

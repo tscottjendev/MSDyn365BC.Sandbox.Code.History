@@ -13,7 +13,7 @@ using Microsoft.Inventory.Item.Catalog;
 codeunit 139604 "Shpfy Product Mapping Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

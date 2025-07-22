@@ -1,7 +1,7 @@
 codeunit 139520 "VAT Group Helper Funct Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

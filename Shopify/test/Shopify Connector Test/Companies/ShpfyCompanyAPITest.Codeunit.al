@@ -12,7 +12,7 @@ using Microsoft.Sales.Customer;
 codeunit 139637 "Shpfy Company API Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

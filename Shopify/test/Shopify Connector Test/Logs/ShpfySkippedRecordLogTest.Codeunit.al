@@ -15,7 +15,7 @@ using Microsoft.Foundation.PaymentTerms;
 codeunit 139581 "Shpfy Skipped Record Log Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

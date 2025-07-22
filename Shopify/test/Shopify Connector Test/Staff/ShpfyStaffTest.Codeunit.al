@@ -13,6 +13,7 @@ using Microsoft.Sales.Document;
 codeunit 139551 "Shpfy Staff Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     TestHttpRequestPolicy = BlockOutboundRequests;
 

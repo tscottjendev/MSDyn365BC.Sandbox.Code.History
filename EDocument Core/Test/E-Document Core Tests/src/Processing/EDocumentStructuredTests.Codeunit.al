@@ -1,7 +1,7 @@
 codeunit 139891 "E-Document Structured Tests"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
 
     var
         Customer: Record Customer;

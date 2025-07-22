@@ -15,7 +15,7 @@ using System.TestLibraries.Utilities;
 codeunit 139696 "Shpfy Inventory Sync Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
     SingleInstance = true;

@@ -1,7 +1,8 @@
 codeunit 139743 "APIV1 - Customer Payments E2E"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
+    RequiredTestIsolation = Disabled;
     TestPermissions = Disabled;
 
     trigger OnRun()

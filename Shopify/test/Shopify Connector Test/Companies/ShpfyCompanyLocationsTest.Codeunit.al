@@ -12,6 +12,7 @@ using System.TestLibraries.Utilities;
 codeunit 139539 "Shpfy Company Locations Test"
 {
     Subtype = Test;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
     TestHttpRequestPolicy = BlockOutboundRequests;
 

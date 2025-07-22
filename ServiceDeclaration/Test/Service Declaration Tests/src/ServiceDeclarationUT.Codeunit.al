@@ -1,7 +1,7 @@
 codeunit 139903 "Service Declaration UT"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     trigger OnRun()

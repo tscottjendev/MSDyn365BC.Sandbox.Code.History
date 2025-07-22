@@ -14,7 +14,7 @@ using System.Test.Library;
 codeunit 139563 "Shpfy Test Shopify"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

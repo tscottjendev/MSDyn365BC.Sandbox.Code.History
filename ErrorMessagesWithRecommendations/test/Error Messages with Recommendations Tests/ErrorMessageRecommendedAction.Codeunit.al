@@ -5,7 +5,7 @@
 codeunit 139622 ErrorMessageRecommendedAction
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

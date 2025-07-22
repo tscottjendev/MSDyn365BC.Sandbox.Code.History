@@ -1,7 +1,8 @@
 codeunit 139842 "APIV2 - Pictures E2E"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
+    RequiredTestIsolation = Disabled;
     TestPermissions = Disabled;
 
     trigger OnRun()

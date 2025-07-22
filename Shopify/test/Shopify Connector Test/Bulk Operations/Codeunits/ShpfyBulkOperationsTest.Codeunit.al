@@ -11,7 +11,7 @@ using System.TestLibraries.Utilities;
 codeunit 139633 "Shpfy Bulk Operations Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     trigger OnRun()

@@ -12,7 +12,7 @@ using Microsoft.Sales.Customer;
 codeunit 134245 "Shpfy Company Mapping Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

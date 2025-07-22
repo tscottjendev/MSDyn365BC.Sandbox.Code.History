@@ -6,7 +6,6 @@
 codeunit 139760 "SMTP Connector Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     [Test]

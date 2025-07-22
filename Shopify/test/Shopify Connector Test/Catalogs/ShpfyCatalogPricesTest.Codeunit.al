@@ -14,7 +14,7 @@ using Microsoft.Sales.Customer;
 codeunit 139646 "Shpfy Catalog Prices Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

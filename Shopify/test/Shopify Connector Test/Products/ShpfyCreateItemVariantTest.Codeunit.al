@@ -12,7 +12,7 @@ using Microsoft.Inventory.Item;
 codeunit 139632 "Shpfy Create Item Variant Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
 
     var

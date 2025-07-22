@@ -14,7 +14,7 @@ using System.TestLibraries.Utilities;
 codeunit 139577 "Shpfy Test Locations"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
 
