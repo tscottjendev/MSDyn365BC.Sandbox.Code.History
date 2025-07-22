@@ -4226,6 +4226,78 @@ codeunit 137083 "SCM Production Orders IV"
             StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -Quantity * QuantityPer, ItemLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandlerTrue')]
+    procedure VerifyActualCostFieldsMustBeUpdatedInItemLedgerEntryWhenLoadSKUCostOnManufacturingIsEnabledIfSKUNotExist()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        QuantityPer: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 582096] Verify Actual Cost must be non-zero in Item Ledger Entry if "Load SKU Cost on Manufacturing" is enabled in Manufacturing Setup but there is no SKU.
+        Initialize();
+
+        // [GIVEN] Update "Automatic Cost Posting" in Inventory Setup.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Load SKU Cost on Manufacturing" in Manufacturing Setup.
+        LibraryManufacturing.UpdateLoadSKUCostOnManufacturingInManufacturingSetup(true);
+
+        // [GIVEN] Generate "Quantity Per" and Quantity.
+        QuantityPer := LibraryRandom.RandIntInRange(2, 5);
+        Quantity := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, QuantityPer);
+
+        // [GIVEN] Update Routing Link Code in Prod BOM Line and Routing Line.
+        UpdateRoutingLinkCodeInProdBOMAndRouting(Item, ChildItem, '');
+
+        // [GIVEN] Update "Flushing Method" and "Costing Method" in Production item.
+        Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Modify();
+
+        // [GIVEN] Update "Flushing Method" in Child item.
+        ChildItem.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
+        ChildItem.Modify();
+
+        // [GIVEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(Item."No.", false);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Quantity, '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify Item Ledger Entry should be created with Actual Cost is zero for Output Item.
+        Item.Get(Item."No.");
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, Item, '', Quantity * Item."Standard Cost", 0);
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [WHEN] Adust Cost-Item Entries.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Verify Item Ledger Entry should be created with Actual Cost for Output Item.
+        VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, Item, '', 0, Quantity * Item."Standard Cost");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
