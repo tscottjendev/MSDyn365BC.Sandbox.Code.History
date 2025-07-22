@@ -1231,6 +1231,13 @@ codeunit 132202 "Library - Manufacturing"
         ManufacturingSetup.Modify(true);
     end;
 
+    procedure UpdateLoadSKUCostOnManufacturingInManufacturingSetup(LoadSKUCostOnManufacturing: Boolean)
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Load SKU Cost on Manufacturing", LoadSKUCostOnManufacturing);
+        ManufacturingSetup.Modify(true);
+    end;
+
     [Normal]
     procedure UpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; FieldNo: Integer; Value: Variant)
     var
