@@ -101,9 +101,9 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
     [EventSubscriber(ObjectType::Table, Database::"Inventory Adjmt. Entry (Order)", 'OnFindProdOrderLine', '', false, false)]
     local procedure OnFindProdOrderLine(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; var Found: Boolean)
     var
-
         ProdOrderLine: Record "Prod. Order Line";
     begin
+        Found := true;
         ProdOrderLine.SetLoadFields("Prod. Order No.", "Line No.", "Location Code", "Item No.", "Variant Code");
         ProdOrderLine.SetRange("Prod. Order No.", InventoryAdjmtEntryOrder."Order No.");
         ProdOrderLine.SetRange("Line No.", InventoryAdjmtEntryOrder."Order Line No.");
@@ -112,8 +112,6 @@ codeunit 99000776 "Mfg. InventoryAdjmtEntryOrder"
 
         if not StockkeepingUnit.Get(ProdOrderLine."Location Code", Item."No.", ProdOrderLine."Variant Code") then
             Found := false;
-
-        Found := true;
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"Close Inventory Period - Test", 'OnStoreOrderInErrorBuffer', '', false, false)]
