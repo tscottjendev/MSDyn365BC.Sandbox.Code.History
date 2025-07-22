@@ -5380,7 +5380,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         VendPostingGr.GetPayablesAccount(), -DetailedCVLedgEntryBuffer."Amount (LCY)", 0,
                                         DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
                                 end else
-                                    if LedgEntryInserted then
+                                    if LedgEntryInserted or not IsInvoicestoCartera(GenJournalLine."Payment Method Code") then
                                         PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
                             else
                                 PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
@@ -5665,6 +5665,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
         VendorLedgerEntry.Get(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
         VendorPostingGroup.Get(VendorLedgerEntry."Vendor Posting Group");
         exit(GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup));
+    end;
+
+    local procedure IsInvoicestoCartera(PaymentMethodCode: Code[10]): Boolean
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        if PaymentMethodCode = '' then
+            exit(false);
+
+        PaymentMethod.SetLoadFields("Invoices to Cartera");
+        PaymentMethod.Get(PaymentMethodCode);
+        exit(PaymentMethod."Invoices to Cartera");
     end;
 
     /// <summary>
