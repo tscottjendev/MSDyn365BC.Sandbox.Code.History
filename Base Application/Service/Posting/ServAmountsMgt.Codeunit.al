@@ -147,7 +147,10 @@ codeunit 5986 "Serv-Amounts Mgt."
                         Round(ServiceLine."Pmt. Discount Amount" * ServLineQty / ServiceLine.Quantity, Currency."Amount Rounding Precision");
                 end;
 
-                ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
+                if ServiceLine."Line Discount %" = 100 then
+                    ServiceLine."Line Amount" := 0
+                else
+                    ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
 
                 if ServiceLine."Allow Invoice Disc." and (TempVATAmountLine."Inv. Disc. Base Amount" <> 0) then
                     if QtyType = QtyType::Invoicing then
@@ -203,7 +206,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                         ServiceLine.Amount := 0;
                         ServiceLine."VAT Base Amount" := 0;
                     end else begin
-                    ServiceLine.Amount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
+                        ServiceLine.Amount := ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount";
                         ServiceLine."VAT Base Amount" :=
                           Round(
                             ServiceLine.Amount * (1 - ServiceHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
