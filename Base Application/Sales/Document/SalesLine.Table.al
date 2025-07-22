@@ -802,7 +802,9 @@ table 37 "Sales Line"
                 then
                     Error(Text006, MaxQtyToInvoiceBase());
 
-                ClearVATDifference();
+                GetSalesSetup();
+                if not SalesSetup."Allow VAT Difference" then
+                    ClearVATDifference();
 
                 OnValidateQtyToInvoiceOnBeforeCalcInvDiscToInvoice(Rec, CurrFieldNo);
                 CalcInvDiscToInvoice();
@@ -3880,7 +3882,10 @@ table 37 "Sales Line"
     begin
         "Qty. to Invoice" := MaxQtyToInvoice();
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase();
-        ClearVATDifference();
+
+        GetSalesSetup();
+        if not SalesSetup."Allow VAT Difference" then
+            ClearVATDifference();
 
         OnBeforeCalcInvDiscToInvoice(Rec, CurrFieldNo);
         CalcInvDiscToInvoice();
@@ -7773,7 +7778,10 @@ table 37 "Sales Line"
 
         "Qty. to Invoice" := MaxQtyToInvoice();
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase();
-        "VAT Difference" := 0;
+
+        GetSalesSetup();
+        if not SalesSetup."Allow VAT Difference" then
+            "VAT Difference" := 0;
 
         OnInitQtyToShip2OnBeforeCalcInvDiscToInvoice(Rec, xRec);
 
