@@ -71,7 +71,7 @@ codeunit 10789 "Service Posting Subscr. ES"
         PaymentMethod: Record "Payment Method";
         CarteraSetup: Record "Cartera Setup";
         SourceCodeSetup: Record "Source Code Setup";
-        SplitPayment: Codeunit "Invoice-Split Payment";
+        ServInvoiceSplitPayment: Codeunit "Serv. Invoice-Split Payment";
     begin
         CustLedgEntry.Find('+');
         if PaymentMethod.Get(ServiceHeader."Payment Method Code") then
@@ -85,7 +85,7 @@ codeunit 10789 "Service Posting Subscr. ES"
 #endif
         SourceCodeSetup.Get();
         if (ServiceHeader."Bal. Account No." = '') and (ServiceHeader."Document Type" <> ServiceHeader."Document Type"::"Credit Memo") and CarteraSetup.ReadPermission then
-            SplitPayment.SplitServiceInv(
+            ServInvoiceSplitPayment.SplitServiceInvoice(
               ServiceHeader, CustLedgEntry, Window, SourceCodeSetup."Service Management", GenJnlLineExtDocNo, GenJnlLineDocNo,
               -(TotalServiceLine."Amount Including VAT" - TotalServiceLine.Amount));
     end;

@@ -1139,6 +1139,9 @@ codeunit 99000893 "Mfg. Create Put-away"
         end;
 
         OnCreateNewWhseActivityForProdOrderLineOnBeforeValidateQuantity(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff);
+#if not CLEAN27
+        CreatePutaway.RunOnCreateNewWhseActivityForProdOrderLineOnBeforeValidateQuantity(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff);
+#endif        
 
         WarehouseActivityLine.Validate(
               Quantity, UnitOfMeasureManagement.RoundQty(QtyToHandleBase / WarehouseActivityLine."Qty. per Unit of Measure", WarehouseActivityLine."Qty. Rounding Precision"));
@@ -1155,6 +1158,9 @@ codeunit 99000893 "Mfg. Create Put-away"
         end;
 
         OnCreateNewWhseActivityForProdOrderLineOnAfterSetQtyToHandle(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff, DoNotFillQtytoHandle);
+#if not CLEAN27
+        CreatePutaway.RunOnCreateNewWhseActivityForProdOrderLineOnAfterSetQtyToHandle(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff, DoNotFillQtytoHandle);
+#endif        
 
         WarehouseActivityLine.CopyTrackingFromProdOrderLineTrackingBuffer(TempProdOrdLineTrackingBuff);
         WarehouseActivityLine."Warranty Date" := TempProdOrdLineTrackingBuff."Warranty Date";
