@@ -1428,4 +1428,36 @@ codeunit 7313 "Create Put-away"
     local procedure OnAfterGetWarehouseClassCode(var WarehouseClassCode: Code[10]; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
+
+#if not CLEAN27
+    internal procedure RunOnCreateNewWhseActivityForProdOrderLineOnBeforeValidateQuantity(var WarehouseActivityLine: Record "Warehouse Activity Line";
+                                                                                          ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+                                                                                          var TempProdOrdLineTrackingBuff: Record Microsoft.Inventory.Tracking."Prod. Ord. Line Tracking Buff." temporary)
+    begin
+        OnCreateNewWhseActivityForProdOrderLineOnBeforeValidateQuantity(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreatePutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewWhseActivityForProdOrderLineOnBeforeValidateQuantity(var WarehouseActivityLine: Record "Warehouse Activity Line";
+                                                                                    ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+                                                                                    var TempProdOrdLineTrackingBuff: Record Microsoft.Inventory.Tracking."Prod. Ord. Line Tracking Buff." temporary)
+    begin
+    end;
+
+    internal procedure RunOnCreateNewWhseActivityForProdOrderLineOnAfterSetQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line";
+                                                                                       ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+                                                                                       var TempProdOrdLineTrackingBuff: Record Microsoft.Inventory.Tracking."Prod. Ord. Line Tracking Buff." temporary; DoNotFillQtytoHandle: Boolean)
+    begin
+        OnCreateNewWhseActivityForProdOrderLineOnAfterSetQtyToHandle(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff, DoNotFillQtytoHandle);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreatePutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewWhseActivityForProdOrderLineOnAfterSetQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line";
+                                                                                 ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+                                                                                 var TempProdOrdLineTrackingBuff: Record Microsoft.Inventory.Tracking."Prod. Ord. Line Tracking Buff." temporary; DoNotFillQtytoHandle: Boolean)
+    begin
+    end;
+#endif
 }
