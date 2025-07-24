@@ -2471,6 +2471,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Control Object Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 3642842519 - Control 3348695317 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies which Test Runner (Test Isolation) is required for the codeunit.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Control Required Test Isolation - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3642842519 - Control 3495532634 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the type of the test, indicating the context in which it runs.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Control Test Type - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 625957419 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Select Tests By Range]]></Val>
