@@ -92,9 +92,9 @@ tableextension 10790 "Service Header ES" extends "Service Header"
 
             trigger OnValidate()
             var
-                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                ServSIIManagement: Codeunit "Serv. SII Management";
             begin
-                SIISchemeCodeMgt.UpdateServiceSpecialSchemeCodeInSalesHeader(Rec, xRec);
+                ServSIIManagement.UpdateServiceSpecialSchemeCodeInSalesHeader(Rec, xRec);
             end;
         }
         field(10710; "Operation Description"; Text[250])

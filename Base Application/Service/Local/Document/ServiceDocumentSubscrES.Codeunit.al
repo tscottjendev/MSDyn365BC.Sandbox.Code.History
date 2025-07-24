@@ -21,6 +21,7 @@ codeunit 10763 "Service Document Subscr. ES"
 
     var
         SIIManagement: Codeunit "SII Management";
+        ServSIIManagement: Codeunit "Serv. SII Management";
         ECDifference: Decimal;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnValidateBillToCustomerNoOnAfterSetFilters', '', true, true)]
@@ -36,7 +37,7 @@ codeunit 10763 "Service Document Subscr. ES"
         ServiceHeader.Validate(
             "ID Type",
             SIIManagement.GetSalesIDType(ServiceHeader."Bill-to Customer No.", ServiceHeader."Correction Type", ServiceHeader."Corrected Invoice No."));
-        SIIManagement.UpdateSIIInfoInServiceDoc(ServiceHeader);
+        ServSIIManagement.UpdateSIIInfoInServiceDoc(ServiceHeader);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterValidateAppliesToDocNo', '', true, true)]
@@ -95,17 +96,15 @@ codeunit 10763 "Service Document Subscr. ES"
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterInitRecord', '', true, true)]
     local procedure OnAfterInitRecord(var ServiceHeader: Record "Service Header")
     begin
-        SIIManagement.UpdateSIIInfoInServiceDoc(ServiceHeader);
+        ServSIIManagement.UpdateSIIInfoInServiceDoc(ServiceHeader);
     end;
 
     // Service Line
 
     [EventSubscriber(ObjectType::Table, Database::"Service Line", 'OnAfterValidateEvent', 'VAT Prod. Posting Group', true, true)]
     local procedure OnAfterValidateVATProdPostingGroup(var Rec: Record "Service Line")
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
-        SIISchemeCodeMgt.UpdatePurchSpecialSchemeCodeInServiceine(Rec);
+        ServSIIManagement.UpdatePurchSpecialSchemeCodeInServiceine(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Line", 'OnAfterClearVATPct', '', true, true)]

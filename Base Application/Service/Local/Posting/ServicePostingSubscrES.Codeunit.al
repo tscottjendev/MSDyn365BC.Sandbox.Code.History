@@ -18,7 +18,6 @@ using Microsoft.Service.History;
 codeunit 10789 "Service Posting Subscr. ES"
 {
     var
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
 #if not CLEAN27
         ServPostingJournalsMgt: Codeunit "Serv-Posting Journals Mgt.";
 #endif
@@ -29,8 +28,10 @@ codeunit 10789 "Service Posting Subscr. ES"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostWithLines', '', true, true)]
     local procedure OnAfterPostWithLines(var PassedServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    var
+        ServSIIManagement: Codeunit "Serv. SII Management";
     begin
-        SIIJobUploadPendingDocs.OnAfterPostServiceDoc(PassedServiceHeader);
+        ServSIIManagement.OnAfterPostServiceDoc(PassedServiceHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnCheckAndSetConstantsOnBeforeSetPostingOptions', '', true, true)]
