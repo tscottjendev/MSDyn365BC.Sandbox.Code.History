@@ -2,7 +2,12 @@ namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Sales.Receivables;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.ReceivablesPayables;
 
 codeunit 10762 "Service History Subscr. ES"
 {
@@ -131,5 +136,64 @@ codeunit 10762 "Service History Subscr. ES"
         SIIDocUploadState."First Summary Doc. No." := CopyStr(ServiceInvoiceHeader.GetSIIFirstSummaryDocNo(), 1, 35);
         SIIDocUploadState."Last Summary Doc. No." := CopyStr(ServiceInvoiceHeader.GetSIILastSummaryDocNo(), 1, 35);
         SIIDocUploadState.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Make 340 Declaration", 'OnGetCustomerDataFromServiceInvoice', '', true, true)]
+    local procedure OnGetCustomerDataFromServiceInvoice(VATEntry: Record "VAT Entry"; var Customer: Record Customer; var ShouldExit: Boolean);
+    var
+        ServiceInvHeader: Record "Service Invoice Header";
+    begin
+        if ServiceInvHeader.Get(VATEntry."Document No.") then begin
+            Customer.Name := ServiceInvHeader."Bill-to Name";
+            Customer."VAT Registration No." := ServiceInvHeader."VAT Registration No.";
+            ShouldExit := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Make 340 Declaration", 'OnGetCustomerDataFromServiceCrMemo', '', true, true)]
+    local procedure OnGetCustomerDataFromServiceCrMemo(VATEntry: Record "VAT Entry"; var Customer: Record Customer; var ShouldExit: Boolean);
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    begin
+        if ServiceCrMemoHeader.Get(VATEntry."Document No.") then begin
+            Customer.Name := ServiceCrMemoHeader."Bill-to Name";
+            Customer."VAT Registration No." := ServiceCrMemoHeader."VAT Registration No.";
+            exit;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Make 340 Declaration", 'OnRecordTypeSaleOnGetOperationDate', '', true, true)]
+    local procedure OnRecordTypeSaleOnGetOperationDate(VATEntry: Record "VAT Entry"; var OperationDateText: Text; var CorrInvoiceText: Text)
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceInvHeader: Record "Service Invoice Header";
+    begin
+        if ServiceCrMemoHeader.Get(VATEntry."Document No.") then
+            if ServiceCrMemoHeader."Corrected Invoice No." <> '' then begin
+                if ServiceInvHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.") then begin
+                    OperationDateText := FormatDate(ServiceInvHeader."Posting Date");
+                    CorrInvoiceText := Format(ServiceCrMemoHeader."Corrected Invoice No.");
+                end;
+            end else
+                OperationDateText := FormatDate(ServiceCrMemoHeader."Posting Date");
+    end;
+
+    local procedure FormatDate(PostingDate: Date): Text[8]
+    begin
+        if PostingDate <> 0D then
+            exit(Format(PostingDate, 8, '<Year4><Month,2><Day,2>'));
+        exit('00000000');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Cartera Doc.", 'OnGetDocumentDateFromServiceInvoice', '', true, true)]
+    local procedure OnGetDocumentDateFromServiceInvoice(DocumentNo: Code[20]; var DocumentDate: Date)
+    var
+        PaymentTerms: Record "Payment Terms";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        if ServiceInvoiceHeader.Get(DocumentNo) then begin
+            PaymentTerms.Get(ServiceInvoiceHeader."Payment Terms Code");
+            DocumentDate := ServiceInvoiceHeader."Document Date";
+        end;
     end;
 }
