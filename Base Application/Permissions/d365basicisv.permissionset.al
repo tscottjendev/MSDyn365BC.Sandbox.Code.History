@@ -238,6 +238,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Allocation Line" = RIMD,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
                   tabledata "Analysis Report Chart Setup" = R,

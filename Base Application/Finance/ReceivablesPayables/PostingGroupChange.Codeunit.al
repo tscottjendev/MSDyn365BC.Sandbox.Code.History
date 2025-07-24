@@ -5,6 +5,8 @@
 namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
@@ -57,6 +59,8 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
                 CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup, OldPostingGroup, GenJournalLine."Account No.");
             GenJournalLine."Account Type"::Vendor:
                 CheckVendorPostingGroupChangeAndVendor(NewPostingGroup, OldPostingGroup, GenJournalLine."Account No.");
+            GenJournalLine."Account Type"::Employee:
+                CheckEmployeePostingGroupChangeAndEmployee(NewPostingGroup, OldPostingGroup, GenJournalLine."Account No.");
             else
                 GenJournalLine.FieldError(GenJournalLine."Account Type");
         end;
@@ -77,10 +81,6 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         CheckVendorPostingGroupChangeAndVendor(NewPostingGroup, OldPostingGroup, '');
     end;
 
-
-
-
-
     local procedure CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CustomerNo: Code[20])
     begin
         CheckAllowChangeSalesSetup();
@@ -93,6 +93,13 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         CheckAllowChangePurchaseSetup();
         if not HasVendorSamePostingGroup(NewPostingGroup, VendorNo) then
             CheckVendorPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckEmployeePostingGroupChangeAndEmployee(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; EmployeeNo: Code[20])
+    begin
+        CheckAllowChangeHRSetup();
+        if not HasEmployeeSamePostingGroup(NewPostingGroup, EmployeeNo) then
+            CheckEmployeePostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
     end;
 
     local procedure CheckCustomerPostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
@@ -109,6 +116,14 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
     begin
         if not AltVendorPostingGroup.Get(OldPostingGroup, NewPostingGroup) then
             Error(CannotChangePostingGroupErr, OldPostingGroup, NewPostingGroup, AltVendorPostingGroup.TableCaption());
+    end;
+
+    procedure CheckEmployeePostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    var
+        AltEmployeePostingGroup: Record "Alt. Employee Posting Group";
+    begin
+        if not AltEmployeePostingGroup.Get(OldPostingGroup, NewPostingGroup) then
+            Error(CannotChangePostingGroupErr, OldPostingGroup, NewPostingGroup, AltEmployeePostingGroup.TableCaption());
     end;
 
     procedure CheckAllowChangeSalesSetup()
@@ -141,6 +156,15 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
         PurchasesPayablesSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
     end;
 
+    procedure CheckAllowChangeHRSetup()
+    var
+        HumanResourcesSetup: Record "Human Resources Setup";
+    begin
+        HumanResourcesSetup.Get();
+        HumanResourcesSetup.TestField("Allow Multiple Posting Groups");
+        HumanResourcesSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
+    end;
+
     procedure HasCustomerSamePostingGroup(NewPostingGroup: Code[20]; CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
@@ -156,6 +180,15 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
     begin
         if Vendor.Get(VendorNo) then
             exit(NewPostingGroup = Vendor."Vendor Posting Group");
+        exit(false);
+    end;
+
+    procedure HasEmployeeSamePostingGroup(NewPostingGroup: Code[20]; EmployeeNo: Code[20]): Boolean
+    var
+        Employee: Record Employee;
+    begin
+        if Employee.Get(EmployeeNo) then
+            exit(NewPostingGroup = Employee."Employee Posting Group");
         exit(false);
     end;
 

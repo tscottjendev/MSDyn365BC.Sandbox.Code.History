@@ -171,6 +171,7 @@ permissionset 209 "D365 Basic - Read"
                   tabledata AllObjWithCaption = R,
                   tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Alt. Vendor Posting Group" = R,
+                  tabledata "Alt. Employee Posting Group" = R,
                   tabledata "Buffer IC Comment Line" = R,
                   tabledata "Buffer IC Document Dimension" = R,
                   tabledata "Buffer IC Inbox Jnl. Line" = R,
