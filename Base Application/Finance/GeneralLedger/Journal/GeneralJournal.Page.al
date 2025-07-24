@@ -19,6 +19,7 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Customer;
@@ -2079,6 +2080,7 @@ page 39 "General Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        HumanResourcesSetup: Record "Human Resources Setup";
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         PayrollManagement: Codeunit "Payroll Management";
@@ -2388,6 +2390,7 @@ page 39 "General Journal"
         GLSetup.Get();
         PurchasesPayablesSetup.GetRecordOnce();
         SalesReceivablesSetup.GetRecordOnce();
+        HumanResourcesSetup.Get();
         if IsSimplePage then begin
             AmountVisible := false;
             DebitCreditVisible := true;
@@ -2395,7 +2398,10 @@ page 39 "General Journal"
             AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
             DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         end;
-        IsPostingGroupEditable := (PurchasesPayablesSetup."Allow Multiple Posting Groups") or (SalesReceivablesSetup."Allow Multiple Posting Groups");
+        IsPostingGroupEditable :=
+            PurchasesPayablesSetup."Allow Multiple Posting Groups" or
+            SalesReceivablesSetup."Allow Multiple Posting Groups" or
+            HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure SetDocumentNumberFilter(DocNoToSet: Code[20])
