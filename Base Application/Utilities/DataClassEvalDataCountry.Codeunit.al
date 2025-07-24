@@ -39,6 +39,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"BACS Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Fin. Charge Interest Rate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Accounting Period GB");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
