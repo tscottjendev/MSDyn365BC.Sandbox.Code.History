@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Setup;
 
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Absence;
 
@@ -48,6 +49,18 @@ table 5218 "Human Resources Setup"
         {
             Caption = 'Automatically Create Resource';
             DataClassification = SystemMetadata;
+        }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for the same employee in a general journal or payment document.';
+        }
+        field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
+        {
+            Caption = 'Check Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies implementation method of checking which posting groups can be used for the employee.';
         }
     }
 
