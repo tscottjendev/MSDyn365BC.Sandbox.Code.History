@@ -62,6 +62,12 @@ page 5238 "Detailed Empl. Ledger Entries"
                     ToolTip = 'Specifies the Global Dimension 2 code of the initial employee ledger entry.';
                     Visible = false;
                 }
+                field("Posting Group"; Rec."Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the employee''s market type to link business transactions to.';
+                    Visible = false;
+                }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = BasicHR;

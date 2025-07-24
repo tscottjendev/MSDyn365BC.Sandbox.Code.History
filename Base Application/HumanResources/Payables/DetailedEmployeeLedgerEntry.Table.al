@@ -165,6 +165,12 @@ table 5223 "Detailed Employee Ledger Entry"
             Caption = 'Ledger Entry Amount';
             Editable = false;
         }
+        field(44; "Posting Group"; Code[20])
+        {
+            Caption = 'Employee Posting Group';
+            Editable = false;
+            TableRelation = "Employee Posting Group";
+        }
         field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
         {
             Caption = 'Exch. Rate Adjmt. Reg. No.';

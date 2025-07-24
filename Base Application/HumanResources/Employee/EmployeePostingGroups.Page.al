@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
+using Microsoft.HumanResources.Setup;
+
 page 5224 "Employee Posting Groups"
 {
     ApplicationArea = BasicHR;
@@ -54,6 +56,33 @@ page 5224 "Employee Posting Groups"
 
     actions
     {
+        area(navigation)
+        {
+            group("&Posting Group")
+            {
+                Caption = '&Posting Group';
+                action(Alternative)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Alternative Groups';
+                    Image = Relationship;
+                    RunObject = Page "Alt. Employee Posting Groups";
+                    RunPageLink = "Employee Posting Group" = field(Code);
+                    ToolTip = 'Specifies alternative employee posting groups.';
+                    Visible = AltPostingGroupsVisible;
+                }
+            }
+        }
     }
+
+    trigger OnOpenPage()
+    begin
+        HumanResourcesSetup.Get();
+        AltPostingGroupsVisible := HumanResourcesSetup."Allow Multiple Posting Groups";
+    end;
+
+    var
+        HumanResourcesSetup: Record "Human Resources Setup";
+        AltPostingGroupsVisible: Boolean;
 }
 

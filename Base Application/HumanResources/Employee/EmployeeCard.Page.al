@@ -13,6 +13,7 @@ using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Analysis;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Utilities;
 using System.Email;
 
@@ -338,6 +339,12 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
+                }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = IsAllowMultiplePostingGroupsVisible;
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -767,6 +774,8 @@ page 5200 "Employee Card"
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        HumanResourcesSetup.Get();
+        IsAllowMultiplePostingGroupsVisible := HumanResourcesSetup."Allow Multiple Posting Groups";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -797,10 +806,12 @@ page 5200 "Employee Card"
     end;
 
     var
+        HumanResourcesSetup: Record "Human Resources Setup";
         FormatAddress: Codeunit "Format Address";
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+        IsAllowMultiplePostingGroupsVisible: Boolean;
 
         ShowMapLbl: Label 'Show on Map';
 

@@ -17,6 +17,7 @@ permissionset 2698 "Employee - Edit"
 
     Caption = 'Edit employees';
     Permissions = tabledata "Alternative Address" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = R,
                   tabledata "Cause of Absence" = R,
                   tabledata "Cause of Inactivity" = R,
                   tabledata "Confidential Information" = RiD,

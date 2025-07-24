@@ -164,6 +164,12 @@ table 1384 "Employee Templ."
         {
             Caption = 'Application Method';
         }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this employee.';
+        }
         field(1100; "Cost Center Code"; Code[20])
         {
             Caption = 'Cost Center Code';

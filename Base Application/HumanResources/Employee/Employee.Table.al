@@ -540,6 +540,12 @@ table 5200 Employee
         {
             Caption = 'Privacy Blocked';
         }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
+        }
         field(1100; "Cost Center Code"; Code[20])
         {
             Caption = 'Cost Center Code';
@@ -633,10 +639,10 @@ table 5200 Employee
         HumanResSetup.Get();
         if "No." = '' then begin
             HumanResSetup.TestField("Employee Nos.");
-			if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := HumanResSetup."Employee Nos.";
+            if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := HumanResSetup."Employee Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
             Employee.ReadIsolation(IsolationLevel::ReadUncommitted);
             Employee.SetLoadFields("No.");
@@ -860,6 +866,13 @@ table 5200 Employee
         GeneralLedgerSetup.GetRecordOnce();
         Rec.Validate("Payroll Currency Factor", CurrencyExchangeRate.ExchangeRate(WorkDate(), Rec."Payroll Currency Code"));
         Rec."Payroll" := Round(CurrencyExchangeRate.ExchangeAmtLCYToFCY(WorkDate(), Rec."Payroll Currency Code", Rec."Payroll (LCY)", Rec."Payroll Currency Factor"), GeneralLedgerSetup."Amount Rounding Precision");
+    end;
+
+    procedure CheckAllowMultiplePostingGroups()
+    begin
+        HumanResSetup.Get();
+        if HumanResSetup."Allow Multiple Posting Groups" then
+            TestField("Allow Multiple Posting Groups");
     end;
 
     [IntegrationEvent(false, false)]

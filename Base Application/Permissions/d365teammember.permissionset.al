@@ -353,6 +353,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Aging Band Buffer" = RM,
                   tabledata "Alt. Customer Posting Group" = RM,
                   tabledata "Alt. Vendor Posting Group" = RM,
+                  tabledata "Alt. Employee Posting Group" = RM,
                   tabledata "Alternative Address" = RM,
                   tabledata "Analysis by Dim. Parameters" = RM,
                   tabledata "Analysis by Dim. User Param." = RM,

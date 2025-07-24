@@ -959,7 +959,7 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 #endif
     end;
 
-    internal procedure PostFlushedConsumption(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line"; var sender: Codeunit "Item Jnl.-Post Line")
+    procedure PostFlushedConsumption(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line"; var sender: Codeunit "Item Jnl.-Post Line")
     var
         CompItem: Record Item;
         TempTrackingSpecificationSaved: Record "Tracking Specification" temporary;

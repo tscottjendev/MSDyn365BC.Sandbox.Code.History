@@ -175,6 +175,7 @@ permissionset 191 "D365 SETUP"
                   tabledata Activity = D,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Analysis Column" = D,
                   tabledata "Analysis Column Template" = D,
                   tabledata "Analysis Field Value" = D,
