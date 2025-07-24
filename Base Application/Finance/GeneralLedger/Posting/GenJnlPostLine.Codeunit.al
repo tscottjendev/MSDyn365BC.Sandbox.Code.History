@@ -1427,11 +1427,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         Employee.Get(GenJnlLine."Account No.");
         Employee.CheckBlockedEmployeeOnJnls(true);
+        Employee.TestField("Employee Posting Group");
+        if GenJnlLine."Posting Group" = '' then
+            GenJnlLine."Posting Group" := Employee."Employee Posting Group"
+        else
+            if GenJnlLine."Posting Group" <> Employee."Employee Posting Group" then
+                Employee.CheckAllowMultiplePostingGroups();
 
-        if GenJnlLine."Posting Group" = '' then begin
-            Employee.TestField("Employee Posting Group");
-            GenJnlLine."Posting Group" := Employee."Employee Posting Group";
-        end;
         EmployeePostingGr.Get(GenJnlLine."Posting Group");
 
         DtldEmplLedgEntry.LockTable();
@@ -3609,6 +3611,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure InsertDtldEmplLedgEntry(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry"; Offset: Integer)
+    var
+        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
     begin
         DtldEmplLedgEntry.Init();
         DtldEmplLedgEntry.TransferFields(DtldCVLedgEntryBuf);
@@ -3617,6 +3621,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DtldEmplLedgEntry."Reason Code" := GenJnlLine."Reason Code";
         DtldEmplLedgEntry."Source Code" := GenJnlLine."Source Code";
         DtldEmplLedgEntry."Transaction No." := NextTransactionNo;
+        EmployeeLedgerEntry2.Get(DtldCVLedgEntryBuf."CV Ledger Entry No.");
+        DtldEmplLedgEntry."Posting Group" := EmployeeLedgerEntry2."Employee Posting Group";
         DtldEmplLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
         OnBeforeInsertDtldEmplLedgEntry(DtldEmplLedgEntry, GenJnlLine, DtldCVLedgEntryBuf);
         DtldEmplLedgEntry.Insert(true);
@@ -5109,7 +5115,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         AccNo: Code[20];
     begin
-        AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, 0, false);
+        if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" = DetailedCVLedgEntryBuffer."Entry Type"::Application) then
+            AccNo := GetEmplDtldCVLedgEntryBufferAccNo(DetailedCVLedgEntryBuffer)
+        else
+            AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, 0, false);
         PostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, AdjAmount, false);
     end;
 
@@ -5123,7 +5132,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         then
             exit;
 
-        AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, OriginalTransactionNo, true);
+        if MultiplePostingGroups and (DetailedCVLedgEntryBuffer."Entry Type" = DetailedCVLedgEntryBuffer."Entry Type"::Application) then
+            AccNo := GetEmplDtldCVLedgEntryBufferAccNo(DetailedCVLedgEntryBuffer)
+        else
+            AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, OriginalTransactionNo, true);
         DetailedCVLedgEntryBuffer."Gen. Posting Type" := DetailedCVLedgEntryBuffer."Gen. Posting Type"::Purchase;
         PostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, AdjAmount, true);
     end;
@@ -5183,6 +5195,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup));
     end;
 
+    local procedure GetEmplDtldCVLedgEntryBufferAccNo(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"): Code[20]
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        EmployeePostingGroup: Record "Employee Posting Group";
+    begin
+        EmployeeLedgerEntry.Get(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
+        EmployeePostingGroup.Get(EmployeeLedgerEntry."Employee Posting Group");
+        exit(EmployeePostingGroup.GetPayablesAccount());
+    end;
+
     /// <summary>
     /// Posts all detailed employee ledger entries that are stored in DtldCVLedgEntryBuf. Creates g/l entry for the total amounts.
     /// </summary>
@@ -5210,6 +5232,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DtldEmplLedgEntryNoOffset := DtldEmplLedgEntry."Entry No."
         else
             DtldEmplLedgEntryNoOffset := 0;
+
+        MultiplePostingGroups := CheckEmplMultiplePostingGroups(DtldCVLedgEntryBuf);
 
         DtldCVLedgEntryBuf.Reset();
         OnAfterSetDtldEmplLedgEntryNoOffset(DtldCVLedgEntryBuf, DtldEmplLedgEntryNoOffset);
@@ -5258,6 +5282,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     procedure PostDtldCVLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; AccNo: Code[20]; var AdjAmount: array[4] of Decimal; Unapply: Boolean)
     var
         CustomerPostingGroup: Record "Customer Posting Group";
+        EmployeePostingGroup: Record "Employee Posting Group";
         VendorPostingGroup: Record "Vendor Posting Group";
         AccNo2: Code[20];
         AccNo3: Code[20];
@@ -5297,6 +5322,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
                                     AccNo2 := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer);
                                     AccNo3 := GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup);
+                                end;
+                            GenJournalLine."Account Type"::Employee:
+                                begin
+                                    EmployeePostingGroup.Get(GenJournalLine."Posting Group");
+                                    AccNo2 := GetEmplDtldCVLedgEntryBufferAccNo(DetailedCVLedgEntryBuffer);
+                                    AccNo3 := EmployeePostingGroup.GetPayablesAccount();
                                 end;
                         end;
                         CreateGLEntryGainLoss(GenJournalLine, AccNo2, DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
@@ -6194,6 +6225,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DetailedEmployeeLedgerEntry2.SetRange("Transaction No.", DetailedEmployeeLedgerEntry."Transaction No.");
         end;
         DetailedEmployeeLedgerEntry2.SetRange("Employee No.", DetailedEmployeeLedgerEntry."Employee No.");
+        MultiplePostingGroups := CheckDetEmplLedgEntryMultiplePostingGrOnBeforeUnapply(DetailedEmployeeLedgerEntry2, DetailedEmployeeLedgerEntry);
         DetailedEmployeeLedgerEntry2.SetFilter("Entry Type", '>%1', DetailedEmployeeLedgerEntry."Entry Type"::"Initial Entry");
 
         OnUnapplyEmplLedgEntryOnAfterFilterSourceEntries(DetailedEmployeeLedgerEntry, DetailedEmployeeLedgerEntry2);
@@ -6201,11 +6233,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedEmployeeLedgerEntry2.FindSet();
         TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DetailedEmployeeLedgerEntry2.TestField(Unapplied, false);
+            DetailedEmployeeLedgerEntry.TestField(Unapplied, false);
+            UpdateEmployeePostingGroup(DetailedEmployeeLedgerEntry2);
             InsertDtldEmplLedgEntryUnapply(GenJournalLineToPost, NewDetailedEmployeeLedgerEntry, DetailedEmployeeLedgerEntry2, NextDtldLedgEntryNo);
 
             DetailedCVLedgEntryBuffer.Init();
             DetailedCVLedgEntryBuffer.TransferFields(NewDetailedEmployeeLedgerEntry);
+            if EmployeePostingGroup.Code <> DetailedEmployeeLedgerEntry2."Posting Group" then
+                EmployeePostingGroup.Get(DetailedEmployeeLedgerEntry2."Posting Group");
             SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
             CurrencyLCY.InitRoundingPrecision();
             IsHandled := false;
@@ -6242,6 +6277,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
         FinishPosting(GenJournalLineToPost);
 
         OnAfterUnapplyEmplLedgEntry(GenJournalLine, DetailedEmployeeLedgerEntry);
+    end;
+
+    local procedure UpdateEmployeePostingGroup(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        if DetailedEmployeeLedgerEntry."Posting Group" = '' then begin
+            EmployeeLedgerEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+            EmployeeLedgerEntry.Get(DetailedEmployeeLedgerEntry."Employee Ledger Entry No.");
+            DetailedEmployeeLedgerEntry."Posting Group" := EmployeeLedgerEntry."Employee Posting Group";
+            DetailedEmployeeLedgerEntry.Modify();
+        end;
     end;
 
     local procedure UnapplyExcludedVAT(var TempVATEntry: Record "VAT Entry" temporary; TransactionNo: Integer; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -6496,6 +6543,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         NewDtldEmplLedgEntry."Document No." := GenJnlLine."Document No.";
         NewDtldEmplLedgEntry."Source Code" := GenJnlLine."Source Code";
         NewDtldEmplLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDtldEmplLedgEntry."User ID"));
+        NewDtldEmplLedgEntry."Posting Group" := OldDtldEmplLedgEntry."Posting Group";
         OnBeforeInsertDtldEmplLedgEntryUnapply(NewDtldEmplLedgEntry, GenJnlLine, OldDtldEmplLedgEntry);
         NewDtldEmplLedgEntry.Insert(true);
         NextDtldLedgEntryNo := NextDtldLedgEntryNo + 1;
@@ -7666,6 +7714,32 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Checks if multiple employee posting groups exists on employee ledger entries that relate to detailed entries being created.
+    /// </summary>
+    /// <remarks>
+    /// The check is only performed when employee ledger entries are being applied.
+    /// </remarks>
+    /// <param name="DetailedCVLedgEntryBuffer">Buffer table for detailed employee ledger entries to be posted.</param>
+    /// <returns>Returns true if multiple employee posting groups exists for employee ledger entries being applied</returns>
+    procedure CheckEmplMultiplePostingGroups(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"): Boolean
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        PostingGroup: Code[20];
+    begin
+        PostingGroup := '';
+        DetailedCVLedgEntryBuffer.Reset();
+        DetailedCVLedgEntryBuffer.SetRange("Entry Type", DetailedCVLedgEntryBuffer."Entry Type"::Application);
+        if DetailedCVLedgEntryBuffer.FindSet() then
+            repeat
+                EmployeeLedgerEntry.Get(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
+                if (PostingGroup <> '') and (PostingGroup <> EmployeeLedgerEntry."Employee Posting Group") then
+                    exit(true);
+                PostingGroup := EmployeeLedgerEntry."Employee Posting Group";
+            until DetailedCVLedgEntryBuffer.Next() = 0;
+        exit(false);
+    end;
+
     local procedure CheckDetCustLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"): Boolean
     var
         IsHandled: Boolean;
@@ -7699,6 +7773,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if DetailedVendorLedgEntry2."Posting Group" <> DetailedVendorLedgEntry."Posting Group" then
                 exit(true);
         until DetailedVendorLedgEntry2.Next() = 0;
+        exit(false);
+    end;
+
+    local procedure CheckDetEmplLedgEntryMultiplePostingGrOnBeforeUnapply(var DetailedEmployeeLedgerEntry2: Record "Detailed Employee Ledger Entry"; var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"): Boolean
+    begin
+        DetailedEmployeeLedgerEntry2.SetRange("Entry Type", DetailedEmployeeLedgerEntry2."Entry Type"::Application);
+        DetailedEmployeeLedgerEntry2.FindSet();
+        repeat
+            if DetailedEmployeeLedgerEntry2."Posting Group" <> DetailedEmployeeLedgerEntry."Posting Group" then
+                exit(true);
+        until DetailedEmployeeLedgerEntry2.Next() = 0;
         exit(false);
     end;
 
