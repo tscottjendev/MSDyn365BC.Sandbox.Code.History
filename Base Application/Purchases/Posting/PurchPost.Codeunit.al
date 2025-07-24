@@ -1550,7 +1550,7 @@ codeunit 90 "Purch.-Post"
                   PurchHeader, PurchLine, OriginalItemJnlLine, ItemJnlLine."Item Shpt. Entry No.", TempTrackingSpecificationChargeAssmt);
         end;
 
-        OnAfterPostItemJnlLine(ItemJnlLine, PurchLine, PurchHeader, ItemJnlPostLine, WhseJnlPostLine);
+        OnAfterPostItemJnlLine(ItemJnlLine, PurchLine, PurchHeader, ItemJnlPostLine, WhseJnlPostLine, WhseReceive, WhseShip, WhseRcptHeader, WhseShptHeader);
 
         ItemJnlPostLine.RunOnPublishPostingInventoryToGL();
 
@@ -8954,11 +8954,8 @@ codeunit 90 "Purch.-Post"
     begin
     end;
 
-
-
-
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; var WhseReceive: Boolean; var WhseShip: Boolean; var WhseRcptHeader: Record "Warehouse Receipt Header"; var WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
