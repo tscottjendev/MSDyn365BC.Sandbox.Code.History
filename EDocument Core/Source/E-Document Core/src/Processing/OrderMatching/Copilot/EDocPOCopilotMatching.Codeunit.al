@@ -174,20 +174,6 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         end;
     end;
 
-    procedure ModifyAICapability()
-    var
-        CopilotCapability: Codeunit "Copilot Capability";
-        EnvironmentInformation: Codeunit "Environment Information";
-    begin
-        if not EnvironmentInformation.IsSaaSInfrastructure() then
-            exit;
-
-        if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then begin
-            CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"E-Document Matching Assistance", Enum::"Copilot Availability"::"Preview", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
-            FeatureTelemetry.LogUptake('0000MMJ', FeatureName(), Enum::"Feature Uptake Status"::Used);
-        end;
-    end;
-
     local procedure PreparePrompt(Prompt: Text): Text
     var
         NewLineChar: Char;

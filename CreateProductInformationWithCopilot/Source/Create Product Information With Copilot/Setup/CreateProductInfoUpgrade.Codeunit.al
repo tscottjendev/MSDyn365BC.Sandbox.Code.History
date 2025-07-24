@@ -16,7 +16,6 @@ codeunit 7332 "Create Product Info. Upgrade"
     trigger OnUpgradePerDatabase()
     begin
         RegisterCapability();
-        ModifyCapability();
     end;
 
     local procedure RegisterCapability()
@@ -30,24 +29,8 @@ codeunit 7332 "Create Product Info. Upgrade"
         end;
     end;
 
-    local procedure ModifyCapability()
-    var
-        ItemSubstSuggestUtility: Codeunit "Create Product Info. Utility";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if not UpgradeTag.HasUpgradeTag(GetAddBillingTypeToCreateProductInfoCapabilityTag()) then begin
-            ItemSubstSuggestUtility.AddBillingTypeToCapability();
-            UpgradeTag.SetUpgradeTag(GetAddBillingTypeToCreateProductInfoCapabilityTag());
-        end;
-    end;
-
     internal procedure GetRegisterCreateProductInfoCapabilityTag(): Code[250]
     begin
         exit('MS-485571-RegisterCreateProductInfoCapability-20240319');
-    end;
-
-    internal procedure GetAddBillingTypeToCreateProductInfoCapabilityTag(): Code[250]
-    begin
-        exit('MS-581366-BillingTypeToCreateProductInfoCapability-20250731');
     end;
 }

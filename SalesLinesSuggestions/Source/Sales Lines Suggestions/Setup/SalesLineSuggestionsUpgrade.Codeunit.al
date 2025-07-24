@@ -15,7 +15,6 @@ codeunit 7278 "Sales Line Suggestions Upgrade"
     trigger OnUpgradePerDatabase()
     begin
         RegisterCapability();
-        ModifyCapability();
     end;
 
     local procedure RegisterCapability()
@@ -29,24 +28,10 @@ codeunit 7278 "Sales Line Suggestions Upgrade"
         end;
     end;
 
-    local procedure ModifyCapability()
-    var
-        SalesLinesSuggestionsImpl: Codeunit "Sales Lines Suggestions Impl.";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if not UpgradeTag.HasUpgradeTag(GetAddBillingTypeToSalesLinesSuggestionsCapabilityTag()) then begin
-            SalesLinesSuggestionsImpl.AddBillingTypeToCapability();
-            UpgradeTag.SetUpgradeTag(GetAddBillingTypeToSalesLinesSuggestionsCapabilityTag());
-        end;
-    end;
 
     internal procedure GetRegisterSalesLinesSuggestionsCapabilityTag(): Code[250]
     begin
         exit('MS-485919-RegisterSalesLinesSuggestionsCapability-20240209');
     end;
 
-    internal procedure GetAddBillingTypeToSalesLinesSuggestionsCapabilityTag(): Code[250]
-    begin
-        exit('MS-581366-BillingTypeToSalesLinesSuggestionsCapability-20250731');
-    end;
 }

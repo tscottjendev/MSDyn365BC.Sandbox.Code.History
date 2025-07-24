@@ -280,17 +280,6 @@ codeunit 7275 "Sales Lines Suggestions Impl."
 
     end;
 
-    procedure AddBillingTypeToCapability()
-    var
-        CopilotCapability: Codeunit "Copilot Capability";
-        EnvironmentInformation: Codeunit "Environment Information";
-        DocUrlLbl: Label 'https://go.microsoft.com/fwlink/?linkid=2261665', Locked = true;
-    begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
-            if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"Sales Lines Suggestions") then
-                CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Sales Lines Suggestions", Enum::"Copilot Availability"::Preview, Enum::"Copilot Billing Type"::"Not Billed", DocUrlLbl);
-    end;
-
     [EventSubscriber(ObjectType::Page, Page::"Copilot AI Capabilities", 'OnRegisterCopilotCapability', '', false, false)]
     local procedure OnRegisterCopilotCapability()
     begin
