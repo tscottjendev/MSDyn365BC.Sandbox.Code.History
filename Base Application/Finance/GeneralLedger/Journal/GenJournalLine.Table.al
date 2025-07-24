@@ -45,6 +45,7 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.Entity;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.GLAccount;
@@ -676,7 +677,9 @@ table 81 "Gen. Journal Line"
             else
             if ("Account Type" = const(Vendor)) "Vendor Posting Group"
             else
-            if ("Account Type" = const("Fixed Asset")) "FA Posting Group";
+            if ("Account Type" = const("Fixed Asset")) "FA Posting Group"
+            else
+            if ("Account Type" = const(Employee)) "Employee Posting Group";
 
             trigger OnValidate()
             begin
@@ -10763,7 +10766,9 @@ table 81 "Gen. Journal Line"
     local procedure CheckPostingGroupChange()
     var
         Customer: Record Customer;
+        Employee: Record Employee;
         Vendor: Record Vendor;
+        HumanResourcesSetup: Record "Human Resources Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PostingGroupChangeInterface: Interface "Posting Group Change Method";
@@ -10778,9 +10783,9 @@ table 81 "Gen. Journal Line"
             case "Account Type" of
                 "Account Type"::Customer:
                     begin
-                        Customer.Get("Account No.");
                         SalesReceivablesSetup.Get();
                         if SalesReceivablesSetup."Allow Multiple Posting Groups" then begin
+                            Customer.Get("Account No.");
                             Customer.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := SalesReceivablesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
@@ -10788,11 +10793,21 @@ table 81 "Gen. Journal Line"
                     end;
                 "Account Type"::Vendor:
                     begin
-                        Vendor.Get("Account No.");
                         PurchasesPayablesSetup.Get();
                         if PurchasesPayablesSetup."Allow Multiple Posting Groups" then begin
+                            Vendor.Get("Account No.");
                             Vendor.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := PurchasesPayablesSetup."Check Multiple Posting Groups";
+                            PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
+                        end;
+                    end;
+                "Account Type"::Employee:
+                    begin
+                        HumanResourcesSetup.Get();
+                        if HumanResourcesSetup."Allow Multiple Posting Groups" then begin
+                            Employee.Get("Account No.");
+                            Employee.TestField("Allow Multiple Posting Groups");
+                            PostingGroupChangeInterface := HumanResourcesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
                         end;
                     end;

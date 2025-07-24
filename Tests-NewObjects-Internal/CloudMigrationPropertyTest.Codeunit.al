@@ -823,6 +823,7 @@ codeunit 135160 "Cloud Migration Property Test"
         ListOfTablesToMigrate.Add(Database::"Alternative Address");
         ListOfTablesToMigrate.Add(Database::"Alt. Customer Posting Group");
         ListOfTablesToMigrate.Add(Database::"Alt. Vendor Posting Group");
+        ListOfTablesToMigrate.Add(Database::"Alt. Employee Posting Group");
         ListOfTablesToMigrate.Add(Database::"Analysis by Dim. Parameters");
         ListOfTablesToMigrate.Add(Database::"Analysis by Dim. User Param.");
         ListOfTablesToMigrate.Add(Database::"Analysis Column Template");
