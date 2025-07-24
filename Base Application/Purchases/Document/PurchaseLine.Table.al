@@ -262,6 +262,7 @@ table 39 "Purchase Line"
                 end;
 
                 "System-Created Entry" := TempPurchLine."System-Created Entry";
+                "Selected Alloc. Account No." := TempPurchLine."Selected Alloc. Account No.";
 
                 OnBeforeAssignHeaderValues(Rec, PurchHeader);
 
