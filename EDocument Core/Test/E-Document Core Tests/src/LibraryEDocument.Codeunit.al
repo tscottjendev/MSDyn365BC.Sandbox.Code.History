@@ -18,6 +18,7 @@ codeunit 139629 "Library - E-Document"
         LibraryInvt: Codeunit "Library - Inventory";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryInventory: Codeunit "Library - Inventory";
 
     procedure SetupStandardVAT()
     begin
@@ -182,6 +183,23 @@ codeunit 139629 "Library - E-Document"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateSalesHeaderWithItem(Customer, SalesHeader, Enum::"Sales Document Type"::Invoice);
         PostSalesDocument(SalesHeader, SalesInvHeader);
+    end;
+
+    procedure PostSalesDocument(var Customer: Record Customer; Ship: Boolean) SalesInvHeader: Record "Sales Invoice Header";
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        CreateSalesHeaderWithItem(Customer, SalesHeader, Enum::"Sales Document Type"::Invoice);
+        PostSalesDocument(SalesHeader, SalesInvHeader, Ship);
+    end;
+
+    procedure PostSalesShipment(var Customer: Record Customer) SalesShipmentHeader: Record "Sales Shipment Header";
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        this.CreateSalesHeaderWithItem(Customer, SalesHeader, Enum::"Sales Document Type"::Order);
+        SalesShipmentHeader.Get(this.LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
 
     procedure RunEDocumentJobQueue(var EDocument: Record "E-Document")
@@ -432,6 +450,11 @@ codeunit 139629 "Library - E-Document"
     procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header")
     begin
         SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"; Ship: Boolean)
+    begin
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, Ship, true));
     end;
 
     procedure Initialize()
@@ -789,6 +812,19 @@ codeunit 139629 "Library - E-Document"
         EDocServiceSupportedType.Insert();
     end;
 
+    procedure AddEDocServiceSupportedType(EDocService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type")
+    var
+        EDocServiceSupportedType: Record "E-Doc. Service Supported Type";
+    begin
+        if not EDocService.Get(EDocService.Code) then
+            exit;
+
+        EDocServiceSupportedType.Init();
+        EDocServiceSupportedType."E-Document Service Code" := EDocService.Code;
+        EDocServiceSupportedType."Source Document Type" := EDocumentType;
+        if EDocServiceSupportedType.Insert() then;
+    end;
+
     procedure CreateTestReceiveServiceForEDoc(var EDocService: Record "E-Document Service"; Integration: Enum "Service Integration")
     begin
         if not EDocService.Get('TESTRECEIVE') then begin
@@ -920,6 +956,53 @@ codeunit 139629 "Library - E-Document"
         TempBlob.CreateInStream(InStr);
         InStr.Read(Content);
         exit(Content);
+    end;
+
+    internal procedure CreateLocationsWithPostingSetups(
+        var FromLocation: Record Location;
+        var ToLocation: Record Location;
+        var InTransitLocation: Record Location;
+        var InventoryPostingGroup: Record "Inventory Posting Group")
+    var
+        InventoryPostingSetupFromLocation: Record "Inventory Posting Setup";
+        InventoryPostingSetupToLocation: Record "Inventory Posting Setup";
+        InventoryPostingSetupInTransitLocation: Record "Inventory Posting Setup";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        LibraryWarehouse.CreateLocation(FromLocation);
+        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetupFromLocation, FromLocation.Code, InventoryPostingGroup.Code);
+        LibraryInventory.UpdateInventoryPostingSetup(FromLocation, InventoryPostingGroup.Code);
+
+        InventoryPostingSetupFromLocation.Get(FromLocation.Code, InventoryPostingGroup.Code);
+        InventoryPostingSetupToLocation := InventoryPostingSetupFromLocation;
+        InventoryPostingSetupToLocation."Location Code" := ToLocation.Code;
+        InventoryPostingSetupToLocation.Insert(false);
+
+        InventoryPostingSetupInTransitLocation := InventoryPostingSetupFromLocation;
+        InventoryPostingSetupInTransitLocation."Location Code" := InTransitLocation.Code;
+        InventoryPostingSetupInTransitLocation.Insert(false);
+    end;
+
+    internal procedure CreateItemWithInventoryPostingGroup(var Item: Record Item; InventoryPostingGroupCode: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item."Inventory Posting Group" := InventoryPostingGroupCode;
+        Item.Modify(false);
+    end;
+
+    internal procedure CreateItemWIthInventoryStock(var Item: Record Item; var FromLocation: Record Location; var InventoryPostingGroup: Record "Inventory Posting Group")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemWithInventoryPostingGroup(Item, InventoryPostingGroup.Code);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", FromLocation.Code, '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryInventory.PostItemJournalLine(
+          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     // Verify procedures

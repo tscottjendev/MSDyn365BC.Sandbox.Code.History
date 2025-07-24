@@ -688,10 +688,15 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
             exit;
         end;
 
-        if UpgradeTag.HasUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag()) then
-            exit;
-        CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
-        UpgradeTag.SetUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag());
+        if not UpgradeTag.HasUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag()) then begin
+            CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
+            UpgradeTag.SetUpgradeTag(GetRegisterBankAccRecCopilotGACapabilityUpgradeTag());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(GetAddBillingTypeToBankAccRecCopilotGACapabilityUpgradeTag()) then begin
+            CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation", Enum::"Copilot Availability"::"Generally Available", Enum::"Copilot Billing Type"::"Not Billed", LearnMoreUrlTxt);
+            UpgradeTag.SetUpgradeTag(GetAddBillingTypeToBankAccRecCopilotGACapabilityUpgradeTag());
+        end;
     end;
 
     local procedure MatchIsAcceptable(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; MatchedLineNoTxt: Text; MatchedEntryNoTxt: Text): Boolean
@@ -735,6 +740,11 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
     local procedure GetRegisterBankAccRecCopilotGACapabilityUpgradeTag(): Code[250]
     begin
         exit('MS-521413-RegisterBankAccRecCopilotGACapability-20240624');
+    end;
+
+    local procedure GetAddBillingTypeToBankAccRecCopilotGACapabilityUpgradeTag(): Code[250]
+    begin
+        exit('MS-581366-BillingTypeToBankAccRecCopilotGACapability-20250731');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]

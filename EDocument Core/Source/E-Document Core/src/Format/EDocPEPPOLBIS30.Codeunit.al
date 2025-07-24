@@ -7,6 +7,8 @@ using Microsoft.Purchases.Document;
 using Microsoft.Service.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.EServices.EDocument.Format;
+using Microsoft.Inventory.Transfer;
 
 codeunit 6165 "EDoc PEPPOL BIS 3.0" implements "E-Document"
 {
@@ -60,6 +62,10 @@ codeunit 6165 "EDoc PEPPOL BIS 3.0" implements "E-Document"
                 GenerateInvoiceXMLFile(SourceDocumentHeader, DocOutStream, EDocumentService."Embed PDF in export");
             EDocument."Document Type"::"Sales Credit Memo", EDocument."Document Type"::"Service Credit Memo":
                 GenerateCrMemoXMLFile(SourceDocumentHeader, DocOutStream, EDocumentService."Embed PDF in export");
+            EDocument."Document Type"::"Sales Shipment":
+                GenerateShipmentXMLFile(SourceDocumentHeader, DocOutStream, EDocumentService."Embed PDF in export");
+            EDocument."Document Type"::"Transfer Shipment":
+                GenerateTransferShipmentXMLFile(SourceDocumentHeader, DocOutStream, EDocumentService."Embed PDF in export");
             else
                 EDocErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(DocumentTypeNotSupportedErr, EDocument.FieldCaption("Document Type"), EDocument."Document Type"));
         end;
@@ -107,6 +113,32 @@ codeunit 6165 "EDoc PEPPOL BIS 3.0" implements "E-Document"
         SalesCrMemoPEPPOLBIS30.SetGeneratePDF(GeneratePDF);
         SalesCrMemoPEPPOLBIS30.SetDestination(OutStr);
         SalesCrMemoPEPPOLBIS30.Export();
+    end;
+
+    local procedure GenerateShipmentXMLFile(ShipmentRecRef: RecordRef; var OutStr: OutStream; GeneratePDF: Boolean)
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentExport: Codeunit "E-Doc. Shipment Export To XML";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        ShipmentRecRef.SetTable(SalesShipmentHeader);
+        SalesShipmentExport.SetGeneratePDF(GeneratePDF);
+        SalesShipmentExport.Run(SalesShipmentHeader);
+        SalesShipmentExport.GetShipmentXml(TempBlob);
+        CopyStream(OutStr, TempBlob.CreateInStream());
+    end;
+
+    local procedure GenerateTransferShipmentXMLFile(var TransferShipmentHeaderRecRef: RecordRef; DocOutStream: OutStream; GeneratePDF: Boolean)
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferShipmentExport: Codeunit "E-Doc. Transfer Shpt. To XML";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        TransferShipmentHeader := TransferShipmentHeaderRecRef;
+        TransferShipmentExport.SetGeneratePDF(GeneratePDF);
+        TransferShipmentExport.Run(TransferShipmentHeader);
+        TransferShipmentExport.GetTransferShipmentXML(TempBlob);
+        CopyStream(DocOutStream, TempBlob.CreateInStream());
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"E-Document Service", 'OnAfterValidateEvent', 'Document Format', false, false)]

@@ -13,6 +13,7 @@ codeunit 139624 "E-Doc E2E Test"
         LibraryWorkflow: codeunit "Library - Workflow";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
         EDocImplState: Codeunit "E-Doc. Impl. State";
         LibraryLowerPermission: Codeunit "Library - Lower Permissions";
         IsInitialized: Boolean;
@@ -1573,6 +1574,84 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
+    internal procedure CreateEDocumentShipmentSuccessful()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        EDocument: Record "E-Document";
+    begin
+        IsInitialized := false;
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Check that E-Document is created when posting sales shipment
+        this.Initialize(Enum::"Service Integration"::"Mock");
+        this.LibraryEDoc.AddEDocServiceSupportedType(this.EDocumentService, Enum::"E-Document Type"::"Sales Shipment");
+
+        // [GIVEN] Setup E-Document service for sending shipment
+        this.EDocumentService."Document Format" := Enum::"E-Document Format"::"PEPPOL BIS 3.0";
+        this.EDocumentService.Modify(false);
+
+        // [WHEN] Create sales order and post shipment for it
+        SalesShipmentHeader := this.LibraryEDoc.PostSalesShipment(this.Customer);
+
+        // [THEN] Check that E-Document is created for posted shipment
+        EDocument.FindLast();
+        this.Assert.AreEqual(SalesShipmentHeader."No.", EDocument."Document No.", this.IncorrectValueErr);
+
+        // [WHEN] Export E-Document 
+        this.LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+
+        // [THEN] Check that xml file was created
+        this.CheckXmlCreated(EDocument);
+    end;
+
+    [Test]
+    procedure CreateEDocumentTransferShipmentSuccess()
+    var
+        TransferHeader: Record "Transfer Header";
+        Item: Record Item;
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        DocumentSendingProfile: Record "Document Sending Profile";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Check that E-Document is created when posting transfer shipment
+        IsInitialized := false;
+        this.Initialize(Enum::"Service Integration"::"Mock");
+        DocumentSendingProfile.FindLast();
+        this.LibraryEDoc.AddEDocServiceSupportedType(this.EDocumentService, Enum::"E-Document Type"::"Transfer Shipment");
+
+        // [GIVEN] E-Document service with format peppol
+        this.EDocumentService."Document Format" := Enum::"E-Document Format"::"PEPPOL BIS 3.0";
+        this.EDocumentService.Modify(false);
+
+        // [GIVEN] Transfer locations with posting setup
+        LibraryEDoc.CreateLocationsWithPostingSetups(FromLocation, ToLocation, InTransitLocation, InventoryPostingGroup);
+        // [GIVEN] Item with inventory stock in from location
+        LibraryEDoc.CreateItemWIthInventoryStock(Item, FromLocation, InventoryPostingGroup);
+        // [GIVEN] Transfer-to location with Document Sending Profile set
+        ToLocation."Transfer Doc. Sending Profile" := DocumentSendingProfile.Code;
+        ToLocation.Modify(false);
+
+        // [WHEN] Create transfer shipment
+        LibraryInventory.CreateAndPostTransferOrder(
+            TransferHeader,
+            Item,
+            FromLocation,
+            ToLocation,
+            InTransitLocation,
+            '',
+            1,
+            Workdate(),
+            Workdate(),
+            true,
+            false);
+
+        // [THEN] Check that E-Document is created
+        VerifyIfEDocumentIsCreatedForTransferOrder(TransferHeader);
+    end;
+
+    [Test]
     procedure PostDocumentNoDefaultOrElectronicProfile()
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -1580,6 +1659,7 @@ codeunit 139624 "E-Doc E2E Test"
     begin
         // [FEATURE] [E-Document] [Processing]
         // [SCENARIO] Post document without having default or Electronic sending profile
+        IsInitialized := false;
         Initialize(Enum::"Service Integration"::"Mock");
 
         if EDocument.FindLast() then
@@ -1981,6 +2061,28 @@ codeunit 139624 "E-Doc E2E Test"
     begin
         EDocument.SetRange("Entry No", EDocNo);
         this.Assert.RecordIsEmpty(EDocument);
+    end;
+
+    local procedure CheckXmlCreated(EDocument: Record "E-Document")
+    var
+        EDocumentLog: Codeunit "E-Document Log";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        EDocumentLog.GetDocumentBlobFromLog(EDocument, this.EDocumentService, TempBlob, "E-Document Service Status"::Exported);
+        Assert.IsTrue(TempBlob.HasValue(), 'XML not created.');
+    end;
+
+    local procedure VerifyIfEDocumentIsCreatedForTransferOrder(var TransferHeader: Record "Transfer Header")
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        EDocument: Record "E-Document";
+    begin
+#pragma warning disable AA0210
+        TransferShipmentHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+#pragma warning restore AA0210
+        TransferShipmentHeader.FindFirst();
+        EDocument.SetRange("Document Record ID", TransferShipmentHeader.RecordId);
+        Assert.IsFalse(EDocument.IsEmpty(), 'E-Document not created for Transfer Shipment Header');
     end;
 
 #if not CLEAN26

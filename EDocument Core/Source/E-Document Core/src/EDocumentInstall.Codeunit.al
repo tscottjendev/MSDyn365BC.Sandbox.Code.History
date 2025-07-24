@@ -25,6 +25,19 @@ codeunit 6161 "E-Document Install"
         EDocAIMatching: Codeunit "E-Doc. PO Copilot Matching";
     begin
         EDocAIMatching.RegisterAICapability();
+        AddBillingTypeToAICapability();
+        
+    end;
+
+    internal procedure AddBillingTypeToAICapability()
+    var
+        EDocAIMatching: Codeunit "E-Doc. PO Copilot Matching";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if not UpgradeTag.HasUpgradeTag(GetAddBillingTypeToEDocAICapabilityTag()) then begin
+            EDocAIMatching.ModifyAICapability();
+            UpgradeTag.SetUpgradeTag(GetAddBillingTypeToEDocAICapabilityTag());
+        end;
     end;
 
     internal procedure InsertDataExch()
@@ -176,6 +189,11 @@ codeunit 6161 "E-Document Install"
     local procedure GetEDOCDataExchUpdateTag(): Code[250]
     begin
         exit('MS-365688-EDOCDataExchPEPPOL-20231113');
+    end;
+
+    local procedure GetAddBillingTypeToEDocAICapabilityTag(): Code[250]
+    begin
+        exit('MS-581366-BillingTypeToEDocAICapability-20250731');
     end;
 
     var

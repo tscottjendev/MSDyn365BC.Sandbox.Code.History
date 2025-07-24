@@ -77,4 +77,16 @@ codeunit 7345 "Create Product Info. Utility"
             if not CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"Create Product Information") then
                 CopilotCapability.RegisterCapability(Enum::"Copilot Capability"::"Create Product Information", DocUrlLbl);
     end;
+
+    internal procedure AddBillingTypeToCapability()
+    var
+        CopilotCapability: Codeunit "Copilot Capability";
+        EnvironmentInformation: Codeunit "Environment Information";
+        DocUrlLbl: Label 'https://go.microsoft.com/fwlink/?linkid=2282370', Locked = true;
+    begin
+        if EnvironmentInformation.IsSaaSInfrastructure() then
+            if CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"Create Product Information") then
+                CopilotCapability.ModifyCapability(Enum::"Copilot Capability"::"Create Product Information", Enum::"Copilot Availability"::Preview, Enum::"Copilot Billing Type"::"Not Billed", DocUrlLbl);
+    end;
+
 }
