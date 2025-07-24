@@ -314,6 +314,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Alternative Address" = R,
                   tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Alt. Vendor Posting Group" = R,
+                  tabledata "Alt. Employee Posting Group" = R,
                   tabledata "Analysis by Dim. Parameters" = R,
                   tabledata "Analysis by Dim. User Param." = R,
                   tabledata "Analysis Column" = R,

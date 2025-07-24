@@ -257,5 +257,15 @@ codeunit 131901 "Library - Human Resource"
             CreateEmployeePostingGroup(EmployeePostingGroup);
         exit(EmployeePostingGroup.Code);
     end;
+
+    procedure CreateAltEmployeePostingGroup(ParentCode: Code[20]; AltCode: Code[20])
+    var
+        AltEmployeePostingGroup: Record "Alt. Employee Posting Group";
+    begin
+        AltEmployeePostingGroup.Init();
+        AltEmployeePostingGroup."Employee Posting Group" := ParentCode;
+        AltEmployeePostingGroup."Alt. Employee Posting Group" := AltCode;
+        AltEmployeePostingGroup.Insert();
+    end;
 }
 
