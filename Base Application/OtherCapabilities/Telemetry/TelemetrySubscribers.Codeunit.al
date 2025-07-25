@@ -375,6 +375,8 @@ codeunit 1351 "Telemetry Subscribers"
         else
             CustomDimensions.Add('Status', 'Disabled');
 
+        CustomDimensions.Add('ClientType', Format(Session.CurrentClientType()));
+
         exit(CustomDimensions);
     end;
 
