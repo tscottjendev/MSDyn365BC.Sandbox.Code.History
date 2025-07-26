@@ -1885,6 +1885,78 @@ codeunit 139624 "E-Doc E2E Test"
         SetV1EDocService();
     end;
 
+    [Test]
+    procedure CreateEDocumentReminderSuccessful()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        EDocument: Record "E-Document";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Check that E-Document is created when issuing reminder
+
+        // [GIVEN] Setup E-Document service for exporting reminder
+        IsInitialized := false;
+        this.Initialize(Enum::"Service Integration"::Mock);
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
+
+        this.LibraryEDoc.SetupReminderNoSeries();
+        this.EDocumentService."Document Format" := Enum::"E-Document Format"::"PEPPOL BIS 3.0";
+        this.EDocumentService.Modify(false);
+
+        // [WHEN] Issue reminder
+        IssuedReminderHeader := this.LibraryEDoc.IssueReminder(this.Customer);
+
+        // [THEN] Check that E-Document is created and status is "In Progress"
+#pragma warning disable AA0210
+        EDocument.SetRange("Document No.", IssuedReminderHeader."No.");
+#pragma warning restore AA0210
+        EDocument.FindLast();
+        this.Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, this.IncorrectValueErr);
+        // [THEN] Check that xml file was created
+        this.LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+        this.CheckXmlCreated(EDocument);
+    end;
+
+    [Test]
+    procedure CreateEDocumentFinChargeMemoSuccessful()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        EDocument: Record "E-Document";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Check that E-Document is created when issuing finance charge memo
+
+        // [GIVEN] Setup E-Document service for exporting finance charge memo 
+        IsInitialized := false;
+        this.Initialize(Enum::"Service Integration"::"Mock");
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
+
+        this.LibraryEDoc.SetupFinChargeMemoNoSeries();
+        this.EDocumentService."Document Format" := Enum::"E-Document Format"::"PEPPOL BIS 3.0";
+        this.EDocumentService.Modify(false);
+
+        // [WHEN] Issue finance charge memo
+        IssuedFinChargeMemoHeader := this.LibraryEDoc.IssueFinChargeMemo(this.Customer);
+
+        // [THEN] Check that E-Document is created and status is "In Progress"
+#pragma warning disable AA0210
+        EDocument.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
+#pragma warning restore AA0210
+        EDocument.FindLast();
+        this.Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, this.IncorrectValueErr);
+        // [THEN] Check that xml file was created
+        this.LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+        this.CheckXmlCreated(EDocument);
+    end;
+
     local procedure CreateIncomingEDocument(VendorNo: Code[20]; Status: Enum "E-Document Status")
     var
         EDocument: Record "E-Document";
@@ -2012,7 +2084,6 @@ codeunit 139624 "E-Doc E2E Test"
                 Count := Count + 1;
             until EDocumentLog.Next() = 0;
     end;
-
 
 #if not CLEAN26
 #pragma warning disable AL0432
