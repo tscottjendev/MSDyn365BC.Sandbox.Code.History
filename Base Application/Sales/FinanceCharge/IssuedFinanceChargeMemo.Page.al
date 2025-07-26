@@ -97,6 +97,12 @@ page 450 "Issued Finance Charge Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
+                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
