@@ -17,6 +17,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
@@ -681,7 +682,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Posted Purchase Invoice is created with Allocation Account and Tax Difference.
-        PurchaseHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchInvHeader.FindFirst();
         Assert.RecordIsNotEmpty(PurchInvHeader);
     end;
@@ -985,9 +986,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         AllocationAccountNo: Code[20];
     begin
         AllocationAccountPage.OpenNew();
-#pragma warning disable AA0139
-        AllocationAccountNo := LibraryRandom.RandText(10);
-#pragma warning restore AA0139
+        AllocationAccountNo := LibraryUtility.GenerateGUID();
 
         AllocationAccountPage."No.".SetValue(AllocationAccountNo);
         AllocationAccountPage."Account Type".SetValue(DummyAllocationAccount."Account Type"::Fixed);
