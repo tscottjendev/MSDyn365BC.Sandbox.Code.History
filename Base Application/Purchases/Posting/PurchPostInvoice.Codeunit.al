@@ -915,6 +915,11 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                             PurchPostInvoiceEvents.RunOnCalculateVATAmountInBufferOnBeforeTempInvoicePostingBufferAssign(VATAmount, VATAmountACY, TempInvoicePostingBuffer);
                             TempInvoicePostingBufferReverseCharge := InvoicePostingBuffer;
                             if TempInvoicePostingBufferReverseCharge.Find() then begin
+                                if VATPostingSetup."VAT %" = 0 then begin
+                                    VATAmountRemainder := VATAmount;
+                                    VATAmountACYRemainder := VATAmountACY;
+                                end;
+
                                 VATAmountRemainder += VATAmount;
                                 InvoicePostingBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
                                 VATAmountRemainder -= InvoicePostingBuffer."VAT Amount";
