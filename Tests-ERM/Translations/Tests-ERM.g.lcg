@@ -2939,6 +2939,15 @@
       <Cmt Name="Dev"><![CDATA[%1 the amount of indentation.]D;]A;(LookupHint=Codeunit ERM Financial Reports III - NamedType IndentationLevelLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 152012793 - NamedType 414261842" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. of check lines printed must be equal to %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Expected check lines]D;]A;(LookupHint=Codeunit ERM Financial Reports III - NamedType NoOfCheckLinesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 152012793 - NamedType 1027969698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[PstDate_BankAccLedgEntry]]></Val>
