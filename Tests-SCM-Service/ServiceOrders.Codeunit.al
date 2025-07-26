@@ -122,6 +122,7 @@ codeunit 136101 "Service Orders"
         AvailableExpectedQuantityErr: Label 'Available expected quantity must be %1.', Comment = '%1=Value';
         VATCountryRegionLbl: Label 'VAT Country/Region Code must be %1', Comment = '%1 = Country/Region Code';
         ServiceOrderErr: Label 'Service Order does not exist.';
+        ServiceOrderStatusShouldChangedErr: Label 'Service Header Status should have changed when adding Service Item';
 
     [Test]
     [Scope('OnPrem')]
@@ -5686,6 +5687,54 @@ codeunit 136101 "Service Orders"
         // [THEN] Service Invoice Statistics Lines Sub form tab where "Line Amount" and "Amount Including VAT" = 0.00
         ServiceStatistics.SubForm."Line Amount".AssertEquals(0);
         ServiceStatistics.SubForm."Amount Including VAT".AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoUpdateServiceHeaderStatusOnServiceItemLineAdd()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        Customer: Record Customer;
+        ServiceOrderPage: TestPage "Service Order";
+        InitialStatus: Enum "Service Document Status";
+        FinalStatus: Enum "Service Document Status";
+    begin
+        // [SCENARIO 582114] Test that Service Header Status changes automatically when adding Service Item to Finished Service Order
+
+        // [GIVEN] Initialize and create test data
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+
+        // [GIVEN] Create a Service Order and set status to Finished
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate(Status, ServiceHeader.Status::Finished);
+        ServiceHeader.Modify(true);
+        InitialStatus := ServiceHeader.Status;
+
+        // [WHEN] Open Service Order page and add Service Item Line (simulating user action)
+        ServiceOrderPage.OpenEdit();
+        ServiceOrderPage.Filter.SetFilter("No.", ServiceHeader."No.");
+
+        // [THEN] Verify initial status is Finished
+        ServiceOrderPage.Status.AssertEquals(ServiceHeader.Status::Finished);
+
+        // [GIVEN] Add Service Item to the Service Item Lines subform
+        ServiceOrderPage.ServItemLines.New();
+        ServiceOrderPage.ServItemLines.ServiceItemNo.SetValue(ServiceItem."No.");
+        ServiceOrderPage.ServItemLines.Next(); // Move focus to trigger validation
+
+        // [THEN] Verify that Service Header Status has changed automatically
+        ServiceOrderPage.Status.AssertEquals(ServiceHeader.Status::Pending); // Expected new status based on repair status priority
+
+        // [THEN] Verify the change was logged in Service Document Log
+        ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
+        FinalStatus := ServiceHeader.Status;
+
+        // [THEN] Verify status actually changed
+        Assert.AreNotEqual(InitialStatus, FinalStatus, ServiceOrderStatusShouldChangedErr);
+        ServiceOrderPage.Close();
     end;
 
     local procedure CreateServiceDocumentWithResourceWith100PctDisc(
