@@ -2,14 +2,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.EServices.EDocumentConnector.Avalara;
+namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
-permissionset 6373 "Avalara Edit"
+using Microsoft.eServices.EDocument;
+
+permissionsetextension 6434 "D365 User - Logiq Connector" extends "E-Doc. Core - User"
 {
-    Access = Public;
-    Assignable = true;
-    IncludedPermissionSets = "Avalara Read";
-    Caption = 'Avalara E-Document Connector - Edit';
-
-    Permissions = tabledata "Connection Setup" = IMD;
+    IncludedPermissionSets = "Edit - Logiq";
 }

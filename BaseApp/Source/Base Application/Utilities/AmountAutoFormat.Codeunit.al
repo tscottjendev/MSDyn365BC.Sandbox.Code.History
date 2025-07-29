@@ -21,16 +21,16 @@ codeunit 347 "Amount Auto Format"
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         GLSetupRead: Boolean;
+        CurrencyCodeFormatPrefixTxt: Label '<C,%1>', Locked = true;
         FormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
         CurrFormatTxt: Label '%3%2<Precision,%1><Standard Format,0>', Locked = true;
-        EnumType: Enum "Auto Format";
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Auto Format", 'OnResolveAutoFormat', '', false, false)]
     local procedure ResolveAutoFormatTranslateCase1(AutoFormatType: Enum "Auto Format"; AutoFormatExpr: Text[80]; var Result: Text[80]; var Resolved: Boolean)
     begin
         // Amount
         if not Resolved and GetGLSetup() then
-            if AutoFormatType = EnumType::AmountFormat then begin
+            if AutoFormatType = AutoFormatType::AmountFormat then begin
                 Result := GetAmountPrecisionFormat(AutoFormatExpr);
                 Resolved := true;
             end;
@@ -41,7 +41,7 @@ codeunit 347 "Amount Auto Format"
     begin
         // Unit Amount
         if not Resolved and GetGLSetup() then
-            if AutoFormatType = EnumType::UnitAmountFormat then begin
+            if AutoFormatType = AutoFormatType::UnitAmountFormat then begin
                 Result := GetUnitAmountPrecisionFormat(AutoFormatExpr);
                 Resolved := true;
             end;
@@ -52,7 +52,7 @@ codeunit 347 "Amount Auto Format"
     begin
         // Custom or AutoFormatExpr = '1[,<curr>[,<PrefixedText>]]' or '2[,<curr>[,<PrefixedText>]]'
         if not Resolved and GetGLSetup() then
-            if AutoFormatType = EnumType::CurrencySymbolFormat then begin
+            if AutoFormatType = AutoFormatType::CurrencySymbolFormat then begin
                 Result := GetCustomFormat(AutoFormatExpr);
                 Resolved := true;
             end;
@@ -91,21 +91,46 @@ codeunit 347 "Amount Auto Format"
     end;
 
     local procedure GetAmountPrecisionFormat(AutoFormatExpr: Text[80]): Text[80]
+    var
+        Result: Text[80];
     begin
-        if AutoFormatExpr = '' then
-            exit(StrSubstNo(FormatTxt, GLSetup."Amount Decimal Places"));
-        if GetCurrencyAndAmount(AutoFormatExpr) then
-            exit(StrSubstNo(FormatTxt, Currency."Amount Decimal Places"));
-        exit(StrSubstNo(FormatTxt, GLSetup."Amount Decimal Places"));
+        if AutoFormatExpr = '' then begin
+            Result := StrSubstNo(FormatTxt, GLSetup."Amount Decimal Places");
+            PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+            exit(Result)
+        end;
+        if GetCurrencyAndAmount(AutoFormatExpr) then begin
+            Result := StrSubstNo(FormatTxt, Currency."Amount Decimal Places");
+            PrefixCurrencyCodeFormatString(Result, Currency."ISO Code", '');
+            exit(Result)
+        end;
+        Result := StrSubstNo(FormatTxt, GLSetup."Amount Decimal Places");
+        PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+        exit(Result)
     end;
 
     local procedure GetUnitAmountPrecisionFormat(AutoFormatExpr: Text[80]): Text[80]
+    var
+        Result: Text[80];
     begin
-        if AutoFormatExpr = '' then
-            exit(StrSubstNo(FormatTxt, GLSetup."Unit-Amount Decimal Places"));
-        if GetCurrencyAndUnitAmount(AutoFormatExpr) then
-            exit(StrSubstNo(FormatTxt, Currency."Unit-Amount Decimal Places"));
-        exit(StrSubstNo(FormatTxt, GLSetup."Unit-Amount Decimal Places"));
+        if AutoFormatExpr = '' then begin
+            Result := StrSubstNo(FormatTxt, GLSetup."Unit-Amount Decimal Places");
+            PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+            exit(Result)
+        end;
+        if GetCurrencyAndUnitAmount(AutoFormatExpr) then begin
+            Result := StrSubstNo(FormatTxt, Currency."Unit-Amount Decimal Places");
+            PrefixCurrencyCodeFormatString(Result, Currency."ISO Code", '');
+            exit(Result)
+        end;
+        Result := StrSubstNo(FormatTxt, GLSetup."Unit-Amount Decimal Places");
+        PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+        exit(Result)
+    end;
+
+    local procedure PrefixCurrencyCodeFormatString(var AutoFormatExpression: Text[80]; CurrencyCode: Code[10]; AutoFormatPrefixedText: Text[80])
+    begin
+        AutoFormatExpression := CopyStr(StrSubstNo(CurrencyCodeFormatPrefixTxt, CurrencyCode) + AutoFormatPrefixedText + AutoFormatExpression, 1, 80);
     end;
 
     local procedure GetCustomFormat(AutoFormatExpr: Text[80]): Text[80]
@@ -128,21 +153,41 @@ codeunit 347 "Amount Auto Format"
     end;
 
     local procedure GetCustomAmountFormat(AutoFormatCurrencyCode: Text[80]; AutoFormatPrefixedText: Text[80]): Text[80]
+    var
+        Result: Text[80];
     begin
-        if AutoFormatCurrencyCode = '' then
-            exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
-        if GetCurrencyAndAmount(AutoFormatCurrencyCode) then
-            exit(StrSubstNo(CurrFormatTxt, Currency."Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText));
-        exit(StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
+        if AutoFormatCurrencyCode = '' then begin
+            Result := StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText);
+            PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+            exit(Result);
+        end;
+        if GetCurrencyAndAmount(AutoFormatCurrencyCode) then begin
+            Result := StrSubstNo(CurrFormatTxt, Currency."Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText);
+            PrefixCurrencyCodeFormatString(Result, Currency."ISO Code", '');
+            exit(Result);
+        end;
+        Result := StrSubstNo(CurrFormatTxt, GLSetup."Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText);
+        PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+        exit(Result);
     end;
 
     local procedure GetCustomUnitAmountFormat(AutoFormatCurrencyCode: Text[80]; AutoFormatPrefixedText: Text[80]): Text[80]
+    var
+        Result: Text[80];
     begin
-        if AutoFormatCurrencyCode = '' then
-            exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
-        if GetCurrencyAndUnitAmount(AutoFormatCurrencyCode) then
-            exit(StrSubstNo(CurrFormatTxt, Currency."Unit-Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText));
-        exit(StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText));
+        if AutoFormatCurrencyCode = '' then begin
+            Result := StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText);
+            PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+            exit(Result);
+        end;
+        if GetCurrencyAndUnitAmount(AutoFormatCurrencyCode) then begin
+            Result := StrSubstNo(CurrFormatTxt, Currency."Unit-Amount Decimal Places", Currency.GetCurrencySymbol(), AutoFormatPrefixedText);
+            PrefixCurrencyCodeFormatString(Result, Currency."ISO Code", '');
+            exit(Result);
+        end;
+        Result := StrSubstNo(CurrFormatTxt, GLSetup."Unit-Amount Decimal Places", GLSetup.GetCurrencySymbol(), AutoFormatPrefixedText);
+        PrefixCurrencyCodeFormatString(Result, GLSetup."LCY Code", '');
+        exit(Result);
     end;
 
     local procedure GetCurrency(CurrencyCode: Code[10]): Boolean
@@ -175,16 +220,16 @@ codeunit 347 "Amount Auto Format"
         exit(false);
     end;
 
-    local procedure GetCurrencyCodeAndPrefixedText(AutoFormatExpr: Text[80]; var AutoFormatCurrencyCode: Text; var AutoFormatPrefixedText: Text)
+    local procedure GetCurrencyCodeAndPrefixedText(AutoFormatExpr: Text[80]; var AutoFormatCurrencyCode: Text[80]; var AutoFormatPrefixedText: Text[80])
     var
         NumCommasInAutoFormatExpr: Integer;
     begin
         NumCommasInAutoFormatExpr := StrLen(AutoFormatExpr) - StrLen(DelChr(AutoFormatExpr, '=', ','));
         if NumCommasInAutoFormatExpr >= 1 then
-            AutoFormatCurrencyCode := SelectStr(2, AutoFormatExpr);
+            AutoFormatCurrencyCode := CopyStr(SelectStr(2, AutoFormatExpr), 1, 80);
         if NumCommasInAutoFormatExpr >= 2 then
-            AutoFormatPrefixedText := SelectStr(3, AutoFormatExpr);
+            AutoFormatPrefixedText := CopyStr(SelectStr(3, AutoFormatExpr), 1, 80);
         if AutoFormatPrefixedText <> '' then
-            AutoFormatPrefixedText := AutoFormatPrefixedText + ' ';
+            AutoFormatPrefixedText := CopyStr(AutoFormatPrefixedText + ' ', 1, 80);
     end;
 }

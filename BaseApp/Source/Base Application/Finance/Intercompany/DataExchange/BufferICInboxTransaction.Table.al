@@ -24,9 +24,24 @@ table 610 "Buffer IC Inbox Transaction"
             Caption = 'IC Partner Code';
             Editable = false;
         }
+#if not CLEANSCHEMA29
         field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
+            Editable = false;
+            ObsoleteReason = 'Replaced by IC Source Type for Enum typing';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+#endif
+        field(4; "IC Source Type"; Enum "IC Transaction Source Type")
+        {
+            Caption = 'IC Source Type';
             Editable = false;
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
