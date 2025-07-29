@@ -386,6 +386,7 @@ codeunit 90 "Purch.-Post"
         PreciseTotalChargeAmt: Decimal;
         RoundedPrevTotalChargeAmtACY: Decimal;
         PreciseTotalChargeAmtACY: Decimal;
+        InitialWHTAmount: Decimal;
         LastLineRetrieved: Boolean;
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
@@ -4032,6 +4033,7 @@ codeunit 90 "Purch.-Post"
                     PurchCrMemoHeader.Modify();
                 end;
         end;
+        RestoreWHTAmountToHeader(PurchaseHeader);
 
         OnAfterUpdatePurchaseHeader(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHeader, GenJnlLineDocType.AsInteger(), GenJnlLineDocNo, PreviewMode, PurchaseHeader);
     end;
@@ -7898,6 +7900,7 @@ codeunit 90 "Purch.-Post"
                        (WHTPostingSetup."Realized WHT Type" <> WHTPostingSetup."Realized WHT Type"::" ")
                     then
                         if WHTEntry.Amount <> 0 then begin
+                            InitializeWHTAmount(PurchHeader);
                             PurchHeader."WHT Amount" := PurchHeader."WHT Amount" + WHTEntry.Amount;
                             InsertGenJournalWHT(PurchHeader, GenJnlLine, WHTPostingSetup.GetPayableWHTAccount());
                             GenJnlPostLine.IncreaseWHTEntryNo();
@@ -7919,6 +7922,7 @@ codeunit 90 "Purch.-Post"
                        (WHTPostingSetup."Realized WHT Type" <> WHTPostingSetup."Realized WHT Type"::" ")
                     then
                         if WHTEntry.Amount <> 0 then begin
+                            InitializeWHTAmount(PurchHeader);
                             PurchHeader."WHT Amount" := PurchHeader."WHT Amount" + WHTEntry.Amount;
                             InsertGenJournalWHT(PurchHeader, GenJnlLine, WHTPostingSetup.GetPayableWHTAccount());
                             GenJnlPostLine.IncreaseWHTEntryNo();
@@ -9106,6 +9110,24 @@ codeunit 90 "Purch.-Post"
             PostedDocumentNo := PostingPreviewNoTok + Format(Random(999999), 0, PostingPreviewNoFormatTxt)
         else
             PostedDocumentNo := DocumentNo;
+    end;
+
+    local procedure InitializeWHTAmount(var PurchHeader: Record "Purchase Header")
+    begin
+        if PurchHeader."WHT Amount" = 0 then
+            exit;
+
+        InitialWHTAmount := PurchHeader."WHT Amount";
+        PurchHeader.Validate("WHT Amount", 0);
+    end;
+
+    local procedure RestoreWHTAmountToHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+        if InitialWHTAmount = 0 then
+            exit;
+
+        PurchaseHeader."WHT Amount" += InitialWHTAmount;
+        InitialWHTAmount := 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]

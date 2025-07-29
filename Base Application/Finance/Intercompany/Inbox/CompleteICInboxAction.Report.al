@@ -186,7 +186,7 @@ report 511 "Complete IC Inbox Action"
                 if "Line Action" = "Line Action"::"No Action" then
                     CurrReport.Skip();
                 InboxTransaction2 := "IC Inbox Transaction";
-                if ("Source Type" = "Source Type"::Journal) and
+                if ("IC Source Type" = "IC Source Type"::Journal) and
                    (InboxTransaction2."Line Action" <> InboxTransaction2."Line Action"::Cancel) and
                    (InboxTransaction2."Line Action" <> InboxTransaction2."Line Action"::"Return to IC Partner")
                 then begin
