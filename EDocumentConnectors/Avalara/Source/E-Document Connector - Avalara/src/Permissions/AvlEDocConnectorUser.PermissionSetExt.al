@@ -4,12 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocumentConnector.Avalara;
 
-permissionset 6373 "Avalara Edit"
-{
-    Access = Public;
-    Assignable = true;
-    IncludedPermissionSets = "Avalara Read";
-    Caption = 'Avalara E-Document Connector - Edit';
+using Microsoft.eServices.EDocument;
 
-    Permissions = tabledata "Connection Setup" = IMD;
+permissionsetextension 6375 "Avl. EDoc. Connector - User" extends "E-Doc. Core - User"
+{
+    IncludedPermissionSets = "Avalara Edit";
 }
