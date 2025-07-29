@@ -27,9 +27,24 @@ table 420 "Handled IC Inbox Trans."
             Editable = false;
             TableRelation = "IC Partner";
         }
+#if not CLEANSCHEMA29
         field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
+            Editable = false;
+            ObsoleteReason = 'Replaced by IC Source Type for Enum typing';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+#endif
+        field(4; "IC Source Type"; Enum "IC Transaction Source Type")
+        {
+            Caption = 'IC Source Type';
             Editable = false;
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
@@ -107,18 +122,18 @@ table 420 "Handled IC Inbox Trans."
         HndlICInboxSalesHdr: Record "Handled IC Inbox Sales Header";
         HndlICInboxPurchHdr: Record "Handled IC Inbox Purch. Header";
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     HndlInboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     HndlInboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
                     HndlInboxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     HndlInboxJnlLine.DeleteAll(true);
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 if HndlICInboxSalesHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     HndlICInboxSalesHdr.Delete(true);
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 if HndlICInboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     HndlICInboxPurchHdr.Delete(true);
             else
@@ -136,8 +151,8 @@ table 420 "Handled IC Inbox Trans."
         HandledICInboxSalesDoc: Page "Handled IC Inbox Sales Doc.";
         HandledICInboxPurchDoc: Page "Handled IC Inbox Purch. Doc.";
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     HandledICInboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     HandledICInboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -146,7 +161,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxJnlLines.SetTableView(HandledICInboxJnlLine);
                     HandledICInboxJnlLines.RunModal();
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 begin
                     HandledICInboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
                     HandledICInboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
@@ -155,7 +170,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxSalesDoc.SetTableView(HandledICInboxSalesHeader);
                     HandledICInboxSalesDoc.RunModal();
                 end;
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 begin
                     HandledICInboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
                     HandledICInboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");
