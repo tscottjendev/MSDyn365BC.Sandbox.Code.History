@@ -220,6 +220,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation();
         UpgradeIntegrationTableMappingTemplates();
         UpgradeICOutboxTransactionSourceType();
+        UpgradeICTransactionSourceType();
     end;
 
     local procedure ClearTemporaryTables()
@@ -3709,5 +3710,36 @@ codeunit 104000 "Upgrade - BaseApp"
         Clear(ICOutboxTransactionDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICOutboxTransactionSourceTypeUpgradeTag());
+    end;
+
+    local procedure UpgradeICTransactionSourceType()
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ICTransactionDataTransfer: DataTransfer;
+
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICTransactionSourceTypeUpgradeTag()) then
+            exit;
+
+        ICTransactionDataTransfer.SetTables(Database::"IC Inbox Transaction", Database::"IC Inbox Transaction");
+        ICTransactionDataTransfer.AddFieldValue(ICInboxTransaction.FieldNo("Source Type"), ICInboxTransaction.FieldNo("IC Source Type"));
+        ICTransactionDataTransfer.CopyFields();
+        Clear(ICTransactionDataTransfer);
+
+        ICTransactionDataTransfer.SetTables(Database::"Handled IC Inbox Trans.", Database::"Handled IC Inbox Trans.");
+        ICTransactionDataTransfer.AddFieldValue(HandledICInboxTrans.FieldNo("Source Type"), HandledICInboxTrans.FieldNo("IC Source Type"));
+        ICTransactionDataTransfer.CopyFields();
+        Clear(ICTransactionDataTransfer);
+
+        ICTransactionDataTransfer.SetTables(Database::"Handled IC Outbox Trans.", Database::"Handled IC Outbox Trans.");
+        ICTransactionDataTransfer.AddFieldValue(HandledICOutboxTrans.FieldNo("Source Type"), HandledICOutboxTrans.FieldNo("IC Source Type"));
+        ICTransactionDataTransfer.CopyFields();
+        Clear(ICTransactionDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICTransactionSourceTypeUpgradeTag());
     end;
 }
