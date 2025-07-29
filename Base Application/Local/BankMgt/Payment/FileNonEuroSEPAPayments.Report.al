@@ -19,6 +19,7 @@ using System;
 using System.Environment;
 using System.IO;
 using System.Telemetry;
+using System.Utilities;
 using System.Xml;
 
 report 2000006 "File Non Euro SEPA Payments"
@@ -209,15 +210,26 @@ report 2000006 "File Non Euro SEPA Payments"
     }
 
     trigger OnPostReport()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileMgt: Codeunit "File Management";
+        OutStream: OutStream;
+        InStream: InStream;
+        IsHandled: Boolean;
     begin
         FinishGroupHeader();
-        XMLDomDoc.Save(SaveToFileName);
+        TempBlob.CreateOutStream(OutStream);
+        XMLDomDoc.Save(OutStream);
+        IsHandled := false;
+        OnPostReportOnBeforeDownloadXmlFile(TempBlob, IsHandled);
+        if not IsHandled then begin
+            TempBlob.CreateInStream(InStream);
 
-        if SaveToFileName = '' then
-            SaveToFileName := NonEuroSEPAPaymentsTxt;
+            if SaveToFileName = '' then
+                SaveToFileName := NonEuroSEPAPaymentsTxt;
 
-        Download(SaveToFileName, '', '', AllFilesDescriptionTxt, FileName);
-
+            FileMgt.DownloadFromStreamHandler(InStream, '', '', AllFilesDescriptionTxt, SaveToFileName);
+        end;
         Clear(XMLDomDoc);
     end;
 
@@ -899,6 +911,11 @@ report 2000006 "File Non Euro SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreDataItemSeparatePmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean);
     begin
     end;
 }
