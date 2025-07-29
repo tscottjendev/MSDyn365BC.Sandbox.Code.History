@@ -167,6 +167,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICOutboxTransactionSourceTypeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetInventoryPlanningSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetICTransactionSourceTypeUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1191,5 +1192,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetInventoryPlanningSetupUpgradeTag(): Code[250]
     begin
         exit('MS-556824-InventoryPlanningSetupUpgradeTag-20250401');
+    end;
+
+    internal procedure GetICTransactionSourceTypeUpgradeTag(): Code[250]
+    begin
+        exit('MS-578201-ICOutboxTransactionSourceTypeUpgradeTag-20250807');
     end;
 }
