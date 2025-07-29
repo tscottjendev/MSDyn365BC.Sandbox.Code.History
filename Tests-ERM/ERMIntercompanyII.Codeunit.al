@@ -111,10 +111,10 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] IC Inbox contains 2 transactions from IC Partner "B": Sales Document and Purchase Document.
         ICInboxTransaction.Reset();
         ICInboxTransaction.SetRange("IC Partner Code", ICPartnerCode[2]);
-        ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Sales Document");
+        ICInboxTransaction.SetRange("IC Source Type", ICInboxTransaction."IC Source Type"::"Sales Document");
         ICInboxTransaction.FindFirst();
         ICInboxTransaction.TestField("Document No.", PurchaseHeader."No.");
-        ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Purchase Document");
+        ICInboxTransaction.SetRange("IC Source Type", ICInboxTransaction."IC Source Type"::"Purchase Document");
         ICInboxTransaction.FindFirst();
         ICInboxTransaction.TestField("Document No.", SalesHeader."No.");
 
