@@ -804,7 +804,7 @@ table 5406 "Prod. Order Line"
         }
         field(66; "Put-away Status"; Option)
         {
-            Caption = 'Status';
+            Caption = 'Put-away Status';
             Editable = false;
             OptionCaption = ' ,Partially Put Away,Completely Put Away';
             OptionMembers = " ","Partially Put Away","Completely Put Away";
