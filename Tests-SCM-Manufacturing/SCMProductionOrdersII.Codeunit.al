@@ -122,7 +122,7 @@ codeunit 137072 "SCM Production Orders II"
         InvalidProdOutputHandlingErr: Label 'You cannot select %1 on %2 %3 when %4 is enabled.', Comment = '%1 = Inventory Put-away, %2 = Location Table Caption, %3 = Location Code, %4 = Directed Put-away Field Caption';
         PutAwayActivityNoHasBeenCreatedMsg: Label 'Put-away activity no. %1 has been created.', Comment = '%1 = Put-away Activity No. ';
         ProductionJournalPostedTxt: Label 'The journal lines were successfully posted.';
-        ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
+        ProductionOrderCannotBeReopenedErr: Label 'This production order cannot be reopened because one or more production order lines have no posted output.';
         FieldMustBeEnabledErr: Label '%1 must be enabled in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
         FieldMustBeVisibleErr: Label '%1 must be visible in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
         WhseActivityHeaderMustBeFoundErr: Label 'Warehouse Activity Header must be found.';
@@ -9295,7 +9295,7 @@ codeunit 137072 "SCM Production Orders II"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Modify(true);
     end;
-    
+
     local procedure CreateBin(var Bin: array[5] of Record Bin; LocationCode: Code[10])
     var
         i: Integer;
