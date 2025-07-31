@@ -2338,7 +2338,7 @@
   </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1652579016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This production order does not have any output. It cannot be Reopened.]]></Val>
+      <Val><![CDATA[This production order cannot be reopened because one or more production order lines have no posted output.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
