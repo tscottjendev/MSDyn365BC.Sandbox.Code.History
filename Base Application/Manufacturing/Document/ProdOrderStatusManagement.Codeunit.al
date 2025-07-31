@@ -106,7 +106,7 @@ codeunit 5407 "Prod. Order Status Management"
         ReopenFinishedProductionOrderFeatureTelemetryNameLbl: Label 'Reopen Finished Production Order', Locked = true;
         ReopenedProductionOrderLbl: Label 'The production order is reopened and moved to the %1 Production Order with status Released.', Comment = '%1 = Production Order No.';
         ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
-        ProductionOrderCannotBeReopenedErr: Label 'This production order does not have any output. It cannot be Reopened.';
+        ProductionOrderCannotBeReopenedErr: Label 'This production order cannot be reopened because one or more production order lines have no posted output.';
         FinishOrderWithOutputWarningQst: Label '%1 %2 has not been finished:\\  * Some output is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
         FinishOrderWithConsumptionWarningQst: Label '%1 %2 has not been finished:\\  * Some consumption is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
         FinishOrderWithOutputAndConsumptionWarningQst: Label '%1 %2 has not been finished:\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?', Comment = '%1 - Production Order Table Name ; %2 - Production Order No.';
