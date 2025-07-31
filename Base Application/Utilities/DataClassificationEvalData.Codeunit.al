@@ -3835,9 +3835,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Page Caption"));
 
         // Agent developer toolkit
+        SetTableFieldsToNormal(4301); // "Agent Task Template"
+        SetTableFieldsToNormal(4302); // "Agent Message Template"
         SetTableFieldsToNormal(4315); // "Developer Agent"
         SetFieldToCompanyConfidential(4315, 2); // Instructions
-
+        
         // No-code agent 
         SetTableFieldsToNormal(4387); // No-Code Agent Setup
         SetFieldToPersonal(4387, 1); // Agent User Security Id
