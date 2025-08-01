@@ -13,6 +13,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
@@ -22,21 +23,21 @@ using Microsoft.Service.Setup;
 using System.Globalization;
 using System.Utilities;
 
-report 10478 "Elec. Service Cr Memo MX"
+report 10479 "Elec. Service Invoice MX"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Local/eServices/EDocument/ElecServiceCrMemoMX.rdlc';
-    Caption = 'Elec. Service Cr Memo MX';
+    RDLCLayout = './Service/Local/eServices/EDocument/ElecServiceInvoiceMX.rdlc';
+    Caption = 'Elec. Service Invoice MX';
     Permissions = TableData "Sales Shipment Buffer" = rimd;
 
     dataset
     {
-        dataitem("Service Cr.Memo Header"; "Service Cr.Memo Header")
+        dataitem("Service Invoice Header"; "Service Invoice Header")
         {
             DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Customer No.", "No. Printed";
-            RequestFilterHeading = 'Posted Service Credit Memo';
-            column(Service_Cr_Memo_Header_No_; "No.")
+            RequestFilterHeading = 'Posted Service Invoice';
+            column(Service_Invoice_Header_No_; "No.")
             {
             }
             column(DocumentFooter; DocumentFooterLbl)
@@ -48,16 +49,16 @@ report 10478 "Elec. Service Cr Memo MX"
                 dataitem(PageLoop; "Integer")
                 {
                     DataItemTableView = sorting(Number) where(Number = const(1));
-                    column(CompanyInfo_Picture; CompanyInfo.Picture)
+                    column(CompanyInfo2_Picture; CompanyInfo2.Picture)
                     {
                     }
                     column(CompanyInfo1_Picture; CompanyInfo1.Picture)
                     {
                     }
-                    column(CompanyInfo2_Picture; CompanyInfo2.Picture)
+                    column(CompanyInfo_Picture; CompanyInfo.Picture)
                     {
                     }
-                    column(STRSUBSTNO_Text005_CopyText_; StrSubstNo(Text005, CopyText))
+                    column(STRSUBSTNO_Text004_CopyText_; StrSubstNo(Text004, CopyText))
                     {
                     }
                     column(CustAddr_1_; CustAddr[1])
@@ -108,19 +109,19 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
-                    column(Service_Cr_Memo_Header___Bill_to_Customer_No__; "Service Cr.Memo Header"."Bill-to Customer No.")
+                    column(Service_Invoice_Header___Bill_to_Customer_No__; "Service Invoice Header"."Bill-to Customer No.")
                     {
                     }
-                    column(Service_Cr_Memo_Header___Posting_Date_; Format("Service Cr.Memo Header"."Posting Date"))
+                    column(Service_Invoice_Header___Posting_Date_; Format("Service Invoice Header"."Posting Date"))
                     {
                     }
                     column(VATNoText; VATNoText)
                     {
                     }
-                    column(Service_Cr_Memo_Header___VAT_Registration_No__; "Service Cr.Memo Header"."VAT Registration No.")
+                    column(Service_Invoice_Header___VAT_Registration_No__; "Service Invoice Header"."VAT Registration No.")
                     {
                     }
-                    column(Service_Cr_Memo_Header___No__; "Service Cr.Memo Header"."No.")
+                    column(Service_Invoice_Header___Due_Date_; Format("Service Invoice Header"."Due Date"))
                     {
                     }
                     column(SalesPersonText; SalesPersonText)
@@ -129,13 +130,19 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(SalesPurchPerson_Name; SalesPurchPerson.Name)
                     {
                     }
-                    column(AppliedToText; AppliedToText)
+                    column(Service_Invoice_Header___No__; "Service Invoice Header"."No.")
                     {
                     }
                     column(ReferenceText; ReferenceText)
                     {
                     }
-                    column(Service_Cr_Memo_Header___Your_Reference_; "Service Cr.Memo Header"."Your Reference")
+                    column(Service_Invoice_Header___Your_Reference_; "Service Invoice Header"."Your Reference")
+                    {
+                    }
+                    column(OrderNoText; OrderNoText)
+                    {
+                    }
+                    column(Service_Invoice_Header___Order_No__; "Service Invoice Header"."Order No.")
                     {
                     }
                     column(CustAddr_7_; CustAddr[7])
@@ -150,40 +157,37 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(CompanyAddr_6_; CompanyAddr[6])
                     {
                     }
-                    column(FORMAT__Service_Cr_Memo_Header___Document_Date__0_4_; Format("Service Cr.Memo Header"."Document Date", 0, 4))
+                    column(Service_Invoice_Header___Prices_Including_VAT_; "Service Invoice Header"."Prices Including VAT")
                     {
                     }
-                    column(Service_Cr_Memo_Header___Prices_Including_VAT_; "Service Cr.Memo Header"."Prices Including VAT")
-                    {
-                    }
-                    column(PageCaption; StrSubstNo(Text006, ''))
+                    column(PageCaption; StrSubstNo(Text005, ''))
                     {
                     }
                     column(OutputNo; OutputNo)
                     {
                     }
-                    column(Formatted_Service_Cr_Memo_Header___Prices_Including_VAT; Format("Service Cr.Memo Header"."Prices Including VAT"))
+                    column(Formatted_Service_Invoice_Header___Prices_Including_VAT; Format("Service Invoice Header"."Prices Including VAT"))
                     {
                     }
                     column(FORMAT_Cust__Tax_Identification_Type__; Format(Cust."Tax Identification Type"))
                     {
                     }
+                    column(Service_Invoice_Header___Certificate_Serial_No__; "Service Invoice Header"."Certificate Serial No.")
+                    {
+                    }
+                    column(NoSeriesLine__Authorization_Year_; StrSubstNo(Text008, "Service Invoice Header"."Bill-to City", "Service Invoice Header"."Document Date"))
+                    {
+                    }
+                    column(NoSeriesLine__Authorization_Code_; "Service Invoice Header"."Date/Time Stamped")
+                    {
+                    }
+                    column(FolioText; "Service Invoice Header"."Fiscal Invoice Number PAC")
+                    {
+                    }
+                    column(Cust__RFC_No__; Cust."RFC No.")
+                    {
+                    }
                     column(CompanyInfo__RFC_No__; CompanyInfo."RFC Number")
-                    {
-                    }
-                    column(FolioText; "Service Cr.Memo Header"."Fiscal Invoice Number PAC")
-                    {
-                    }
-                    column(Service_Cr_Memo_Header___Certificate_Serial_No__; "Service Cr.Memo Header"."Certificate Serial No.")
-                    {
-                    }
-                    column(NoSeriesLine__Authorization_Code_; "Service Cr.Memo Header"."Date/Time Stamped")
-                    {
-                    }
-                    column(NoSeriesLine__Authorization_Year_; StrSubstNo(Text009, "Service Cr.Memo Header"."Bill-to City", "Service Cr.Memo Header"."Document Date"))
-                    {
-                    }
-                    column(Customer__RFC_No__; Customer."RFC No.")
                     {
                     }
                     column(Cust__Phone_No__; Cust."Phone No.")
@@ -210,34 +214,37 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(CompanyInfo__Bank_Account_No__Caption; CompanyInfo__Bank_Account_No__CaptionLbl)
                     {
                     }
-                    column(Service_Cr_Memo_Header___Bill_to_Customer_No__Caption; "Service Cr.Memo Header".FieldCaption("Bill-to Customer No."))
+                    column(Service_Invoice_Header___Bill_to_Customer_No__Caption; "Service Invoice Header".FieldCaption("Bill-to Customer No."))
                     {
                     }
-                    column(Service_Cr_Memo_Header___Posting_Date_Caption; Service_Cr_Memo_Header___Posting_Date_CaptionLbl)
+                    column(Service_Invoice_Header___Due_Date_Caption; Service_Invoice_Header___Due_Date_CaptionLbl)
                     {
                     }
-                    column(Service_Cr_Memo_Header___Prices_Including_VAT_Caption; "Service Cr.Memo Header".FieldCaption("Prices Including VAT"))
+                    column(Service_Invoice_Header___Posting_Date_Caption; Service_Invoice_Header___Posting_Date_CaptionLbl)
+                    {
+                    }
+                    column(Service_Invoice_Header___Prices_Including_VAT_Caption; "Service Invoice Header".FieldCaption("Prices Including VAT"))
                     {
                     }
                     column(Tax_Ident__TypeCaption; Tax_Ident__TypeCaptionLbl)
                     {
                     }
-                    column(CompanyInfo__RFC_No__Caption; CompanyInfo__RFC_No__CaptionLbl)
-                    {
-                    }
-                    column(FolioTextCaption; FolioTextCaptionLbl)
-                    {
-                    }
-                    column(Service_Cr_Memo_Header___Certificate_Serial_No__Caption; "Service Cr.Memo Header".FieldCaption("Certificate Serial No."))
-                    {
-                    }
-                    column(NoSeriesLine__Authorization_Code_Caption; NoSeriesLine__Authorization_Code_CaptionLbl)
+                    column(Service_Invoice_Header___Certificate_Serial_No__Caption; "Service Invoice Header".FieldCaption("Certificate Serial No."))
                     {
                     }
                     column(NoSeriesLine__Authorization_Year_Caption; NoSeriesLine__Authorization_Year_CaptionLbl)
                     {
                     }
-                    column(Customer__RFC_No__Caption; Customer__RFC_No__CaptionLbl)
+                    column(NoSeriesLine__Authorization_Code_Caption; NoSeriesLine__Authorization_Code_CaptionLbl)
+                    {
+                    }
+                    column(FolioTextCaption; FolioTextCaptionLbl)
+                    {
+                    }
+                    column(Cust__RFC_No__Caption; Cust__RFC_No__CaptionLbl)
+                    {
+                    }
+                    column(CompanyInfo__RFC_No__Caption; CompanyInfo__RFC_No__CaptionLbl)
                     {
                     }
                     column(Cust__Phone_No__Caption; Cust__Phone_No__CaptionLbl)
@@ -257,12 +264,12 @@ report 10478 "Elec. Service Cr Memo MX"
                     }
                     dataitem(DimensionLoop1; "Integer")
                     {
-                        DataItemLinkReference = "Service Cr.Memo Header";
+                        DataItemLinkReference = "Service Invoice Header";
                         DataItemTableView = sorting(Number);
                         column(DimText; DimText)
                         {
                         }
-                        column(DimText_Control81; DimText)
+                        column(DimText_Control98; DimText)
                         {
                         }
                         column(DimensionLoop1_Number; Number)
@@ -281,16 +288,22 @@ report 10478 "Elec. Service Cr Memo MX"
                         begin
                             if not ShowInternalInfo then
                                 CurrReport.Break();
-                            FindDimTxt("Service Cr.Memo Header"."Dimension Set ID");
+                            FindDimTxt("Service Invoice Header"."Dimension Set ID");
                             SetRange(Number, 1, DimTxtArrLength);
                         end;
                     }
-                    dataitem("Service Cr.Memo Line"; "Service Cr.Memo Line")
+                    dataitem("Service Invoice Line"; "Service Invoice Line")
                     {
                         DataItemLink = "Document No." = field("No.");
-                        DataItemLinkReference = "Service Cr.Memo Header";
+                        DataItemLinkReference = "Service Invoice Header";
                         DataItemTableView = sorting("Document No.", "Line No.");
                         column(TypeInt; TypeInt)
+                        {
+                        }
+                        column(ServInvHeader__VAT_Base_Disc_; "Service Invoice Header"."VAT Base Discount %")
+                        {
+                        }
+                        column(TotalLineAmount; TotalLineAmount)
                         {
                         }
                         column(TotalAmount; TotalAmount)
@@ -302,75 +315,69 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(TotalInvDiscAmount; TotalInvDiscAmount)
                         {
                         }
-                        column(ServiceCrMemoLine__Line_No__; "Service Cr.Memo Line"."Line No.")
+                        column(ServiceInvoiceLine__Line_No__; "Service Invoice Line"."Line No.")
                         {
                         }
-                        column(ServCrMemoHeader_VATBaseDisc; "Service Cr.Memo Header"."VAT Base Discount %")
+                        column(Service_Invoice_Line__Line_Amount_; "Line Amount")
                         {
-                        }
-                        column(TotalLineAmount; TotalLineAmount)
-                        {
-                        }
-                        column(Service_Cr_Memo_Line__Line_Amount_; "Line Amount")
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Service_Cr_Memo_Line_Description; Description)
+                        column(Service_Invoice_Line_Description; Description)
                         {
                         }
-                        column(Service_Cr_Memo_Line__No__; "No.")
+                        column(Service_Invoice_Line__No__; "No.")
                         {
                         }
-                        column(Service_Cr_Memo_Line_Description_Control62; Description)
+                        column(Service_Invoice_Line_Description_Control65; Description)
                         {
                         }
-                        column(Service_Cr_Memo_Line_Quantity; Quantity)
+                        column(Service_Invoice_Line_Quantity; Quantity)
                         {
                         }
-                        column(Service_Cr_Memo_Line__Unit_of_Measure_; "Unit of Measure")
+                        column(Service_Invoice_Line__Unit_of_Measure_; "Unit of Measure")
                         {
                         }
-                        column(Service_Cr_Memo_Line__Unit_Price_; "Unit Price")
+                        column(Service_Invoice_Line__Unit_Price_; "Unit Price")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
-                        column(Service_Cr_Memo_Line__Line_Discount___; "Line Discount %")
+                        column(Service_Invoice_Line__Line_Discount___; "Line Discount %")
                         {
                         }
-                        column(Service_Cr_Memo_Line__Line_Amount__Control67; "Line Amount")
+                        column(Service_Invoice_Line__Line_Amount__Control70; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Service_Cr_Memo_Line__VAT_Identifier_; "VAT Identifier")
+                        column(Service_Invoice_Line__VAT_Identifier_; "VAT Identifier")
                         {
                         }
-                        column(PostedReceiptDate; Format(PostedReceiptDate))
+                        column(PostedShipmentDate; Format(PostedShipmentDate))
                         {
                         }
-                        column(Service_Cr_Memo_Line__Line_Amount__Control83; "Line Amount")
+                        column(Service_Invoice_Line__Line_Amount__Control86; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Inv__Discount_Amount_; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Service_Cr_Memo_Line__Line_Amount__Control96; "Line Amount")
+                        column(Service_Invoice_Line__Line_Amount__Control99; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
                         {
                         }
-                        column(Service_Cr_Memo_Line_Amount; Amount)
+                        column(Service_Invoice_Line_Amount; Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountInWords_1_; AmountInWords[1])
@@ -379,105 +386,105 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(AmountInWords_2_; AmountInWords[2])
                         {
                         }
+                        column(Service_Invoice_Line_Amount_Control90; Amount)
+                        {
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatType = 1;
+                        }
+                        column(Amount_Including_VAT____Amount; "Amount Including VAT" - Amount)
+                        {
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatType = 1;
+                        }
+                        column(Service_Invoice_Line__Amount_Including_VAT_; "Amount Including VAT")
+                        {
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine_VATAmountText; VATAmountLine.VATAmountText())
+                        {
+                        }
                         column(TotalExclVATText; TotalExclVATText)
                         {
                         }
                         column(TotalInclVATText; TotalInclVATText)
                         {
                         }
-                        column(Service_Cr_Memo_Line__Amount_Including_VAT_; "Amount Including VAT")
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(Amount_Including_VAT____Amount; "Amount Including VAT" - Amount)
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine_VATAmountText; VATAmountLine.VATAmountText())
+                        column(AmountInWords_1__Control1020014; AmountInWords[1])
                         {
                         }
-                        column(Service_Cr_Memo_Line_Amount_Control69; Amount)
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(AmountInWords_1__Control1020021; AmountInWords[1])
-                        {
-                        }
-                        column(AmountInWords_2__Control1020022; AmountInWords[2])
+                        column(AmountInWords_2__Control1020015; AmountInWords[2])
                         {
                         }
                         column(Line_Amount_____Inv__Discount_Amount_____Amount_Including_VAT__; -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT"))
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(Service_Cr_Memo_Line_Amount_Control87; Amount)
+                        column(TotalInclVATText_Control60; TotalInclVATText)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                        }
+                        column(VATAmountLine_VATAmountText_Control61; VATAmountLine.VATAmountText())
+                        {
+                        }
+                        column(Amount_Including_VAT____Amount_Control62; "Amount Including VAT" - Amount)
+                        {
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Amount_Including_VAT____Amount_Control89; "Amount Including VAT" - Amount)
+                        column(Service_Invoice_Line_Amount_Control63; Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Service_Cr_Memo_Line__Amount_Including_VAT__Control91; "Amount Including VAT")
+                        column(Service_Invoice_Line__Amount_Including_VAT__Control71; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine_VATAmountText_Control76; VATAmountLine.VATAmountText())
+                        column(TotalExclVATText_Control72; TotalExclVATText)
                         {
                         }
-                        column(TotalExclVATText_Control77; TotalExclVATText)
+                        column(AmountInWords_1__Control1020017; AmountInWords[1])
                         {
                         }
-                        column(TotalInclVATText_Control78; TotalInclVATText)
+                        column(AmountInWords_2__Control1020018; AmountInWords[2])
                         {
                         }
-                        column(AmountInWords_1__Control1020018; AmountInWords[1])
+                        column(Service_Invoice_Line_Document_No_; "Document No.")
                         {
                         }
-                        column(AmountInWords_2__Control1020019; AmountInWords[2])
+                        column(Service_Invoice_Line__No__Caption; FieldCaption("No."))
                         {
                         }
-                        column(Service_Cr_Memo_Line_Document_No_; "Document No.")
+                        column(Service_Invoice_Line_Description_Control65Caption; FieldCaption(Description))
                         {
                         }
-                        column(Service_Cr_Memo_Line__No__Caption; FieldCaption("No."))
+                        column(Service_Invoice_Line_QuantityCaption; FieldCaption(Quantity))
                         {
                         }
-                        column(Service_Cr_Memo_Line_Description_Control62Caption; FieldCaption(Description))
-                        {
-                        }
-                        column(Service_Cr_Memo_Line_QuantityCaption; FieldCaption(Quantity))
-                        {
-                        }
-                        column(Service_Cr_Memo_Line__Unit_of_Measure_Caption; FieldCaption("Unit of Measure"))
+                        column(Service_Invoice_Line__Unit_of_Measure_Caption; FieldCaption("Unit of Measure"))
                         {
                         }
                         column(Unit_PriceCaption; Unit_PriceCaptionLbl)
                         {
                         }
-                        column(Service_Cr_Memo_Line__Line_Discount___Caption; Service_Cr_Memo_Line__Line_Discount___CaptionLbl)
+                        column(Service_Invoice_Line__Line_Discount___Caption; Service_Invoice_Line__Line_Discount___CaptionLbl)
                         {
                         }
                         column(AmountCaption; AmountCaptionLbl)
                         {
                         }
-                        column(Service_Cr_Memo_Line__VAT_Identifier_Caption; FieldCaption("VAT Identifier"))
+                        column(Service_Invoice_Line__VAT_Identifier_Caption; FieldCaption("VAT Identifier"))
                         {
                         }
-                        column(PostedReceiptDateCaption; PostedReceiptDateCaptionLbl)
+                        column(PostedShipmentDateCaption; PostedShipmentDateCaptionLbl)
                         {
                         }
                         column(ContinuedCaption; ContinuedCaptionLbl)
                         {
                         }
-                        column(ContinuedCaption_Control82; ContinuedCaption_Control82Lbl)
+                        column(ContinuedCaption_Control85; ContinuedCaption_Control85Lbl)
                         {
                         }
                         column(Inv__Discount_Amount_Caption; Inv__Discount_Amount_CaptionLbl)
@@ -489,13 +496,13 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(Amount_in_words_Caption; Amount_in_words_CaptionLbl)
                         {
                         }
-                        column(Amount_in_words_Caption_Control1020020; Amount_in_words_Caption_Control1020020Lbl)
+                        column(Amount_in_words_Caption_Control1020013; Amount_in_words_Caption_Control1020013Lbl)
                         {
                         }
                         column(Line_Amount_____Inv__Discount_Amount_____Amount_Including_VAT__Caption; Line_Amount_____Inv__Discount_Amount_____Amount_Including_VAT__CaptionLbl)
                         {
                         }
-                        column(Amount_in_words_Caption_Control1020017; Amount_in_words_Caption_Control1020017Lbl)
+                        column(Amount_in_words_Caption_Control1020016; Amount_in_words_Caption_Control1020016Lbl)
                         {
                         }
                         dataitem("Service Shipment Buffer"; "Integer")
@@ -511,7 +518,7 @@ report 10478 "Elec. Service Cr Memo MX"
                             column(Service_Shipment_Buffer_Number; Number)
                             {
                             }
-                            column(Return_ReceiptCaption; Return_ReceiptCaptionLbl)
+                            column(ShipmentCaption; ShipmentCaptionLbl)
                             {
                             }
 
@@ -525,13 +532,16 @@ report 10478 "Elec. Service Cr Memo MX"
 
                             trigger OnPreDataItem()
                             begin
+                                ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
+                                ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
+
                                 SetRange(Number, 1, ServiceShipmentBuffer.Count);
                             end;
                         }
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number);
-                            column(DimText_Control88; DimText)
+                            column(DimText_Control82; DimText)
                             {
                             }
                             column(DimensionLoop2_Number; Number)
@@ -543,7 +553,10 @@ report 10478 "Elec. Service Cr Memo MX"
 
                             trigger OnAfterGetRecord()
                             begin
-                                DimText := DimTxtArr[Number];
+                                if Number <= DimTxtArrLength then
+                                    DimText := DimTxtArr[Number]
+                                else
+                                    DimText := Format("Service Invoice Line".Type) + ' ' + AccNo;
                             end;
 
                             trigger OnPreDataItem()
@@ -551,20 +564,26 @@ report 10478 "Elec. Service Cr Memo MX"
                                 if not ShowInternalInfo then
                                     CurrReport.Break();
 
-                                FindDimTxt("Service Cr.Memo Line"."Dimension Set ID");
-                                SetRange(Number, 1, DimTxtArrLength);
+                                FindDimTxt("Service Invoice Line"."Dimension Set ID");
+                                if IsServiceContractLine then
+                                    SetRange(Number, 1, DimTxtArrLength + 1)
+                                else
+                                    SetRange(Number, 1, DimTxtArrLength);
                             end;
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            ServiceShipmentBuffer.DeleteAll();
-                            PostedReceiptDate := 0D;
+                            Counter := Counter + 1;
+                            PostedShipmentDate := 0D;
                             if Quantity <> 0 then
-                                PostedReceiptDate := FindPostedShipmentDate();
+                                PostedShipmentDate := FindPostedShipmentDate();
 
-                            if (Type = Type::"G/L Account") and not ShowInternalInfo then
-                                "No." := '';
+                            IsServiceContractLine := (Type = Type::"G/L Account") and ("Service Item No." <> '') and ("Contract No." <> '');
+                            if IsServiceContractLine then begin
+                                AccNo := "No.";
+                                "No." := "Service Item No.";
+                            end;
 
                             VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
@@ -579,10 +598,10 @@ report 10478 "Elec. Service Cr Memo MX"
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine.InsertLine();
 
+                            TotalLineAmount += "Line Amount";
                             TotalAmount += Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalInvDiscAmount += "Inv. Discount Amount";
-                            TotalLineAmount += "Line Amount";
                             TypeInt := Type.AsInteger();
                             CalculateAmountInWords(TotalAmountInclVAT);
                         end;
@@ -600,10 +619,10 @@ report 10478 "Elec. Service Cr Memo MX"
                                 CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
+                            TotalLineAmount := 0;
                             TotalAmount := 0;
                             TotalAmountInclVAT := 0;
                             TotalInvDiscAmount := 0;
-                            TotalLineAmount := 0;
                         end;
                     }
                     dataitem(VATCounter; "Integer")
@@ -611,109 +630,109 @@ report 10478 "Elec. Service Cr Memo MX"
                         DataItemTableView = sorting(Number);
                         column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__Line_Amount_; VATAmountLine."Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__Inv__Disc__Base_Amount_; VATAmountLine."Inv. Disc. Base Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__Invoice_Discount_Amount_; VATAmountLine."Invoice Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__VAT___; VATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Base__Control105; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base__Control108; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control106; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount__Control109; VATAmountLine."VAT Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Line_Amount__Control135; VATAmountLine."Line Amount")
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control136; VATAmountLine."Inv. Disc. Base Amount")
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control137; VATAmountLine."Invoice Discount Amount")
-                        {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__VAT_Identifier_; VATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmountLine__VAT_Base__Control109; VATAmountLine."VAT Base")
+                        column(VATAmountLine__Line_Amount__Control140; VATAmountLine."Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control110; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control141; VATAmountLine."Inv. Disc. Base Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control129; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control142; VATAmountLine."Invoice Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control130; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__VAT_Base__Control112; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control131; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__VAT_Amount__Control113; VATAmountLine."VAT Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control113; VATAmountLine."VAT Base")
+                        column(VATAmountLine__Line_Amount__Control110; VATAmountLine."Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control114; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control114; VATAmountLine."Inv. Disc. Base Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control126; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control118; VATAmountLine."Invoice Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control127; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__VAT_Base__Control116; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control128; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__VAT_Amount__Control117; VATAmountLine."VAT Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__Line_Amount__Control132; VATAmountLine."Line Amount")
+                        {
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control133; VATAmountLine."Inv. Disc. Base Amount")
+                        {
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__Invoice_Discount_Amount__Control134; VATAmountLine."Invoice Discount Amount")
+                        {
+                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATCounter_Number; Number)
@@ -722,10 +741,10 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(VATAmountLine__VAT___Caption; VATAmountLine__VAT___CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__VAT_Base__Control105Caption; VATAmountLine__VAT_Base__Control105CaptionLbl)
+                        column(VATAmountLine__VAT_Base__Control108Caption; VATAmountLine__VAT_Base__Control108CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__VAT_Amount__Control106Caption; VATAmountLine__VAT_Amount__Control106CaptionLbl)
+                        column(VATAmountLine__VAT_Amount__Control109Caption; VATAmountLine__VAT_Amount__Control109CaptionLbl)
                         {
                         }
                         column(VAT_Amount_SpecificationCaption; VAT_Amount_SpecificationCaptionLbl)
@@ -734,22 +753,22 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(VATAmountLine__VAT_Identifier_Caption; VATAmountLine__VAT_Identifier_CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control130Caption; VATAmountLine__Inv__Disc__Base_Amount__Control130CaptionLbl)
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control141Caption; VATAmountLine__Inv__Disc__Base_Amount__Control141CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__Line_Amount__Control135Caption; VATAmountLine__Line_Amount__Control135CaptionLbl)
+                        column(VATAmountLine__Line_Amount__Control140Caption; VATAmountLine__Line_Amount__Control140CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control137Caption; VATAmountLine__Invoice_Discount_Amount__Control137CaptionLbl)
+                        column(VATAmountLine__Invoice_Discount_Amount__Control142Caption; VATAmountLine__Invoice_Discount_Amount__Control142CaptionLbl)
                         {
                         }
                         column(VATAmountLine__VAT_Base_Caption; VATAmountLine__VAT_Base_CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__VAT_Base__Control109Caption; VATAmountLine__VAT_Base__Control109CaptionLbl)
+                        column(VATAmountLine__VAT_Base__Control112Caption; VATAmountLine__VAT_Base__Control112CaptionLbl)
                         {
                         }
-                        column(VATAmountLine__VAT_Base__Control113Caption; VATAmountLine__VAT_Base__Control113CaptionLbl)
+                        column(VATAmountLine__VAT_Base__Control116Caption; VATAmountLine__VAT_Base__Control116CaptionLbl)
                         {
                         }
 
@@ -768,11 +787,20 @@ report 10478 "Elec. Service Cr Memo MX"
                     dataitem(Total; "Integer")
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
+                        column(PaymentTerms_Description; PaymentTerms.Description)
+                        {
+                        }
+                        column(Total_Number; Number)
+                        {
+                        }
+                        column(PaymentTerms_DescriptionCaption; PaymentTerms_DescriptionCaptionLbl)
+                        {
+                        }
                     }
                     dataitem(Total2; "Integer")
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
-                        column(Service_Cr_Memo_Header___Customer_No__; "Service Cr.Memo Header"."Customer No.")
+                        column(Service_Invoice_Header___Customer_No__; "Service Invoice Header"."Customer No.")
                         {
                         }
                         column(ShipToAddr_1_; ShipToAddr[1])
@@ -805,7 +833,7 @@ report 10478 "Elec. Service Cr Memo MX"
                         column(Ship_to_AddressCaption; Ship_to_AddressCaptionLbl)
                         {
                         }
-                        column(Service_Cr_Memo_Header___Customer_No__Caption; "Service Cr.Memo Header".FieldCaption("Customer No."))
+                        column(Service_Invoice_Header___Customer_No__Caption; "Service Invoice Header".FieldCaption("Customer No."))
                         {
                         }
 
@@ -896,7 +924,7 @@ report 10478 "Elec. Service Cr Memo MX"
                     dataitem(QRCode; "Integer")
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
-                        column(Service_Cr_Memo_Header___QR_Code_; "Service Cr.Memo Header"."QR Code")
+                        column(Service_Invoice_Header___QR_Code_; "Service Invoice Header"."QR Code")
                         {
                         }
                         column(QRCode_Number; Number)
@@ -905,7 +933,7 @@ report 10478 "Elec. Service Cr Memo MX"
 
                         trigger OnAfterGetRecord()
                         begin
-                            "Service Cr.Memo Header".CalcFields("QR Code");
+                            "Service Invoice Header".CalcFields("QR Code");
                         end;
                     }
                 }
@@ -913,7 +941,7 @@ report 10478 "Elec. Service Cr Memo MX"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := Text004;
+                        CopyText := Text003;
                         OutputNo += 1;
                     end;
                 end;
@@ -921,12 +949,18 @@ report 10478 "Elec. Service Cr Memo MX"
                 trigger OnPostDataItem()
                 begin
                     if not CurrReport.Preview then
-                        ServiceCrMemoCountPrinted.Run("Service Cr.Memo Header");
+                        ServiceInvCountPrinted.Run("Service Invoice Header");
                 end;
 
                 trigger OnPreDataItem()
                 begin
+#if not CLEAN27
+                    NoOfLoops := Abs(NoOfCopies) + Cust."Invoice Copies" + 1;
+#else
                     NoOfLoops := Abs(NoOfCopies) + 1;
+#endif
+                    if NoOfLoops <= 0 then
+                        NoOfLoops := 1;
                     CopyText := '';
                     SetRange(Number, 1, NoOfLoops);
 
@@ -940,12 +974,12 @@ report 10478 "Elec. Service Cr Memo MX"
                 InStream: InStream;
             begin
                 if "Source Code" = SourceCodeSetup."Deleted Document" then
-                    Error(Text008);
+                    Error(Text007);
 
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
-                if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
+                if not CompanyBankAccount.Get("Service Invoice Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 if RespCenter.Get("Responsibility Center") then begin
@@ -955,6 +989,10 @@ report 10478 "Elec. Service Cr Memo MX"
                 end else
                     FormatAddr.Company(CompanyAddr, CompanyInfo);
 
+                if "Order No." = '' then
+                    OrderNoText := ''
+                else
+                    OrderNoText := FieldCaption("Order No.");
                 if "Salesperson Code" = '' then begin
                     SalesPurchPerson.Init();
                     SalesPersonText := '';
@@ -974,27 +1012,24 @@ report 10478 "Elec. Service Cr Memo MX"
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(Text001, GLSetup."LCY Code");
                     TotalInclVATText := StrSubstNo(Text002, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(Text007, GLSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(Text006, GLSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(Text001, "Currency Code");
                     TotalInclVATText := StrSubstNo(Text002, "Currency Code");
-                    TotalExclVATText := StrSubstNo(Text007, "Currency Code");
+                    TotalExclVATText := StrSubstNo(Text006, "Currency Code");
                 end;
-                ServiceFormatAddress.ServiceCrMemoBillTo(CustAddr, "Service Cr.Memo Header");
-                if "Applies-to Doc. No." = '' then
-                    AppliedToText := ''
-                else
-                    AppliedToText := StrSubstNo(Text003, "Applies-to Doc. Type", "Applies-to Doc. No.");
-
-                ShowShippingAddr := ServiceFormatAddress.ServiceCrMemoShipTo(ShipToAddr, CustAddr, "Service Cr.Memo Header");
-
+                ServiceFormatAddress.ServiceInvBillTo(CustAddr, "Service Invoice Header");
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
-                if not Customer.Get("Bill-to Customer No.") then
-                    Clear(Customer);
+                if "Payment Terms Code" = '' then
+                    PaymentTerms.Init()
+                else
+                    PaymentTerms.Get("Payment Terms Code");
 
-                "Service Cr.Memo Header".CalcFields("Original String", "Digital Stamp SAT", "Digital Stamp PAC");
+                ShowShippingAddr := ServiceFormatAddress.ServiceInvShipTo(ShipToAddr, CustAddr, "Service Invoice Header");
+
+                "Service Invoice Header".CalcFields("Original String", "Digital Stamp SAT", "Digital Stamp PAC");
 
                 Clear(OriginalStringTextUnbounded);
                 "Original String".CreateInStream(InStream);
@@ -1083,109 +1118,113 @@ report 10478 "Elec. Service Cr Memo MX"
         Text000: Label 'Salesperson';
         Text001: Label 'Total %1';
         Text002: Label 'Total %1 Incl. VAT';
-        Text003: Label '(Applies to %1 %2)';
-        Text004: Label 'COPY';
-        Text005: Label 'Service - Credit Memo %1';
-        Text006: Label 'Page %1';
-        Text007: Label 'Total %1 Excl. VAT';
+        Text003: Label 'COPY';
+        Text004: Label 'Service - Invoice %1';
+        Text005: Label 'Page %1';
+        Text006: Label 'Total %1 Excl. VAT';
         GLSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
         ServiceSetup: Record "Service Mgt. Setup";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        DimSetEntry: Record "Dimension Set Entry";
-        ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
-        RespCenter: Record "Responsibility Center";
         Cust: Record Customer;
-        Customer: Record Customer;
+        DimSetEntry: Record "Dimension Set Entry";
+        VATAmountLine: Record "VAT Amount Line" temporary;
+        RespCenter: Record "Responsibility Center";
+        ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
         LanguageMgt: Codeunit Language;
-        ServiceCrMemoCountPrinted: Codeunit "Service Cr. Memo-Printed";
+        ServiceInvCountPrinted: Codeunit "Service Inv.-Printed";
         FormatAddr: Codeunit "Format Address";
         ServiceFormatAddress: Codeunit "Service Format Address";
+        PostedShipmentDate: Date;
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
+        OrderNoText: Text[80];
         SalesPersonText: Text[30];
         VATNoText: Text[80];
         ReferenceText: Text[80];
-        AppliedToText: Text[40];
         TotalText: Text[50];
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
+        MoreLines: Boolean;
         OriginalStringText: Text[80];
         DigitalSignatureText: Text[80];
         DigitalSignaturePACText: Text[80];
         AmountInWords: array[2] of Text[80];
-        MoreLines: Boolean;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
-        OutputNo: Integer;
-        TypeInt: Integer;
         CopyText: Text[30];
         ShowShippingAddr: Boolean;
-        DimText: Text[120];
-        ShowInternalInfo: Boolean;
-        FirstValueEntryNo: Integer;
-        Position: Integer;
-        PostedReceiptDate: Date;
         NextEntryNo: Integer;
+        FirstValueEntryNo: Integer;
+        OutputNo: Integer;
+        TypeInt: Integer;
+        DimText: Text[120];
+        Position: Integer;
+        ShowInternalInfo: Boolean;
+        TotalLineAmount: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         TotalInvDiscAmount: Decimal;
-        TotalLineAmount: Decimal;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
+        IsServiceContractLine: Boolean;
         OriginalStringTextUnbounded: Text;
         DigitalSignatureTextUnbounded: Text;
-        Text008: Label 'You can not sign or send or print a deleted document.';
+        Text007: Label 'You can not sign or send or print a deleted document.';
         DigitalSignaturePACTextUnbounded: Text;
-        Text009: Label '%1, %2';
+        Counter: Integer;
+        Text008: Label '%1, %2';
+        AccNo: Code[20];
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';
         CompanyInfo__Giro_No__CaptionLbl: Label 'Giro No.';
         CompanyInfo__Bank_Name_CaptionLbl: Label 'Bank';
         CompanyInfo__Bank_Account_No__CaptionLbl: Label 'Account No.';
-        Service_Cr_Memo_Header___Posting_Date_CaptionLbl: Label 'Posting Date';
+        Service_Invoice_Header___Due_Date_CaptionLbl: Label 'Due Date';
+        Service_Invoice_Header___Posting_Date_CaptionLbl: Label 'Posting Date';
         Tax_Ident__TypeCaptionLbl: Label 'Tax Ident. Type';
-        CompanyInfo__RFC_No__CaptionLbl: Label 'Company RFC';
-        FolioTextCaptionLbl: Label 'Folio:';
-        NoSeriesLine__Authorization_Code_CaptionLbl: Label 'Date and time of certification:';
         NoSeriesLine__Authorization_Year_CaptionLbl: Label 'Location and Issue date:';
-        Customer__RFC_No__CaptionLbl: Label 'Customer RFC';
+        NoSeriesLine__Authorization_Code_CaptionLbl: Label 'Date and time of certification:';
+        FolioTextCaptionLbl: Label 'Folio:';
+        Cust__RFC_No__CaptionLbl: Label 'Customer RFC';
+        CompanyInfo__RFC_No__CaptionLbl: Label 'Company RFC';
         Cust__Phone_No__CaptionLbl: Label 'Phone number';
         Header_DimensionsCaptionLbl: Label 'Header Dimensions';
         Unit_PriceCaptionLbl: Label 'Unit Price';
-        Service_Cr_Memo_Line__Line_Discount___CaptionLbl: Label 'Disc. %';
+        Service_Invoice_Line__Line_Discount___CaptionLbl: Label 'Disc. %';
         AmountCaptionLbl: Label 'Amount';
-        PostedReceiptDateCaptionLbl: Label 'Posted Return Receipt Date';
+        PostedShipmentDateCaptionLbl: Label 'Posted Shipment Date';
         ContinuedCaptionLbl: Label 'Continued';
-        ContinuedCaption_Control82Lbl: Label 'Continued';
+        ContinuedCaption_Control85Lbl: Label 'Continued';
         Inv__Discount_Amount_CaptionLbl: Label 'Inv. Discount Amount';
         SubtotalCaptionLbl: Label 'Subtotal';
         Amount_in_words_CaptionLbl: Label 'Amount in words:';
-        Amount_in_words_Caption_Control1020020Lbl: Label 'Amount in words:';
+        Amount_in_words_Caption_Control1020013Lbl: Label 'Amount in words:';
         Line_Amount_____Inv__Discount_Amount_____Amount_Including_VAT__CaptionLbl: Label 'Payment Discount on VAT';
-        Amount_in_words_Caption_Control1020017Lbl: Label 'Amount in words:';
-        Return_ReceiptCaptionLbl: Label 'Return Receipt';
+        Amount_in_words_Caption_Control1020016Lbl: Label 'Amount in words:';
+        ShipmentCaptionLbl: Label 'Shipment';
         Line_DimensionsCaptionLbl: Label 'Line Dimensions';
         VATAmountLine__VAT___CaptionLbl: Label 'VAT %';
-        VATAmountLine__VAT_Base__Control105CaptionLbl: Label 'VAT Base';
-        VATAmountLine__VAT_Amount__Control106CaptionLbl: Label 'VAT Amount';
+        VATAmountLine__VAT_Base__Control108CaptionLbl: Label 'VAT Base';
+        VATAmountLine__VAT_Amount__Control109CaptionLbl: Label 'VAT Amount';
         VAT_Amount_SpecificationCaptionLbl: Label 'VAT Amount Specification';
         VATAmountLine__VAT_Identifier_CaptionLbl: Label 'VAT Identifier';
-        VATAmountLine__Inv__Disc__Base_Amount__Control130CaptionLbl: Label 'Inv. Disc. Base Amount';
-        VATAmountLine__Line_Amount__Control135CaptionLbl: Label 'Line Amount';
-        VATAmountLine__Invoice_Discount_Amount__Control137CaptionLbl: Label 'Invoice Discount Amount';
+        VATAmountLine__Inv__Disc__Base_Amount__Control141CaptionLbl: Label 'Inv. Disc. Base Amount';
+        VATAmountLine__Line_Amount__Control140CaptionLbl: Label 'Line Amount';
+        VATAmountLine__Invoice_Discount_Amount__Control142CaptionLbl: Label 'Invoice Discount Amount';
         VATAmountLine__VAT_Base_CaptionLbl: Label 'Continued';
-        VATAmountLine__VAT_Base__Control109CaptionLbl: Label 'Continued';
-        VATAmountLine__VAT_Base__Control113CaptionLbl: Label 'Total';
+        VATAmountLine__VAT_Base__Control112CaptionLbl: Label 'Continued';
+        VATAmountLine__VAT_Base__Control116CaptionLbl: Label 'Total';
+        PaymentTerms_DescriptionCaptionLbl: Label 'Payment Terms';
         Ship_to_AddressCaptionLbl: Label 'Ship-to Address';
         Original_StringCaptionLbl: Label 'Original string of digital certificate complement from SAT';
         Digital_StampCaptionLbl: Label 'Digital stamp from SAT';
         DigitalSignaturePACTextCaptionLbl: Label 'Digital stamp';
-        DocumentFooterLbl: Label 'This document is a printed version for electronic credit memo';
+        DocumentFooterLbl: Label 'This document is a printed version for electronic invoice';
         TaxRegimeLbl: Label 'Regimen Fiscal:';
         SATPaymentMethod: Text[50];
         SATPaymentTerm: Text[50];
@@ -1198,86 +1237,151 @@ report 10478 "Elec. Service Cr Memo MX"
 
     procedure FindPostedShipmentDate(): Date
     var
+        ServiceShipmentHeader: Record "Service Shipment Header";
         ServiceShipmentBuffer2: Record "Service Shipment Buffer" temporary;
     begin
         NextEntryNo := 1;
+        if "Service Invoice Line"."Shipment No." <> '' then
+            if ServiceShipmentHeader.Get("Service Invoice Line"."Shipment No.") then
+                exit(ServiceShipmentHeader."Posting Date");
 
-        case "Service Cr.Memo Line".Type of
-            "Service Cr.Memo Line".Type::Item:
-                GenerateBufferFromValueEntry("Service Cr.Memo Line");
-            "Service Cr.Memo Line".Type::" ":
+        if "Service Invoice Header"."Order No." = '' then
+            exit("Service Invoice Header"."Posting Date");
+
+        case "Service Invoice Line".Type of
+            "Service Invoice Line".Type::Item:
+                GenerateBufferFromValueEntry("Service Invoice Line");
+            "Service Invoice Line".Type::"G/L Account", "Service Invoice Line".Type::Resource,
+          "Service Invoice Line".Type::Cost:
+                GenerateBufferFromShipment("Service Invoice Line");
+            "Service Invoice Line".Type::" ":
                 exit(0D);
         end;
 
         ServiceShipmentBuffer.Reset();
-        ServiceShipmentBuffer.SetRange("Document No.", "Service Cr.Memo Line"."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", "Service Cr.Memo Line"."Line No.");
-
+        ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
+        ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer2 := ServiceShipmentBuffer;
             if ServiceShipmentBuffer.Next() = 0 then begin
-                ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
-                  "Entry No.");
+                ServiceShipmentBuffer.Get(
+                  ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
                 ServiceShipmentBuffer.Delete();
                 exit(ServiceShipmentBuffer2."Posting Date");
             end;
             ServiceShipmentBuffer.CalcSums(Quantity);
-            if ServiceShipmentBuffer.Quantity <> "Service Cr.Memo Line".Quantity then begin
+            if ServiceShipmentBuffer.Quantity <> "Service Invoice Line".Quantity then begin
                 ServiceShipmentBuffer.DeleteAll();
-                exit("Service Cr.Memo Header"."Posting Date");
+                exit("Service Invoice Header"."Posting Date");
             end;
         end else
-            exit("Service Cr.Memo Header"."Posting Date");
+            exit("Service Invoice Header"."Posting Date");
     end;
 
-    procedure GenerateBufferFromValueEntry(ServiceCrMemoLine2: Record "Service Cr.Memo Line")
+    procedure GenerateBufferFromValueEntry(ServiceInvoiceLine2: Record "Service Invoice Line")
     var
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalQuantity: Decimal;
         Quantity: Decimal;
     begin
-        TotalQuantity := ServiceCrMemoLine2."Quantity (Base)";
+        TotalQuantity := ServiceInvoiceLine2."Quantity (Base)";
         ValueEntry.SetCurrentKey("Document No.");
-        ValueEntry.SetRange("Document No.", ServiceCrMemoLine2."Document No.");
-        ValueEntry.SetRange("Posting Date", "Service Cr.Memo Header"."Posting Date");
+        ValueEntry.SetRange("Document No.", ServiceInvoiceLine2."Document No.");
+        ValueEntry.SetRange("Posting Date", "Service Invoice Header"."Posting Date");
         ValueEntry.SetRange("Item Charge No.", '');
         ValueEntry.SetFilter("Entry No.", '%1..', FirstValueEntryNo);
         if ValueEntry.Find('-') then
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then begin
-                    if ServiceCrMemoLine2."Qty. per Unit of Measure" <> 0 then
-                        Quantity := ValueEntry."Invoiced Quantity" / ServiceCrMemoLine2."Qty. per Unit of Measure"
+                    if ServiceInvoiceLine2."Qty. per Unit of Measure" <> 0 then
+                        Quantity := ValueEntry."Invoiced Quantity" / ServiceInvoiceLine2."Qty. per Unit of Measure"
                     else
                         Quantity := ValueEntry."Invoiced Quantity";
                     AddBufferEntry(
-                      ServiceCrMemoLine2,
+                      ServiceInvoiceLine2,
                       -Quantity,
                       ItemLedgerEntry."Posting Date");
-                    TotalQuantity := TotalQuantity - ValueEntry."Invoiced Quantity";
+                    TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
             until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
-    procedure AddBufferEntry(ServiceCrMemoLine: Record "Service Cr.Memo Line"; QtyOnShipment: Decimal; PostingDate: Date)
+    procedure GenerateBufferFromShipment(ServiceInvoiceLine: Record "Service Invoice Line")
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceInvoiceLine2: Record "Service Invoice Line";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        TotalQuantity: Decimal;
+        Quantity: Decimal;
     begin
-        ServiceShipmentBuffer.SetRange("Document No.", ServiceCrMemoLine."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", ServiceCrMemoLine."Line No.");
+        TotalQuantity := 0;
+        ServiceInvoiceHeader.SetCurrentKey("Order No.");
+        ServiceInvoiceHeader.SetFilter("No.", '..%1', "Service Invoice Header"."No.");
+        ServiceInvoiceHeader.SetRange("Order No.", "Service Invoice Header"."Order No.");
+        if ServiceInvoiceHeader.Find('-') then
+            repeat
+                ServiceInvoiceLine2.SetRange("Document No.", ServiceInvoiceHeader."No.");
+                ServiceInvoiceLine2.SetRange("Line No.", ServiceInvoiceLine."Line No.");
+                ServiceInvoiceLine2.SetRange(Type, ServiceInvoiceLine.Type);
+                ServiceInvoiceLine2.SetRange("No.", ServiceInvoiceLine."No.");
+                ServiceInvoiceLine2.SetRange("Unit of Measure Code", ServiceInvoiceLine."Unit of Measure Code");
+                if ServiceInvoiceLine2.Find('-') then
+                    repeat
+                        TotalQuantity := TotalQuantity + ServiceInvoiceLine2.Quantity;
+                    until ServiceInvoiceLine2.Next() = 0;
+            until ServiceInvoiceHeader.Next() = 0;
+
+        ServiceShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
+        ServiceShipmentLine.SetRange("Order No.", "Service Invoice Header"."Order No.");
+        ServiceShipmentLine.SetRange("Order Line No.", ServiceInvoiceLine."Line No.");
+        ServiceShipmentLine.SetRange("Line No.", ServiceInvoiceLine."Line No.");
+        ServiceShipmentLine.SetRange(Type, ServiceInvoiceLine.Type);
+        ServiceShipmentLine.SetRange("No.", ServiceInvoiceLine."No.");
+        ServiceShipmentLine.SetRange("Unit of Measure Code", ServiceInvoiceLine."Unit of Measure Code");
+        ServiceShipmentLine.SetFilter(Quantity, '<>%1', 0);
+
+        if ServiceShipmentLine.Find('-') then
+            repeat
+                if Abs(ServiceShipmentLine.Quantity) <= Abs(TotalQuantity - ServiceInvoiceLine.Quantity) then
+                    TotalQuantity := TotalQuantity - ServiceShipmentLine.Quantity
+                else begin
+                    if Abs(ServiceShipmentLine.Quantity) > Abs(TotalQuantity) then
+                        ServiceShipmentLine.Quantity := TotalQuantity;
+                    Quantity :=
+                      ServiceShipmentLine.Quantity - (TotalQuantity - ServiceInvoiceLine.Quantity);
+
+                    TotalQuantity := TotalQuantity - ServiceShipmentLine.Quantity;
+                    ServiceInvoiceLine.Quantity := ServiceInvoiceLine.Quantity - Quantity;
+
+                    if ServiceShipmentHeader.Get(ServiceShipmentLine."Document No.") then
+                        AddBufferEntry(
+                          ServiceInvoiceLine,
+                          Quantity,
+                          ServiceShipmentHeader."Posting Date");
+                end;
+            until (ServiceShipmentLine.Next() = 0) or (TotalQuantity = 0);
+    end;
+
+    procedure AddBufferEntry(ServiceInvoiceLine: Record "Service Invoice Line"; QtyOnShipment: Decimal; PostingDate: Date)
+    begin
+        ServiceShipmentBuffer.SetRange("Document No.", ServiceInvoiceLine."Document No.");
+        ServiceShipmentBuffer.SetRange("Line No.", ServiceInvoiceLine."Line No.");
         ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
         if ServiceShipmentBuffer.Find('-') then begin
-            ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity - QtyOnShipment;
+            ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity + QtyOnShipment;
             ServiceShipmentBuffer.Modify();
             exit;
         end;
 
-        ServiceShipmentBuffer.Init();
-        ServiceShipmentBuffer."Document No." := ServiceCrMemoLine."Document No.";
-        ServiceShipmentBuffer."Line No." := ServiceCrMemoLine."Line No.";
+        ServiceShipmentBuffer."Document No." := ServiceInvoiceLine."Document No.";
+        ServiceShipmentBuffer."Line No." := ServiceInvoiceLine."Line No.";
         ServiceShipmentBuffer."Entry No." := NextEntryNo;
-        ServiceShipmentBuffer.Type := ServiceCrMemoLine.Type;
-        ServiceShipmentBuffer."No." := ServiceCrMemoLine."No.";
-        ServiceShipmentBuffer.Quantity := -QtyOnShipment;
+        ServiceShipmentBuffer.Type := ServiceInvoiceLine.Type;
+        ServiceShipmentBuffer."No." := ServiceInvoiceLine."No.";
+        ServiceShipmentBuffer.Quantity := QtyOnShipment;
         ServiceShipmentBuffer."Posting Date" := PostingDate;
         ServiceShipmentBuffer.Insert();
         NextEntryNo := NextEntryNo + 1
@@ -1321,7 +1425,7 @@ report 10478 "Elec. Service Cr Memo MX"
         else
             LanguageId := GlobalLanguage;
         TranslationManagement.FormatNoText(AmountInWords, AmountInclVAT,
-          LanguageId, "Service Cr.Memo Header"."Currency Code")
+          LanguageId, "Service Invoice Header"."Currency Code")
     end;
 }
 
