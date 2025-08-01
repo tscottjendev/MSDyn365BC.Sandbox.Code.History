@@ -328,6 +328,7 @@ table 900 "Assembly Header"
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -365,6 +366,7 @@ table 900 "Assembly Header"
         {
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -385,12 +387,14 @@ table 900 "Assembly Header"
             Caption = 'Remaining Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(43; "Remaining Quantity (Base)"; Decimal)
         {
             Caption = 'Remaining Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(44; "Assembled Quantity"; Decimal)
         {
@@ -398,18 +402,21 @@ table 900 "Assembly Header"
             Caption = 'Assembled Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(45; "Assembled Quantity (Base)"; Decimal)
         {
             Caption = 'Assembled Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(46; "Quantity to Assemble"; Decimal)
         {
             Caption = 'Quantity to Assemble';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -439,6 +446,7 @@ table 900 "Assembly Header"
         {
             Caption = 'Quantity to Assemble (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(48; "Reserved Quantity"; Decimal)
         {
@@ -452,6 +460,7 @@ table 900 "Assembly Header"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(49; "Reserved Qty. (Base)"; Decimal)
         {
@@ -465,6 +474,7 @@ table 900 "Assembly Header"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(50; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
@@ -503,6 +513,7 @@ table 900 "Assembly Header"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -530,6 +541,7 @@ table 900 "Assembly Header"
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -540,16 +552,20 @@ table 900 "Assembly Header"
                                                                    Type = filter(Item | Resource)));
             Caption = 'Rolled-up Assembly Cost';
             FieldClass = FlowField;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(75; "Indirect Cost %"; Decimal)
         {
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(76; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(80; "Unit of Measure Code"; Code[10])
         {
@@ -583,6 +599,7 @@ table 900 "Assembly Header"
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -598,6 +615,7 @@ table 900 "Assembly Header"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(83; "Qty. Rounding Precision (Base)"; Decimal)
         {
@@ -607,6 +625,7 @@ table 900 "Assembly Header"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(107; "No. Series"; Code[20])
         {
