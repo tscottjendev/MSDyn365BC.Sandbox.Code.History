@@ -146,6 +146,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
     local procedure HandleBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry" temporary; var GenJournalLine: Record "Gen. Journal Line"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal; var NextEntryNo: Integer; var TotalAmount: Decimal; var TotalAddCurrAmount: Decimal; var GLEntry: Record "G/L Entry")
     begin
         TempGLEntryBuf."Allocation Account No." := GenJournalLine."Allocation Account No.";
+        TempGLEntryBuf."Alloc. Journal Line SystemId" := GenJournalLine."Alloc. Journal Line SystemId";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnBeforeShowDimensions', '', false, false)]
@@ -346,6 +347,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         GenJournalLine."Journal Batch Name" := AllocationAccountGenJournalLine."Journal Batch Name";
         GenJournalLine."Journal Template Name" := AllocationAccountGenJournalLine."Journal Template Name";
         GenJournalLine."Line No." := LastJournalLineNo + Increment;
+        GenJournalLine."Alloc. Journal Line SystemId" := AllocationAccountGenJournalLine.SystemId;
         UpdateAccountNumbersAndTypesOnGenJournalLine(AllocationAccountGenJournalLine, GenJournalLine, AllocationLine);
 
         GenJournalLine.Validate(Amount, AllocationLine.Amount);
