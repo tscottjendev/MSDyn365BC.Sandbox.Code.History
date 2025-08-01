@@ -75,7 +75,7 @@ report 1086 "Job Calculate WIP"
 
             JobsSetup.Get();
 
-            JobsSetup.TestField("Job Nos.");
+            JobsSetup.TestField("Job WIP Nos.");
                 NewNoSeriesCode := JobsSetup."Job WIP Nos.";
                 DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
         end;
@@ -121,7 +121,7 @@ report 1086 "Job Calculate WIP"
         JobsSetup.Get();
 
         if DocNo = '' then begin
-            JobsSetup.TestField("Job Nos.");
+            JobsSetup.TestField("Job WIP Nos.");
                 NewNoSeriesCode := JobsSetup."Job WIP Nos.";
                 DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
         end;
