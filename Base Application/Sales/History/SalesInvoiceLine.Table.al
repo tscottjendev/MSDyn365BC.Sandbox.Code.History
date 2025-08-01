@@ -450,6 +450,11 @@ table 113 "Sales Invoice Line"
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
         }
+        field(2679; "Alloc. Sales Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Sales Line SystemId';
+            DataClassification = SystemMetadata;
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
