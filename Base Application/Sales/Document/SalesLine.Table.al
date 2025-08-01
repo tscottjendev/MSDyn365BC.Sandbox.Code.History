@@ -2377,6 +2377,11 @@ table 37 "Sales Line"
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
+        field(2679; "Alloc. Sales Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Sales Line SystemId';
+            DataClassification = SystemMetadata;
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';

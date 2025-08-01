@@ -288,6 +288,8 @@ table 1226 "Payment Export Data"
         }
         field(80; Amount; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Amount';
             DecimalPlaces = 2 : 2;
         }
@@ -322,6 +324,8 @@ table 1226 "Payment Export Data"
         }
         field(89; "Invoice Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Invoice Amount';
         }
         field(90; "Invoice Date"; Date)
@@ -929,4 +933,3 @@ table 1226 "Payment Export Data"
     begin
     end;
 }
-
