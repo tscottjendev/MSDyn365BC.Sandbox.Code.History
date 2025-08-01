@@ -574,6 +574,7 @@ table 901 "Assembly Line"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -598,6 +599,7 @@ table 901 "Assembly Line"
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -634,6 +636,7 @@ table 901 "Assembly Line"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(83; "Qty. Rounding Precision (Base)"; Decimal)
         {
@@ -643,6 +646,7 @@ table 901 "Assembly Line"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -2323,4 +2327,3 @@ table 901 "Assembly Line"
     begin
     end;
 }
-
