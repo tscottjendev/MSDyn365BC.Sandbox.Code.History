@@ -26,30 +26,6 @@ codeunit 30238 "Shpfy Fulfillment Orders API"
         Shop.Modify();
     end;
 
-    internal procedure GetShopifyFulFillmentOrders(Shop: Record "Shpfy Shop")
-    var
-        Cursor: Text;
-        Parameters: Dictionary of [Text, Text];
-        JResponse: JsonToken;
-    begin
-        CommunicationMgt.SetShop(Shop);
-
-        GraphQLType := "Shpfy GraphQL Type"::GetOpenFulfillmentOrders;
-        repeat
-            JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
-            if JResponse.IsObject() then
-                if ExtractFulfillmentOrders(Shop, JResponse.AsObject(), Cursor) then begin
-                    if Parameters.ContainsKey('After') then
-                        Parameters.Set('After', Cursor)
-                    else
-                        Parameters.Add('After', Cursor);
-                    GraphQLType := "Shpfy GraphQL Type"::GetNextOpenFulfillmentOrders;
-                end else
-                    break;
-        until not JsonHelper.GetValueAsBoolean(JResponse, 'data.fulfillmentOrders.pageInfo.hasNextPage');
-        Commit();
-    end;
-
     internal procedure GetFulFillmentOrderLines(Shop: Record "Shpfy Shop"; FulfillmentOrderHeader: Record "Shpfy FulFillment Order Header")
     var
         Cursor: Text;

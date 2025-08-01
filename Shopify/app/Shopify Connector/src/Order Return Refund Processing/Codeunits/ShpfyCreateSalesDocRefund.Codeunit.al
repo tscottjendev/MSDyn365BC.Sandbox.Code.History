@@ -373,7 +373,6 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
             SalesLine.Insert(true);
 
             SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-            // SalesLine.Validate("No.", SalesLine.GetCPGInvRoundAcc(SalesHeader)); TODONAT
             SalesLine.Validate("No.", Shop."Refund Account");
             SalesLine.Validate(Quantity, 1);
             SalesLine.Validate("Unit Price", OrderHeader."Refund Rounding Amount");
