@@ -2652,6 +2652,11 @@ table 81 "Gen. Journal Line"
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
+        field(2679; "Alloc. Journal Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Journal Line SystemId';
+            DataClassification = SystemMetadata;
+        }
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';

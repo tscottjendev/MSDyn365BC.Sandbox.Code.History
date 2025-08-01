@@ -110,6 +110,7 @@ table 271 "Bank Account Ledger Entry"
         /// </summary>
         field(17; "Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
         }
@@ -266,7 +267,7 @@ table 271 "Bank Account Ledger Entry"
             TableRelation = "Bank Acc. Reconciliation Line"."Statement No." where("Bank Account No." = field("Bank Account No."));
         }
         /// <summary>
-        /// Line number on the bank statement this entry has been applied to during reconciliation.  
+        /// Line number on the bank statement this entry has been applied to during reconciliation.
         /// </summary>
         field(57; "Statement Line No."; Integer)
         {
@@ -299,6 +300,7 @@ table 271 "Bank Account Ledger Entry"
         /// </summary>
         field(60; "Debit Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount (LCY)';
@@ -308,6 +310,7 @@ table 271 "Bank Account Ledger Entry"
         /// </summary>
         field(61; "Credit Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount (LCY)';
@@ -748,4 +751,3 @@ table 271 "Bank Account Ledger Entry"
     begin
     end;
 }
-
