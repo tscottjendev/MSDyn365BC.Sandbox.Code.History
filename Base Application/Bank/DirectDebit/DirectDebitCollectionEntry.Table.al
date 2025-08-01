@@ -119,6 +119,8 @@ table 1208 "Direct Debit Collection Entry"
         /// </summary>
         field(7; "Transfer Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Transfer Amount';
 
             trigger OnValidate()
@@ -627,4 +629,3 @@ table 1208 "Direct Debit Collection Entry"
     begin
     end;
 }
-

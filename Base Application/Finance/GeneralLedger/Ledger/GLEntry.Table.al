@@ -431,6 +431,11 @@ table 17 "G/L Entry"
             Caption = 'Allocation Account No.';
             DataClassification = CustomerContent;
         }
+        field(2679; "Alloc. Journal Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Journal Line SystemId';
+            DataClassification = SystemMetadata;
+        }
         field(5400; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
