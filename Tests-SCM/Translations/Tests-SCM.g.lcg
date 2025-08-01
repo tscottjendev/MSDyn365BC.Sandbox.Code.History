@@ -599,6 +599,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Bugfixes - NamedType EmailNotAutomaticallySetErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2956518560 - NamedType 4113770520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mismatch in Expected Quantity for Item No. %1 in Production Order %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Item No., %2: Production Order No.]D;]A;(LookupHint=Codeunit SCM Bugfixes - NamedType ExpectedQuantitymismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2956518560 - NamedType 1697333439" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No reservation entries created for requisition line.]]></Val>
@@ -615,6 +624,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Bugfixes - NamedType PurchaseOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2956518560 - NamedType 4036029222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mismatch in Quantity per for Item No. %1 in Production Order %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Item No., %2: Production Order No.]D;]A;(LookupHint=Codeunit SCM Bugfixes - NamedType QtyPermismatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2956518560 - NamedType 2392634008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
