@@ -20,7 +20,7 @@ using Microsoft.Sales.Receivables;
 /// about the account, amount, recipient information, and applied ledger entries.
 /// </summary>
 /// <remarks>
-/// Integrates with Credit Transfer Register for batch processing and supports customer, vendor, 
+/// Integrates with Credit Transfer Register for batch processing and supports customer, vendor,
 /// and employee payment types. Provides extensibility through integration events for recipient data
 /// population and applies-to entry retrieval.
 /// </remarks>
@@ -96,6 +96,8 @@ table 1206 "Credit Transfer Entry"
         /// </summary>
         field(8; "Transfer Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Transfer Amount';
         }
         /// <summary>
@@ -419,4 +421,3 @@ table 1206 "Credit Transfer Entry"
     begin
     end;
 }
-
