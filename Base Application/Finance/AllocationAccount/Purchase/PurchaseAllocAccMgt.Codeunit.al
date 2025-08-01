@@ -380,6 +380,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");
         PurchaseLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         PurchaseLine."Selected Alloc. Account No." := '';
+        PurchaseLine."Alloc. Purch. Line SystemId" := AllocationPurchaseLine.SystemId;
         OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine, AllocationPurchaseLine);
         BindSubscription(AllocAccHandleDocPost);
         PurchaseLine.Insert(true);
