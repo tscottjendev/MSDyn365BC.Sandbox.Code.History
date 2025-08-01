@@ -2530,6 +2530,11 @@ table 39 "Purchase Line"
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
+        field(2679; "Alloc. Purch. Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Purchase Line SystemId';
+            DataClassification = SystemMetadata;
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
