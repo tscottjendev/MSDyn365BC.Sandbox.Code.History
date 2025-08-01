@@ -373,6 +373,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         TransferDimensionSetID(SalesLine, AllocationLine, AllocationSalesLine."Alloc. Acc. Modified by User");
         SalesLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         SalesLine."Selected Alloc. Account No." := '';
+        SalesLine."Alloc. Sales Line SystemId" := AllocationSalesLine.SystemId;
         OnBeforeCreateSalesLine(SalesLine, AllocationLine, AllocationSalesLine);
         BindSubscription(AllocAccHandleDocPost);
         SalesLine.Insert(true);
