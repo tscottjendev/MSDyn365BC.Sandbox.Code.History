@@ -3,10 +3,15 @@ namespace Microsoft.Sustainability.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Sustainability.CRM;
 using Microsoft.Sustainability.Emission;
+using Microsoft.Sustainability.ESGReporting;
 using Microsoft.Utilities;
-using System.Utilities;
 using System.Telemetry;
+using System.Threading;
+using System.Utilities;
 
 table 6217 "Sustainability Setup"
 {
@@ -198,6 +203,21 @@ table 6217 "Sustainability Setup"
             TableRelation = "No. Series";
             ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted ESG Reporting nos.';
         }
+        field(40; "Is Dataverse Int. Enabled"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Enable Dataverse Integration';
+
+            trigger OnValidate()
+            var
+                SustSetupDefaults: Codeunit "Sust. Setup Defaults";
+            begin
+                if Rec."Is Dataverse Int. Enabled" then
+                    SustSetupDefaults.ResetConfiguration(Rec)
+                else
+                    UpdateSustJobQueueEntriesStatus();
+            end;
+        }
     }
 
     keys
@@ -283,6 +303,13 @@ table 6217 "Sustainability Setup"
         end;
     end;
 
+    internal procedure IsDataverseIntegrationEnabled(): Boolean
+    begin
+        if not Get() then
+            exit(false);
+        exit("Is Dataverse Int. Enabled");
+    end;
+
     local procedure GetSustainabilitySetup()
     begin
         if not SustainabilitySetupRetrieved then begin
@@ -297,6 +324,27 @@ table 6217 "Sustainability Setup"
     begin
         EmissionFee.SetFilter("Emission Type", '<>%1', EmissionFee."Emission Type"::" ");
         EmissionFee.ModifyAll("Carbon Equivalent Factor", 1);
+    end;
+
+    local procedure UpdateSustJobQueueEntriesStatus()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        JobQueueEntry: Record "Job Queue Entry";
+        NewStatus: Option;
+    begin
+        NewStatus := JobQueueEntry.Status::"On Hold";
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+        IntegrationTableMapping.SetRange("Synch. Codeunit ID", Codeunit::"CRM Integration Table Synch.");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetFilter("Table ID", StrSubstNo('%1|%2|%3|%4|%5', Database::"Sust. ESG Reporting Unit", Database::"Sust. ESG Standard", Database::"Sust. ESG Reporting Name", Database::"Sust. ESG Reporting Line", Database::"Sust. Posted ESG Report Line"));
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+                if JobQueueEntry.FindSet() then
+                    repeat
+                        JobQueueEntry.SetStatus(NewStatus);
+                    until JobQueueEntry.Next() = 0;
+            until IntegrationTableMapping.Next() = 0;
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"Sustainability Setup", 'I')]

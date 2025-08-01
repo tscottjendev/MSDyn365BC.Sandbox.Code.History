@@ -434,6 +434,7 @@ table 270 "Bank Account"
         field(59; "Balance (LCY)"; Decimal)
         {
             AccessByPermission = TableData "Bank Account Ledger Entry" = R;
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("No."),
                                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -459,6 +460,7 @@ table 270 "Bank Account"
         /// </summary>
         field(61; "Net Change (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("No."),
                                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -579,6 +581,7 @@ table 270 "Bank Account"
         /// </summary>
         field(96; "Balance at Date (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("No."),
                                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -625,6 +628,7 @@ table 270 "Bank Account"
         /// </summary>
         field(99; "Debit Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Bank Account Ledger Entry"."Debit Amount (LCY)" where("Bank Account No." = field("No."),
@@ -640,6 +644,7 @@ table 270 "Bank Account"
         /// </summary>
         field(100; "Credit Amount (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("Bank Account Ledger Entry"."Credit Amount (LCY)" where("Bank Account No." = field("No."),
@@ -887,6 +892,7 @@ table 270 "Bank Account"
         /// </summary>
         field(1251; "Match Tolerance Value"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Match Tolerance Value';
             DecimalPlaces = 0 : 5;
 
