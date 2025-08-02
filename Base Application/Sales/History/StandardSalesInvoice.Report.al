@@ -43,7 +43,7 @@ report 1306 "Standard Sales - Invoice"
     Permissions = TableData "Sales Shipment Buffer" = rimd;
     PreviewMode = PrintLayout;
     WordMergeDataItem = Header;
-    DefaultRenderingLayout = "StandardSalesInvoice.rdlc";
+    DefaultRenderingLayout = "StandardSalesInvoice.docx";
 
     dataset
     {
