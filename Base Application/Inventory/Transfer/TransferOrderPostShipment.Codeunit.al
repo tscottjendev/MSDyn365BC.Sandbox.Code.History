@@ -10,7 +10,9 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
+#if not CLEAN27
 using Microsoft.Foundation.UOM;
+#endif
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
@@ -21,7 +23,9 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN27
 using Microsoft.Purchases.Document;
+#endif
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
@@ -165,10 +169,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
                         end;
                     end;
 
+#if not CLEAN27
                     GetLocation(TransLine."Transfer-from Code");
                     WhsePosting :=
                         Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) and
                         (TransLine.Quantity <> 0) and (TransLine."Qty. to Ship" <> 0);
+#endif
 
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
 
@@ -186,6 +192,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             OnBeforeCopyTransLines(TransHeader);
 
+#if not CLEAN27
             TransLine.SetRange("Qty. to Ship");
             TransLine.SetFilter("WIP Qty. To Ship", '<>0');
             if TransLine.FindSet(true) then
@@ -194,6 +201,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     TransLine.Modify();
                 until TransLine.Next() = 0;
             TransLine.SetRange("WIP Qty. To Ship");
+#endif
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
             OnAfterSetFilterTransferLine(TransLine);
@@ -280,7 +288,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+#if not CLEAN27
         UOMMgt: Codeunit "Unit of Measure Management";
+#endif
         PostponedValueEntries: List of [Integer];
         ItemsToAdjust: List of [Code[20]];
         SourceCode: Code[10];
@@ -326,8 +336,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
         ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
         ItemJnlLine."Order No." := TransShptHeader2."Transfer Order No.";
         ItemJnlLine."Order Line No." := TransferLine."Line No.";
+#if not CLEAN27
         ItemJnlLine."Prod. Order No." := TransShptLine2."Prod. Order No.";
         ItemJnlLine."Prod. Order Line No." := TransShptLine2."Prod. Order Line No.";
+#endif
         ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
         ItemJnlLine."Item No." := TransShptLine2."Item No.";
         ItemJnlLine."Variant Code" := TransShptLine2."Variant Code";
@@ -362,9 +374,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
         ItemJnlLine."Reason Code" := TransShptHeader2."Reason Code";
         ItemJnlLine."Source No." := TransShptHeader2."Source No.";
         ItemJnlLine."Source Type" := TransShptHeader2."Source Type";
+#if not CLEAN27
         ItemJnlLine."Prod. Order Comp. Line No." := TransShptLine2."Prod. Order Comp. Line No.";
         ItemJnlLine."Subcontr. Purch. Order No." := TransShptLine2."Subcontr. Purch. Order No.";
         ItemJnlLine."Subcontr. Purch. Order Line" := TransShptLine2."Subcontr. Purch. Order Line";
+#endif
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
     end;
@@ -582,7 +596,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure InsertTransShptLine(TransShptHeader: Record "Transfer Shipment Header")
     var
         TransShptLine: Record "Transfer Shipment Line";
+#if not CLEAN27
         PurchOrderLine: Record "Purchase Line";
+#endif
         IsHandled: Boolean;
         ShouldRunPosting: Boolean;
     begin
@@ -591,6 +607,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptLine.Init();
         TransShptLine."Document No." := TransShptHeader."No.";
         TransShptLine.CopyFromTransferLine(TransLine);
+#if not CLEAN27
         TransShptLine."Subcontr. Purch. Order No." := TransLine."Subcontr. Purch. Order No.";
         TransShptLine."Subcontr. Purch. Order Line" := TransLine."Subcontr. Purch. Order Line";
         TransShptLine."Prod. Order No." := TransLine."Prod. Order No.";
@@ -622,6 +639,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 PostItem(TransLine, TransShptHeader, TransShptLine, WhseShip, WhseShptHeader)
             else
                 PostWIPItemJnlLine(TransLine, TransShptHeader, TransShptLine);
+#else
+        if TransLine."Qty. to Ship" > 0 then begin
+            OriginalQuantity := TransLine."Qty. to Ship";
+            OriginalQuantityBase := TransLine."Qty. to Ship (Base)";
+            PostItem(TransLine, TransShptHeader, TransShptLine, WhseShip, WhseShptHeader);
+#endif
             TransShptLine."Item Shpt. Entry No." := InsertShptEntryRelation(TransShptLine);
             if WhseShip then begin
                 WhseShptLine.SetCurrentKey(
@@ -826,6 +849,20 @@ codeunit 5704 "TransferOrder-Post Shipment"
         until TransLine2.Next() = 0;
     end;
 
+#pragma warning disable AA0228
+    local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
+    begin
+        TransLine.Reset();
+        TransLine.SetRange("Document No.", TransHeader."No.");
+        TransLine.SetRange("Derived From Line No.", 0);
+        TransLine.SetFilter(Quantity, '<>0');
+        TransLine.SetFilter("Qty. to Ship", '<>0');
+        OnCheckLinesOnAfterTransLineSetFilters(TransLine);
+        if TransLine.IsEmpty() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+    end;
+#pragma warning restore AA0228
+
     local procedure CheckShippingAdvice(var TransferHeader: Record "Transfer Header")
     var
         IsHandled: Boolean;
@@ -897,6 +934,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
     end;
 
+#if not CLEAN27
     [Scope('OnPrem')]
     procedure PostWIPItemJnlLine(var TransLine3: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
     begin
@@ -940,6 +978,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
+#endif
 
     local procedure MakeInventoryAdjustment()
     var
@@ -1158,10 +1197,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostWIPItemJnlLineOnBeforeRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var TransShptHeader: Record "Transfer Shipment Header"; var TransShptLine: Record "Transfer Shipment Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var SuppressCommit: Boolean; PreviewMode: Boolean)
@@ -1226,6 +1268,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferTrackingOnAfterTransferToTransfer(var TempHandlingTrackingSpecification: Record "Tracking Specification"; var FromTransferLine: Record "Transfer Line"; var ToTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesOnAfterTransLineSetFilters(var TransferLine: Record "Transfer Line")
     begin
     end;
 }

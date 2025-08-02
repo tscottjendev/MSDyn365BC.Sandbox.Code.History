@@ -41,7 +41,9 @@ using System.Privacy;
 using System.Utilities;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Finance.VAT.Setup;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 26 "Vendor Card"
 {
@@ -1149,8 +1151,12 @@ page 26 "Vendor Card"
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or edit the percentages of the price that can be paid as a prepayment. ';
                 }
+#if not CLEAN27
                 separator(Action1130031)
                 {
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 action("Subcontracting Prices")
                 {
@@ -1161,10 +1167,17 @@ page 26 "Vendor Card"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                     ToolTip = 'View the list of subcontracting prices.';
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 separator(Action1130032)
                 {
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 action("Recurring Purchase Lines")
                 {
                     ApplicationArea = Suite;

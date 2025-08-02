@@ -345,10 +345,20 @@ table 99000764 "Routing Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
+#if not CLEANSCHEMA30
         field(12180; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
     }
 
     keys

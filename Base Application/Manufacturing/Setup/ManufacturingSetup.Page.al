@@ -217,20 +217,31 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Manufacturing;
                 }
             }
+#if not CLEAN27
             group(Subcontracting)
             {
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
                 Caption = 'Subcontracting';
                 field("Subcontr. Ship. Reason Code"; Rec."Subcontr. Ship. Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code for the subcontracting shipment.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Subcontr. Return Reason Code"; Rec."Subcontr. Return Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code for the subcontracting return.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
             }
+#endif
         }
         area(factboxes)
         {

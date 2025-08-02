@@ -8,7 +8,9 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.Reports;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 99000755 "Work Center List"
 {
@@ -289,12 +291,16 @@ page 99000755 "Work Center List"
         }
         area(processing)
         {
+#if not CLEAN27
             action("Subcontr. &Prices")
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontr. &Prices';
                 Image = Price;
                 ToolTip = 'View the subcontracting prices.';
+                ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
 
                 trigger OnAction()
                 var
@@ -308,6 +314,7 @@ page 99000755 "Work Center List"
                     end;
                 end;
             }
+#endif
             action("Calculate Work Center Calendar")
             {
                 ApplicationArea = Manufacturing;
@@ -373,9 +380,14 @@ page 99000755 "Work Center List"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
+#if not CLEAN27
                 actionref("Subcontr. &Prices_Promoted"; "Subcontr. &Prices")
                 {
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 actionref("Calculate Work Center Calendar_Promoted"; "Calculate Work Center Calendar")
                 {
                 }

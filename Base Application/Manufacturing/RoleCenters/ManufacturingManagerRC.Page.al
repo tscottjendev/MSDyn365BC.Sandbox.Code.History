@@ -270,18 +270,26 @@ page 8903 "Manufacturing Manager RC"
                         ObsoleteTag = '25.0';
                     }
 #endif
+#if not CLEAN27
                     action("Subcontracting Orders")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Subcontracting Orders';
                         RunObject = page "Subcontracting Order List";
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
                     action("Subcontracting Transfer Orders")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontracting Transfer Orders';
                         RunObject = page "Subcontracting Transfer List";
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
+#endif
                 }
                 group("Group9")
                 {
@@ -487,18 +495,26 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Work/Machine Center Load';
                         RunObject = Report "Work/Machine Center Load";
                     }
+#if not CLEAN27
                     action("Subcontractor Dispatch List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontractor - Dispatch List IT';
                         RunObject = report "Subcontr. Dispatching List";
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
                     action("Subcontracting Transfer Shipme")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Subcontracting Transfer Shipment';
                         RunObject = report "Subcontract. Transfer Shipment";
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
+#endif
                     group("Group14")
                     {
                         Caption = 'Prod. Order';
@@ -708,14 +724,12 @@ page 8903 "Manufacturing Manager RC"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'This group will be removed in a future release.';
                 ObsoleteTag = '27.0';
-
                 group("Group19")
                 {
                     Caption = 'Reports';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This group will be removed in a future release.';
                     ObsoleteTag = '27.0';
-
                     action("BOM Cost Share Distribution")
                     {
                         ApplicationArea = Manufacturing;

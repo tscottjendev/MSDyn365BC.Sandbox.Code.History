@@ -528,22 +528,56 @@ table 32 "Item Ledger Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA30
         field(12180; "Subcontr. Purch. Order No."; Code[20])
         {
             Caption = 'Subcontr. Purch. Order No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12181; "Subcontr. Purch. Order Line"; Integer)
         {
             Caption = 'Subcontr. Purch. Order Line';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12182; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12183; "Prod. Order Line No."; Integer)
         {
             Caption = 'Prod. Order Line No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -602,6 +636,7 @@ table 32 "Item Ledger Entry"
         key(Key20; "Serial No.", "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
         {
         }
+#if not CLEAN27
         key(Key21; "Item No.", "Posting Date", "Location Code")
         {
         }
@@ -614,16 +649,21 @@ table 32 "Item Ledger Entry"
             SumIndexFields = Quantity;
         }
         key(Key24; SystemModifiedAt)
+#else
+        key(Key21; SystemModifiedAt)
+#endif
         {
         }
         key(Key25; "Entry Type", "Item No.")
         {
         }
+#if not CLEAN27
         key(Key12183; "Entry Type", "Location Code", "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Subcontr. Purch. Order No.")
         {
             MaintainSQLIndex = false;
             SumIndexFields = Quantity;
         }
+#endif
     }
 
     fieldgroups

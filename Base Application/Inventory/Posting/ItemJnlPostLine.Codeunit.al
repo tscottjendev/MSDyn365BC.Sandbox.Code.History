@@ -570,13 +570,14 @@ codeunit 22 "Item Jnl.-Post Line"
         CapLedgEntry."Global Dimension 2 Code" := ItemJnlLine."Shortcut Dimension 2 Code";
         CapLedgEntry."Dimension Set ID" := ItemJnlLine."Dimension Set ID";
 
+#if not CLEAN27
         if ItemJnlLine."WIP Item" then begin
             CapLedgEntry."WIP Item Qty." := ItemJnlLine."WIP Quantity";
             CapLedgEntry."Subcontractor No." := ItemJnlLine."Source No.";
             CapLedgEntry."Subcontr. Purch. Order No." := ItemJnlLine."Subcontr. Purch. Order No.";
             CapLedgEntry."Subcontr. Purch. Order Line" := ItemJnlLine."Subcontr. Purch. Order Line";
         end;
-
+#endif
         OnBeforeInsertCapLedgEntry(CapLedgEntry, ItemJnlLine, LastOperation);
 
         InsertItemReg(0, 0, 0, CapLedgEntry."Entry No.");
@@ -1836,8 +1837,10 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemLedgEntry."Order Type" := ItemJnlLine."Order Type";
         ItemLedgEntry."Order No." := ItemJnlLine."Order No.";
         ItemLedgEntry."Order Line No." := ItemJnlLine."Order Line No.";
+#if not CLEAN27
         ItemLedgEntry."Prod. Order No." := ItemJnlLine."Prod. Order No.";
         ItemLedgEntry."Prod. Order Line No." := ItemJnlLine."Prod. Order Line No.";
+#endif
         ItemLedgEntry."External Document No." := ItemJnlLine."External Document No.";
         ItemLedgEntry.Description := ItemJnlLine.Description;
         ItemLedgEntry."Location Code" := ItemJnlLine."Location Code";
@@ -1898,10 +1901,11 @@ codeunit 22 "Item Jnl.-Post Line"
         if (ItemLedgEntry.Quantity < 0) and (ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Transfer) then
             ItemLedgEntry."Shipped Qty. Not Returned" := ItemLedgEntry.Quantity;
 
+#if not CLEAN27
         ItemLedgEntry."Prod. Order Comp. Line No." := ItemJnlLine."Prod. Order Comp. Line No.";
         ItemLedgEntry."Subcontr. Purch. Order No." := ItemJnlLine."Subcontr. Purch. Order No.";
         ItemLedgEntry."Subcontr. Purch. Order Line" := ItemJnlLine."Subcontr. Purch. Order Line";
-
+#endif
         xItemLedgEntryNo := ItemLedgEntryNo;
         OnAfterInitItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo);
         ValidateSequenceNo(ItemLedgEntryNo, xItemLedgEntryNo, Database::"Item Ledger Entry");

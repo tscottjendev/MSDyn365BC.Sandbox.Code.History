@@ -17,7 +17,9 @@ using Microsoft.Inventory.Item;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 using Microsoft.Inventory.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
@@ -83,7 +85,9 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Reprint Info Fiscal Reports" = R,
                   tabledata "Service Tariff Number" = R,
                   tabledata "Spesometro Appointment" = R,
+#if not CLEAN27
                   tabledata "Subcontractor Prices" = R,
+#endif
                   tabledata "Tmp Withholding Contribution" = R,
                   tabledata "Transport Reason Code" = R,
                   tabledata "VAT Book Entry" = R,

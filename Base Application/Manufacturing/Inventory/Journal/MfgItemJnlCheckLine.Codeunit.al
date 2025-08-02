@@ -18,7 +18,9 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
         ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
 #endif
         CannotPostTheseLinesErr: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
+#if not CLEAN27
         CannotPostTheseLinesWIPErr: Label 'You cannot post these lines because you have not entered a WIP quantity on one or more of the lines.';
+#endif
         WarehouseHandlingRequiredErr: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.', Comment = '%1 %3 %5 - field captions, %2 %4 %6 - field values';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckDimensionsOnAfterSetTableValues', '', false, false)]
@@ -237,6 +239,7 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckEmptyQuantity', '', false, false)]
     local procedure OnCheckEmptyQuantity(ItemJournalLine: Record "Item Journal Line");
     begin
+#if not CLEAN27
         if (ItemJournalLine."Quantity (Base)" = 0) and (ItemJournalLine."Invoiced Qty. (Base)" = 0) and
            ((ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output) and
            (ItemJournalLine."Output Quantity (Base)" = 0) and (ItemJournalLine."Scrap Quantity (Base)" = 0) and
@@ -250,6 +253,16 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
            ItemJournalLine.TimeIsEmpty()
         then
             Error(ErrorInfo.Create(CannotPostTheseLinesWIPErr, true));
+#else
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output then begin
+            if (ItemJournalLine."Output Quantity (Base)" = 0) and (ItemJournalLine."Scrap Quantity (Base)" = 0) and
+               ItemJournalLine.TimeIsEmpty() and (ItemJournalLine."Invoiced Qty. (Base)" = 0)
+            then
+                Error(ErrorInfo.Create(CannotPostTheseLinesErr, true))
+        end else
+            if (ItemJournalLine."Quantity (Base)" = 0) and (ItemJournalLine."Invoiced Qty. (Base)" = 0) then
+                Error(ErrorInfo.Create(CannotPostTheseLinesErr, true));
+#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnCheckBinsOnCheckForEntryTypeOutput', '', false, false)]

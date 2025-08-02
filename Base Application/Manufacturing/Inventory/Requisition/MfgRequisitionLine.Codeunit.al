@@ -12,7 +12,9 @@ using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
+#endif
 
 codeunit 99000866 "Mfg. Requisition Line"
 {
@@ -272,6 +274,7 @@ codeunit 99000866 "Mfg. Requisition Line"
         end;
     end;
 
+#if not CLEAN27
     [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnValidateVendorNoOnBeforeLookupVendor', '', false, false)]
     local procedure OnValidateVendorNoOnBeforeLookupVendor(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     var
@@ -310,6 +313,7 @@ codeunit 99000866 "Mfg. Requisition Line"
         if (RequisitionLine.Type = RequisitionLine.Type::Item) and (RequisitionLine."No." <> '') and RequisitionLine.IsProdOrder() then
             RequisitionLine.GetSubcontractorPrice();
     end;
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::"Req. Wksh. Template", 'OnAfterValidateEvent', 'Recurring', false, false)]
     local procedure ReqWkshTemplateOnAfterValidateRecurring(var Rec: Record "Req. Wksh. Template")

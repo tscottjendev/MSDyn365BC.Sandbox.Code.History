@@ -1974,6 +1974,7 @@ page 31 "Item List"
                     RunPageLink = "Item No." = field("No.");
                     ToolTip = 'View or edit the percentages of the purchase price that can be paid as a prepayment.';
                 }
+#if not CLEAN27
                 action("Subcontracting Prices")
                 {
                     ApplicationArea = Manufacturing;
@@ -1983,10 +1984,17 @@ page 31 "Item List"
                     RunPageLink = "Item No." = field("No.");
                     RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                     ToolTip = 'View or edit the list of subcontracting prices.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 separator(Action1130000)
                 {
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 action(Action40)
                 {
                     ApplicationArea = Suite;

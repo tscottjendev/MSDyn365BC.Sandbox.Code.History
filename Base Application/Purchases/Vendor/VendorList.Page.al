@@ -29,7 +29,9 @@ using System.Email;
 using System.Integration.PowerBI;
 using System.Integration.Word;
 using System.Text;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 27 "Vendor List"
 {
@@ -595,6 +597,7 @@ page 27 "Vendor List"
                     RunPageLink = "Vendor No." = field("No.");
                     ToolTip = 'View or edit recurring purchase lines for the vendor.';
                 }
+#if not CLEAN27
                 action("Subcontracting Prices")
                 {
                     ApplicationArea = Manufacturing;
@@ -604,10 +607,17 @@ page 27 "Vendor List"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.", "Item No.", "Standard Task Code", "Work Center No.", "Variant Code", "Start Date", "Unit of Measure Code", "Minimum Quantity", "Currency Code");
                     ToolTip = 'View the list of subcontracting prices.';
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 separator(Action1130000)
                 {
+                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 action("Mapping Text to Account")
                 {
                     ApplicationArea = Basic, Suite;

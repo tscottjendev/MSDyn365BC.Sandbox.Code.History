@@ -12,7 +12,9 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
+#if not CLEAN27
 using Microsoft.Inventory.Setup;
+#endif
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.MachineCenter;
@@ -308,16 +310,38 @@ table 99000765 "Manufacturing Setup"
             OptionCaption = 'Expected Quantity,Zero on All Operations,Zero on Last Operation';
             OptionMembers = "Expected Quantity","Zero on All Operations","Zero on Last Operation";
         }
+#if not CLEANSCHEMA30
         field(12180; "Subcontr. Ship. Reason Code"; Code[10])
         {
             Caption = 'Subcontr. Ship. Reason Code';
+#if not CLEAN27
             TableRelation = "Transport Reason Code";
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12181; "Subcontr. Return Reason Code"; Code[10])
         {
             Caption = 'Subcontr. Return Reason Code';
+#if not CLEAN27
             TableRelation = "Transport Reason Code";
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
     }
 
     keys

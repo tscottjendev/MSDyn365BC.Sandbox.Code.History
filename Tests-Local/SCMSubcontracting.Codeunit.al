@@ -1,3 +1,5 @@
+#if not CLEAN27
+#pragma warning disable AL0801
 codeunit 144081 "SCM Subcontracting"
 {
     // Subcontracting:
@@ -72,6 +74,9 @@ codeunit 144081 "SCM Subcontracting"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -2078,3 +2083,4 @@ codeunit 144081 "SCM Subcontracting"
         ProductionJournal.Post.Invoke();
     end;
 }
+#endif

@@ -1713,35 +1713,85 @@ table 83 "Item Journal Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
+#if not CLEANSCHEMA30
         field(12181; "Subcontr. Purch. Order No."; Code[20])
         {
             Caption = 'Subcontr. Purch. Order No.';
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12182; "Subcontr. Purch. Order Line"; Integer)
         {
             Caption = 'Subcontr. Purch. Order Line';
             TableRelation = "Purchase Line"."Line No." where("Document Type" = const(Order),
                                                               "Document No." = field("Subcontr. Purch. Order No."));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12183; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
             Editable = false;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12184; "WIP Quantity"; Decimal)
         {
             Caption = 'WIP Quantity';
             DecimalPlaces = 0 : 5;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12185; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12186; "Prod. Order Line No."; Integer)
         {
             Caption = 'Prod. Order Line No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';

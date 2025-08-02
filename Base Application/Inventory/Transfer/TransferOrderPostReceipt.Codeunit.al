@@ -20,7 +20,9 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN27
 using Microsoft.Purchases.Document;
+#endif
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
@@ -305,8 +307,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
         ItemJnlLine."Order No." := TransRcptHeader2."Transfer Order No.";
         ItemJnlLine."Order Line No." := TransLine3."Line No.";
+#if not CLEAN27
         ItemJnlLine."Prod. Order No." := TransRcptLine2."Prod. Order No.";
         ItemJnlLine."Prod. Order Line No." := TransRcptLine2."Prod. Order Line No.";
+#endif
         ItemJnlLine."External Document No." := TransRcptHeader2."External Document No.";
         ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
         ItemJnlLine."Item No." := TransRcptLine2."Item No.";
@@ -346,9 +350,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Reason Code" := TransRcptHeader."Reason Code";
         ItemJnlLine."Source No." := TransRcptHeader2."Source No.";
         ItemJnlLine."Source Type" := TransRcptHeader2."Source Type";
+#if not CLEAN27
         ItemJnlLine."Prod. Order Comp. Line No." := TransRcptLine2."Prod. Order Comp. Line No.";
         ItemJnlLine."Subcontr. Purch. Order No." := TransRcptLine."Subcontr. Purch. Order No.";
         ItemJnlLine."Subcontr. Purch. Order Line" := TransRcptLine."Subcontr. Purch. Order Line";
+#endif
         OnPostItemJnlLineOnBeforeWriteDownDerivedLines(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2);
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
@@ -600,13 +606,16 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     local procedure InsertTransRcptLine(TransferReceiptHeader: Record "Transfer Receipt Header"; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
     var
+#if not CLEAN27
         PurchOrderLine: Record "Purchase Line";
+#endif
         IsHandled: Boolean;
         ShouldRunPosting: Boolean;
     begin
         TransRcptLine.Init();
         TransRcptLine."Document No." := TransferReceiptHeader."No.";
         TransRcptLine.CopyFromTransferLine(TransLine);
+#if not CLEAN27
         TransRcptLine."Subcontr. Purch. Order No." := TransLine."Subcontr. Purch. Order No.";
         TransRcptLine."Subcontr. Purch. Order Line" := TransLine."Subcontr. Purch. Order Line";
         TransRcptLine."Prod. Order No." := TransLine."Prod. Order No.";
@@ -626,6 +635,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 end;
 
         TransRcptLine."Return Order" := TransLine."Return Order";
+#endif
         IsHandled := false;
         OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, PreviewMode, IsHandled, TransferReceiptHeader);
         if IsHandled then
@@ -1073,10 +1083,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransRcptLineOnBeforeUpdateSubcontractPurchOrderLine(var TransferReceiptHeader: Record "Transfer Receipt Header"; var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header")

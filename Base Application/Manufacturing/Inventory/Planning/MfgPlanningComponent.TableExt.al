@@ -8,8 +8,10 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Routing;
+#if not CLEAN27
 using Microsoft.Purchases.Vendor;
 using System.Security.AccessControl;
+#endif
 
 tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
 {
@@ -24,12 +26,14 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             trigger OnValidate()
             var
                 PlanningRtngLine: Record "Planning Routing Line";
+#if not CLEAN27
                 SKU: Record "Stockkeeping Unit";
                 Vendor: Record Vendor;
                 SubcontractingManagement: Codeunit SubcontractingManagement;
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 LicensePermission: Record "License Permission";
                 IsHandled: Boolean;
+#endif
             begin
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
                     Validate("Expected Quantity", Quantity)
@@ -38,6 +42,18 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
 
                 "Due Date" := ReqLine."Starting Date";
                 "Due Time" := ReqLine."Starting Time";
+#if CLEAN27
+                if "Routing Link Code" <> '' then begin
+                    PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
+                    PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
+                    PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
+                    PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
+                    if PlanningRtngLine.FindFirst() then begin
+                        "Due Date" := PlanningRtngLine."Starting Date";
+                        "Due Time" := PlanningRtngLine."Starting Time";
+                    end;
+                end;
+#else
                 if "Routing Link Code" <> '' then begin
                     PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
@@ -66,6 +82,7 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
                           "Location Code");
                         Validate("Location Code", SKU."Components at Location");
                     end;
+#endif
                 if Format("Lead-Time Offset") <> '' then begin
                     if "Due Date" = 0D then
                         "Due Date" := ReqLine."Ending Date";
@@ -258,7 +275,7 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
             "Flushing Method"::Forward,
             "Flushing Method"::Backward:
                 exit(Location."Open Shop Floor Bin Code");
-            end;
+        end;
     end;
 
     procedure UpdateExpectedQuantityForPlanningNeeds()
@@ -308,8 +325,11 @@ tableextension 99000829 "Mfg. Planning Component" extends "Planning Component"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var PlanningComponent: Record "Planning Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
+#endif
 }

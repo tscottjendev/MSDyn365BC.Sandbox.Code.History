@@ -686,6 +686,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 PurchOrderLine.UpdateUnitCost();
             end;
 
+#if not CLEAN27
         if ReqLine2."Prod. Order No." <> '' then begin
             PurchOrderLine."Base UM Qty/Pricelist UM Qty" := ReqLine2."Base UM Qty/Pricelist UM Qty";
             PurchOrderLine."UoM for Pricelist" := ReqLine2."UoM for Pricelist";
@@ -693,7 +694,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderLine."Pricelist Cost" := ReqLine2."Pricelist Cost";
             PurchOrderLine."WIP Item" := ReqLine2."WIP Item";
         end;
-
+#endif
         UpdateJobLink(PurchOrderLine, ReqLine2);
 
         OnInsertPurchOrderLineOnBeforeTransferReqLine(PurchOrderHeader, PurchOrderLine);

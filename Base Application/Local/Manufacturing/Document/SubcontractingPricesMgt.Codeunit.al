@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -14,6 +15,9 @@ using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 12153 SubcontractingPricesMgt
 {
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     trigger OnRun()
     begin
@@ -229,3 +233,4 @@ codeunit 12153 SubcontractingPricesMgt
     begin
     end;
 }
+#endif

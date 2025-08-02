@@ -87,7 +87,11 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontractor - Dis&patch List';
                 Image = "Report";
+#if not CLEAN27
                 RunObject = Report "Subcontr. Dispatching List";
+#else
+                RunObject = Report "Subcontractor - Dispatch List";
+#endif
                 ToolTip = 'View the list of material to be sent to manufacturing subcontractors.';
             }
             separator(Action42)
@@ -271,12 +275,16 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
+#if not CLEAN27
             action("Subcontracting Orders")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Subcontracting Orders';
                 RunObject = Page "Subcontracting Order List";
                 ToolTip = 'View the list of subcontracting orders.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
             action("Subcontracting Transfers")
             {
@@ -284,7 +292,11 @@ page 9011 "Shop Supervisor Mfg Foundation"
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
             action("Inventory Put-aways")
             {
                 ApplicationArea = Manufacturing;

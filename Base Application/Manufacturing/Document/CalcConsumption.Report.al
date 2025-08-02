@@ -11,7 +11,9 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Setup;
+#if not CLEAN27
 using Microsoft.Manufacturing.WorkCenter;
+#endif
 
 report 5405 "Calc. Consumption"
 {
@@ -197,9 +199,11 @@ report 5405 "Calc. Consumption"
     local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)
     var
         Location: Record Location;
+#if not CLEAN27
         SubcontractingMgt: Codeunit SubcontractingManagement;
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
+#endif
 #if not CLEAN26
         ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
@@ -252,6 +256,7 @@ report 5405 "Calc. Consumption"
             ValidateItemJnlLineQuantity(QtyToPost, QtyToPost < OriginalQtyToPost);
             ItemJnlLine."Variant Code" := "Prod. Order Component"."Variant Code";
             ItemJnlLine.Validate("Location Code", LocationCode);
+#if not CLEAN27
             Clear(WorkCenter);
             ProdOrdRoutLine.SetRange(Status, ProdOrderLine.Status);
             ProdOrdRoutLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -263,6 +268,7 @@ report 5405 "Calc. Consumption"
                 WorkCenter.Get(ProdOrdRoutLine."Work Center No.");
             if ("Prod. Order Component"."Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
                 ItemJnlLine."Location Code" := SubcontractingMgt.GetConsLocation("Prod. Order Component", ItemJnlLine."Location Code");
+#endif
             if BinCode <> '' then
                 ItemJnlLine."Bin Code" := BinCode;
             ItemJnlLine.Validate("Order Line No.", "Prod. Order Component"."Prod. Order Line No.");
