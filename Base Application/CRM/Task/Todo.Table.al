@@ -831,10 +831,10 @@ table 5080 "To-do"
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("To-do Nos.");
-			if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := RMSetup."To-do Nos.";
+            if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := RMSetup."To-do Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
         end;
         if (("System To-do Type" = "System To-do Type"::Organizer) and
@@ -2694,6 +2694,8 @@ table 5080 "To-do"
         then
             UpdateInteractionTemplate(
               Rec, TempTaskInteractionLanguage, TempAttachment, InteractionTemplate.Code, true);
+
+        OnAfterAssignDefaultAttendeeInfo(Rec, AttendeeLineNo, TempAttendee);
     end;
 
     [Scope('OnPrem')]
@@ -3292,6 +3294,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateClosed(var Todo: Record "To-do"; xTodo: Record "To-do"; var SkipConfirmDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignDefaultAttendeeInfo(var Todo: Record "To-do"; var AttendeeLineNo: Integer; var TempAttendee: Record Attendee temporary)
     begin
     end;
 }
