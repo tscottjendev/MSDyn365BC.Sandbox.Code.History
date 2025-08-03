@@ -2,16 +2,15 @@ codeunit 131901 "Library - Human Resource"
 {
     // Contains all utility functions related to Human Resource.
 
-
     trigger OnRun()
     begin
     end;
 
     var
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
         FirstNameTxt: Label 'First Name';
         NameTxt: Label 'Name';
-        LibraryERM: Codeunit "Library - ERM";
 
     procedure CreateAlternativeAddress(var AlternativeAddress: Record "Alternative Address"; EmployeeNo: Code[20])
     begin
@@ -268,4 +267,3 @@ codeunit 131901 "Library - Human Resource"
         AltEmployeePostingGroup.Insert();
     end;
 }
-
