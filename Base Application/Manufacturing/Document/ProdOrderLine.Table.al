@@ -1657,7 +1657,10 @@ table 5406 "Prod. Order Line"
         then
             exit;
 
-        CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(Status, "Prod. Order No.", "Line No.");
+        IsHandled := false;
+        OnShowRoutingOnBeforeFindAndSetProdOrderLineBinCodeFromProdRoutingLines(Rec, IsHandled);
+        if not IsHandled then
+            CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(Status, "Prod. Order No.", "Line No.");
     end;
 
     procedure SetFilterByReleasedOrderNo(OrderNo: Code[20])
@@ -1998,6 +2001,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRelations(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowRoutingOnBeforeFindAndSetProdOrderLineBinCodeFromProdRoutingLines(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }
