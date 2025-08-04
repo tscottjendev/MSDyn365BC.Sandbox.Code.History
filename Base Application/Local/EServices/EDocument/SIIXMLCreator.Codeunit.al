@@ -630,6 +630,7 @@ codeunit 10750 "SII XML Creator"
         RegimeCodes: array[3] of Code[2];
         VendNo: Code[20];
         IsHandled: Boolean;
+        ValueRefExternal: Text;
     begin
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
@@ -685,7 +686,10 @@ codeunit 10750 "SII XML Creator"
             FillOperationDescription(
               XMLNode, GetOperationDescriptionFromDocument(false, VendorLedgerEntry."Document No."),
               VendorLedgerEntry."Posting Date", VendorLedgerEntry.Description);
-            FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+            ValueRefExternal := Format(SIIDocUploadState."Entry No");
+            OnPopulateXMLWithPurchInvoiceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+            FillRefExternaNode(XMLNode, ValueRefExternal);
+
             FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
             if AddNodeForTotals then
                 FillMacrodatoNode(XMLNode, TotalAmount);
@@ -3148,6 +3152,11 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetOperationDescriptionFromDocument(DocumentNo: Code[35]; var OperationDescription: Text; var ShouldExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateXMLWithPurchInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text);
     begin
     end;
 }
