@@ -571,8 +571,7 @@ table 7000 "Price List Header"
                 "Amount Type" := CalcAmountType();
             if "Amount Type" <> xAmountType then
                 Modify()
-        end else
-            "Amount Type" := "Amount Type";
+        end;
     end;
 
     local procedure CalcAmountType(): Enum "Price Amount Type";
