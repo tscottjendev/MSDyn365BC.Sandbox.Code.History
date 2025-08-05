@@ -224,6 +224,12 @@ table 179 "Reversal Entry"
             ObsoleteTag = '27.0';
         }
 #endif
+        field(33; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Source Currency Code';
+            TableRelation = Currency;
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -1394,6 +1400,7 @@ table 179 "Reversal Entry"
         "Document No." := GLEntry."Document No.";
         "Bal. Account Type" := GLEntry."Bal. Account Type";
         "Bal. Account No." := GLEntry."Bal. Account No.";
+        "Source Currency Code" := GLEntry."Source Currency Code";
 
         OnAfterCopyFromGLEntry(Rec, GLEntry);
     end;
