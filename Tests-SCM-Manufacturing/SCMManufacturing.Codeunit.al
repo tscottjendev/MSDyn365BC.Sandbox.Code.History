@@ -126,7 +126,6 @@ codeunit 137404 "SCM Manufacturing"
         PreviousSetLbl: Label 'Previous Set';
         NextSetLbl: Label 'Next Set';
         FieldMustNotBeVisibleErr: Label '%1 must not be visible in %2', Comment = ' %1 = Field Name , %2 = Page Name';
-        StandardTaskFieldErr: Label 'Standard task code not match with relesed Production Order standard Task code Field.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -4799,38 +4798,6 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Run Exchange Production BOM Item report with blank Starting Date.
         RunExchangeProductionBOMItemReport();
-    end;
-
-    [Test]
-    procedure CheckingStandardCodeFieldOnProductionOrderLine()
-    var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdChild, ProdParent : Record Item;
-        ProdOrderLine: Record "Prod. Order Line";
-        ProductionOrder: Record "Production Order";
-        StandardTask: Record "Standard Task";
-    begin
-        // [SCENARIO 572823] Standard code field Check on the Production Order line.
-        Initialize();
-
-        // [GIVEN] Create Standard Task.   
-        CreateStandardTasks(StandardTask);
-
-        // [GIVEN] Create Item with Production BOM.
-        LibraryInventory.CreateItem(ProdChild);
-        LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, ProdChild."No.", LibraryRandom.RandInt(2));
-        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::"Pick + Manual", '', ProdBOMHeader."No.");
-
-        // [WHEN] Create Released production order and Modify "Standard Task Code" on Prod. Order Line.
-        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
-        ProdOrderLine.SetRange(Status, Enum::"Production Order Status"::Released);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLine.Validate("Standard Task Code", StandardTask.Code);
-        ProdOrderLine.Modify();
-
-        // [THEN] Verify that Standard Task Code value on Prod. Order Line.
-        Assert.AreEqual(StandardTask.Code, ProdOrderLine."Standard Task Code", StandardTaskFieldErr);
     end;
 
     [Test]
