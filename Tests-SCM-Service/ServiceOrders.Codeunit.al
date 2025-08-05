@@ -5657,6 +5657,40 @@ codeunit 136101 "Service Orders"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ServiceStatisticsShouldZeroWIth100PctLineDiscount()
+    var
+        Customer: Record Customer;
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoice: TestPage "Service Invoice";
+        ServiceStatistics: TestPage "Service Statistics";
+    begin
+        // [SCENARIO 575012] Negative invoice amount when posting a service invoice with 100% line discount
+        Initialize();
+
+        // [GIVEN] Create new customer and resource
+        LibrarySales.CreateCustomer(Customer);
+        LibraryResource.CreateResourceNew(Resource);
+
+        // [GIVEN] Create Service Header with Document Type = Invoice
+        CreateServiceDocumentWithResourceWith100PctDisc(
+            ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.",
+            Resource."No.", LibraryRandom.RandIntInRange(1, 1), LibraryRandom.RandDecInDecimalRange(0.01, 0.01, 2));
+
+        // [WHEN] Invoke Service Invoice Statistics page and Goto Record
+        ServiceInvoice.OpenEdit();
+        ServiceInvoice.GotoRecord(ServiceHeader);
+        ServiceStatistics.Trap();
+        ServiceInvoice.ServiceStatistics.Invoke();
+
+        // [THEN] Service Invoice Statistics Lines Sub form tab where "Line Amount" and "Amount Including VAT" = 0.00
+        ServiceStatistics.SubForm."Line Amount".AssertEquals(0);
+        ServiceStatistics.SubForm."Amount Including VAT".AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure AutoUpdateServiceHeaderStatusOnServiceItemLineAdd()
     var
         ServiceHeader: Record "Service Header";
@@ -5701,6 +5735,18 @@ codeunit 136101 "Service Orders"
         // [THEN] Verify status actually changed
         Assert.AreNotEqual(InitialStatus, FinalStatus, ServiceOrderStatusShouldChangedErr);
         ServiceOrderPage.Close();
+    end;
+
+    local procedure CreateServiceDocumentWithResourceWith100PctDisc(
+       var ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type";
+       CustomerNo: Code[20]; ResourceNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
+        ServiceLine.Validate(Quantity, Quantity);
+        ServiceLine.Validate("Unit Price", UnitPrice);
+        ServiceLine.Validate("Line Discount %", 100);
+        ServiceLine.Modify(true);
     end;
 
     [ConfirmHandler]
