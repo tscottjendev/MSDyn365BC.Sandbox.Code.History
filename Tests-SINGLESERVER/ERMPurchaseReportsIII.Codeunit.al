@@ -1968,12 +1968,6 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Posting Dates and Report Ending Date
-        PostingDate := 20241101D;
-        EarlyPostingDate := 20241001D;
-        LaterPostingDate := 20250201D;
-        ReportEndingDate := 20241231D;
-
-        // [GIVEN] Posting Dates and Report Ending Date
         PostingDate := WorkDate();
         EarlyPostingDate := CalcDate('<-1M>', PostingDate);
         LaterPostingDate := CalcDate('<+1M>', PostingDate);
