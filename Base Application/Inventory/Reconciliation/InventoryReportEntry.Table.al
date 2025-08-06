@@ -177,6 +177,10 @@ table 5846 "Inventory Report Entry"
         {
             Caption = 'Deleted G/L Accounts Warning';
         }
+        field(70; "Mat. Non-Inventory Variance"; Decimal)
+        {
+            Caption = 'Material Non-Inventory Variance';
+        }
     }
 
     keys

@@ -13,6 +13,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
@@ -4298,6 +4299,110 @@ codeunit 137083 "SCM Production Orders IV"
         VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, Item, '', 0, Quantity * Item."Standard Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler,InvtGLReconciliationHandler')]
+    procedure VerifyVarianceTypeMaterialNonInventoryValueInPageInventoryGLReconciliation()
+    var
+        CompItem: Record Item;
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        Location: Record Location;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        InventoryGLReconciliation: TestPage "Inventory - G/L Reconciliation";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+        CompUnitCost: Decimal;
+    begin
+        // [SCENARIO 582101] Verify "Variance Type" - "Material - Non Inventory" value for Output item in Page "Inventory - G/L Reconciliation".
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create Component item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production Item, Non-Inventory, Component Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOMWithTwoComponent(OutputItem, NonInvItem, CompItem);
+
+        // [GIVEN] Save Quantity, Non-Inventory and Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 20);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(10, 100);
+        CompUnitCost := LibraryRandom.RandIntInRange(20, 200);
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory and Component item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, LibraryRandom.RandIntInRange(100, 200), NonInvUnitCost);
+        CreateAndPostPurchaseDocumentWithNonInvItem(CompItem, LibraryRandom.RandIntInRange(100, 200), CompUnitCost);
+
+        // [GIVEN] Update "Costing Method" Standard in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Modify();
+
+        // [GIVEN] Update "Mat. Non-Inv. Variance Acc." in Inventory Posting Setup.
+        InventoryPostingSetup.Get('', OutputItem."Inventory Posting Group");
+        LibraryInventory.UpdateMaterialNonInvVarianceAccountInInventoryPostingSetup(InventoryPostingSetup);
+
+        // [GIVEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [GIVEN] Create Released Production Order.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, '', 0);
+
+        // [GIVEN] Create Prod Order Line with blank Location.
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", OutputItem."No.", '', '', Quantity);
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity, 0, 0);
+
+        // [GIVEN] Change Prod Order Status from Released to Finished.
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
+
+        // [GIVEN] Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(OutputItem."No.", '');
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Run "Inventory - G/L Reconciliation"
+        RunGetInventoryReport(TempInventoryReportEntry, OutputItem."No.", '');
+
+        // [THEN] Verify "Variance Type" - "Material - Non Inventory" and "Material" for Output item in Inventory Report Entry.
+        TempInventoryReportEntry.SetRange(Type, TempInventoryReportEntry.Type::Item);
+        TempInventoryReportEntry.SetRange("No.", OutputItem."No.");
+        TempInventoryReportEntry.CalcSums("Material Variance", "Mat. Non-Inventory Variance");
+        Assert.AreEqual(
+            -NonInvUnitCost * Quantity,
+            TempInventoryReportEntry."Mat. Non-Inventory Variance",
+            StrSubstNo(ValueMustBeEqualErr, TempInventoryReportEntry.FieldCaption("Mat. Non-Inventory Variance"), -NonInvUnitCost * Quantity, TempInventoryReportEntry.TableCaption()));
+        Assert.AreEqual(
+            -CompUnitCost * Quantity,
+            TempInventoryReportEntry."Material Variance",
+            StrSubstNo(ValueMustBeEqualErr, TempInventoryReportEntry.FieldCaption("Material Variance"), -CompUnitCost * Quantity, TempInventoryReportEntry.TableCaption()));
+
+        // [GIVEN] Enqueue Inventory and Non-Inventory Amount.
+        LibraryVariableStorage.Enqueue(CompUnitCost * Quantity);
+        LibraryVariableStorage.Enqueue(NonInvUnitCost * Quantity);
+
+        // [WHEN] Invoke "&Show Matrix" in Page "Inventory - G/L Reconciliation".
+        InventoryGLReconciliation.OpenEdit();
+        InventoryGLReconciliation.ItemFilter.SetValue(OutputItem."No.");
+        InventoryGLReconciliation."&Show Matrix".Invoke();
+        InventoryGLReconciliation.OK().Invoke();
+
+        // [THEN] Verify "Variance Type" - "Material - Non Inventory" value for Output item in Page "Inventory - G/L Reconciliation" through InvtGLReconciliationHandler.
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -5065,6 +5170,18 @@ codeunit 137083 "SCM Production Orders IV"
         RoutingLine.FindFirst();
     end;
 
+    local procedure RunGetInventoryReport(var InventoryReportEntry: Record "Inventory Report Entry"; ItemNo: Code[20]; DateFilter: Text)
+    var
+        InventoryReportHeader: Record "Inventory Report Header";
+        GetInventoryReport: Codeunit "Get Inventory Report";
+    begin
+        InventoryReportHeader.SetRange("Item Filter", ItemNo);
+        InventoryReportHeader.SetFilter("Posting Date Filter", DateFilter);
+        InventoryReportHeader."Show Warning" := true;
+        GetInventoryReport.SetReportHeader(InventoryReportHeader);
+        GetInventoryReport.Run(InventoryReportEntry);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -5144,5 +5261,53 @@ codeunit 137083 "SCM Production Orders IV"
     [PageHandler]
     procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure InvtGLReconciliationHandler(var InventoryGLReconMatrix: TestPage "Inventory - G/L Recon Matrix")
+    var
+        InventoryReportEntry: Record "Inventory Report Entry";
+        InventoryReportEntryPage: TestPage "Inventory Report Entry";
+        MaterialVariance: Decimal;
+        MaterialNonInventoryVariance: Decimal;
+    begin
+        MaterialVariance := LibraryVariableStorage.DequeueDecimal();
+        MaterialNonInventoryVariance := LibraryVariableStorage.DequeueDecimal();
+        InventoryGLReconMatrix.First();
+        repeat
+            if (InventoryGLReconMatrix.Name.Value = InventoryReportEntry.FieldCaption("Material Variance")) then begin
+                Assert.AreEqual(
+                    -MaterialVariance,
+                    InventoryGLReconMatrix.Field1.AsDecimal(),
+                    StrSubstNo(ValueMustBeEqualErr, InventoryGLReconMatrix.Field1.Caption(), -MaterialVariance, InventoryGLReconMatrix.Caption));
+
+                InventoryReportEntryPage.Trap();
+                InventoryGLReconMatrix.Field1.Drilldown();
+                Assert.AreEqual(
+                    -MaterialVariance,
+                    InventoryReportEntryPage."Material Variance".AsDecimal(),
+                    StrSubstNo(ValueMustBeEqualErr, InventoryReportEntryPage."Material Variance", -MaterialVariance, InventoryReportEntryPage.Caption));
+            end;
+
+            if (InventoryGLReconMatrix.Name.Value = InventoryReportEntry.FieldCaption("Mat. Non-Inventory Variance")) then begin
+                Assert.AreEqual(
+                    -MaterialNonInventoryVariance,
+                    InventoryGLReconMatrix.Field1.AsDecimal(),
+                    StrSubstNo(ValueMustBeEqualErr, InventoryGLReconMatrix.Field1.Caption(), -MaterialNonInventoryVariance, InventoryGLReconMatrix.Caption));
+
+                InventoryReportEntryPage.Trap();
+                InventoryGLReconMatrix.Field1.Drilldown();
+                Assert.AreEqual(
+                    -MaterialNonInventoryVariance,
+                    InventoryReportEntryPage."Mat. Non-Inventory Variance".AsDecimal(),
+                    StrSubstNo(ValueMustBeEqualErr, InventoryReportEntryPage."Mat. Non-Inventory Variance", -MaterialNonInventoryVariance, InventoryReportEntryPage.Caption));
+            end;
+
+            if (InventoryGLReconMatrix.Name.Value = InventoryReportEntry.FieldCaption(Total)) then
+                Assert.AreEqual(
+                    MaterialNonInventoryVariance + MaterialVariance,
+                    InventoryGLReconMatrix.Field1.AsDecimal(),
+                    StrSubstNo(ValueMustBeEqualErr, InventoryGLReconMatrix.Field1.Caption(), MaterialVariance + MaterialNonInventoryVariance, InventoryGLReconMatrix.Caption));
+        until not InventoryGLReconMatrix.Next();
     end;
 }
