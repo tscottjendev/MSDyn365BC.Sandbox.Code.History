@@ -49,6 +49,7 @@ table 77 "Report Selections"
             begin
                 Calcfields("Report Caption");
                 Validate("Use for Email Body", false);
+                Validate("Report Layout Name", '');
             end;
         }
         field(4; "Report Caption"; Text[250])
@@ -228,6 +229,7 @@ table 77 "Report Selections"
             var
                 ReportLayoutList: Record "Report Layout List";
             begin
+                Clear("Report Layout AppID");
                 if "Report Layout Name" <> '' then begin
                     "Use for Email Attachment" := true;
                     ReportLayoutList.SetRange(Name, "Report Layout Name");
