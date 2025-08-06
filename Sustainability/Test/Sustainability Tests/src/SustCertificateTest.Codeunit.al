@@ -75,6 +75,8 @@ codeunit 148187 "Sust. Certificate Test"
         SustValueEntriesActionShouldNotBeVisibleErr: Label 'Sustainability Value Entries action should not be visible in Page %1', Comment = '%1 = Page Caption';
         CalculateTotalCO2eActionShouldNotBeVisibleErr: Label 'Calculate Total CO2e action should not be visible in Page %1', Comment = '%1 = Page Caption';
         CalculateTotalCO2eActionShouldBeVisibleErr: Label 'Calculate Total CO2e action should be visible in Page %1', Comment = '%1 = Page Caption';
+        RecyclabilityPercentageMinValueErr: Label 'The value must be greater than or equal to %1. Value: %2.', Comment = '%1 = Minimum Value, %2 = Field Value';
+        RecyclabilityPercentageMaxValueErr: Label 'The value must be less than or equal to %1. Value: %2.', Comment = '%1 = Maximum Value, %2 = Field Value';
 
     [Test]
     procedure VerifyHasValueFieldShouldThrowErrorWhenValueIsUpdated()
@@ -6295,6 +6297,62 @@ codeunit 148187 "Sust. Certificate Test"
                 FieldShouldNotBeVisibleErr,
                 JobTaskStatistics."Total CO2e".Caption(),
                 JobTaskStatistics.Caption()));
+    end;
+
+    [Test]
+    procedure VerifyErrorWhenUpdatingNegativeValueOnRecyclabilityPercentageOnItemCard()
+    var
+        Item: Record "Item";
+        ItemCard: TestPage "Item Card";
+        RecyclabilityPercentage: decimal;
+    begin
+        // [SCENARIO 580128] Verify system should throw an error when "Recyclability Percentage" is set to a negative value on Item Card.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Generate a random negative value for "Recyclability Percentage".
+        RecyclabilityPercentage := -LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Open Item Card page.
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+
+        // [WHEN] Updating "Recyclability Percentage" to Negative value.
+        asserterror ItemCard."Recyclability Percentage".SetValue(RecyclabilityPercentage);
+
+        // [THEN] Verify expected error message when "Recyclability Percentage" is set to a negative value on Item Card.
+        Assert.ExpectedError(StrSubstNo(RecyclabilityPercentageMinValueErr, 0, RecyclabilityPercentage));
+        ItemCard.Close();
+    end;
+
+    [Test]
+    procedure VerifyErrorWhenUpdatingValueAboveHundredInRecyclabilityPercentageOnItemCard()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        RecyclabilityPercentage: decimal;
+    begin
+        // [SCENARIO 580128] Verify system should throw an error when "Recyclability Percentage" value is set above 100 on Item Card.
+        LibrarySustainability.CleanUpBeforeTesting();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Generate a random value above maximum for "Recyclability Percentage".
+        RecyclabilityPercentage := LibraryRandom.RandIntInRange(101, 200);
+
+        // [GIVEN] Open Item Card page.
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+
+        // [WHEN] Updating "Recyclability Percentage" above maximum value.
+        asserterror ItemCard."Recyclability Percentage".SetValue(RecyclabilityPercentage);
+
+        // [THEN] Verify expected error message when "Recyclability Percentage" is set to above maximum value on Item Card.
+        Assert.ExpectedError(StrSubstNo(RecyclabilityPercentageMaxValueErr, 100, RecyclabilityPercentage));
+        ItemCard.Close();
     end;
 
     local procedure CreateSustainabilityAccount(var AccountCode: Code[20]; var CategoryCode: Code[20]; var SubcategoryCode: Code[20]; i: Integer): Record "Sustainability Account"
