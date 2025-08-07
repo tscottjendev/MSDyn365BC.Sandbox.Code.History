@@ -1190,13 +1190,11 @@ page 1007 "Job Planning Lines"
     var
         Job: Record Job;
     begin
-        Rec.FilterGroup := 2;
         if Rec.GetFilter("Job No.") <> '' then
             if Job.Get(Rec.GetRangeMin("Job No.")) then
                 CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
 
         SelectMultipleItemsVisible := Rec.GetFilter("Job Task No.") <> '';
-        Rec.FilterGroup := 0;
     end;
 
     var
