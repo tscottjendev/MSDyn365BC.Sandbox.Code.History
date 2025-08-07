@@ -15,6 +15,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Receivables;
 using System.Environment;
+using System.Text;
 
 codeunit 1311 "Activities Mgt."
 {
@@ -494,39 +495,34 @@ codeunit 1311 "Activities Mgt."
     local procedure CreateFilterForGLAccSubCategoryEntries(AddRepDef: Option): Text
     var
         GLAccountCategory: Record "G/L Account Category";
-        FilterOperand: Char;
-        FilterTxt: Text;
+        FilterTextBuilder: TextBuilder;
     begin
-        FilterOperand := '|';
         GLAccountCategory.SetLoadFields("Entry No.");
         GLAccountCategory.SetRange("Additional Report Definition", AddRepDef);
         if GLAccountCategory.FindSet() then
             repeat
-                if FilterTxt = '' then
-                    FilterTxt := Format(GLAccountCategory."Entry No.") + FilterOperand
-                else
-                    FilterTxt := FilterTxt + Format(GLAccountCategory."Entry No.") + FilterOperand;
+                if FilterTextBuilder.Length() > 0 then
+                    FilterTextBuilder.Append('|');
+                FilterTextBuilder.Append(Format(GLAccountCategory."Entry No."));
             until GLAccountCategory.Next() = 0;
-        // Remove the last |
-        exit(DelChr(FilterTxt, '>', FilterOperand));
+
+        exit(FilterTextBuilder.ToText());
     end;
 
     local procedure CreateFilterForGLAccounts(var GLAccount: Record "G/L Account"): Text
     var
-        FilterOperand: Char;
-        FilterTxt: Text;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        FilterTextBuilder: TextBuilder;
     begin
-        FilterOperand := '|';
         GLAccount.SetLoadFields("No.");
         if GLAccount.FindSet() then
             repeat
-                if FilterTxt = '' then
-                    FilterTxt := Format(GLAccount."No.") + FilterOperand
-                else
-                    FilterTxt := FilterTxt + Format(GLAccount."No.") + FilterOperand;
+                if FilterTextBuilder.Length() > 0 then
+                    FilterTextBuilder.Append('|');
+                FilterTextBuilder.Append(SelectionFilterManagement.AddQuotes(GLAccount."No."));
             until GLAccount.Next() = 0;
-        // Remove the last |
-        exit(DelChr(FilterTxt, '>', FilterOperand));
+
+        exit(FilterTextBuilder.ToText());
     end;
 
     [IntegrationEvent(false, false)]
