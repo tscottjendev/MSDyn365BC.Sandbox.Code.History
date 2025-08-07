@@ -298,10 +298,8 @@ page 1001 "Job Task Lines Subform"
                             if IsHandled then
                                 exit;
                             Rec.TestField("Job No.");
-                            JobPlanningLine.FilterGroup(2);
                             JobPlanningLine.SetRange("Job No.", Rec."Job No.");
                             JobPlanningLine.SetRange("Job Task No.", Rec."Job Task No.");
-                            JobPlanningLine.FilterGroup(0);
                             JobPlanningLines.SetTableView(JobPlanningLine);
                             JobPlanningLines.Editable := true;
                             JobPlanningLines.Run();
