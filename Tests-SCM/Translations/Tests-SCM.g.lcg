@@ -10985,15 +10985,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType DerivedTransLineErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1950942247 - NamedType 1203950504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Line Must Be Equal.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType ErrNoOfLinesMustBeEqual)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 679312264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected same number of corrected and not corrected Item Ledger Entries for undone Transfer Shipment]]></Val>
@@ -11019,6 +11010,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType IncorrectSNUndoneErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 3106801776" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. of Line Must Be Equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType NoOfLinesMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 1840115643" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11111,6 +11111,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType UpdateLineDimQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1950942247 - Method 2531435883 - NamedType 3185066512" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. to Ship must be equal to '%1']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Expected quantity]D;]A;(LookupHint=Codeunit SCM Transfers - Method QtyToShipCannotBeChangedManuallyOnNonWMSLocationForDirectTransferPosting - NamedType ExpectedErrorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1950942247 - Method 2385371175 - NamedType 1701285465" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[External Document No. is expected on Item Ledger Entry.]]></Val>
@@ -11118,6 +11127,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - Method TransferOrderPostingPreservesExternalDocumentNo - NamedType ExpectedExternalDocumentNoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - Method 357634171 - NamedType 3670881766" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<%1D>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number of days]D;]A;(LookupHint=Codeunit SCM Transfers - Method TransferOrderSubpageUpdatedAfterInboundWhseTimeUpdatedOnHeader - NamedType DateFormulaTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - Method 3206560172 - NamedType 3670881766" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<%1D>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number of days]D;]A;(LookupHint=Codeunit SCM Transfers - Method TransferOrderSubpageUpdatedAfterOutboundWhseTimeUpdatedOnHeader - NamedType DateFormulaTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - Method 3813456265 - NamedType 3670881766" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<%1D>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Number of days]D;]A;(LookupHint=Codeunit SCM Transfers - Method TransferOrderSubpageUpdatedAfterShippingTimeUpdatedOnHeader - NamedType DateFormulaTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2987310544 - NamedType 845954999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
