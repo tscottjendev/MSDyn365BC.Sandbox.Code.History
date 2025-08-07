@@ -255,10 +255,8 @@ page 1002 "Job Task Lines"
                         Rec.TestField("Job Task Type", Rec."Job Task Type"::Posting);
                         Rec.TestField("Job No.");
                         Rec.TestField("Job Task No.");
-                        JobPlanningLine.FilterGroup(2);
                         JobPlanningLine.SetRange("Job No.", Rec."Job No.");
                         JobPlanningLine.SetRange("Job Task No.", Rec."Job Task No.");
-                        JobPlanningLine.FilterGroup(0);
                         JobPlanningLines.SetJobTaskNoVisible(false);
                         JobPlanningLines.SetTableView(JobPlanningLine);
                         JobPlanningLines.Run();
