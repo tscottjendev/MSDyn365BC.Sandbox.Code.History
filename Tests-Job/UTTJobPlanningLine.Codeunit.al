@@ -41,6 +41,7 @@ codeunit 136353 "UT T Job Planning Line"
         NoJobPlanningLineErr: Label '%1 must be %2 in %3', Comment = '%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line';
         UnitCostLCYErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost (LCY), %2 = Unit Cost of Item, %3 = Job Planning Line';
         UnitCostErr: Label '%1 must be %2 in %3', Comment = '%1 = Unit Cost, %2 = UnitCost variable value, %3 = Job Planning Line';
+        ProjectPlanningLinesShouldShowLinesErr: Label 'Project Planning Lines should show lines for the selected job';
 
     [Test]
     [Scope('OnPrem')]
@@ -593,7 +594,8 @@ codeunit 136353 "UT T Job Planning Line"
         SecondJobNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 381083] Filter for "Job No." is set changeless when "Job Planning Lines" page opened from Job Task Lines.
+        // [SCENARIO 381083] Filter for "Job No." is set when "Job Planning Lines" page opened from Job Task Lines.
+        // [SCENARIO 578676] User can change "Job No." filter on "Job Planning Lines" page opened from Job Task Lines.
         Initialize();
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
@@ -603,15 +605,15 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Task Lines" page filtered on "J1" Job
         JobTaskLines.OpenEdit();
-        JobTaskLines.FILTER.SetFilter("Job No.", SecondJobNo);
+        JobTaskLines.Filter.SetFilter("Job No.", SecondJobNo);
         JobPlanningLines.Trap();
         JobTaskLines.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
-        JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
+        JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
 
-        // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
+        // [THEN] Page JobPlanningLines is filtered on "J" Job, and not empty.
+        Assert.IsTrue(JobPlanningLines.First(), ProjectPlanningLinesShouldShowLinesErr);
         JobPlanningLines.Close();
         JobTaskLines.Close();
     end;
@@ -626,7 +628,8 @@ codeunit 136353 "UT T Job Planning Line"
         SecondJobNo: Code[20];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 381083] Filter for "Job No." is set changeless when "Job Planning Lines" page opened from Job Card.
+        // [SCENARIO 381083] Filter for "Job No." is set when "Job Planning Lines" page opened from Job Card.
+        // [SCENARIO 578676] User can change "Job No." filter on "Job Planning Lines" page opened from Job Card.
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
         // [GIVEN] Job Planning Line "JPL", where "Job No." = "J", "Job Task No." = "JT"
@@ -635,15 +638,15 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Card" page filtered on "J1" Job
         JobCard.OpenEdit();
-        JobCard.FILTER.SetFilter("No.", SecondJobNo);
+        JobCard.Filter.SetFilter("No.", SecondJobNo);
         JobPlanningLines.Trap();
         JobCard.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
-        JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
+        JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
 
-        // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
+        // [THEN] Page JobPlanningLines is filtered on "J" Job, and not empty.
+        Assert.IsTrue(JobPlanningLines.First(), ProjectPlanningLinesShouldShowLinesErr);
         JobPlanningLines.Close();
         JobCard.Close();
     end;
