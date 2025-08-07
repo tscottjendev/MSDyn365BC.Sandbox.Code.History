@@ -1062,9 +1062,7 @@ page 88 "Job Card"
                             exit;
 
                         Rec.TestField("No.");
-                        JobPlanningLine.FilterGroup(2);
                         JobPlanningLine.SetRange("Job No.", Rec."No.");
-                        JobPlanningLine.FilterGroup(0);
                         JobPlanningLines.SetJobTaskNoVisible(true);
                         JobPlanningLines.SetTableView(JobPlanningLine);
                         JobPlanningLines.Editable := true;
