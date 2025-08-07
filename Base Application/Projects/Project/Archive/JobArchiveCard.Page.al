@@ -682,10 +682,8 @@ page 5177 "Job Archive Card"
                         JobPlanningArchiveLines: Page "Job Planning Archive Lines";
                     begin
                         Rec.TestField("No.");
-                        JobPlanningLineArchive.FilterGroup(2);
                         JobPlanningLineArchive.SetRange("Job No.", Rec."No.");
                         JobPlanningLineArchive.SetRange("Version No.", Rec."Version No.");
-                        JobPlanningLineArchive.FilterGroup(0);
                         JobPlanningArchiveLines.SetTableView(JobPlanningLineArchive);
                         JobPlanningArchiveLines.Run();
                     end;
