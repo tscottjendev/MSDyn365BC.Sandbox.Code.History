@@ -49,6 +49,14 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the general ledger account.';
+
+                    trigger OnValidate()
+                    var
+                        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+                    begin
+                        if (Rec.Name <> xRec.Name) and (xRec.Name <> '') then
+                            FinancialReportMgt.NotifyUpdateRowDefinition(Rec);
+                    end;
                 }
                 field("Income/Balance"; Rec."Income/Balance")
                 {
