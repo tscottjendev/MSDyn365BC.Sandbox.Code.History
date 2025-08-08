@@ -592,12 +592,14 @@ codeunit 134020 "ERM Accounts"
     procedure AccountCategoryValidationOnGLAccountCardWhenNameChanged()
     var
         GLAccount: Record "G/L Account";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
         GLAccountCard: TestPage "G/L Account Card";
         AccName: Text[100];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 205100] "Name" should not be changed when revalidate "Account Category" with empty value on G/L Account Card
         Initialize();
+        LibraryNotificationMgt.DisableMyNotification(FinancialReportMgt.GetUpdateFinancialReportNotificationId());
 
         // [GIVEN] G/L Account with empty "Account Category"
         LibraryERM.CreateGLAccount(GLAccount);
