@@ -1,5 +1,7 @@
 namespace System.Integration.PowerBI;
 
+using System.Environment;
+
 page 6322 "Power BI WS Report Selection"
 {
     Caption = 'Power BI Reports Selection';
@@ -151,35 +153,40 @@ page 6322 "Power BI WS Report Selection"
             action(MyOrganization)
             {
                 ApplicationArea = All;
-                Caption = 'My Organization';
+                Caption = 'Organizational Apps';
                 Image = PowerBI;
-                ToolTip = 'Browse content packs that other people in your organization have published.';
+                ToolTip = 'Browse apps that other people in your organization have published.';
+                Visible = IsSaas;
 
                 trigger OnAction()
                 begin
-                    // Opens a new browser tab to Power BI's content pack list, set to the My Organization tab.
                     HyperLink(PowerBIServiceMgt.GetContentPacksMyOrganizationUrl());
                 end;
             }
             action(Services)
             {
                 ApplicationArea = All;
-                Caption = 'Services';
+                Caption = 'AppSource Apps';
                 Image = PowerBI;
-                ToolTip = 'Choose content packs from online services that you use.';
+                ToolTip = 'Browse available apps from AppSource.';
+                Visible = IsSaas;
 
                 trigger OnAction()
                 begin
-                    // Opens a new browser tab to AppSource's content pack list, filtered to NAV reports.
                     HyperLink(PowerBIServiceMgt.GetContentPacksServicesUrl());
                 end;
             }
+#if not CLEAN27
             action(CleanDeployments)
             {
                 ApplicationArea = All;
                 Caption = 'Default Reports';
                 Image = Setup;
                 ToolTip = 'Manage your deployed default reports.';
+                Visible = false;
+                ObsoleteReason = 'This functionality is no longer supported.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
 
                 trigger OnAction()
                 begin
@@ -187,6 +194,7 @@ page 6322 "Power BI WS Report Selection"
                     // TODO: Set this button's visibility to equal "IsSaaS" so it's not visible for on-prem, where we won't have OOB uploads anyways.
                 end;
             }
+#endif
         }
         area(Promoted)
         {
@@ -200,9 +208,17 @@ page 6322 "Power BI WS Report Selection"
                 actionref(DisableReport_Promoted; DisableReport)
                 {
                 }
+#if not CLEAN27
+#pragma warning disable AL0432
                 actionref(CleanDeployments_Promoted; CleanDeployments)
+#pragma warning restore AL0432
                 {
+                    Visible = false;
+                    ObsoleteReason = 'This functionality is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
             group(Category_Category5)
             {
@@ -219,7 +235,11 @@ page 6322 "Power BI WS Report Selection"
     }
 
     trigger OnOpenPage()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
+        IsSaas := EnvironmentInfo.IsSaaSInfrastructure();
+
         if not TryLoadReportsList() then
             ShowLatestErrorMessage();
     end;
@@ -270,6 +290,7 @@ page 6322 "Power BI WS Report Selection"
         IndentationValue: Integer;
         IsPgClosedOkay: Boolean;
         HasReports: Boolean;
+        IsSaas: Boolean;
         IsErrorMessageVisible: Boolean;
         ShowAdditionalFields: Boolean; // This value is always false, but dynamic visibility of fields enables testability
         ErrorMessageText: Text;
@@ -296,7 +317,7 @@ page 6322 "Power BI WS Report Selection"
             HasReports := true;
 
             // Set sort order, scrollbar position, and filters.
-            Rec.SetCurrentKey(WorkspaceID, Type, Name); // Ensures the workspaces 
+            Rec.SetCurrentKey(WorkspaceID, Type, Name); // Ensures that workspaces show up as collapsible groups
             Rec.FindFirst();
         end;
     end;

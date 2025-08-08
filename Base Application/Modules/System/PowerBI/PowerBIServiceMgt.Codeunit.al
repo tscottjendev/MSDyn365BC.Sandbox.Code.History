@@ -2,7 +2,6 @@
 
 using System;
 using System.Azure.Identity;
-using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
 using System.Reflection;
@@ -23,7 +22,6 @@ codeunit 6301 "Power BI Service Mgt."
         FailedAuthErr: Label 'We failed to authenticate with Power BI. Try to sign out and in again. This problem typically happens if you no longer have a license for Power BI or if you just changed your email or password.';
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
         PowerBIEmbedReportUrlTemplateTxt: Label 'https://app.powerbi.com/reportEmbed?reportId=%1', Locked = true;
-        NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
         Dyn365AppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862352', Locked = true;
         PowerBIMyOrgUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862353', Locked = true;
         JobQueueCategoryCodeTxt: Label 'PBI EMBED', Locked = true;
@@ -97,14 +95,9 @@ codeunit 6301 "Power BI Service Mgt."
 #endif
 
     procedure GetContentPacksServicesUrl(): Text
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
     begin
         // Gets the URL for AppSource's list of content packs, like Power BI's Services button, filtered to Dynamics reports.
-        if EnvironmentInformation.IsSaaSInfrastructure() then
-            exit(Dyn365AppSourceUrlTxt);
-
-        exit(NavAppSourceUrlTxt);
+        exit(Dyn365AppSourceUrlTxt);
     end;
 
     procedure GetContentPacksMyOrganizationUrl(): Text
