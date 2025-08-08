@@ -8,6 +8,7 @@ using Microsoft.Integration.SyncEngine;
 using Microsoft.Sustainability.CRM;
 using Microsoft.Sustainability.Emission;
 using Microsoft.Sustainability.ESGReporting;
+using Microsoft.Sustainability.Ledger;
 using Microsoft.Utilities;
 using System.Telemetry;
 using System.Threading;
@@ -28,6 +29,11 @@ table 6217 "Sustainability Setup"
         {
             Caption = 'Emission Unit of Measure Code';
             TableRelation = "Unit of Measure";
+
+            trigger OnValidate()
+            begin
+                ValidateEmissionUnitOfMeasure();
+            end;
         }
         field(3; "Emission Reporting UOM Code"; Code[10])
         {
@@ -236,6 +242,7 @@ table 6217 "Sustainability Setup"
         RecordHasBeenRead: Boolean;
         AutoFormatExprLbl: Label '<Precision,%1><Standard Format,0>', Locked = true;
         ConfirmEnableValueChainTrackingQst: Label 'Value Chain Tracking feature is currently in preview. We strongly recommend that you first enable and test this feature on a sandbox environment that has a copy of production data before doing this on a production environment.\\Are you sure you want to enable this feature?';
+        EmissionUOMCannotBeChangedErr: Label 'The value for %1 cannot be modified because there are existing sustainability ledger entries that use the unit of measure %2.', Comment = '%1 = Field Caption, %2 = Unit of Measure Code', Locked = true;
 
     procedure GetRecordOnce()
     begin
@@ -307,7 +314,17 @@ table 6217 "Sustainability Setup"
     begin
         if not Get() then
             exit(false);
+
         exit("Is Dataverse Int. Enabled");
+    end;
+
+    internal procedure ExistSustainabilityLedgerEntryWithUnitOfMeasure(UnitOfMeasure: Code[10]): Boolean
+    var
+        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
+    begin
+        SustainabilityLedgerEntry.SetRange("Unit of Measure", UnitOfMeasure);
+
+        exit(not SustainabilityLedgerEntry.IsEmpty());
     end;
 
     local procedure GetSustainabilitySetup()
@@ -359,5 +376,17 @@ table 6217 "Sustainability Setup"
             FeatureTelemetry.LogUptake('0000PH0', SustainabilityLbl, Enum::"Feature Uptake Status"::"Set up");
             FeatureTelemetry.LogUsage('0000PH1', SustainabilityLbl, SustainabilitySetupInitLbl);
         end;
+    end;
+
+    local procedure ValidateEmissionUnitOfMeasure()
+    var
+        SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
+    begin
+        if Rec."Emission Unit of Measure Code" = xRec."Emission Unit of Measure Code" then
+            exit;
+
+        SustainabilityLedgerEntry.SetFilter("Unit of Measure", '%1', xRec."Emission Unit of Measure Code");
+        if not SustainabilityLedgerEntry.IsEmpty() then
+            Error(EmissionUOMCannotBeChangedErr, Rec.FieldCaption("Emission Unit of Measure Code"), xRec."Emission Unit of Measure Code");
     end;
 }
