@@ -28,10 +28,12 @@ codeunit 18 "Financial Report Mgt."
         DontShowAgainMsg: Label 'Don''t show again';
         TelemetryEventTxt: Label 'Financial Report Definition %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
         OpenFinancialReportsLbl: Label 'Open Financial Reports';
+        OpenRowDefinitionsLbl: Label 'Open Row Definitions';
         NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
-        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
+        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates or changes a G/L account.';
         UpdateFinancialReportMsg: Label 'You have created one or more G/L accounts and might need to update your financial reports. We recommend that you review your financial reports by choosing the Open Financial Reports action.';
         UpdateFinancialReportNotificationIdTok: Label 'cc02b894-bef8-4945-8042-f177422f8906', Locked = true;
+        UpdateRowDefinitionMsg: Label 'You have changed one or more G/L accounts and might need to update your financial report row definitions. We recommend that you review your row definitions by choosing the Open Row Definitions action.';
 
     internal procedure LaunchEditRowsWarningNotification()
     var
@@ -395,6 +397,33 @@ codeunit 18 "Financial Report Mgt."
     procedure OpenFinancialReports(UpdateFinancialReportNotification: Notification)
     begin
         Page.Run(Page::"Financial Reports");
+    end;
+
+    internal procedure NotifyUpdateRowDefinition(var GLAccount: Record "G/L Account")
+    var
+        MyNotification: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UpdateRowDefinitionNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+        if GLAccount.IsTemporary() then
+            exit;
+        if not MyNotification.IsEnabled(GetUpdateFinancialReportNotificationId()) then
+            exit;
+
+        UpdateRowDefinitionNotification.Id := GetUpdateFinancialReportNotificationId();
+        UpdateRowDefinitionNotification.Message := UpdateRowDefinitionMsg;
+        UpdateRowDefinitionNotification.AddAction(
+            OpenRowDefinitionsLbl, Codeunit::"Financial Report Mgt.", 'OpenRowDefinitions');
+        UpdateRowDefinitionNotification.AddAction(
+            DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'HideUpdateFinancialReportNotification');
+        NotificationLifecycleMgt.SendNotification(UpdateRowDefinitionNotification, GLAccount.RecordId);
+    end;
+
+    procedure OpenRowDefinitions(UpdateFinancialReportNotification: Notification)
+    begin
+        Page.Run(Page::"Account Schedule Names");
     end;
 
     procedure HideUpdateFinancialReportNotification(UpdateFinancialReportNotification: Notification)
