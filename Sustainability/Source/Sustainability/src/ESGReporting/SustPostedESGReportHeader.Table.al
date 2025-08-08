@@ -62,12 +62,20 @@ table 6231 "Sust. Posted ESG Report Header"
             TableRelation = "Country/Region";
         }
     }
-
     keys
     {
         key(Key1; "No.")
         {
             Clustered = true;
+        }
+    }
+    fieldgroups
+    {
+        fieldgroup(DropDown; "No.", "ESG Reporting Template Name", Name)
+        {
+        }
+        fieldgroup(Brick; "No.", "ESG Reporting Template Name", Name)
+        {
         }
     }
 

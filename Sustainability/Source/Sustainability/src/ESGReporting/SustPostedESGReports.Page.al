@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sustainability.ESGReporting;
 
+using Microsoft.Sustainability.Reports;
+
 page 6256 "Sust. Posted ESG Reports"
 {
     Caption = 'Posted ESG Reports';
@@ -65,6 +67,20 @@ page 6256 "Sust. Posted ESG Reports"
             {
                 ApplicationArea = Notes;
                 Visible = false;
+            }
+        }
+    }
+    actions
+    {
+        area(Reporting)
+        {
+            action("CSRD Preparation Report")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'CSRD Preparation Report';
+                Image = "Report";
+                RunObject = Report "Sust. CSRD Preparation";
+                ToolTip = 'Executes the CSRD Preparation Report action.';
             }
         }
     }

@@ -429,6 +429,8 @@ codeunit 148182 "Library - Sustainability"
         Standard: Record "Sust. ESG Standard";
         ESGReportingName: Record "Sust. ESG Reporting Name";
         ESGReportingLine: Record "Sust. ESG Reporting Line";
+        PostedESGReportingHeader: Record "Sust. Posted ESG Report Header";
+        PostedESGReportingLine: Record "Sust. Posted ESG Report Line";
     begin
         SustainabilityJnlTemplate.DeleteAll();
         SustainabilityJnlBatch.DeleteAll();
@@ -446,5 +448,7 @@ codeunit 148182 "Library - Sustainability"
         Standard.DeleteAll();
         ESGReportingName.DeleteAll();
         ESGReportingLine.DeleteAll();
+        PostedESGReportingHeader.DeleteAll();
+        PostedESGReportingLine.DeleteAll();
     end;
 }
