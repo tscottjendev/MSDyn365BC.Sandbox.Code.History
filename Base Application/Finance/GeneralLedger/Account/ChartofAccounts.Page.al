@@ -57,6 +57,14 @@ page 16 "Chart of Accounts"
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies the name of the general ledger account.';
                     Width = 60;
+
+                    trigger OnValidate()
+                    var
+                        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+                    begin
+                        if (Rec.Name <> xRec.Name) and (xRec.Name <> '') then
+                            FinancialReportMgt.NotifyUpdateRowDefinition(Rec);
+                    end;
                 }
                 field("GIFI Code"; Rec."GIFI Code")
                 {
