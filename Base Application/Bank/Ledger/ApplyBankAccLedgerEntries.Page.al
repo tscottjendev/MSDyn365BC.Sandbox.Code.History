@@ -220,7 +220,6 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     trigger OnAfterGetCurrRecord()
     begin
-        StatementNoLineApplied := Rec.GetAppliedStatementNo();
         SetUserInteractions();
         CalcBalance();
         ApplyControledFilters();
