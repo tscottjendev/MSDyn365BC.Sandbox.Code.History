@@ -1,3 +1,4 @@
+#if not CLEAN27
 namespace System.Integration.PowerBI;
 
 using System.Security.AccessControl;
@@ -14,6 +15,10 @@ page 6321 "Power BI Deployments"
     SourceTable = "Power BI Customer Reports";
     SourceTableTemporary = true;
     Description = 'Page for letting the user delete their uploaded OOB PBI reports.';
+
+    ObsoleteReason = 'This functionality is no longer supported.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     layout
     {
@@ -174,3 +179,4 @@ page 6321 "Power BI Deployments"
     end;
 }
 
+#endif
