@@ -3381,6 +3381,143 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillGLAccRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+    begin
+        // [SCENARIO] When setting up a Posting Account line, row no. and description should be auto-filled from the G/L Account
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two G/L Accounts
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+
+        // [WHEN] Setting up a new Posting Account line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Posting Accounts");
+        AccScheduleLine.Validate(Totaling, GLAccount."No.");
+        // [THEN] Row No. and Description should be auto-filled from G/L Account
+        Assert.AreEqual(CopyStr(GLAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from G/L Account');
+        Assert.AreEqual(GLAccount.Name, AccScheduleLine.Description, 'Description should be auto-filled from G/L Account');
+
+        // [WHEN] Changing G/L Account on existing Posting Account line
+        AccScheduleLine.Validate(Totaling, GLAccount2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(GLAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing G/L Account');
+        Assert.AreEqual(GLAccount.Name, AccScheduleLine.Description, 'Description should remain after changing G/L Account');
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillGLAccCatRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        GLAccCategory: Record "G/L Account Category";
+        GLAccCategory2: Record "G/L Account Category";
+    begin
+        // [SCENARIO] When setting up a Account Category line, row no. and description should be auto-filled from the G/L Account Category
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two G/L Account Categories
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateGLAccountCategory(GLAccCategory);
+        LibraryERM.CreateGLAccountCategory(GLAccCategory2);
+
+        // [WHEN] Setting up a new Account Category line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Account Category");
+        AccScheduleLine.Validate(Totaling, Format(GLAccCategory."Entry No."));
+        // [THEN] Row No. and Description should be auto-filled from G/L Account Category
+        Assert.AreEqual(CopyStr(Format(GLAccCategory."Entry No."), 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from G/L Account Category');
+        Assert.AreEqual(GLAccCategory.Description, AccScheduleLine.Description, 'Description should be auto-filled from G/L Account Category');
+
+        // [WHEN] Changing G/L Account Category on existing Account Category line
+        AccScheduleLine.Validate(Totaling, Format(GLAccCategory2."Entry No."));
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(Format(GLAccCategory."Entry No."), 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing G/L Account Category');
+        Assert.AreEqual(GLAccCategory.Description, AccScheduleLine.Description, 'Description should remain after changing G/L Account Category');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillCostTypeRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        CostType: Record "Cost Type";
+        CostType2: Record "Cost Type";
+    begin
+        // [SCENARIO] When setting up a Cost Type line, row no. and description should be auto-filled from the Cost Type
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two Cost Types
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
+        CostType.Name := LibraryUtility.GenerateRandomCode(CostType.FieldNo(Name), Database::"Cost Type");
+        CostType.Modify();
+        LibraryCostAccounting.CreateCostTypeNoGLRange(CostType2);
+        CostType2.Name := LibraryUtility.GenerateRandomCode(CostType.FieldNo(Name), Database::"Cost Type");
+        CostType2.Modify();
+
+        // [WHEN] Setting up a new Cost Type line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Cost Type");
+        AccScheduleLine.Validate(Totaling, CostType."No.");
+        // [THEN] Row No. and Description should be auto-filled from Cost Type
+        Assert.AreEqual(CopyStr(CostType."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from Cost Type');
+        Assert.AreEqual(CostType.Name, AccScheduleLine.Description, 'Description should be auto-filled from Cost Type');
+
+        // [WHEN] Changing Cost Type on existing Cost Type line
+        AccScheduleLine.Validate(Totaling, CostType2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(CostType."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing Cost Type');
+        Assert.AreEqual(CostType.Name, AccScheduleLine.Description, 'Description should remain after changing Cost Type');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoFillCashFlowAccRowNoAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        CashFlowAccount: Record "Cash Flow Account";
+        CashFlowAccount2: Record "Cash Flow Account";
+    begin
+        // [SCENARIO] When setting up a Cash Flow Account line, row no. and description should be auto-filled from the Cash Flow Account
+
+        Initialize();
+        // [GIVEN] Account Schedule Name and two Cash Flow Accounts
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount, CashFlowAccount."Account Type"::Entry);
+        LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount2, CashFlowAccount2."Account Type"::Entry);
+
+        // [WHEN] Setting up a new Cash Flow Account line
+        AccScheduleLine.Init();
+        AccScheduleLine.Validate("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts");
+        AccScheduleLine.Validate(Totaling, CashFlowAccount."No.");
+        // [THEN] Row No. and Description should be auto-filled from Cash Flow Account
+        Assert.AreEqual(CopyStr(CashFlowAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should be auto-filled from Cash Flow Account');
+        Assert.AreEqual(CashFlowAccount.Name, AccScheduleLine.Description, 'Description should be auto-filled from Cash Flow Account');
+
+        // [WHEN] Changing Cash Flow Account on existing Cash Flow Account line
+        AccScheduleLine.Validate(Totaling, CashFlowAccount2."No.");
+        // [THEN] Row No. and Description should remain the same
+        Assert.AreEqual(CopyStr(CashFlowAccount."No.", 1, MaxStrLen(AccScheduleLine."Row No.")), AccScheduleLine."Row No.", 'Row No. should remain after changing Cash Flow Account');
+        Assert.AreEqual(CashFlowAccount.Name, AccScheduleLine.Description, 'Description should remain after changing Cash Flow Account');
+    end;
+
+    [Test]
     [HandlerFunctions('AccountScheduleOverviewVerifyFormulaResultPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleLongFormula()
