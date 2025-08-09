@@ -32,6 +32,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         DefaultCategoryCodeLbl: Label 'SALESBCKGR';
         NothingToPostErr: Label 'There is nothing to post because the document does not contain a quantity or amount.';
         SalesOrderStatusMsg: Label 'Sales Order Status must be released.';
+        SalesCrMemoPostingErr: Label 'Sales Credit Memo was not posted successfully.';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
@@ -1711,6 +1712,43 @@ codeunit 134391 "ERM Sales Batch Posting"
         // [THEN] An Error Message appear and verify Sales Header Status as Released.
         Assert.ExpectedError(NothingToPostErr);
         VerifySalesOrderStatus(SalesHeader."Document Type", SalesHeader."No.")
+    end;
+
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesCrMemos,MessageHandler')]
+    procedure PostBatchCreditMemoWithCalcPmtDiscOnLinesAndCalcPmtDiscOnCrMemosDisabled()
+    var
+        Customer: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [SCENARIO 582107] Verify Batch Posting of Credit Memo using "Calc. Pmt. Disc. on Lines" Payment Discount type and "Calc. Pmt. Disc. on Cr. Memos" disabled on the Payment Terms.
+        Initialize();
+        // [GIVEN] Validate Payment Discount Type and Discount Calculation in General Ledger Setup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. On Lines");
+        GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
+        GeneralLedgerSetup.Modify(true);
+        // [GIVEN] Create Payment Terms with "Calc. Pmt. Disc. on Cr. Memos" disabled
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(14)) + 'D>');
+        PaymentTerms.Validate("Due Date Calculation", PaymentTerms."Due Date Calculation");
+        PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", false);
+        PaymentTerms.Modify(true);
+        // [GIVEN] Create Customer with Payment Terms
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        // [GIVEN] Create Credit Memo
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, Customer."No.");
+        // [WHEN] Run Batch Post Sales Credity Memo with Replace Posting Date, Replace Document Date, Calc. Inv. Discount options
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 1, true);
+        // [THEN] Verify Sales Credit Memo should be posted successfully.
+        SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
+        SalesCrMemoHeader.SetRange("Posting Date", SalesHeader."Posting Date" + 1);
+        Assert.IsTrue(SalesCrMemoHeader.FindFirst(), SalesCrMemoPostingErr);
     end;
 
     local procedure Initialize()

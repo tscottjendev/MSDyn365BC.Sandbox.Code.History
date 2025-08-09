@@ -10156,7 +10156,7 @@ codeunit 80 "Sales-Post"
         OnValidatePostingAndDocumentDateOnBeforeValidateDocumentDate(PostingDateExists, ReplaceDocumentDate, PostingDate, SalesHeader);
         if PostingDateExists and (ReplaceDocumentDate or (SalesHeader."Document Date" = 0D)) then begin
             SalesHeader.Validate("Document Date", PostingDate);
-            SalesHeader.ValidatePaymentTerms();
+            SalesHeader.Validate("Payment Terms Code");
             ModifyHeader := true;
         end;
 
