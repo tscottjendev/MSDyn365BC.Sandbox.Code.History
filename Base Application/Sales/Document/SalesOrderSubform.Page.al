@@ -1956,6 +1956,8 @@ page 46 "Sales Order Subform"
             exit;
 
         SalesHeader.Get(Rec."Document Type", Rec."Document No.");
+        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
+            SalesHeader.FieldError(SalesHeader.Status);
         if SalesHeader.InvoicedLineExists() then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
