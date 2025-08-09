@@ -2890,6 +2890,7 @@ page 42 "Sales Order"
 
     local procedure ApproveCalcInvDisc()
     begin
+        Rec.TestStatusOpen();
         CurrPage.SalesLines.PAGE.ApproveCalcInvDisc();
     end;
 
