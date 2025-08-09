@@ -3647,6 +3647,22 @@ table 18 Customer
         exit(ShippedFromOrderLCY);
     end;
 
+    procedure GetDefaultLocation() ReturnLocationCode: Code[10]
+    var
+        ShipToAddress: Record "Ship-to Address";
+        UserSetupMgt: Codeunit "User Setup Management";
+        LocationCode: Code[10];
+    begin
+        LocationCode := Rec."Location Code";
+        if Rec."Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Location Code");
+            if ShipToAddress.Get(Rec."No.", Rec."Ship-to Code") then
+                if ShipToAddress."Location Code" <> '' then
+                    LocationCode := ShipToAddress."Location Code";
+        end;
+        ReturnLocationCode := UserSetupMgt.GetLocation(0, LocationCode, Rec."Responsibility Center");
+    end;
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"My Customer", 'rm')]
     local procedure UpdateMyCustomer(CallingFieldNo: Integer)
     var
