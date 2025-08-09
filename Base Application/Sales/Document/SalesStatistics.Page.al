@@ -49,6 +49,8 @@ page 160 "Sales Statistics"
 
                     trigger OnValidate()
                     begin
+                        if Rec."Document Type" in [Rec."Document Type"::Order, Rec."Document Type"::Invoice] then
+                            Rec.TestStatusOpen();
                         UpdateInvDiscAmount();
                     end;
                 }
