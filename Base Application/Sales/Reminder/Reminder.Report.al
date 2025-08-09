@@ -805,6 +805,7 @@ report 117 Reminder
                 TotalRemAmt := 0;
 
                 DocumentTools.GetKundeID(KundeTxt, KundeID, 3, "No.", "Customer No.");
+		OnAfterResetAmounts(VATInterest, AddFeeInclVAT, AddFeePerLineInclVAT);
             end;
 
             trigger OnPreDataItem()
@@ -1087,6 +1088,11 @@ report 117 Reminder
 
     [IntegrationEvent(false, false)]
     local procedure OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt(var IssuedReminderHeader: Record "Issued Reminder Header"; var AmtDueTxt: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterResetAmounts(var VATInterest: Decimal; var AddFeeInclVAT: Decimal; var AddFeePerLineInclVAT: Decimal)
     begin
     end;
 }

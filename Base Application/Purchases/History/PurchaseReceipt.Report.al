@@ -615,6 +615,7 @@ report 408 "Purchase - Receipt"
         ShowInternalInfo := NewShowInternalInfo;
         LogInteraction := NewLogInteraction;
         ShowCorrectionLines := NewShowCorrectionLines;
+        OnAfterInitializeRequest(NoOfCopies, ShowInternalInfo, LogInteraction, ShowCorrectionLines);
     end;
 
     local procedure InitLogInteraction()
@@ -650,6 +651,11 @@ report 408 "Purchase - Receipt"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest(var NoOfCopies: Integer; var ShowInternalInfo: Boolean; var LogInteraction: Boolean; var ShowCorrectionLines: Boolean)
     begin
     end;
 }
