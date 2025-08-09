@@ -3588,12 +3588,15 @@ codeunit 90 "Purch.-Post"
                     PurchaseHeader.GetUseDate(), PurchaseHeader."Currency Code",
                     TotalPurchLine."VAT Difference", PurchaseHeader."Currency Factor")) -
             TotalPurchLineLCY."VAT Difference";
-        PurchaseLine."VAT Base Amount" :=
-            Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                    PurchaseHeader.GetUseDate(), PurchaseHeader."Currency Code",
-                    TotalPurchLine."VAT Base Amount", PurchaseHeader."Currency Factor")) -
-            TotalPurchLineLCY."VAT Base Amount";
+        if NoVAT then
+            PurchaseLine."VAT Base Amount" := PurchaseLine."Amount Including VAT"
+        else
+            PurchaseLine."VAT Base Amount" :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                        PurchaseHeader.GetUseDate(), PurchaseHeader."Currency Code",
+                        TotalPurchLine."VAT Base Amount", PurchaseHeader."Currency Factor")) -
+                TotalPurchLineLCY."VAT Base Amount";
         PurchaseLine."Tax To Be Expensed" :=
             Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(

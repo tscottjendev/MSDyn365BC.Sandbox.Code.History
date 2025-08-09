@@ -9029,6 +9029,7 @@ codeunit 80 "Sales-Post"
 
         if IsInterfaceInitalized then begin
             GetInvoicePostingParameters();
+            InvoicePostingParameters."Tax Type" := TaxOption;
             InvoicePostingInterface.SetParameters(InvoicePostingParameters);
         end;
     end;
