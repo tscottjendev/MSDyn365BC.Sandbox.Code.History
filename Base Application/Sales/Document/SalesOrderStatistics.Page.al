@@ -1072,6 +1072,8 @@ page 402 "Sales Order Statistics"
         i: Integer;
         InvDiscBaseAmount: Decimal;
     begin
+        if Rec.Status = Rec.Status::"Pending Approval" then
+            Rec.FieldError(Rec.Status);
         CheckAllowInvDisc();
         if not (ModifiedIndexNo in [1, 2]) then
             exit;
