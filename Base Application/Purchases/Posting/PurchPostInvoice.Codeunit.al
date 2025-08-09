@@ -495,7 +495,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        PurchPostInvoiceEvents.RunOnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, IsHandled);
+        PurchPostInvoiceEvents.RunOnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, AccountNo, IsHandled);
         if IsHandled then
             exit;
 
