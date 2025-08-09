@@ -10454,6 +10454,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1217376489 - NamedType 3957240406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted Purchase Invoice %1 not found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Posted Purchase Invoice No.]D;]A;(LookupHint=Codeunit Purchase Documents - NamedType PostedPurchaseInvoiceNotFoundLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1217376489 - NamedType 3084717063" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase %1 %2 already exists for this vendor.]]></Val>
