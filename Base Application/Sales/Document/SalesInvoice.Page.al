@@ -2294,6 +2294,7 @@ page 43 "Sales Invoice"
 
     local procedure ApproveCalcInvDisc()
     begin
+        Rec.TestStatusOpen();
         CurrPage.SalesLines.PAGE.ApproveCalcInvDisc();
     end;
 
