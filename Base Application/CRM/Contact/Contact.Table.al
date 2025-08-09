@@ -2947,6 +2947,25 @@ table 5050 Contact
                   Contact.TableCaption(), "Company No.", ContBusRel.TableCaption(), ContBusRel."Link to Table", ContBusRel."No.");
     end;
 
+    procedure FindCustomer(var Customer: Record Customer): Boolean
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactBusinessRelationFound: Boolean;
+    begin
+        Clear(Customer);
+
+        if Rec.Type = Rec.Type::Person then
+            ContactBusinessRelationFound := ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Rec."No.");
+
+        if not ContactBusinessRelationFound then
+            ContactBusinessRelationFound := ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Rec."Company No.");
+
+        if not ContactBusinessRelationFound then
+            exit(false);
+
+        exit(Customer.Get(ContactBusinessRelation."No."));
+    end;
+
     procedure SetLastDateTimeModified()
     var
         UtcNow: DateTime;
