@@ -160,6 +160,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         TwoPlaceHoldersTok: Label '%1%2', Locked = true;
         ServiceSessionTok: Label '#%1#%2#', Locked = true;
         GlblDimNoInconsistErr: Label 'A setting for one or more global or shortcut dimensions is incorrect. To fix it, choose the link in the Source column. For more information, choose the link in the Support URL column.';
+        PostingDateErr: Label 'is not within your range of allowed posting dates';
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -225,6 +226,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         OnBeforeProcessLines(GenJnlLine, PreviewMode, SuppressCommit);
 
         if not GenJnlLine.Find('=><') then begin
+            if GenJnlLine.IsRecurring() then
+                if GenJnlCheckLine.DateNotAllowed(GenJnlLine."Posting Date") then
+                    GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(PostingDateErr, true));
+
             GenJnlLine."Line No." := 0;
             if PreviewMode then
                 GenJnlPostPreview.ThrowError();
@@ -406,13 +411,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     ShouldCheckDocNoBasedOnNoSeries := not PreviewMode and (GenJnlBatch."No. Series" <> '') and (LastDocNo <> GenJnlLine."Document No.");
                     SkipCheckingPostingNoSeries := false;
                     OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries, LastDocNo, CurrentBalance);
-                if ShouldCheckDocNoBasedOnNoSeries then
-                    if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
-                        // No. used is same as peek so need to save it.
-                        NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date")
-                    else
-                        // manual nos should be allowed.
-                        NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
+                    if ShouldCheckDocNoBasedOnNoSeries then
+                        if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
+                            // No. used is same as peek so need to save it.
+                            NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date")
+                        else
+                            // manual nos should be allowed.
+                            NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
                     if not SkipCheckingPostingNoSeries then
                         if GenJnlLine."Posting No. Series" <> '' then
                             GenJnlLine.TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
