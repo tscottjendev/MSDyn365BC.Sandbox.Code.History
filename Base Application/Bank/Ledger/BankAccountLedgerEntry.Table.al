@@ -625,13 +625,10 @@ table 271 "Bank Account Ledger Entry"
         CheckLedgerEntry.SetFilter("Statement Line No.", '<>%1', 0);
         if CheckLedgerEntry.FindFirst() then
             exit(CheckLedgerEntry."Statement No.");
-
+            
         exit('');
     end;
-
-    /// <summary>
     /// Determines whether this bank account ledger entry has been applied to a bank statement.
-    /// </summary>
     /// <returns>True if the entry is applied to a statement, false otherwise.</returns>
     procedure IsApplied(): Boolean
     begin
