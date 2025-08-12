@@ -397,8 +397,10 @@ page 183 "Reverse Transaction Entries"
         InitializeFilter();
     end;
 
-    var
+    protected var
         ReversalEntry: Record "Reversal Entry";
+
+    var
         BankAccountStatement: Record "Bank Account Statement";
         UndoBankStatementVisible: Boolean;
         DescriptionEditable: Boolean;
