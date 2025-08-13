@@ -53,7 +53,7 @@ codeunit 408 DimensionManagement
 #pragma warning disable AA0470
         Text000: Label 'Dimensions %1 and %2 can''t be used concurrently.';
         Text001: Label 'Dimension combinations %1 - %2 and %3 - %4 can''t be used concurrently.';
-        ShortcutDimensionNotDefinedErr: Label 'Shortcut Dimension %2 is not defined in the %1.', Comment = '%1 - Table Caption, %2 - Shortcut Dimension No.';
+        Text002: Label 'This Shortcut Dimension is not defined in the %1.';
         Text003: Label '%1 is not an available %2 for that dimension.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -1053,7 +1053,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
+            Error(Text002, GLSetup.TableCaption());
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         DimVal.Code := ShortcutDimCode;
@@ -1076,7 +1076,7 @@ codeunit 408 DimensionManagement
         if not IsHandled then begin
             GetGLSetup(GLSetupShortcutDimCode);
             if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
-                Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
+                Error(Text002, GLSetup.TableCaption());
             DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
             if ShortcutDimCode <> '' then begin
                 DimVal.SetRange(Code, ShortcutDimCode);
@@ -1557,7 +1557,7 @@ codeunit 408 DimensionManagement
 
         GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
-            Error(ShortcutDimensionNotDefinedErr, GLSetup.TableCaption(), FieldNumber);
+            Error(Text002, GLSetup.TableCaption());
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         if PAGE.RunModal(0, DimVal) = ACTION::LookupOK then;
     end;
