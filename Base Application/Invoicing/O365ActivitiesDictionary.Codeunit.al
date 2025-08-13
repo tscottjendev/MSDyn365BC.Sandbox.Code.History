@@ -17,10 +17,10 @@ codeunit 1310 "O365 Activities Dictionary"
     begin
         Inputs := Page.GetBackgroundParameters();
 
-        foreach Input in Inputs.Keys() do
+        foreach Input in Inputs.Keys do
             case Input of
                 ActivitiesCue.FieldName("Sales This Month"):
-                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
+                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false, true)));
                 ActivitiesCue.FieldName("Overdue Sales Invoice Amount"):
                     Results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
                 ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"):
