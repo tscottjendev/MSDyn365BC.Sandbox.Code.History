@@ -98,6 +98,7 @@ page 5700 "Stockkeeping Unit Card"
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
+                    HideValue = IsNonInventoriable;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
                 field("Qty. on Job Order"; Rec."Qty. on Job Order")
@@ -961,6 +962,7 @@ page 5700 "Stockkeeping Unit Card"
         StandardCostEnable: Boolean;
         UnitCostEnable: Boolean;
         IsInventoriable: Boolean;
+        IsNonInventoriable: Boolean;
 
     local procedure EnablePlanningControls()
     var
@@ -1017,6 +1019,7 @@ page 5700 "Stockkeeping Unit Card"
     local procedure EnableControls()
     begin
         IsInventoriable := Item.IsInventoriableType();
+        IsNonInventoriable := Item.IsNonInventoriableType();
     end;
 
     [IntegrationEvent(false, false)]
