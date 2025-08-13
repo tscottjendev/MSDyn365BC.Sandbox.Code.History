@@ -25,6 +25,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Deferral Doc. Type';
             TableRelation = "Deferral Header"."Deferral Doc. Type";
+            ToolTip = 'Specifies whether this refers to a document of type Sales, Purchase or G/L.';
         }
         /// <summary>
         /// General Journal Template name for G/L-based deferrals.
@@ -34,6 +35,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Gen. Jnl. Template Name';
             TableRelation = "Deferral Header"."Gen. Jnl. Template Name";
+            ToolTip = 'Specifies the General Journal Template Name for lines with a Deferral Doc. Type of G/L.';
         }
         /// <summary>
         /// General Journal Batch name for G/L-based deferrals.
@@ -43,6 +45,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Gen. Jnl. Batch Name';
             TableRelation = "Deferral Header"."Gen. Jnl. Batch Name";
+            ToolTip = 'Specifies the General Journal Batch Name for lines with a Deferral Doc. Type of G/L.';
         }
         /// <summary>
         /// Document type ID from the source document.
@@ -52,6 +55,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Document Type';
             TableRelation = "Deferral Header"."Document Type";
+            ToolTip = 'Specifies the Document Type for lines with a Deferral Doc. Type of Sales or Purchase.';
         }
         /// <summary>
         /// Document number from the source document.
@@ -61,6 +65,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Document No.';
             TableRelation = "Deferral Header"."Document No.";
+            ToolTip = 'Specifies Document No. for lines with a Deferral Doc. Type of Sales or Purchase.';
         }
         /// <summary>
         /// Line number within the source document.
@@ -70,6 +75,7 @@ table 1702 "Deferral Line"
         {
             Caption = 'Line No.';
             TableRelation = "Deferral Header"."Line No.";
+            ToolTip = 'Specifies the line number.';
         }
         /// <summary>
         /// Date when this specific deferral amount will be recognized/posted.
@@ -78,6 +84,7 @@ table 1702 "Deferral Line"
         field(7; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date.';
 
             trigger OnValidate()
             var
@@ -106,6 +113,7 @@ table 1702 "Deferral Line"
         field(8; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description.';
         }
         /// <summary>
         /// Amount to be recognized/posted for this specific period in document currency.
@@ -116,6 +124,7 @@ table 1702 "Deferral Line"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the net amount.';
 
             trigger OnValidate()
             begin
@@ -139,6 +148,7 @@ table 1702 "Deferral Line"
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
+            ToolTip = 'Specifies the net amount in your local currency.';
         }
         /// <summary>
         /// Currency code of the source document, used for foreign currency calculations.
@@ -146,6 +156,7 @@ table 1702 "Deferral Line"
         field(11; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency code.';
         }
     }
 
