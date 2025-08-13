@@ -147,12 +147,23 @@ codeunit 1311 "Activities Mgt."
     end;
 
     procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean) TotalAmount: Decimal
+    begin
+        exit(CalcSalesThisMonthAmount(CalledFromWebService, true));
+    end;
+
+    procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        ActivitiesCue: Record "Activities Cue";
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntrySales: Query "Cust. Ledg. Entry Sales";
     begin
+        if UseCachedValue then
+            if ActivitiesCue.Get() then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
+                    exit(ActivitiesCue."Sales This Month");
+
         CustLedgEntrySales.SetFilter(Document_Type, '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
         if CalledFromWebService then
             CustLedgEntrySales.SetRange(Posting_Date, CalcDate('<-CM>', Today()), Today())
@@ -162,14 +173,6 @@ codeunit 1311 "Activities Mgt."
         if CustLedgEntrySales.Read() then
             TotalAmount := CustLedgEntrySales.Sum_Sales_LCY;
     end;
-
-#if not CLEAN27
-    [Obsolete('"Sales This Month" cue field is no longer calculated using cached value. Use CalcSalesThisMonthAmount(CalledFromWebService: Boolean) for live data.', '27.0')]
-    procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
-    begin
-        exit(CalcSalesThisMonthAmount(CalledFromWebService));
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SetFilterForCalcSalesThisMonthAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean)
@@ -436,7 +439,7 @@ codeunit 1311 "Activities Mgt."
             ActivitiesCue."Overdue Purch. Invoice Amount" := OverduePurchaseInvoiceAmount(false, false);
 
         if ActivitiesCue.FieldActive("Sales This Month") then
-            ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false);
+            ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false, false);
 
         if ActivitiesCue.FieldActive("Average Collection Days") then
             ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays(false);
