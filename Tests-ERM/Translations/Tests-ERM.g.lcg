@@ -3911,6 +3911,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM PostRecurringJournal - NamedType NoOfLinesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1514131158 - NamedType 2932411483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not within your range of allowed posting dates in Gen. Journal Line Journal Template Name='%2',Journal Batch Name='%3',Line No.='%4'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Name, %2= Field Value, %3= Field Value, %4= Field Value.]D;]A;(LookupHint=Codeunit ERM PostRecurringJournal - NamedType PostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1514131158 - NamedType 3845179057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[One or more lines has not been posted because the amount is zero.]]></Val>
