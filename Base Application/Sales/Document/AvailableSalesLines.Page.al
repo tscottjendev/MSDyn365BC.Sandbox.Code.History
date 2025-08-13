@@ -210,13 +210,9 @@ page 499 "Available - Sales Lines"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
-        QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
@@ -231,8 +227,12 @@ page 499 "Available - Sales Lines"
 #pragma warning restore AA0074
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
+        QtyReserved: Decimal;
         QtyToReserveBase: Decimal;
+        QtyReservedBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
