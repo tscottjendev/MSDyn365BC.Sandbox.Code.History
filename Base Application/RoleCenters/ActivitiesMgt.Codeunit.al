@@ -28,7 +28,6 @@ codeunit 1311 "Activities Mgt."
 
     var
         DefaultWorkDate: Date;
-        RefreshFrequencyErr: Label 'Refresh intervals of less than 10 minutes are not supported.';
         NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok: Label 'There are no %1 with %2 specified for %3', Comment = '%1 Table Comment G/L Account Category, %2 field Additional Report Definition, %3 value: Cash Accounts';
 
     procedure OverdueSalesInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean) TotalAmount: Decimal
@@ -482,11 +481,11 @@ codeunit 1311 "Activities Mgt."
     var
         MinInterval: Duration;
     begin
-        MinInterval := 10 * 60 * 1000; // 10 minutes
-        Interval := 60 * 60 * 1000; // 1 hr
+        MinInterval := 2 * 60 * 1000; // 2 minutes
+        Interval := 5 * 60 * 1000; // 5 minutes
         OnGetRefreshInterval(Interval);
         if Interval < MinInterval then
-            Error(RefreshFrequencyErr);
+            Interval := MinInterval;
     end;
 
     local procedure CreateFilterForGLAccSubCategoryEntries(AddRepDef: Option): Text
