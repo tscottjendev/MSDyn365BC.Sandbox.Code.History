@@ -173,13 +173,9 @@ page 6873 "Available - Invt. Doc. Lines"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
-        QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
@@ -189,8 +185,12 @@ page 6873 "Available - Invt. Doc. Lines"
         AvailableQuantityErr: Label 'Available Quantity is %1.', Comment = '%1 - quantity';
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
         QtyToReserveBase: Decimal;
+        QtyReserved: Decimal;
+        QtyReservedBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
