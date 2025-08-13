@@ -2437,7 +2437,6 @@ codeunit 6500 "Item Tracking Management"
         if IsHandled then
             exit;
 
-        ItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         SumOfEntries := 0;
         ItemLedgEntry.SetLoadFields("Expiration Date");
         if not FindLastItemLedgerEntry(ItemNo, VariantCode, ItemTrackingSetup, ItemLedgEntry) then
