@@ -84,6 +84,8 @@ codeunit 448 "Job Queue Dispatcher"
 
         // Always update the JQE because if the session dies and the task is rerun, it should have the latest information
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
+        JobQueueEntry."Error Message" := '';
+        Clear(JobQueueEntry."Error Message Register Id");
         JobQueueEntry."User Session Started" := CurrentDateTime();
         JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
