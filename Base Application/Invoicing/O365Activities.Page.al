@@ -497,13 +497,6 @@ page 1310 "O365 Activities"
         PBTTelemetryMsgTxt: Label 'PBT errored with code %1 and text %2. The call stack is as follows %3.', Locked = true;
 
     procedure CalculateCueFieldValues()
-    begin
-        ClearExistingPageBackgroundTasks();
-        CalculateNonCachedCueFieldValues();
-        CalculateCachedCueFieldValues();
-    end;
-
-    local procedure ClearExistingPageBackgroundTasks()
     var
         TaskId: Integer;
     begin
@@ -512,23 +505,14 @@ page 1310 "O365 Activities"
                 CurrPage.CancelBackgroundTask(TaskId);
                 PBTList.Remove(TaskId);
             end;
-    end;
 
-    local procedure CalculateNonCachedCueFieldValues()
-    begin
-        SchedulePBT(Rec.FieldName("Sales This Month"), Rec.FieldCaption("Sales This Month"));
-    end;
-
-    local procedure CalculateCachedCueFieldValues()
-    begin
         CachedCueValuesCalculationStartDateTime := CurrentDateTime();
-        if not ActivitiesMgt.IsCachedCueDataExpired(Rec, CachedCueValuesCalculationStartDateTime) then begin
-            Clear(CachedCueValuesCalculationStartDateTime);
+        if not ActivitiesMgt.IsCachedCueDataExpired(Rec, CachedCueValuesCalculationStartDateTime) then
             exit;
-        end;
 
         SchedulePBT(Rec.FieldName("Overdue Sales Invoice Amount"), Rec.FieldCaption("Overdue Sales Invoice Amount"));
         SchedulePBT(Rec.FieldName("Overdue Purch. Invoice Amount"), Rec.FieldCaption("Overdue Purch. Invoice Amount"));
+        SchedulePBT(Rec.FieldName("Sales This Month"), Rec.FieldCaption("Sales This Month"));
         SchedulePBT(Rec.FieldName("Average Collection Days"), Rec.FieldCaption("Average Collection Days"));
         SchedulePBT(Rec.FieldName("S. Ord. - Reserved From Stock"), Rec.FieldCaption("S. Ord. - Reserved From Stock"));
     end;
@@ -573,8 +557,7 @@ page 1310 "O365 Activities"
                 PBTList.Remove(TaskId);
                 if PBTList.Count() = 0 then begin
                     RecordForUpdateCachedCueValuesIsLocked := false;
-                    if CachedCueValuesCalculationStartDateTime <> 0DT then
-                        Rec."Last Date/Time Modified" := CachedCueValuesCalculationStartDateTime;
+                    Rec."Last Date/Time Modified" := CachedCueValuesCalculationStartDateTime;
                     Rec.Modify(true);
                     Commit();
                 end;
