@@ -41,6 +41,7 @@ using System.Environment.Configuration;
 using System.Privacy;
 using System.Security.User;
 using Microsoft.Purchases.Reports;
+using System.Threading;
 
 page 50 "Purchase Order"
 {
@@ -375,6 +376,15 @@ page 50 "Purchase Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry that handles the posting of purchase orders.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field("Language Code"; Rec."Language Code")
                 {
