@@ -31,6 +31,7 @@ using Microsoft.Warehouse.Request;
 using System.Automation;
 using System.Security.User;
 using Microsoft.EServices.EDocument;
+using System.Threading;
 
 page 6630 "Sales Return Order"
 {
@@ -316,6 +317,15 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales return orders.';
                     Visible = JobQueueUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
