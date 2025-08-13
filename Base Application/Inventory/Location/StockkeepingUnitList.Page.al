@@ -63,6 +63,7 @@ page 5701 "Stockkeeping Unit List"
                 field(Inventory; Rec.Inventory)
                 {
                     ApplicationArea = Planning;
+                    HideValue = IsNonInventoriable;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
                 field("Reorder Point"; Rec."Reorder Point")
@@ -535,8 +536,22 @@ page 5701 "Stockkeeping Unit List"
             }
         }
     }
+    trigger OnAfterGetRecord()
+    begin
+        EnableControls();
+    end;
+
+    local procedure EnableControls()
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        Item.Get(Rec."Item No.");
+        IsNonInventoriable := Item.IsNonInventoriableType();
+    end;
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        IsNonInventoriable: Boolean;
 }
 
