@@ -804,6 +804,8 @@ report 20 "Calc. and Post VAT Settlement"
 
     requestpage
     {
+        AboutTitle = 'About Calc. and Post VAT Settlement';
+        AboutText = 'The **Calculate and Post Tax Settlement** report calculates VAT based on posted entries and generates a journal to record the VAT settlement. Use it for automating VAT processing at the end of a filing period (typically monthly or quarterly) by posting the net VAT due or refundable, helping streamline tax reporting and compliance.';
         SaveValues = true;
         ShowFilter = false;
 
