@@ -18,6 +18,7 @@ using System.Automation;
 using System.DataAdministration;
 using System.Diagnostics;
 using System.Environment.Configuration;
+using System.IO;
 using System.Threading;
 using System.Utilities;
 
@@ -27,6 +28,7 @@ codeunit 3995 "Base Application Logs Delete"
     Permissions =
                 tabledata "Activity Log" = rd,
                 tabledata "Change Log Entry" = rd,
+                tabledata "Data Exch." = rd,
                 tabledata "Dataverse Entity Change" = rd,
                 tabledata "Error Message" = rd,
                 tabledata "Error Message Register" = rd,
@@ -76,6 +78,7 @@ codeunit 3995 "Base Application Logs Delete"
             Database::"Posted Whse. Shipment Header",
             Database::"Registered Whse. Activity Hdr.",
             Database::"Registered Invt. Movement Hdr.",
+            Database::"Data Exch.",
             Database::"Activity Log",
             Database::"Error Message",
             Database::"Error Message Register"])
