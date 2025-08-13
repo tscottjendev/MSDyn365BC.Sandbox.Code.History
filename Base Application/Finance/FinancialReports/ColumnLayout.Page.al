@@ -245,6 +245,10 @@ page 489 "Column Layout"
                     ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
                     Visible = false;
                 }
+                field("Show in ACY"; Rec."Show in ACY")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
         }
         area(factboxes)

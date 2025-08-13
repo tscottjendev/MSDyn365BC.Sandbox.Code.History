@@ -14,6 +14,7 @@ using Microsoft.Warehouse.InventoryDocument;
 using System.Automation;
 using System.Diagnostics;
 using System.Environment.Configuration;
+using System.IO;
 using System.Threading;
 using System.Upgrade;
 using System.Utilities;
@@ -113,6 +114,13 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             AddRegisteredInvtMovementHdrToAllowedTables(IsInitialSetup);
             if IsInitialSetup then
                 UpgradeTag.SetUpgradeTag(GetRetenPolInventoryTablesUpgradeTag());
+        end;
+
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolDataExchUpgradeTag());
+        if IsInitialSetup or ForceUpdate then begin
+            AddDataExchangeToAllowedTables();
+            if IsInitialSetup then
+                UpgradeTag.SetUpgradeTag(GetRetenPolDataExchUpgradeTag());
         end;
     end;
 
@@ -316,6 +324,14 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         EnableRetentionPolicySetup(Database::"Integration Synch. Job Errors");
     end;
 
+    local procedure AddDataExchangeToAllowedTables()
+    var
+        DataExch: Record "Data Exch.";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Data Exch.", DataExch.FieldNo(SystemCreatedAt));
+    end;
+
     local procedure FindOrCreateRetentionPeriod(RetentionPeriodEnum: Enum "Retention Period Enum"): Code[20]
     var
         RetentionPolicySetup: Codeunit "Retention Policy Setup";
@@ -401,6 +417,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolInventoryTablesUpgradeTag(): Code[250]
     begin
         exit('MS-GIT-1268-RetenPolInventoryTables-20250608');
+    end;
+
+    local procedure GetRetenPolDataExchUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-704-RetenPolDataExch-20250713');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reten. Pol. Allowed Tables", 'OnRefreshAllowedTables', '', false, false)]
