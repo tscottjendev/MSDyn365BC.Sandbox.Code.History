@@ -23,17 +23,14 @@ page 1703 "Deferral Schedule Subform"
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the posting date for the entry.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a description of the record.';
                 }
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the line''s net amount.';
                 }
             }
             group(Control8)
