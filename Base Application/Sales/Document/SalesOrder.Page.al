@@ -47,6 +47,7 @@ using System.Environment.Configuration;
 using System.Privacy;
 using System.Security.User;
 using System.Utilities;
+using System.Threading;
 
 page 42 "Sales Order"
 {
@@ -406,6 +407,15 @@ page 42 "Sales Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales orders.';
                     Visible = JobQueuesUsed;
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
