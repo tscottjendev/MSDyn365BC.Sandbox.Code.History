@@ -1043,8 +1043,14 @@ codeunit 900 "Assembly-Post"
     procedure Undo(var PostedAsmHeader: Record "Posted Assembly Header"; RecreateAsmOrder: Boolean)
     var
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        SavedSuppressCommit: Boolean;
+        SavedPreviewMode: Boolean;
     begin
+        SavedSuppressCommit := SuppressCommit;
+        SavedPreviewMode := PreviewMode;
         ClearAll();
+        SuppressCommit := SavedSuppressCommit;
+        PreviewMode := SavedPreviewMode;
 
         Window.Open(
           '#1#################################\\' +
