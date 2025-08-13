@@ -44,6 +44,7 @@ codeunit 137035 "SCM PS Bugs-I"
         OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
         QuantityErr: Label 'Quantity update should be possible in %1.', Comment = '%1= Table Name.';
         DueDateErr: Label 'Planned production order due date not match with planning worksheet due date';
+        SKUInventoryErr: Label 'Expected inventory to be blank for non-inventory item';
 
     [Test]
     [Scope('OnPrem')]
@@ -1269,6 +1270,56 @@ codeunit 137035 "SCM PS Bugs-I"
         VerifyPlannedProdOrderDueDate(ProductionOrder, ProductionOrder.Status::Planned, Item."No.", DueDate);
     end;
 
+    [Test]
+    [HandlerFunctions('SKURequestPageHandler')]
+    procedure CheckInventoryValueIsHiddenForNonInventorySKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SKUPage: TestPage "Stockkeeping Unit List";
+        SKUCardPage: TestPage "Stockkeeping Unit Card";
+        Itemcard: TestPage "Item Card";
+    begin
+        // [SCENARIO 592721] For Non-Inventory Item SKUs, Check Inventory value is Blank on List and Card page.
+        Initialize();
+
+        // [GIVEN] Create Item with Replenishment System as Production Order.
+        CreateItem(Item, Item."Costing Method"::FIFO, '', '', Item."Manufacturing Policy"::"Make-to-Stock", Item."Reordering Policy"::" ", Item."Replenishment System"::Purchase);
+        Item.Validate("Type", Item.Type::"Non-Inventory");
+        Item.Modify(true);
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Purchase order for Item and Location.
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '', LibraryRandom.RandInt(5), WorkDate(), 100);
+
+        // [WHEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Create Stockkeeping Unit for Item and Location.
+        LibraryVariableStorage.Enqueue(Location.Code);
+        ItemCard.OpenView();
+        ItemCard.GotoRecord(Item);
+        ItemCard."&Create Stockkeeping Unit".Invoke();
+        ItemCard.OK().Invoke();
+
+        // [THEN] Verify Stockkeeping Unit Created for Item and Location Inventory Value is blank on List Page.
+        SKUPage.OpenView();
+        SKUPage.Filter.SetFilter("Item No.", Item."No.");
+        SKUPage.Filter.SetFilter("Location Code", Location."Code");
+        Assert.AreEqual('', SKUPage.Inventory.Value, SKUInventoryErr);
+
+        // [THEN] Verify Stockkeeping Unit Created for Item and Location Inventory Value is blank on Card Page.
+        SKUCardPage.OpenView();
+        SKUCardPage.Filter.SetFilter("Item No.", Item."No.");
+        SKUCardPage.Filter.SetFilter("Location Code", Location."Code");
+        Assert.AreEqual('', SKUCardPage.Inventory.Value, SKUInventoryErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2172,5 +2223,15 @@ codeunit 137035 "SCM PS Bugs-I"
         ProductionOrder: Record "Production Order";
     begin
         LibraryReportDataset.RunReportAndLoad(Report::"Prod. Order - List", ProductionOrder, '');
+    end;
+
+    [RequestPageHandler]
+    procedure SKURequestPageHandler(var CreateStockkeepingUnit: TestRequestPage "Create Stockkeeping Unit")
+    var
+        LocationCode: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LocationCode);
+        CreateStockkeepingUnit.Item.SetFilter("Location Filter", LocationCode);
+        CreateStockkeepingUnit.OK().Invoke();
     end;
 }
