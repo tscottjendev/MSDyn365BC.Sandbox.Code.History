@@ -45,6 +45,11 @@ page 537 "Dimension Values"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the purpose of the dimension value.';
+
+                    trigger OnValidate()
+                    begin
+                        FormatLine();
+                    end;
                 }
                 field(Totaling; Rec.Totaling)
                 {
@@ -134,9 +139,18 @@ page 537 "Dimension Values"
         }
     }
 
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        FormatLine();
+    end;
+
     trigger OnAfterGetRecord()
     begin
-        NameIndent := 0;
+        FormatLine();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
         FormatLine();
     end;
 
