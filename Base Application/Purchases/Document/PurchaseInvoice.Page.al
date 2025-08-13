@@ -32,7 +32,6 @@ using System.Privacy;
 using System.Security.User;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Finance.WithholdingTax;
-using System.Threading;
 
 page 51 "Purchase Invoice"
 {
@@ -388,15 +387,6 @@ page 51 "Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the status of a job queue entry that handles the posting of purchase invoices.';
                     Visible = JobQueuesUsed;
-
-                    trigger OnDrillDown()
-                    var
-                        JobQueueEntry: Record "Job Queue Entry";
-                    begin
-                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
-                            exit;
-                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
-                    end;
                 }
                 field("Language Code"; Rec."Language Code")
                 {
