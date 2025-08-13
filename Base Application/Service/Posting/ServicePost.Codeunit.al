@@ -382,13 +382,20 @@ codeunit 5980 "Service-Post"
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
     var
         IsHandled: Boolean;
+        SavedSuppressCommit: Boolean;
+        SavedHideValidationDialog: Boolean;
     begin
         IsHandled := false;
         OnBeforeSetPostingDate(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, IsHandled);
         if IsHandled then
             exit;
 
+        SavedSuppressCommit := SuppressCommit;
+        SavedHideValidationDialog := HideValidationDialog;
         ClearAll();
+        SuppressCommit := SavedSuppressCommit;
+        HideValidationDialog := SavedHideValidationDialog;
+
         PostingDateExists := true;
         ReplacePostingDate := NewReplacePostingDate;
         ReplaceDocumentDate := NewReplaceDocumentDate;
