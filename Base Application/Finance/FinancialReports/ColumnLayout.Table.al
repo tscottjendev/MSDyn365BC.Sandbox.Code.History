@@ -188,6 +188,11 @@ table 334 "Column Layout"
                 GLAccount.SetFilter("No.", "G/L Account Totaling");
             end;
         }
+        field(43; "Show in ACY"; Boolean)
+        {
+            Caption = 'Show in ACY';
+            ToolTip = 'Specifies whether amounts are shown in the Additional Reporting Currency.';
+        }
     }
 
     keys

@@ -262,6 +262,8 @@ report 130 "EC Sales List"
 
     requestpage
     {
+        AboutTitle = 'About EC Sales List';
+        AboutText = 'The **EC Sales List** report summarizes sales of goods and services to VAT-registered customers in other EU countries for tax reporting. Use it for preparing and submitting EC Sales declarations to EU tax authorities, ensuring compliance with intra-EU VAT reporting requirements.';
         SaveValues = true;
 
         layout

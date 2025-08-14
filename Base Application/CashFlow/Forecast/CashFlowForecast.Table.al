@@ -129,6 +129,7 @@ table 840 "Cash Flow Forecast"
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(21; "Positive Filter"; Boolean)
         {
@@ -182,10 +183,10 @@ table 840 "Cash Flow Forecast"
         if "No." = '' then begin
             CFSetup.Get();
             CFSetup.TestField("Cash Flow Forecast No. Series");
-			if NoSeries.AreRelated(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := CFSetup."Cash Flow Forecast No. Series";
+            if NoSeries.AreRelated(CFSetup."Cash Flow Forecast No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := CFSetup."Cash Flow Forecast No. Series";
             "No." := NoSeries.GetNextNo("No. Series");
         end;
 
