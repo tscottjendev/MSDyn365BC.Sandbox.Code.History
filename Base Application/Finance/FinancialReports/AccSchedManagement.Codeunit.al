@@ -428,6 +428,11 @@ codeunit 8 AccSchedManagement
         GLSetupRead := true;
     end;
 
+    /// <summary>
+    /// Calculates the cell for the specified Acc. Schedule Line and Column Layout combination. 
+    ///
+    /// An additional currency can be calculated using the CalcAddCurr parameter, but this parameter may be ignored if the Column Layout's Show in ACY field is set to true.
+    /// </summary>
     procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) Result: Decimal
     var
         IsHandled: Boolean;
@@ -435,6 +440,9 @@ codeunit 8 AccSchedManagement
         IsHandled := false;
         OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
         if not IsHandled then begin
+            if ColumnLayout."Show in ACY" then
+                CalcAddCurr := true;
+            
             AccountScheduleLine."Dimension 1 Totaling" := AccSchedLine."Dimension 1 Totaling";
             AccountScheduleLine."Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
             AccountScheduleLine.CopyFilters(AccSchedLine);
