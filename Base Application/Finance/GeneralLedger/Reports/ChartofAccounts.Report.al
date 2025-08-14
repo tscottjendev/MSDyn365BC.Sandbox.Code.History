@@ -158,7 +158,9 @@ report 1 "Chart of Accounts"
 
     requestpage
     {
-
+        AboutTitle = 'About Chart of Accounts';
+        AboutText = 'The **Chart of Accounts** report provides a complete overview of all general ledger accounts, grouped by category, including balances and account types. Use it for setting up or reviewing your company’s account structure, verifying posting groups, and preparing for audits or financial reporting.';
+        
         layout
         {
         }
