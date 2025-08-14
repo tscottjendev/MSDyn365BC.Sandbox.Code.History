@@ -140,6 +140,8 @@ report 5 "Receivables-Payables"
 
     requestpage
     {
+        AboutTitle = 'About Receivables-Payables';
+        AboutText = 'The **Receivables-Payables** report provides a side-by-side comparison of customer and vendor balances against their respective general ledger control accounts. Use it for financial close and reconciliation tasks to ensure subledger balances align with the G/L, helping identify discrepancies quickly and accurately.';
         SaveValues = true;
 
         layout
