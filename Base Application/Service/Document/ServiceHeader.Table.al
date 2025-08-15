@@ -443,6 +443,8 @@ table 5900 "Service Header"
                         end;
 
                 UpdateShipToSalespersonCode();
+                GetShipmentMethodCode();
+                GetShippingTime(FieldNo("Ship-to Code"));
 
                 if (xRec."Customer No." = "Customer No.") and
                    (xRec."Ship-to Code" <> "Ship-to Code")
@@ -4711,6 +4713,10 @@ table 5900 "Service Header"
             "Location Code" := ShipToAddr."Location Code";
         "Ship-to Fax No." := ShipToAddr."Fax No.";
         "Ship-to E-Mail" := ShipToAddr."E-Mail";
+
+        Validate("Shipping Agent Code", ShipToAddr."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", ShipToAddr."Shipping Agent Service Code");
+
         if ShipToAddr."Tax Area Code" <> '' then
             "Tax Area Code" := ShipToAddr."Tax Area Code";
         "Tax Liable" := ShipToAddr."Tax Liable";
@@ -4739,6 +4745,9 @@ table 5900 "Service Header"
             "Location Code" := SellToCustomer."Location Code";
         "Ship-to Fax No." := SellToCustomer."Fax No.";
         "Ship-to E-Mail" := SellToCustomer."E-Mail";
+
+        Validate("Shipping Agent Code", SellToCustomer."Shipping Agent Code");
+        Validate("Shipping Agent Service Code", SellToCustomer."Shipping Agent Service Code");
 
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
@@ -4804,6 +4813,7 @@ table 5900 "Service Header"
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
+        ShippingAgentServices.SetLoadFields("Shipping Time");
         if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
             "Shipping Time" := ShippingAgentServices."Shipping Time"
         else begin
@@ -5081,6 +5091,25 @@ table 5900 "Service Header"
         then
             exit(true);
         exit(false);
+    end;
+
+    local procedure GetShipmentMethodCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Shipment Method Code");
+            ShipToAddress.Get("Customer No.", "Ship-to Code");
+            if ShipToAddress."Shipment Method Code" <> '' then begin
+                Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
+                exit;
+            end;
+        end;
+
+        if "Customer No." <> '' then begin
+            GetCust("Customer No.");
+            Validate("Shipment Method Code", Cust."Shipment Method Code");
+        end;
     end;
 
     procedure ConfirmCloseUnposted(): Boolean

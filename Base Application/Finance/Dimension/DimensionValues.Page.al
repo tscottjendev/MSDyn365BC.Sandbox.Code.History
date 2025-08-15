@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -157,7 +157,13 @@ page 537 "Dimension Values"
     trigger OnOpenPage()
     var
         DimensionCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec.GetFilter("Dimension Code") <> '' then
             DimensionCode := Rec.GetRangeMin("Dimension Code");
         if DimensionCode <> '' then begin
@@ -176,5 +182,9 @@ page 537 "Dimension Values"
         Emphasize := Rec."Dimension Value Type" <> Rec."Dimension Value Type"::Standard;
         NameIndent := Rec.Indentation;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var DimensionValue: Record "Dimension Value"; var IsHandled: Boolean)
+    begin
+    end;
+}
