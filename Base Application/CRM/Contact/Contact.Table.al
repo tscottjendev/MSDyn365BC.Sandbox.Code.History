@@ -631,6 +631,7 @@ table 5050 Contact
         }
         field(5076; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Contact Company No." = field("Company No."),
                                                                           Canceled = const(false),
@@ -643,6 +644,7 @@ table 5050 Contact
         }
         field(5077; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Contact Company No." = field("Company No."),
                                                                                Canceled = const(false),
                                                                                "Contact No." = field(filter("Lookup Contact No.")),
@@ -666,6 +668,7 @@ table 5050 Contact
         }
         field(5079; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                  "Contact Company No." = field("Company No."),
@@ -678,6 +681,7 @@ table 5050 Contact
         }
         field(5080; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                       "Contact Company No." = field("Company No."),
@@ -762,6 +766,7 @@ table 5050 Contact
         }
         field(5090; "Probability % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -770,6 +775,7 @@ table 5050 Contact
         }
         field(5091; "Completed % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -778,18 +784,21 @@ table 5050 Contact
         }
         field(5092; "Estimated Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Estimated Value Filter';
             FieldClass = FlowFilter;
         }
         field(5093; "Calcd. Current Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Calcd. Current Value Filter';
             FieldClass = FlowFilter;
         }
         field(5094; "Chances of Success % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success % Filter';
             DecimalPlaces = 0 : 0;
             FieldClass = FlowFilter;

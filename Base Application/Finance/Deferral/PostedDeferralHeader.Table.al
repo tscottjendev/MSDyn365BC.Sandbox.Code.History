@@ -6,6 +6,7 @@ namespace Microsoft.Finance.Deferral;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Period;
 
 /// <summary>
 /// Posted deferral header records that track completed deferral schedules after posting.
@@ -263,6 +264,42 @@ table 1704 "Posted Deferral Header"
         "Posting Date" := PostingDate;
         OnBeforePostedDeferralHeaderInsert(Rec, DeferralHeader);
         Insert();
+    end;
+
+    procedure DeferralEndsInAccountingPeriod(BalanceAsOfDateFilter: Date; PeriodStartDate: Date; PeriodEndDate: Date): Boolean
+    var
+        LastPostedDeferralLine: Record "Posted Deferral Line";
+    begin
+        LastPostedDeferralLine.SetRange("Deferral Doc. Type", "Deferral Doc. Type");
+        LastPostedDeferralLine.SetRange("Gen. Jnl. Document No.", "Gen. Jnl. Document No.");
+        LastPostedDeferralLine.SetRange("Account No.", "Account No.");
+        LastPostedDeferralLine.SetRange("Document Type", "Document Type");
+        LastPostedDeferralLine.SetRange("Document No.", "Document No.");
+        LastPostedDeferralLine.SetRange("Line No.", "Line No.");
+        LastPostedDeferralLine.SetLoadFields("Posting Date");
+        if LastPostedDeferralLine.FindLast() then
+            if (LastPostedDeferralLine."Posting Date" >= PeriodStartDate) and (LastPostedDeferralLine."Posting Date" <= PeriodEndDate) then
+                exit(true);
+        exit(false);
+    end;
+
+    procedure CalculatePeriodFilter(BalanceAsOfDateFilter: Date; var StartDate: Date; var EndDate: Date)
+    var
+        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
+        PeriodError: Boolean;
+        Steps: Integer;
+        Type: Enum "Period Type";
+        RangeFromType: Enum "Period Formula Range";
+        RangeToType: Enum "Period Formula Range";
+        RangeFromInt: Integer;
+        RangeToInt: Integer;
+        PeriodErrorLbl: Label 'The End Date of the Period Filter could not be calculated.\\Ensure Accounting Periods exist for your Balance as of date or turn off Hide Zero Remaining Amounts.';
+    begin
+        Type := Type::Period;
+        AccountingPeriodMgt.AccPeriodStartEnd(BalanceAsOfDateFilter, StartDate, EndDate, PeriodError, Steps, Type, RangeFromType, RangeToType, RangeFromInt, RangeToInt);
+
+        if EndDate = DMY2Date(31, 12, 9999) then
+            Error(PeriodErrorLbl);
     end;
 
     [IntegrationEvent(false, false)]
