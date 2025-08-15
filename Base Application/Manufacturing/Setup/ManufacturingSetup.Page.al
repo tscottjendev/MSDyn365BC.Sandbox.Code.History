@@ -37,6 +37,10 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies what to show in the Output Quantity field of a production journal when it is first opened.';
                 }
+                field("Default Consum. Calc. Based on"; Rec."Default Consum. Calc. Based on")
+                {
+                    ApplicationArea = Manufacturing, Planning;
+                }
                 field("Show Capacity In"; Rec."Show Capacity In")
                 {
                     ApplicationArea = Manufacturing;
@@ -204,10 +208,6 @@ page 99000768 "Manufacturing Setup"
                     ObsoleteTag = '27.0';
                 }
 #endif
-                field("Default Consum. Calc. Based on"; Rec."Default Consum. Calc. Based on")
-                {
-                    ApplicationArea = Manufacturing, Planning;
-                }
                 field("Manual Scheduling"; Rec."Manual Scheduling")
                 {
                     ApplicationArea = Manufacturing;
