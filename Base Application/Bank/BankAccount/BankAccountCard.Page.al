@@ -366,8 +366,8 @@ page 370 "Bank Account Card"
                     trigger OnValidate()
                     begin
                         if Rec."Balance Last Statement" <> xRec."Balance Last Statement" then
-                            if not Confirm(Text001, false, Rec."No.") then
-                                Error(Text002);
+                            if not Confirm(ChangeBalanceLastStatementQst, false, Rec."No.") then
+                                Error(CanceledErr);
                     end;
                 }
                 field("Last Remittance Advice No."; Rec."Last Remittance Advice No.")
@@ -1135,12 +1135,10 @@ page 370 "Bank Account Card"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         FormatAddress: Codeunit "Format Address";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
+        ChangeBalanceLastStatementQst: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
 #pragma warning restore AA0470
-        Text002: Label 'Canceled.';
-#pragma warning restore AA0074
+        CanceledErr: Label 'Canceled.';
         ContactActionVisible: Boolean;
         Linked: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';

@@ -696,7 +696,7 @@ table 36 "Sales Header"
                         else
                             if not UpdateDocumentDate then
                                 Validate("Prepmt. Payment Discount %", PaymentTerms."Discount %");
-                        if not UpdateDocumentDate then
+                        if not UpdateDocumentDate and (xRec."Payment Terms Code" <> Rec."Payment Terms Code") then
                             Validate("Payment Discount %", PaymentTerms."Discount %");
                     end;
                 end else begin

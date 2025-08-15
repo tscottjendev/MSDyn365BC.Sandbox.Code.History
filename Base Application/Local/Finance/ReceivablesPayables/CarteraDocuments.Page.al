@@ -339,16 +339,9 @@ page 7000003 "Cartera Documents"
         exit(false);
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        xRec := Rec;
-        UpdateStatistics();
-    end;
-
     trigger OnOpenPage()
     begin
         CategoryFilter := Rec.GetFilter("Category Code");
-        UpdateStatistics();
     end;
 
     var
@@ -444,6 +437,5 @@ page 7000003 "Cartera Documents"
     begin
         Rec.SetFilter("Category Code", CategoryFilter);
         CurrPage.Update(false);
-        UpdateStatistics();
     end;
 }
