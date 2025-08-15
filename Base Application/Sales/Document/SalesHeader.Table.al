@@ -675,7 +675,7 @@ table 36 "Sales Header"
                         OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(Rec, xRec, FieldNo("Payment Terms Code"), CurrFieldNo, IsHandled);
                         if not IsHandled then
                             "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
-                        if not UpdateDocumentDate then
+                        if not UpdateDocumentDate and (xRec."Payment Terms Code" <> Rec."Payment Terms Code") then
                             Validate("Payment Discount %", PaymentTerms."Discount %")
                     end;
                 end else begin
