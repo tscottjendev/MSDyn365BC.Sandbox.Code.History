@@ -387,6 +387,7 @@ table 5092 Opportunity
         }
         field(18; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where("Opportunity No." = field("No."),
                                                                                  Active = const(true)));
@@ -396,6 +397,7 @@ table 5092 Opportunity
         }
         field(19; "Probability %"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = lookup("Opportunity Entry"."Probability %" where("Opportunity No." = field("No."),
                                                                             Active = const(true)));
             Caption = 'Probability %';
@@ -405,6 +407,7 @@ table 5092 Opportunity
         }
         field(20; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where("Opportunity No." = field("No."),
                                                                                       Active = const(true)));
@@ -414,6 +417,7 @@ table 5092 Opportunity
         }
         field(21; "Chances of Success %"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = lookup("Opportunity Entry"."Chances of Success %" where("Opportunity No." = field("No."),
                                                                                    Active = const(true)));
             Caption = 'Chances of Success %';
@@ -423,6 +427,7 @@ table 5092 Opportunity
         }
         field(22; "Completed %"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = lookup("Opportunity Entry"."Completed %" where("Opportunity No." = field("No."),
                                                                           Active = const(true)));
             Caption = 'Completed %';
@@ -542,11 +547,13 @@ table 5092 Opportunity
         }
         field(9504; "Wizard Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Wizard Estimated Value (LCY)';
         }
         field(9505; "Wizard Chances of Success %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Wizard Chances of Success %';
             DecimalPlaces = 0 : 0;
         }
