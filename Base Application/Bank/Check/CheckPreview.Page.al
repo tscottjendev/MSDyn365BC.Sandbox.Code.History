@@ -137,17 +137,17 @@ page 404 "Check Preview"
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the posting date for the entry.';
                         }
-                        field(Text002; Text002)
+                        field(Text002; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder2; Text002)
+                        field(Placeholder2; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder3; Text002)
+                        field(Placeholder3; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -164,17 +164,17 @@ page 404 "Check Preview"
                             ShowCaption = false;
                             ToolTip = 'Specifies the amount that will appear on the check.';
                         }
-                        field(Placeholder4; Text002)
+                        field(Placeholder4; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder5; Text002)
+                        field(Placeholder5; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
                         }
-                        field(Placeholder6; Text002)
+                        field(Placeholder6; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -215,11 +215,9 @@ page 404 "Check Preview"
         CheckStatusText: Text[30];
         CheckAmount: Decimal;
 
-#pragma warning disable AA0074
-        Text000: Label 'Printed Check';
-        Text001: Label 'Not Printed Check';
-        Text002: Label 'Placeholder';
-#pragma warning restore AA0074
+        PrintedCheckLbl: Label 'Printed Check';
+        NotPrintedCheckLbl: Label 'Not Printed Check';
+        PlaceholderLbl: Label 'Placeholder';
 
     local procedure CalcCheck()
     begin
@@ -235,7 +233,7 @@ page 404 "Check Preview"
             else
                 GenJnlLine.SetRange("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Computer Check");
             GenJnlLine.SetRange("Check Printed", true);
-            CheckStatusText := Text000;
+            CheckStatusText := PrintedCheckLbl;
         end else begin
             GenJnlLine.Reset();
             GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
@@ -248,7 +246,7 @@ page 404 "Check Preview"
             GenJnlLine.SetRange("Bal. Account Type", Rec."Bal. Account Type");
             GenJnlLine.SetRange("Bal. Account No.", Rec."Bal. Account No.");
             GenJnlLine.SetRange("Bank Payment Type", Rec."Bank Payment Type");
-            CheckStatusText := Text001;
+            CheckStatusText := NotPrintedCheckLbl;
         end;
 
         CheckAmount := 0;
