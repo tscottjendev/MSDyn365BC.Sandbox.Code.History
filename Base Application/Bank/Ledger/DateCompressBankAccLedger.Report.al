@@ -99,9 +99,9 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 LastTransactionNo: Integer;
             begin
                 if EntrdDateComprReg."Ending Date" = 0D then
-                    Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
+                    Error(MustBeSpecifiedErr, EntrdDateComprReg.FieldCaption("Ending Date"));
 
-                Window.Open(Text004);
+                Window.Open(DateCompressingEntriesMsg);
 
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Bank Acc. Ledger");
@@ -263,7 +263,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(
-          3, REPORT::"Date Compress Bank Acc. Ledger", '', RetainDimText, Text010);
+          3, REPORT::"Date Compress Bank Acc. Ledger", '', RetainDimText, RetainDimensionsLbl);
         BankAccLedgEntryFilter := CopyStr("Bank Account Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
 
         DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
@@ -305,14 +305,12 @@ report 1498 "Date Compress Bank Acc. Ledger"
         DataArchiveProviderExists: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
+        MustBeSpecifiedErr: Label '%1 must be specified.';
+        DateCompressingEntriesMsg: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
 #pragma warning restore AA0470
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
-#pragma warning restore AA0074
+        DateCompressedLbl: Label 'Date Compressed';
+        RetainDimensionsLbl: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -498,7 +496,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         if EntrdDateComprReg."Ending Date" = 0D then
             EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         if EntrdBankAccLedgEntry.Description = '' then
-            EntrdBankAccLedgEntry.Description := Text009;
+            EntrdBankAccLedgEntry.Description := DateCompressedLbl;
 
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;

@@ -95,7 +95,7 @@ page 375 "Bank Account Statistics"
                     group("This Year")
                     {
                         Caption = 'This Year';
-                        field(Text000; Text000)
+                        field(Text000; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -119,7 +119,7 @@ page 375 "Bank Account Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Year';
-                        field("Placeholder 2"; Text000)
+                        field("Placeholder 2"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -143,7 +143,7 @@ page 375 "Bank Account Statistics"
                     group("To Date")
                     {
                         Caption = 'To Date';
-                        field("Placeholder 3"; Text000)
+                        field("Placeholder 3"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -202,8 +202,6 @@ page 375 "Bank Account Statistics"
         BankAccNetChange: array[4] of Decimal;
         BankAccNetChangeLCY: array[4] of Decimal;
         i: Integer;
-#pragma warning disable AA0074
-        Text000: Label 'Placeholder';
-#pragma warning restore AA0074
+        PlaceholderLbl: Label 'Placeholder';
 }
 
