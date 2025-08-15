@@ -46,6 +46,19 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-digit code number defined in ISO 4217.';
                 }
+                field(Symbol; Rec.Symbol)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the symbol for the currency, for example, $ for US dollars.';
+                }
+                field(CurrencySymbolPosition; Rec."Currency Symbol Position")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the position of the currency symbol in relation to the amount.';
+                    Caption = 'Currency Symbol Position';
+                    importance = Additional;
+                }
+
                 field(ExchangeRateDate; ExchangeRateDate)
                 {
                     ApplicationArea = Suite;
@@ -578,4 +591,3 @@ page 5 Currencies
         CurrPage.Update(false);
     end;
 }
-

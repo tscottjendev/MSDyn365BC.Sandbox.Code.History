@@ -24,7 +24,7 @@ page 695 "Confirm Financial Void"
             label(Control19)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(Text002);
+                CaptionClass = Format(VoidCheckQst);
                 Editable = false;
                 ShowCaption = false;
             }
@@ -37,7 +37,7 @@ page 695 "Confirm Financial Void"
                 trigger OnValidate()
                 begin
                     if VoidDate < CheckLedgerEntry."Check Date" then
-                        Error(Text000, CheckLedgerEntry.FieldCaption("Check Date"));
+                        Error(VoidDateBeforeOriginalErr, CheckLedgerEntry.FieldCaption("Check Date"));
                 end;
             }
             field(VoidType; VoidType)
@@ -73,7 +73,7 @@ page 695 "Confirm Financial Void"
 #pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
-                    CaptionClass = Format(StrSubstNo(Text001, CheckLedgerEntry."Bal. Account Type"));
+                    CaptionClass = Format(StrSubstNo(NoLbl, CheckLedgerEntry."Bal. Account Type"));
                     Editable = false;
                 }
                 field("CheckLedgerEntry.Amount"; CheckLedgerEntry.Amount)
@@ -111,13 +111,11 @@ page 695 "Confirm Financial Void"
         CheckLedgerEntry: Record "Check Ledger Entry";
         VoidDate: Date;
         VoidType: Option "Unapply and void check","Void check only";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Void Date must not be before the original %1.';
-        Text001: Label '%1 No.';
+        VoidDateBeforeOriginalErr: Label 'Void Date must not be before the original %1.';
+        NoLbl: Label '%1 No.';
 #pragma warning restore AA0470
-        Text002: Label 'Do you want to void this check?';
-#pragma warning restore AA0074
+        VoidCheckQst: Label 'Do you want to void this check?';
 
     /// <summary>
     /// Initializes the page with check ledger entry data for void confirmation.

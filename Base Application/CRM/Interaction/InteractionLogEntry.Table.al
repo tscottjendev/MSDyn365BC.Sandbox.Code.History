@@ -76,12 +76,14 @@ table 5065 "Interaction Log Entry"
         }
         field(9; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Cost (LCY)';
             Editable = false;
         }
         field(10; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Duration (Min.)';
             DecimalPlaces = 0 : 0;
             Editable = false;
@@ -908,4 +910,3 @@ table 5065 "Interaction Log Entry"
     begin
     end;
 }
-
