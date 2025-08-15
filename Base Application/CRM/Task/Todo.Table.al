@@ -637,9 +637,10 @@ table 5080 "To-do"
         }
         field(41; "Unit Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
             DecimalPlaces = 2 : 2;
-            AutoFormatType = 2;
 
             trigger OnValidate()
             begin
@@ -649,6 +650,7 @@ table 5080 "To-do"
         }
         field(42; "Unit Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Duration (Min.)';
             DecimalPlaces = 0 : 2;
 
