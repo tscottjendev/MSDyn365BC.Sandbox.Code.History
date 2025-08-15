@@ -385,6 +385,7 @@ table 98 "General Ledger Setup"
         field(71; "LCY Code"; Code[10])
         {
             Caption = 'LCY Code';
+            ToolTip = 'Specifies the ISO 3 letter currency code for the local currency.';
 
             trigger OnValidate()
             var

@@ -733,7 +733,7 @@ table 36 "Sales Header"
                     exit;
 
                 PaymentLines.CreatePaymentLinesSales(Rec);
-                CalcFields("Payment %");
+                CalcFields("Payment %"); 
             end;
         }
         field(24; "Due Date"; Date)
