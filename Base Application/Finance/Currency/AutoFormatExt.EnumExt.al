@@ -14,6 +14,14 @@ enumextension 60 "Auto Format Ext" extends "Auto Format"
     {
         Caption = 'Unit Amount Format';
     }
+    value(4; AmountFormatNoSymbol)
+    {
+        Caption = 'Amount Format Without Symbol';
+    }
+    value(5; UnitAmountFormatNoSymbol)
+    {
+        Caption = 'Unit Amount Format Without Symbol';
+    }
     value(10; CurrencySymbolFormat)
     {
         Caption = 'Currency Symbol Format';

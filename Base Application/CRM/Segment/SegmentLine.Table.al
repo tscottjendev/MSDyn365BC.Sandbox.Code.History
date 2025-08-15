@@ -247,12 +247,14 @@ table 5077 "Segment Line"
         }
         field(8; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Cost (LCY)';
             MinValue = 0;
         }
         field(9; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Duration (Min.)';
             DecimalPlaces = 0 : 0;
             MinValue = 0;
@@ -1965,4 +1967,3 @@ table 5077 "Segment Line"
     begin
     end;
 }
-

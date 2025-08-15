@@ -170,7 +170,6 @@ page 118 "General Ledger Setup"
                 field("LCY Code"; Rec."LCY Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the currency code for the local currency.';
                 }
                 field("Local Currency Symbol"; Rec."Local Currency Symbol")
                 {
