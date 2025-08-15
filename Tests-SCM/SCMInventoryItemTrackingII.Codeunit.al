@@ -2317,7 +2317,6 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [SCENARIO 504315] Item tracking error "Package No. must be equal to 'x' in item ledger entry: Entry No.=xxx. Current value is 'x'." 
         // when package tracking is enabled, and a job is used on a purchase order.
         Initialize();
-        EnablePhysInvtOrderPackageTrackingFeature();
 
         // [GIVEN] Create Item Tracking Code with Lot and Package tracking
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
@@ -3746,15 +3745,6 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(Quantity);
         PurchaseLine.OpenItemTrackingLines();
-    end;
-
-    local procedure EnablePhysInvtOrderPackageTrackingFeature()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        FeatureKey.Get('PhysInvtOrderPackageTracking');
-        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-        FeatureKey.Modify();
     end;
 
     local procedure CreatePurchaseDocumentWithJobAndLotTracking(
