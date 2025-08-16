@@ -46,7 +46,6 @@ table 271 "Bank Account Ledger Entry"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-            OptimizeForTextSearch = true;
             TableRelation = "Bank Account";
         }
         /// <summary>
@@ -69,7 +68,6 @@ table 271 "Bank Account Ledger Entry"
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            OptimizeForTextSearch = true;
         }
         /// <summary>
         /// Description text explaining the nature of the bank transaction.
@@ -77,7 +75,6 @@ table 271 "Bank Account Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
-            OptimizeForTextSearch = true;
         }
         /// <summary>
         /// Currency code for transactions in foreign currencies, blank for local currency.
@@ -263,7 +260,6 @@ table 271 "Bank Account Ledger Entry"
         field(56; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
-            OptimizeForTextSearch = true;
             TableRelation = "Bank Acc. Reconciliation Line"."Statement No." where("Bank Account No." = field("Bank Account No."));
         }
         /// <summary>
@@ -329,7 +325,6 @@ table 271 "Bank Account Ledger Entry"
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-            OptimizeForTextSearch = true;
         }
         /// <summary>
         /// Indicates whether this bank account ledger entry has been reversed.
