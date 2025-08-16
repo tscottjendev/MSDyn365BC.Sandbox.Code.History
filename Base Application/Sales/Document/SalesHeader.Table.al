@@ -238,7 +238,6 @@ table 36 "Sales Header"
         {
             Caption = 'No.';
             ToolTip = 'Specifies a unique number that identifies the sales document. The number can be generated automatically from a number series, or you can number each of them manually.';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -340,7 +339,6 @@ table 36 "Sales Header"
         {
             Caption = 'Bill-to Name';
             ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
-            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -358,12 +356,10 @@ table 36 "Sales Header"
         {
             Caption = 'Bill-to Name 2';
             ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
-            OptimizeForTextSearch = true;
         }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -373,7 +369,6 @@ table 36 "Sales Header"
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -383,7 +378,6 @@ table 36 "Sales Header"
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
@@ -414,7 +408,6 @@ table 36 "Sales Header"
         {
             Caption = 'Bill-to Contact';
             ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
-            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -436,7 +429,6 @@ table 36 "Sales Header"
         {
             Caption = 'Your Reference';
             ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
-            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -512,27 +504,22 @@ table 36 "Sales Header"
         {
             Caption = 'Ship-to Name';
             ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
-            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -562,7 +549,6 @@ table 36 "Sales Header"
         {
             Caption = 'Ship-to Contact';
             ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
-            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -648,7 +634,6 @@ table 36 "Sales Header"
         {
             Caption = 'Posting Description';
             ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
-            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -1011,7 +996,6 @@ table 36 "Sales Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
@@ -1238,7 +1222,6 @@ table 36 "Sales Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -1312,7 +1295,6 @@ table 36 "Sales Header"
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
             DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
@@ -1375,7 +1357,6 @@ table 36 "Sales Header"
         {
             Caption = 'Sell-to Customer Name';
             ToolTip = 'Specifies the name of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
-            OptimizeForTextSearch = true;
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
@@ -1411,12 +1392,10 @@ table 36 "Sales Header"
         {
             Caption = 'Sell-to Customer Name 2';
             ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
-            OptimizeForTextSearch = true;
         }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1427,7 +1406,6 @@ table 36 "Sales Header"
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1438,7 +1416,6 @@ table 36 "Sales Header"
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Sell-to Country/Region Code"));
@@ -1470,7 +1447,6 @@ table 36 "Sales Header"
         {
             Caption = 'Sell-to Contact';
             ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
-            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -1532,7 +1508,6 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1593,7 +1568,6 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1651,7 +1625,6 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1713,7 +1686,6 @@ table 36 "Sales Header"
         {
             Caption = 'External Document No.';
             ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -1819,7 +1791,6 @@ table 36 "Sales Header"
         {
             Caption = 'Package Tracking No.';
             ToolTip = 'Specifies the shipping agent''s package number.';
-            OptimizeForTextSearch = true;
         }
         field(107; "No. Series"; Code[20])
         {
@@ -2054,7 +2025,6 @@ table 36 "Sales Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
@@ -2176,7 +2146,6 @@ table 36 "Sales Header"
         field(135; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
-            OptimizeForTextSearch = true;
         }
         field(138; "Prepmt. Pmt. Discount Date"; Date)
         {
@@ -2253,7 +2222,6 @@ table 36 "Sales Header"
         {
             Caption = 'Quote No.';
             ToolTip = 'Specifies the number of the sales quote that the sales order was created from. You can track the number to sales quote documents that you have printed, saved, or emailed.';
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(152; "Quote Valid Until Date"; Date)
@@ -2354,7 +2322,6 @@ table 36 "Sales Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
-            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -2372,7 +2339,6 @@ table 36 "Sales Header"
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
-            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -2438,7 +2404,6 @@ table 36 "Sales Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)

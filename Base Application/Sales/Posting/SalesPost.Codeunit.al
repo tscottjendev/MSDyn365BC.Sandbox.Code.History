@@ -1381,7 +1381,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessAssocItemJnlLine(SalesLine, IsHandled);
+        OnBeforeProcessAssocItemJnlLine(SalesLine, IsHandled, SalesHeader, TempDropShptPostBuffer);
         if IsHandled then
             exit;
 
@@ -2754,7 +2754,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdatePostingNo(SalesHeader, PreviewMode, ModifyHeader, IsHandled);
+        OnBeforeUpdatePostingNo(SalesHeader, PreviewMode, ModifyHeader, IsHandled, DateOrderSeriesUsed);
         if IsHandled then
             exit;
 
@@ -9557,7 +9557,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessAssocItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeProcessAssocItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 
@@ -10046,7 +10046,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePostingNo(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ModifyHeader: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePostingNo(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ModifyHeader: Boolean; var IsHandled: Boolean; var DateOrderSeriesUsed: Boolean)
     begin
     end;
 

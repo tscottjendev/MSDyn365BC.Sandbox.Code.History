@@ -102,7 +102,7 @@ codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
             CheckEmployeePostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
     end;
 
-    local procedure CheckCustomerPostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    procedure CheckCustomerPostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
     var
         AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
     begin
