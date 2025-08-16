@@ -496,7 +496,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             until ValueEntry.Next() = 0;
         end;
 
-        OnAfterPostItem(JobJnlLine2, ItemJnlPostLine);
+        OnAfterPostItem(JobJnlLine2, ItemJnlPostLine, JobLedgEntryNo);
     end;
 
     local procedure ModifyValueEntry(var ValueEntry: Record "Value Entry")
@@ -809,7 +809,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItem(var JobJournalLine2: Record "Job Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnAfterPostItem(var JobJournalLine2: Record "Job Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var JobLedgEntryNo: Integer)
     begin
     end;
 
