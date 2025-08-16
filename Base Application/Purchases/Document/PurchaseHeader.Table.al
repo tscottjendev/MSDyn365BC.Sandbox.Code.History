@@ -206,7 +206,6 @@ table 38 "Purchase Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a unique number that identifies the purchase order. The number can be generated automatically from a number series, or you can number each of them manually.';
 
             trigger OnValidate()
@@ -321,7 +320,6 @@ table 38 "Purchase Header"
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
-            OptimizeForTextSearch = true;
             TableRelation = Vendor.Name;
             ToolTip = 'Specifies the name of the vendor who you received the invoice from.';
             ValidateTableRelation = false;
@@ -338,13 +336,11 @@ table 38 "Purchase Header"
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
-            OptimizeForTextSearch = true;
             ToolTip = 'Specifies an additional part of the name of the vendor who you receive the invoice or credit memo from.';
         }
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -354,7 +350,6 @@ table 38 "Purchase Header"
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -364,7 +359,6 @@ table 38 "Purchase Header"
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Pay-to Country/Region Code"));
@@ -391,7 +385,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Pay-to Contact';
             ToolTip = 'Specifies the name of the person to contact about an invoice from this vendor.';
-            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -413,7 +406,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Your Reference';
             ToolTip = 'Specifies the vendor''s reference.';
-            OptimizeForTextSearch = true;
         }
         field(12; "Ship-to Code"; Code[10])
         {
@@ -470,27 +462,22 @@ table 38 "Purchase Header"
         {
             Caption = 'Ship-to Name';
             ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
-            OptimizeForTextSearch = true;
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-            OptimizeForTextSearch = true;
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-            OptimizeForTextSearch = true;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-            OptimizeForTextSearch = true;
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -516,7 +503,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Ship-to Contact';
             ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
-            OptimizeForTextSearch = true;
         }
         field(19; "Order Date"; Date)
         {
@@ -622,7 +608,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Posting Description';
             ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
-            OptimizeForTextSearch = true;
         }
         field(23; "Payment Terms Code"; Code[10])
         {
@@ -948,7 +933,6 @@ table 38 "Purchase Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Purchaser Code"; Code[20])
@@ -1230,7 +1214,6 @@ table 38 "Purchase Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-            OptimizeForTextSearch = true;
         }
         field(72; "Sell-to Customer No."; Code[20])
         {
@@ -1319,7 +1302,6 @@ table 38 "Purchase Header"
         field(79; "Buy-from Vendor Name"; Text[100])
         {
             Caption = 'Buy-from Vendor Name';
-            OptimizeForTextSearch = true;
             TableRelation = Vendor.Name;
             ToolTip = 'Specifies the name of the vendor that you’re buying from. By default, the same vendor is suggested as the pay-to vendor. If needed, you can specify a different pay-to vendor on the document.';
             ValidateTableRelation = false;
@@ -1354,13 +1336,11 @@ table 38 "Purchase Header"
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
-            OptimizeForTextSearch = true;
             ToolTip = 'Specifies an additional part of the name of the vendor that you’re buying from.';
         }
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1371,7 +1351,6 @@ table 38 "Purchase Header"
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1382,7 +1361,6 @@ table 38 "Purchase Header"
         field(83; "Buy-from City"; Text[30])
         {
             Caption = 'Buy-from City';
-            OptimizeForTextSearch = true;
             TableRelation = if ("Buy-from Country/Region Code" = const('')) "Post Code".City
             else
             if ("Buy-from Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Buy-from Country/Region Code"));
@@ -1416,7 +1394,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Buy-from Contact';
             ToolTip = 'Specifies the name of the contact person at the vendor who delivered the items.';
-            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             begin
@@ -1458,7 +1435,6 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1514,7 +1490,6 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
-            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1574,7 +1549,6 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-            OptimizeForTextSearch = true;
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
@@ -1922,7 +1896,6 @@ table 38 "Purchase Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
-            OptimizeForTextSearch = true;
             Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
@@ -2058,7 +2031,6 @@ table 38 "Purchase Header"
         field(139; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
-            OptimizeForTextSearch = true;
         }
         field(142; "Prepmt. Pmt. Discount Date"; Date)
         {
@@ -2213,7 +2185,6 @@ table 38 "Purchase Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
@@ -2684,7 +2655,6 @@ table 38 "Purchase Header"
         field(11000; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
         }
     }
 
