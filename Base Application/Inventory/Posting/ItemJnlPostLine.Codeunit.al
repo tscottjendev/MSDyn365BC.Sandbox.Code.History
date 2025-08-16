@@ -3724,7 +3724,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 end;
             end;
             IsHandled := false;
-            OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry, IsHandled);
+            OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry, IsHandled, ItemJnlLine);
             if not IsHandled then
                 if ItemJnlLine."Applies-from Entry" <> 0 then
                     UpdateOutboundItemLedgEntry(ItemJnlLine."Applies-from Entry");
@@ -8335,7 +8335,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
