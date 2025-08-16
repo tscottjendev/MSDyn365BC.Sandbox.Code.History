@@ -2,11 +2,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Import;
+namespace Microsoft.eServices.EDocument.Processing.AI;
 
 using Microsoft.eServices.EDocument;
-using Microsoft.Finance.Deferral;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Finance.Deferral;
+using Microsoft.Finance.GeneralLedger.Account;
 
 table 6111 "EDoc Line Match Buffer"
 {
@@ -41,6 +42,22 @@ table 6111 "EDoc Line Match Buffer"
         {
             Caption = 'Deferral Reason';
             DataClassification = CustomerContent;
+        }
+        field(7; "GL Account No."; Code[20])
+        {
+            Caption = 'GL Account No.';
+            DataClassification = CustomerContent;
+            TableRelation = "G/L Account";
+        }
+        field(8; "GL Account Reason"; Text[1024])
+        {
+            Caption = 'GL Account Reason';
+            DataClassification = CustomerContent;
+        }
+        field(9; "GL Account Candidate Count"; Integer)
+        {
+            Caption = 'GL Account Candidate Count';
+            DataClassification = SystemMetadata;
         }
     }
     keys
