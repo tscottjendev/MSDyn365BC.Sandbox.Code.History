@@ -450,6 +450,24 @@ page 6268 "Service Quote Archive"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location of the service item, such as a warehouse or distribution center.';
                 }
+                field("Shipment Method Code"; Rec."Shipment Method Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
+                    Visible = false;
+                }
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
+                    Visible = false;
+                }
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
+                    Visible = false;
+                }
             }
             group(Details)
             {
