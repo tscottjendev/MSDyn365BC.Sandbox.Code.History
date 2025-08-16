@@ -1843,17 +1843,19 @@ codeunit 136140 "Service Order Release"
     procedure DueDateCalculationBlankServiceHeaderAgentCode()
     var
         Customer: Record Customer;
-        ShippingAgent: Record "Shipping Agent";
         LocationCode: Code[10];
-        ShippingAgentServicesCode: array[6] of Code[10];
-        DateOffset: Integer;
+        ShippingTime: DateFormula;
     begin
         Initialize();
 
         // SETUP: Create Customer with blank shipping details
-        DateOffset := LibraryRandom.RandIntInRange(10, 20);
-        CreateCustomerWithShippingDetails(Customer, StrSubstNo('<%1D>', DateOffset));
-        CreateShippingAgentServices(ShippingAgent, ShippingAgentServicesCode);
+        CreateCustomerWithShippingDetails(Customer, '');
+        Customer.Validate("Shipping Agent Code", '');
+        Customer.Validate("Shipping Agent Service Code", '');
+        Evaluate(ShippingTime, '');
+        Customer.Validate("Shipping Time", ShippingTime);
+        Customer.Modify(true);
+
         LocationCode := WMSFullLocation;
 
         // VERIFY: Create Service Order with blank shipping time and blank set shipping age service code
