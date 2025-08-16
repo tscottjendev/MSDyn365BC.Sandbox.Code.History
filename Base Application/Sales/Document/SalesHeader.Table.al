@@ -5426,6 +5426,7 @@ table 36 "Sales Header"
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
+        ShippingAgentServices.SetLoadFields("Shipping Time");
         if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
             "Shipping Time" := ShippingAgentServices."Shipping Time"
         else begin
