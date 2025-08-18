@@ -14369,6 +14369,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse VII - NamedType CrossDockQtyIsNotCalculatedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 884138066 - NamedType 625196420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item Ledger Entry must not be found more than %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Count of Item Ledger Entry]D;]A;(LookupHint=Codeunit SCM Warehouse VII - NamedType ILEMustNotBeFoundMoreThanErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 884138066 - NamedType 1618275270" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be deleted.]]></Val>
