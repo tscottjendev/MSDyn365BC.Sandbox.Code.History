@@ -328,6 +328,10 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             IncludedFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
         }
+        key(Key12100; "Original Document Type", "Original Document No.")
+        {
+            SumIndexFields = Amount;
+        }
     }
 
     fieldgroups
