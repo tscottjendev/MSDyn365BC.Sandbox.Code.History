@@ -3949,8 +3949,13 @@ table 81 "Gen. Journal Line"
     end;
 
     protected procedure CheckGLAcc(GLAcc: Record "G/L Account")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckGLAcc(GLAcc, Rec);
+        IsHandled := false;
+        OnBeforeCheckGLAcc(GLAcc, Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         GLAcc.CheckGLAcc();
         if GLAcc."Direct Posting" or ("Journal Template Name" = '') or "System-Created Entry" then
@@ -11841,7 +11846,7 @@ table 81 "Gen. Journal Line"
     /// <param name="GLAccount">The G/L Account record being validated.</param>
     /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckGLAcc(var GLAccount: Record "G/L Account"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCheckGLAcc(var GLAccount: Record "G/L Account"; var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
