@@ -13,6 +13,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using System.Utilities;
@@ -72,8 +73,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
+        WarehouseSetup: Record "Warehouse Setup";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         HideDialog: Boolean;
         IsHandled: Boolean;
     begin
@@ -108,6 +111,9 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         CheckItemAvailability(WhseJnlLine);
 
         CheckLines(TempHandlingSpecification, HideDialog);
+
+        if not WarehouseSetup.UseLegacyPosting() then
+            SequenceNoMgt.AllocateSeqNoBuffer(Database::"Warehouse Entry", NoOfRecords);
 
         PhysInvtCount := false;
         // Register lines
