@@ -512,7 +512,7 @@ codeunit 5763 "Whse.-Post Shipment"
             OnPostWhseJnlLineOnAfterSplitWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, TempWhseJnlLine2);
             if TempWhseJnlLine2.Find('-') then
                 repeat
-                    WhseJnlRegisterLine.Run(TempWhseJnlLine2);
+                    WhseJnlRegisterLine.Run(TempWhseJnlLine2); 
                 until TempWhseJnlLine2.Next() = 0;
         end;
 
