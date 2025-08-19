@@ -162,18 +162,56 @@ page 6181 "E-Document Purchase Draft"
             group("E-Document Details")
             {
                 ShowCaption = false;
-                field("Amount Incl. VAT"; EDocumentPurchaseHeader.Total)
-                {
-                    ToolTip = 'Specifies the total amount of the electronic document including VAT.';
-                    Editable = false;
-                    Importance = Promoted;
-                }
-                field("Amount Excl. VAT"; EDocumentPurchaseHeader.Total - EDocumentPurchaseHeader."Total VAT")
+                field("Amount Excl. VAT"; EDocumentPurchaseHeader."Sub Total")
                 {
                     Caption = 'Amount Excl. VAT';
                     ToolTip = 'Specifies the total amount of the electronic document excluding VAT.';
                     Importance = Promoted;
-                    Editable = false;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateTotal();
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
+                }
+                field("Invoice Discount"; EDocumentPurchaseHeader."Total Discount")
+                {
+                    Caption = 'Invoice Discount';
+                    ToolTip = 'Specifies the discount in addition to the lines';
+                    Importance = Promoted;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateTotal();
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
+                }
+                field("Total VAT"; EDocumentPurchaseHeader."Total VAT")
+                {
+                    Caption = 'Total VAT';
+                    ToolTip = 'Specifies the total VAT';
+                    Importance = Promoted;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateTotal();
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
+                }
+                field("Amount Incl. VAT"; EDocumentPurchaseHeader.Total)
+                {
+                    ToolTip = 'Specifies the total amount of the electronic document including VAT.';
+                    Importance = Promoted;
+
+                    trigger OnValidate()
+                    begin
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
+
                 }
                 field("Currency Code"; EDocumentPurchaseHeader."Currency Code")
                 {
@@ -412,6 +450,11 @@ page 6181 "E-Document Purchase Draft"
             else
                 StyleStatusTxt := 'None';
         end;
+    end;
+
+    local procedure UpdateTotal()
+    begin
+        EDocumentPurchaseHeader.Total := EDocumentPurchaseHeader."Sub Total" - EDocumentPurchaseHeader."Total Discount" + EDocumentPurchaseHeader."Total VAT";
     end;
 
     local procedure ShowErrorsAndWarnings()
