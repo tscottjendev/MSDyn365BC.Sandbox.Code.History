@@ -300,6 +300,11 @@ table 7312 "Warehouse Entry"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
 
+    trigger OnInsert()
+    begin
+        Rec."SIFT Bucket No." := Rec."Warehouse Register No." mod 5;
+    end;
+
     procedure InsertRecord(UseLegacyPosting: Boolean)
     begin
         if UseLegacyPosting then
