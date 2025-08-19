@@ -10,7 +10,6 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
-using Microsoft.eServices.EDocument.OrderMatch.Copilot;
 using System.Telemetry;
 
 page 6181 "E-Document Purchase Draft"
@@ -478,7 +477,7 @@ page 6181 "E-Document Purchase Draft"
         EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocImport: Codeunit "E-Doc. Import";
     begin
-        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
 
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
@@ -493,8 +492,8 @@ page 6181 "E-Document Purchase Draft"
         PageEditable := IsEditable();
         CurrPage.Lines.Page.Update();
         CurrPage.Update();
-        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
-        FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
+        FeatureTelemetry.LogUsage('0000PCU', FeatureName(), 'Finalize draft');
         Rec.ShowRecord();
     end;
 
@@ -570,12 +569,16 @@ page 6181 "E-Document Purchase Draft"
         exit('5d928119-f61d-42f7-ba98-43bfcf8bfaeb');
     end;
 
+    local procedure FeatureName(): Text
+    begin
+        exit('E-Document Matching Assistance');
+    end;
+
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
-        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         EDocumentHelper: Codeunit "E-Document Helper";
         ErrorsAndWarningsNotification: Notification;
