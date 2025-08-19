@@ -232,6 +232,8 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     local procedure CheckLines(var ItemJnlLine: Record "Item Journal Line")
     var
+        InventorySetup: Record "Inventory Setup";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         IsHandled: Boolean;
     begin
         OnBeforeCheckLines(ItemJnlLine, WindowIsOpen);
@@ -269,6 +271,11 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine.FindFirst();
         until ItemJnlLine."Line No." = StartLineNo;
         NoOfRecords := LineCount;
+        if NoOfRecords > 0 then 
+            if not InventorySetup.UseLegacyPosting() then begin
+                SequenceNoMgt.AllocateSeqNoBuffer(Database::"Item Ledger Entry", NoOfRecords);
+                SequenceNoMgt.AllocateSeqNoBuffer(Database::"Value Entry", NoOfRecords);
+        end;
 
         OnAfterCheckLines(ItemJnlLine);
     end;
