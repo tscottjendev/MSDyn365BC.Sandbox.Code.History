@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -512,7 +512,7 @@ codeunit 5763 "Whse.-Post Shipment"
             OnPostWhseJnlLineOnAfterSplitWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, TempWhseJnlLine2);
             if TempWhseJnlLine2.Find('-') then
                 repeat
-                    WhseJnlRegisterLine.Run(TempWhseJnlLine2);
+                    WhseJnlRegisterLine.Run(TempWhseJnlLine2); 
                 until TempWhseJnlLine2.Next() = 0;
         end;
 
@@ -670,14 +670,6 @@ codeunit 5763 "Whse.-Post Shipment"
     begin
         WhsePostParameters."Suppress Commit" := NewSuppressCommit;
     end;
-
-#if not CLEAN25
-    [Scope('OnPrem')]
-    [Obsolete('Not used anymore.','25.0')]
-    procedure GetSourceJnlTemplate()
-    begin
-    end;
-#endif
 
     procedure GetCounterSourceDocTotal(): Integer;
     begin
