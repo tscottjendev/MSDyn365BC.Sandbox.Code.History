@@ -4508,6 +4508,8 @@ table 81 "Gen. Journal Line"
                 CalculateVATAmount(VATAmount, VATAmountLCY);
                 if VATAmountLCY <> 0 then
                     "Sales/Purch. (LCY)" := ("Amount (LCY)" + VATAmountLCY);
+                if ("Sales/Purch. (LCY)" * "Amount (LCY)") < 0 then
+                    "Sales/Purch. (LCY)" := "Amount (LCY)";
             end;
         end;
 
