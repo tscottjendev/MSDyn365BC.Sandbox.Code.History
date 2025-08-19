@@ -1942,6 +1942,100 @@ codeunit 137034 "SCM Production Journal"
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
     end;
 
+    [Test]
+    [HandlerFunctions('JournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionJournalRespectsMfgSetupCalcBasedOn()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ChildItemNo: Code[20];
+        ChildItemNo2: Code[20];
+        OldCalcBasedOn: Option;
+    begin
+        // [FEATURE] [Manufacturing Setup] [Default Consumption Calculation Based on]
+        // [SCENARIO] Production Journal respects the Default Consumption Calculation Based on setting in Manufacturing Setup
+
+        // [GIVEN] Manufacturing Setup with Default Consumption Calculation Based on = Actual Output
+        Initialize();
+        ManufacturingSetup.Get();
+        OldCalcBasedOn := ManufacturingSetup."Default Consum. Calc. Based on";
+        ManufacturingSetup."Default Consum. Calc. Based on" := ManufacturingSetup."Default Consum. Calc. Based on"::"Actual Output";
+        ManufacturingSetup.Modify();
+
+        // [GIVEN] Items and Released Production Order Setup
+        CreateItemsWithInventory(
+          ChildItemNo, ChildItemNo2, Item."Manufacturing Policy"::"Make-to-Stock", Item."Manufacturing Policy"::"Make-to-Order");
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 1);
+        CreateRoutingSetup(RoutingHeader);
+        CreateItem(
+          Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
+        ProductionOrderNo := ProductionOrder."No.";
+         
+        // [WHEN] Open Production Journal based on Production Order Lines
+        OpenProductionJournal(ProductionOrder, ProductionOrderNo);
+         
+        // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
+        VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
+
+        // Clean up
+        ManufacturingSetup."Default Consum. Calc. Based on" := OldCalcBasedOn;
+        ManufacturingSetup.Modify();
+    end;
+
+    [Test]
+    [HandlerFunctions('JournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionJournalWithPostedOutputRespectsMfgSetupCalcBasedOn()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ChildItemNo: Code[20];
+        ChildItemNo2: Code[20];
+        OldCalcBasedOn: Option;
+        OperationNo: Code[10];
+    begin
+        // [FEATURE] [Manufacturing Setup] [Default Consumption Calculation Based on]
+        // [SCENARIO] Production Journal respects the Default Consumption Calculation Based on setting in Manufacturing Setup after posting output
+
+        // [GIVEN] Manufacturing Setup with Default Consumption Calculation Based on = Actual Output
+        Initialize();
+        ManufacturingSetup.Get();
+        OldCalcBasedOn := ManufacturingSetup."Default Consum. Calc. Based on";
+        ManufacturingSetup."Default Consum. Calc. Based on" := ManufacturingSetup."Default Consum. Calc. Based on"::"Actual Output";
+        ManufacturingSetup.Modify();
+
+        // [GIVEN] Items and Released Production Order Setup
+        CreateItemsWithInventory(
+          ChildItemNo, ChildItemNo2, Item."Manufacturing Policy"::"Make-to-Stock", Item."Manufacturing Policy"::"Make-to-Order");
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 1);
+        OperationNo := CreateRoutingSetup(RoutingHeader);
+        CreateItem(
+          Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
+        ProductionOrderNo := ProductionOrder."No.";
+         
+        // [GIVEN] Post output in Production Journal
+        CreateAndPostOutputJournal(ProductionOrderNo, OperationNo, Item."No.", '', '');
+         
+        // [WHEN] Open Production Journal based on Production Order Lines
+        OpenProductionJournal(ProductionOrder, ProductionOrderNo);
+         
+        // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
+        VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
+
+        // Clean up
+        ManufacturingSetup."Default Consum. Calc. Based on" := OldCalcBasedOn;
+        ManufacturingSetup.Modify();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2671,6 +2765,23 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrder.Modify(true);
 
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+
+
+    local procedure VerifyConsumptionEntriesBasedOnActualOutput(ProdOrderNo: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        SelectProdOrderComponent(ProdOrderComponent, ProdOrderNo);
+        ProdOrderLine.Get(ProdOrderLine.Status::Released, ProdOrderNo, ProdOrderComponent."Prod. Order Line No.");
+        TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Consumption);
+        TempItemJournalLine.FindSet();
+        repeat
+            Assert.AreEqual(ProdOrderComponent."Quantity per" * ProdOrderLine."Finished Quantity", TempItemJournalLine.Quantity, ErrMsgQuantity);
+            TempItemJournalLine.Next();
+        until ProdOrderComponent.Next() = 0;
     end;
 
     [ModalPageHandler]
