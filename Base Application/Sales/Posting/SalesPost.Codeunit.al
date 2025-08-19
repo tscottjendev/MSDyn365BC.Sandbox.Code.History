@@ -947,14 +947,24 @@ codeunit 80 "Sales-Post"
     /// <param name="SalesHeader">The sales header of the document that is being posted.</param>
     local procedure CheckSalesLines(var SalesHeader: Record "Sales Header")
     var
+        InventorySetup: Record "Inventory Setup";
         ErrorContextElement: Codeunit "Error Context Element";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+        NoOfItemLines: Integer;
     begin
         if TempSalesLineGlobal.FindSet() then
             repeat
                 ErrorMessageMgt.PushContext(ErrorContextElement, TempSalesLineGlobal.RecordId(), 0, CheckSalesLineMsg);
                 TestSalesLine(SalesHeader, TempSalesLineGlobal);
+                if (SalesHeader.Ship or SalesHeader.Receive or SalesHeader.Invoice) and (TempSalesLineGlobal.Type = TempSalesLineGlobal.Type::Item) and (TempSalesLineGlobal."Qty. to Ship" <> 0) then 
+                    NoOfItemLines += 1;
             until TempSalesLineGlobal.Next() = 0;
         ErrorMessageMgt.PopContext(ErrorContextElement);
+        if not InventorySetup.UseLegacyPosting() and (NoOfItemLines > 0) then begin
+            if SalesHeader.Ship or SalesHeader.Receive then
+                SequenceNoMgt.AllocateSeqNoBuffer(Database::"Item Ledger Entry", NoOfItemLines);
+            SequenceNoMgt.AllocateSeqNoBuffer(Database::"Value Entry", NoOfItemLines);
+        end;
     end;
 
     local procedure CheckTotalInvoiceAmount(SalesHeader: Record "Sales Header")
@@ -3503,14 +3513,12 @@ codeunit 80 "Sales-Post"
         OnBeforeRoundAmount(SalesHeader, SalesLine, SalesLineQty, CurrExchRate);
 
         IncrAmount(SalesHeader, SalesLine, TotalSalesLine);
-        Increment(TotalSalesLine."Net Weight", Round(SalesLineQty * SalesLine."Net Weight", UOMMgt.WeightRndPrecision()));
-        Increment(TotalSalesLine."Gross Weight", Round(SalesLineQty * SalesLine."Gross Weight", UOMMgt.WeightRndPrecision()));
-        Increment(TotalSalesLine."Unit Volume", Round(SalesLineQty * SalesLine."Unit Volume", UOMMgt.CubageRndPrecision()));
-        Increment(TotalSalesLine.Quantity, SalesLineQty);
+        TotalSalesLine."Net Weight" += Round(SalesLineQty * SalesLine."Net Weight", UOMMgt.WeightRndPrecision());
+        TotalSalesLine."Gross Weight" += Round(SalesLineQty * SalesLine."Gross Weight", UOMMgt.WeightRndPrecision());
+        TotalSalesLine."Unit Volume" += Round(SalesLineQty * SalesLine."Unit Volume", UOMMgt.CubageRndPrecision());
+        TotalSalesLine.Quantity += SalesLineQty;
         if SalesLine."Units per Parcel" > 0 then
-            Increment(
-              TotalSalesLine."Units per Parcel",
-              Round(SalesLineQty / SalesLine."Units per Parcel", 1, '>'));
+            TotalSalesLine."Units per Parcel" += Round(SalesLineQty / SalesLine."Units per Parcel", 1, '>');
 
         xSalesLine := SalesLine;
         SalesLineACY := SalesLine;
@@ -3575,7 +3583,7 @@ codeunit 80 "Sales-Post"
         OnRoundAmountOnBeforeIncrAmount(SalesHeader, SalesLine, SalesLineQty, TotalSalesLine, TotalSalesLineLCY, xSalesLine, IsHandled);
         if not IsHandled then begin
             IncrAmount(SalesHeader, SalesLine, TotalSalesLineLCY);
-            Increment(TotalSalesLineLCY."Unit Cost (LCY)", Round(SalesLineQty * SalesLine."Unit Cost (LCY)"));
+            TotalSalesLineLCY."Unit Cost (LCY)" += Round(SalesLineQty * SalesLine."Unit Cost (LCY)");
         end;
 
         OnAfterRoundAmount(SalesHeader, SalesLine, SalesLineQty);
@@ -3678,29 +3686,24 @@ codeunit 80 "Sales-Post"
         if SalesHeader."Prices Including VAT" or
            (SalesLine."VAT Calculation Type" <> SalesLine."VAT Calculation Type"::"Full VAT")
         then
-            Increment(TotalSalesLine."Line Amount", SalesLine."Line Amount");
-        Increment(TotalSalesLine.Amount, SalesLine.Amount);
-        Increment(TotalSalesLine."VAT Base Amount", SalesLine."VAT Base Amount");
-        Increment(TotalSalesLine."VAT Difference", SalesLine."VAT Difference");
-        Increment(TotalSalesLine."Amount Including VAT", SalesLine."Amount Including VAT");
-        Increment(TotalSalesLine."Line Discount Amount", SalesLine."Line Discount Amount");
-        Increment(TotalSalesLine."Inv. Discount Amount", SalesLine."Inv. Discount Amount");
-        Increment(TotalSalesLine."Inv. Disc. Amount to Invoice", SalesLine."Inv. Disc. Amount to Invoice");
-        Increment(TotalSalesLine."Prepmt. Line Amount", SalesLine."Prepmt. Line Amount");
-        Increment(TotalSalesLine."Prepmt. Amt. Inv.", SalesLine."Prepmt. Amt. Inv.");
-        Increment(TotalSalesLine."Prepmt Amt to Deduct", SalesLine."Prepmt Amt to Deduct");
-        Increment(TotalSalesLine."Prepmt Amt Deducted", SalesLine."Prepmt Amt Deducted");
-        Increment(TotalSalesLine."Prepayment VAT Difference", SalesLine."Prepayment VAT Difference");
-        Increment(TotalSalesLine."Prepmt VAT Diff. to Deduct", SalesLine."Prepmt VAT Diff. to Deduct");
-        Increment(TotalSalesLine."Prepmt VAT Diff. Deducted", SalesLine."Prepmt VAT Diff. Deducted");
-        Increment(TotalSalesLine."Pmt. Discount Amount", SalesLine."Pmt. Discount Amount");
+            TotalSalesLine."Line Amount" += SalesLine."Line Amount";
+        TotalSalesLine.Amount += SalesLine.Amount;
+        TotalSalesLine."VAT Base Amount" += SalesLine."VAT Base Amount";
+        TotalSalesLine."VAT Difference" += SalesLine."VAT Difference";
+        TotalSalesLine."Amount Including VAT" += SalesLine."Amount Including VAT";
+        TotalSalesLine."Line Discount Amount" += SalesLine."Line Discount Amount";
+        TotalSalesLine."Inv. Discount Amount" += SalesLine."Inv. Discount Amount";
+        TotalSalesLine."Inv. Disc. Amount to Invoice" += SalesLine."Inv. Disc. Amount to Invoice";
+        TotalSalesLine."Prepmt. Line Amount" += SalesLine."Prepmt. Line Amount";
+        TotalSalesLine."Prepmt. Amt. Inv." += SalesLine."Prepmt. Amt. Inv.";
+        TotalSalesLine."Prepmt Amt to Deduct" += SalesLine."Prepmt Amt to Deduct";
+        TotalSalesLine."Prepmt Amt Deducted" += SalesLine."Prepmt Amt Deducted";
+        TotalSalesLine."Prepayment VAT Difference" += SalesLine."Prepayment VAT Difference";
+        TotalSalesLine."Prepmt VAT Diff. to Deduct" += SalesLine."Prepmt VAT Diff. to Deduct";
+        TotalSalesLine."Prepmt VAT Diff. Deducted" += SalesLine."Prepmt VAT Diff. Deducted";
+        TotalSalesLine."Pmt. Discount Amount" += SalesLine."Pmt. Discount Amount";
 
         OnAfterIncrAmount(TotalSalesLine, SalesLine, SalesHeader);
-    end;
-
-    local procedure Increment(var Number: Decimal; Number2: Decimal)
-    begin
-        Number := Number + Number2;
     end;
 
     local procedure GetSalesHeader(var SalesHeader: Record "Sales Header")
@@ -5626,9 +5629,7 @@ codeunit 80 "Sales-Post"
         if (PricesInclVATRoundingAmount[1] = 0) and (PricesInclVATRoundingAmount[2] = 0) or
            (PrepmtSalesLine."Currency Code" <> '') and FinalInvoice
         then
-            Increment(
-              TotalSalesLineLCY."Amount Including VAT",
-              PrepmtSalesLine."Amount Including VAT" - NewAmountIncludingVAT - Prepmt100PctVATRoundingAmt);
+            TotalSalesLineLCY."Amount Including VAT" += PrepmtSalesLine."Amount Including VAT" - NewAmountIncludingVAT - Prepmt100PctVATRoundingAmt;
         if PrepmtSalesLine."Currency Code" = '' then
             TotalSalesLine."Amount Including VAT" := TotalSalesLineLCY."Amount Including VAT";
         PrepmtSalesLine."Amount Including VAT" := NewAmountIncludingVAT;
@@ -6067,7 +6068,7 @@ codeunit 80 "Sales-Post"
         SalesLine: Record "Sales Line";
         PurchOrderHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
-        InvSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -6080,7 +6081,7 @@ codeunit 80 "Sales-Post"
         PurchOrderLine.LockTable();
         PurchOrderHeader.LockTable();
         GetGLSetup();
-        if InvSetup.UseLegacyPosting() and not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
+        if InventorySetup.UseLegacyPosting() and not InventorySetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;

@@ -342,10 +342,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
         InsertWhseReg(WhseEntry."Entry No.");
         WhseEntry."Warehouse Register No." := WhseReg."No.";
-        if WarehouseSetup.UseLegacyPosting() then
-            WhseEntry.Insert()
-        else
-            WhseEntry.InsertRecord();
+        WhseEntry.Insert(true);
         UpdateBinEmpty(WhseEntry);
 
         OnAfterInsertWhseEntry(WhseEntry, WhseJnlLine);
