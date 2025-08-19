@@ -356,6 +356,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit Posted Documents - NamedType CashFlowWorkSheetLineMustNotBeFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 682729763 - NamedType 493986929" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer Ledger Entry Your Reference not updated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit Posted Documents - NamedType CustLedgerEntryYourReferenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 682729763 - NamedType 1787022378" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales Invoice Your Reference not updated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Edit Posted Documents - NamedType SalesInvoiceYourReferenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 682729763 - NamedType 2871896518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected Gross Weight shown.]]></Val>
