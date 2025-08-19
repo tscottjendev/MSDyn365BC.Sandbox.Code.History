@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.HumanResources.Employee;
 
-query 37060 "Employee Quali - PBI API"
+query 6214 "Employee Quali - PBI API"
 {
     Access = Internal;
     QueryType = API;

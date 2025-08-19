@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Foundation.Address;
 
-query 37062 "Country Region - PBI API"
+query 6210 "Country Region - PBI API"
 {
     Access = Internal;
     QueryType = API;

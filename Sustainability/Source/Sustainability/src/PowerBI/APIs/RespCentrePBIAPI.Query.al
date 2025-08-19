@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Inventory.Location;
 
-query 37066 "Resp Centre - PBI API"
+query 6216 "Resp Centre - PBI API"
 {
     Access = Internal;
     QueryType = API;

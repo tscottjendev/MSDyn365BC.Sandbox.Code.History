@@ -4,10 +4,8 @@ using System.Integration.PowerBI;
 using System.Globalization;
 using System.Environment.Configuration;
 
-codeunit 36961 "Setup Helper"
+codeunit 36962 "Power BI Report Setup"
 {
-    Access = Internal;
-
     procedure EnsureUserAcceptedPowerBITerms()
     var
         PowerBIContextSettings: Record "Power BI Context Settings";
@@ -61,7 +59,7 @@ codeunit 36961 "Setup Helper"
                 exit(true);
     end;
 
-    procedure LookupPowerBIReport(WorkspaceId: Guid; WorkspaceName: Text[200]; var ReportId: Guid; var ReportName: Text[200]): Boolean
+    local procedure LookupPowerBIReport(WorkspaceId: Guid; WorkspaceName: Text[200]; var ReportId: Guid; var ReportName: Text[200]): Boolean
     var
         TempPowerBISelectionElement: Record "Power BI Selection Element" temporary;
         PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";
@@ -80,7 +78,7 @@ codeunit 36961 "Setup Helper"
         end;
     end;
 
-    procedure LookupPowerBIWorkspace(var WorkspaceId: Guid; var WorkspaceName: Text[200]): Boolean
+    local procedure LookupPowerBIWorkspace(var WorkspaceId: Guid; var WorkspaceName: Text[200]): Boolean
     var
         TempPowerBISelectionElement: Record "Power BI Selection Element" temporary;
         PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";

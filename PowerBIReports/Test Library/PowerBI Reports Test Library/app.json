@@ -23,6 +23,12 @@
       "publisher": "Microsoft",
       "name": "Tests-TestLibraries",
       "version": "$(app_minimumVersion)"
+    },
+    {
+      "id": "40860557-a18d-42ad-aecb-22b7dd80dc80",
+      "publisher": "Microsoft",
+      "name": "Permissions Mock",
+      "version": "$(app_minimumVersion)"
     }
   ],
   "screenshots": [],

@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Sustainability.Ledger;
 
-query 37022 "Sust Ledger Entries - PBI API"
+query 6221 "Sust Ledger Entries - PBI API"
 {
     Access = Internal;
     QueryType = API;

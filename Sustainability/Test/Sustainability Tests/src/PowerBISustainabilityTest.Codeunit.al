@@ -1,14 +1,17 @@
 namespace Microsoft.Finance.PowerBIReports.Test;
 
+using Microsoft.PowerBIReports;
 using Microsoft.HumanResources.Payables;
 using Microsoft.PowerBIReports.Test;
+using Microsoft.Sustainability.PowerBIReports;
 using Microsoft.Sustainability.Ledger;
 using Microsoft.Sustainability.Scorecard;
 using Microsoft.Inventory.Location;
+using System.TestLibraries.Security.AccessControl;
 using System.Text;
 using System.Security.User;
 
-codeunit 139890 "PowerBI Sustainability Test"
+codeunit 148215 "PowerBI Sustainability Test"
 {
     Subtype = Test;
     Access = Internal;
@@ -21,9 +24,12 @@ codeunit 139890 "PowerBI Sustainability Test"
         LibRandom: Codeunit "Library - Random";
         LibUtility: Codeunit "Library - Utility";
         PowerBIAPIRequests: Codeunit "PowerBI API Requests";
-        PowerBIAPIEndpoints: Enum "PowerBI API Endpoints";
+        PermissionsMock: Codeunit "Permissions Mock";
+        PowerBIMockPermissions: Codeunit "Power BI Mock Permissions";
+        PBISustainFilterHelper: Codeunit "PBI Sustain. Filter Helper";
         ResponseEmptyErr: Label 'Response should not be empty.';
-
+        FieldHiddenMsg: Label '''%1'' field should be hidden.', Comment = '%1 - field caption';
+        FieldShownMsg: Label '''%1'' field should be shown.', Comment = '%1 - field caption';
 
     [Test]
     procedure TestSustainLedgerEntry()
@@ -35,7 +41,7 @@ codeunit 139890 "PowerBI Sustainability Test"
         // [GIVEN] Insert a Sustainability Ledger Entry
         SustainabilityLedgerEntry.Init();
         SustainabilityLedgerEntry."Account No." := LibUtility.GenerateGUID();
-        SustainabilityLedgerEntry."Entry No." := LibRandom.RandIntInRange(3, 5);
+        Clear(SustainabilityLedgerEntry."Entry No.");
         SustainabilityLedgerEntry."Posting Date" := WorkDate();
         SustainabilityLedgerEntry."Document Type" := SustainabilityLedgerEntry."Document Type"::Invoice;
         SustainabilityLedgerEntry."Emission CO2" := LibRandom.RandDec(100, 2);
@@ -56,7 +62,7 @@ codeunit 139890 "PowerBI Sustainability Test"
         Commit();
 
         // [WHEN] Get request for sales value entry is made
-        TargetURL := PowerBIAPIRequests.GetEndpointUrl(PowerBIAPIEndpoints::"Sustainability Ledger Entry");
+        TargetURL := PowerBIAPIRequests.GetEndpointURLForAPIObject(ObjectType::Query, Query::"Sust Ledger Entries - PBI API");
         LibGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response contains the sales value entry information
@@ -119,7 +125,7 @@ codeunit 139890 "PowerBI Sustainability Test"
         Commit();
 
         // [WHEN] Get request for sales value entry is made
-        TargetURL := PowerBIAPIRequests.GetEndpointUrl(PowerBIAPIEndpoints::"Employee Ledger Entry");
+        TargetURL := PowerBIAPIRequests.GetEndpointUrlForAPIObject(ObjectType::Query, Query::"EmployeeLedgerEntry - PBI API");
         LibGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response contains the sales value entry information
@@ -199,12 +205,149 @@ codeunit 139890 "PowerBI Sustainability Test"
         Commit();
 
         // [WHEN] Get request for Sustainability Goal is made
-        TargetURL := PowerBIAPIRequests.GetEndpointUrl(PowerBIAPIEndpoints::"Sustainability Goals");
+        TargetURL := PowerBIAPIRequests.GetEndpointUrlForAPIObject(ObjectType::Query, Query::"Sustainability Goals - PBI API");
         LibGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response contains the sustainability goal information
         Assert.AreNotEqual('', Response, ResponseEmptyErr);
         VerifySustainabilityGoal(Response, SustainabilityGoal);
+    end;
+
+#if not CLEAN27
+#pragma warning disable AL0801
+#endif
+    [Test]
+    procedure TestGenerateSustainabilityReportDateFilter_StartEndDate()
+    var
+        PBISetup: Record "PowerBI Reports Setup";
+        PowerBIReportsSetup: TestPage "PowerBI Reports Setup";
+        ExpectedFilterTxt: Text;
+        ActualFilterTxt: Text;
+        IsStartDateVisible: Boolean;
+        IsEndDateVisible: Boolean;
+        IsDateFormulaVisible: Boolean;
+    begin
+        // [SCENARIO] Test GenerateSustainabilityReportDateFilter
+        // [GIVEN] Power BI setup record is created with Load Date Type = "Start/End Date"
+        PowerBIMockPermissions.AssignAdminPermissionSet();
+        RecreatePBISetup();
+        PBISetup."Sustainability Load Date Type" := PBISetup."Sustainability Load Date Type"::"Start/End Date";
+
+        // [GIVEN] Mock start & end date values are entered 
+        PBISetup."Sustainability Start Date" := Today();
+        PBISetup."Sustainability End Date" := Today() + 10;
+        PBISetup.Modify();
+        PermissionsMock.ClearAssignments();
+
+        ExpectedFilterTxt := Format(Today()) + '..' + Format(Today() + 10);
+
+        // [WHEN] GenerateItemSalesReportDateFilter executes 
+        ActualFilterTxt := PBISustainFilterHelper.GenerateSustainabilityReportDateFilter();
+
+        // [WHEN] The Power BI Reports Setup page opens
+        PowerBIReportsSetup.OpenEdit();
+        IsStartDateVisible := PowerBIReportsSetup."Sustainability Start Date".Visible();
+        IsEndDateVisible := PowerBIReportsSetup."Sustainability End Date".Visible();
+        IsDateFormulaVisible := PowerBIReportsSetup."Sustainability Date Formula".Visible();
+
+        // [THEN] A filter text of format "%1..%2" should be created 
+        Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
+
+        // [THEN] The Start Date & End Date fields should be shown.
+        Assert.IsTrue(IsStartDateVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability Start Date".Caption()));
+        Assert.IsTrue(IsEndDateVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability End Date".Caption()));
+        Assert.IsFalse(IsDateFormulaVisible, StrSubstNo(FieldHiddenMsg, PowerBIReportsSetup."Sustainability Date Formula".Caption()));
+    end;
+
+    [Test]
+    procedure TestGenerateSustainabilityReportDateFilter_RelativeDate()
+    var
+        PBISetup: Record "PowerBI Reports Setup";
+        PowerBIReportsSetup: TestPage "PowerBI Reports Setup";
+        ExpectedFilterTxt: Text;
+        ActualFilterTxt: Text;
+        IsStartDateVisible: Boolean;
+        IsEndDateVisible: Boolean;
+        IsDateFormulaVisible: Boolean;
+    begin
+        // [SCENARIO] Test GenerateSustainabilityReportDateFilter
+        // [GIVEN] Power BI setup record is created with Load Date Type = "Relative Date"
+        PowerBIMockPermissions.AssignAdminPermissionSet();
+        RecreatePBISetup();
+        PBISetup."Sustainability Load Date Type" := PBISetup."Sustainability Load Date Type"::"Relative Date";
+
+        // [GIVEN] A mock date formula value
+        Evaluate(PBISetup."Sustainability Date Formula", '30D');
+        PBISetup.Modify();
+        PermissionsMock.ClearAssignments();
+
+        ExpectedFilterTxt := Format(CalcDate(PBISetup."Sustainability Date Formula")) + '..';
+
+        // [WHEN] GenerateItemSalesReportDateFilter executes 
+        ActualFilterTxt := PBISustainFilterHelper.GenerateSustainabilityReportDateFilter();
+
+        // [WHEN] The Power BI Reports Setup page opens
+        PowerBIReportsSetup.OpenEdit();
+        IsStartDateVisible := PowerBIReportsSetup."Sustainability Start Date".Visible();
+        IsEndDateVisible := PowerBIReportsSetup."Sustainability End Date".Visible();
+        IsDateFormulaVisible := PowerBIReportsSetup."Sustainability Date Formula".Visible();
+
+        // [THEN] A filter text of format "%1.." should be created 
+        Assert.AreEqual(ExpectedFilterTxt, ActualFilterTxt, 'The expected & actual filter text did not match.');
+
+        // [THEN] The Date Formula field should be shown.
+        Assert.IsFalse(IsStartDateVisible, StrSubstNo(FieldHiddenMsg, PowerBIReportsSetup."Sustainability Start Date".Caption()));
+        Assert.IsFalse(IsEndDateVisible, StrSubstNo(FieldHiddenMsg, PowerBIReportsSetup."Sustainability End Date".Caption()));
+        Assert.IsTrue(IsDateFormulaVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability Date Formula".Caption()));
+    end;
+
+    [Test]
+    procedure TestGenerateSustainabilityReportDateFilter_Blank()
+    var
+        PBISetup: Record "PowerBI Reports Setup";
+        PowerBIReportsSetup: TestPage "PowerBI Reports Setup";
+        ActualFilterTxt: Text;
+        IsStartDateVisible: Boolean;
+        IsEndDateVisible: Boolean;
+        IsDateFormulaVisible: Boolean;
+    begin
+        // [SCENARIO] Test GenerateSustainabilityReportDateFilter
+        // [GIVEN] Power BI setup record is created with Load Date Type = " "
+        PowerBIMockPermissions.AssignAdminPermissionSet();
+        RecreatePBISetup();
+        PBISetup."Sustainability Load Date Type" := PBISetup."Sustainability Load Date Type"::" ";
+        PBISetup.Modify();
+        PermissionsMock.ClearAssignments();
+
+        // [WHEN] GenerateItemSalesReportDateFilter executes 
+        ActualFilterTxt := PBISustainFilterHelper.GenerateSustainabilityReportDateFilter();
+
+        // [WHEN] The Power BI Reports Setup page opens
+        PowerBIReportsSetup.OpenEdit();
+        IsStartDateVisible := PowerBIReportsSetup."Sustainability Start Date".Visible();
+        IsEndDateVisible := PowerBIReportsSetup."Sustainability End Date".Visible();
+        IsDateFormulaVisible := PowerBIReportsSetup."Sustainability Date Formula".Visible();
+
+        // [THEN] A blank filter text should be created 
+        Assert.AreEqual('', ActualFilterTxt, 'The expected & actual filter text did not match.');
+
+        // [THEN] All date setup fields should be hidden.
+        Assert.IsFalse(IsStartDateVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability Start Date".Caption()));
+        Assert.IsFalse(IsEndDateVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability End Date".Caption()));
+        Assert.IsFalse(IsDateFormulaVisible, StrSubstNo(FieldShownMsg, PowerBIReportsSetup."Sustainability Date Formula".Caption()));
+    end;
+#if not CLEAN27
+#pragma warning restore AL0801
+#endif
+
+    local procedure RecreatePBISetup()
+    var
+        PBISetup: Record "PowerBI Reports Setup";
+    begin
+        if PBISetup.Get() then
+            PBISetup.Delete();
+        PBISetup.Init();
+        PBISetup.Insert();
     end;
 
     procedure VerifySustainabilityGoal(Response: Text; SustainabilityGoal: Record "Sustainability Goal")

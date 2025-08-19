@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.HumanResources.Payables;
 
-query 37065 "EmployeeLedgerEntry - PBI API"
+query 6213 "EmployeeLedgerEntry - PBI API"
 {
     Access = Internal;
     QueryType = API;

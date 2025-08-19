@@ -1,7 +1,6 @@
 namespace Microsoft.PowerBIReports;
 
 using Microsoft.Purchases.PowerBIReports;
-using Microsoft.Sustainability.PowerBIReports;
 using Microsoft.Sales.PowerBIReports;
 using Microsoft.Finance.PowerBIReports;
 using Microsoft.Manufacturing.PowerBIReports;
@@ -10,7 +9,6 @@ using Microsoft.Inventory.PowerBIReports;
 
 permissionset 36951 "PowerBi Report Basic"
 {
-    Access = Internal;
     Caption = 'Power BI Core Basic', MaxLength = 30;
     Assignable = true;
     Permissions =
@@ -27,7 +25,6 @@ permissionset 36951 "PowerBi Report Basic"
         codeunit Initialization = X,
         codeunit "Installation Handler" = X,
         codeunit "Manuf. Filter Helper" = X,
-        codeunit "PBI Sustain. Filter Helper" = X,
         codeunit "Project Filter Helper" = X,
         codeunit "Purchases Filter Helper" = X,
         codeunit "Sales Filter Helper" = X,
@@ -60,16 +57,10 @@ permissionset 36951 "PowerBi Report Basic"
         query Bins = X,
         query "Calendar Entries" = X,
         query "Capacity Ledger Entries" = X,
-        query "Country Region - PBI API" = X,
         query "Close Income Source - PBI API" = X,
         query "Customer Ledger Entries" = X,
         query Dimensions = X,
-        query "Emission Fees - PBI API" = X,
-        query "Employee Absence - PBI API" = X,
-        query "EmployeeLedgerEntry - PBI API" = X,
-        query "Employee Quali - PBI API" = X,
-        query "Employees - PBI API" = X,
-       query "G/L Account Categories" = X,
+        query "G/L Account Categories" = X,
         query "G/L Accounts" = X,
         query "G/L Budget Entries - PBI API" = X,
         query "G/L Budgets" = X,
@@ -114,17 +105,11 @@ permissionset 36951 "PowerBi Report Basic"
         query "Purch. Lines - Item Outstd." = X,
         query "Purchase Lines - Outstanding" = X,
         query "Requisition Lines" = X,
-        query "Resp Centre - PBI API" = X,
         query "Sales Line - PBI API" = X,
         query "Sales Line - Item Outstanding" = X,
         query "Sales Line - Item Shipped" = X,
         query "Sales Lines - Outstanding" = X,
         query "Service Lines - Order" = X,
-        query "SusSub Act Category - PBI API" = X,
-        query "Sust Account Cat - PBI API" = X,
-        query "Sust Accounts - PBI API" = X,
-        query "Sustainability Goals - PBI API" = X,
-        query "Sust Ledger Entries - PBI API" = X,
         query "Transfer Lines" = X,
         query "Value Entries - Item" = X,
         query "Value Entries - Purch." = X,

@@ -110,6 +110,8 @@ permissionset 36955 "Power BI Embedded - Objects"
         page "Vendor Deferrals" = X,
         page "Sales and Cost forecast" = X,
         page "Billing Schedule" = X,
+#if not CLEAN27
+#pragma warning disable AL0432
         page "Sustainability Overview" = X,
         page "Realized Emissions vs Target" = X,
         page "Realized Emissions vs Baseline" = X,
@@ -120,6 +122,9 @@ permissionset 36955 "Power BI Embedded - Objects"
         page "Social Analysis" = X,
         page "Sustainability Report" = X,
         page "CO2e Key Influences" = X,
+        page "CO2e Decomposition Tree" = X,
+#pragma warning restore AL0432
+#endif
         page "PBI Work Center Statistics" = X,
         page "PBI Machine Center Statistics" = X,
         page "PBI Machine Center Load" = X,
@@ -133,7 +138,6 @@ permissionset 36955 "Power BI Embedded - Objects"
         page "Sales Quote Overview" = X,
         page "Return Order Overview" = X,
         page "Project Timeline" = X,
-        page "Production Order WIP" = X,
-        page "CO2e Decomposition Tree" = X;
+        page "Production Order WIP" = X;
 }
 

@@ -1,14 +1,15 @@
 namespace Microsoft.Finance.PowerBIReports.Test;
 
-using System.Utilities;
-using Microsoft.Purchases.Document;
-using Microsoft.Inventory.Item;
-using System.Text;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.PowerBIReports;
 using Microsoft.PowerBIReports.Test;
+using Microsoft.Purchases.Document;
 using System.TestLibraries.Security.AccessControl;
+using System.Text;
+using System.Utilities;
 
 codeunit 139880 "PowerBI Purchases Test"
 {
@@ -260,6 +261,7 @@ codeunit 139880 "PowerBI Purchases Test"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         Uri: Codeunit Uri;
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         TargetURL: Text;
         Response: Text;
     begin
@@ -280,6 +282,8 @@ codeunit 139880 "PowerBI Purchases Test"
         ValueEntry.Insert();
 
         Commit();
+
+        SequenceNoMgt.ClearState();
 
         // [WHEN] Get request for the value entries outside of the query filter is made
         TargetURL := PowerBIAPIRequests.GetEndpointUrl(PowerBIAPIEndpoints::"Value Entries - Purch.");

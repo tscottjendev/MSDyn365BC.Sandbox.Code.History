@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Sustainability.Scorecard;
 
-query 37021 "Sustainability Goals - PBI API"
+query 6220 "Sustainability Goals - PBI API"
 {
     Access = Internal;
     QueryType = API;

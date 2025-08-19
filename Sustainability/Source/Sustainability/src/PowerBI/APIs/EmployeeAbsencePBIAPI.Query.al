@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.HumanResources.Absence;
 
-query 37064 "Employee Absence - PBI API"
+query 6212 "Employee Absence - PBI API"
 {
     Access = Internal;
     QueryType = API;

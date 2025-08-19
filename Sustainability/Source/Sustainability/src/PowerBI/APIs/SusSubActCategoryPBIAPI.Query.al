@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Sustainability.Account;
 
-query 37067 "SusSub Act Category - PBI API"
+query 6217 "SusSub Act Category - PBI API"
 {
     Access = Internal;
     QueryType = API;

@@ -173,12 +173,20 @@ enum 139793 "PowerBI API Endpoints"
     value(58; "Work Center Groups")
     {
     }
+#if not CLEAN27
     value(59; "Employee Ledger Entry")
     {
+        ObsoleteReason = 'API Endpoint directly retrieved in Sustainability tests';
+        ObsoleteState = Pending;
+        ObsoleteTag = '27.0';
     }
     value(60; "Sustainability Ledger Entry")
     {
+        ObsoleteReason = 'API Endpoint directly retrieved in Sustainability tests';
+        ObsoleteState = Pending;
+        ObsoleteTag = '27.0';
     }
+#endif
     value(61; "Sales Lines")
     {
     }
@@ -206,7 +214,12 @@ enum 139793 "PowerBI API Endpoints"
     value(69; "Close Opporturnity Codes")
     {
     }
+#if not CLEAN27
     value(70; "Sustainability Goals")
     {
+        ObsoleteReason = 'API Endpoint directly retrieved in Sustainability tests';
+        ObsoleteState = Pending;
+        ObsoleteTag = '27.0';
     }
+#endif
 }

@@ -2,7 +2,7 @@ namespace Microsoft.Sustainability.PowerBIReports;
 
 using Microsoft.Sustainability.Emission;
 
-query 37063 "Emission Fees - PBI API"
+query 6211 "Emission Fees - PBI API"
 {
     Access = Internal;
     QueryType = API;
