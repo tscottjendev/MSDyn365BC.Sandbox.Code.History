@@ -3595,7 +3595,9 @@ codeunit 137156 "SCM Orders IV"
     var
         PriceListLine: Record "Price List Line";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders IV");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
