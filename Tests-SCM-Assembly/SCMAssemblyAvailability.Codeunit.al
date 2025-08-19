@@ -16,6 +16,7 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Sales.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Setup;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 137906 "SCM Assembly Availability"
 {
@@ -592,11 +593,13 @@ codeunit 137906 "SCM Assembly Availability"
     local procedure SetItemInventory(ItemNo: Code[20]; Quantity: Integer)
     var
         Item: Record Item;
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         Item.SetRange("No.", ItemNo);
         Item.FindFirst();
         Item.Validate(Inventory, Quantity);
         Item.Modify();
+        SequenceNoMgt.ClearState();
     end;
 
     local procedure ValidateOrderRatio(AsmHeader: Record "Assembly Header"; ExpectedAvailable: Decimal)
