@@ -548,7 +548,7 @@ report 7398 "Date Compress Whse. Entries"
         WhseEntry.Weight := Weight;
         WhseEntry."Entry Type" := EntryType;
         OnBeforeInsertNewEntry(WhseEntry);
-        WhseEntry.InsertRecord(WarehouseSetup.UseLegacyPosting());
+        WhseEntry.Insert(true);
         if FirstEntryNo = 0 then
             FirstEntryNo := LastEntryNo;
     end;
