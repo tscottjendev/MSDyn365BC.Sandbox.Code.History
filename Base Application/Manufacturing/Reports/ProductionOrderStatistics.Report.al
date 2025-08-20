@@ -351,7 +351,6 @@ report 99000791 "Production Order Statistics"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
         // End of About the report labels
         ExpCost1Label = 'Material Cost (Expected)';
         ExpCost2Label = 'Capacity Cost (Expected)';
