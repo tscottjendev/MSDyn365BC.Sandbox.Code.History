@@ -9289,7 +9289,7 @@ table 37 "Sales Line"
         exit('963A9FD3-11E8-4CAA-BE3A-7F8CEC9EF8EC');
     end;
 
-    local procedure SendBlockedItemNotification()
+    procedure SendBlockedItemNotification()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         NotificationToSend: Notification;
