@@ -181,7 +181,6 @@ report 99000794 "Compare Production Cost Shares"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     trigger OnPreReport()
