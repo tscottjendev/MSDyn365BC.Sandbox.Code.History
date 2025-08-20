@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -19,8 +20,11 @@ report 99001048 "Planning Availability"
     DefaultLayout = RDLC;
     RDLCLayout = './Inventory/Reports/PlanningAvailability.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Planning Availability';
+    Caption = 'Planning Availability (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -427,8 +431,8 @@ report 99001048 "Planning Availability"
 
     requestpage
     {
-        AboutTitle = 'About Planning Availability';
-        AboutText = 'Helps you manage inventory levels and ensure that items are available when you need them.';
+        AboutTitle = 'About Planning Availability (Obsolete)';
+        AboutText = 'Helps you manage inventory levels and ensure that items are available when you need them.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
 
         layout
         {
@@ -561,3 +565,4 @@ report 99001048 "Planning Availability"
     end;
 }
 
+#endif
