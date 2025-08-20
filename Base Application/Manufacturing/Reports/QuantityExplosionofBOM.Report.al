@@ -307,7 +307,6 @@ report 99000753 "Quantity Explosion of BOM"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     trigger OnPreReport()
