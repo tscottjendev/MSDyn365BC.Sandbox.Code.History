@@ -198,7 +198,6 @@ report 99000757 "Where-Used (Top Level)"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     var

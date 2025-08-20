@@ -190,7 +190,6 @@ report 5871 "Item - Able to Make (Timeline)"
         UserLabel = 'User';
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
-        TimezoneLabel = 'UTC';
     }
 
     trigger OnInitReport()
