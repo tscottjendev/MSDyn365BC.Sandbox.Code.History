@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -14,8 +15,11 @@ report 99003804 "Demand Forecast"
     DefaultLayout = RDLC;
     RDLCLayout = './Manufacturing/Reports/DemandForecast.rdlc';
     ApplicationArea = Manufacturing;
-    Caption = 'Demand Forecast';
+    Caption = 'Demand Forecast (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -166,8 +170,8 @@ report 99003804 "Demand Forecast"
 
     requestpage
     {
-        AboutTitle = 'About Demand Forecast';
-        AboutText = 'Helps you plan future production needs by predicting the demand for items based on historical data and other factors. Use the report to help ensure that production schedules align with anticipated sales and inventory requirements.';
+        AboutTitle = 'About Demand Forecast (Obsolete)';
+        AboutText = 'Helps you plan future production needs by predicting the demand for items based on historical data and other factors. Use the report to help ensure that production schedules align with anticipated sales and inventory requirements.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
         layout
         {
         }
@@ -203,3 +207,4 @@ report 99003804 "Demand Forecast"
         TotalCaptionLbl: Label 'Total';
 }
 
+#endif
