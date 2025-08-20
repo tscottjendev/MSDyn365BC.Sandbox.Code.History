@@ -28,6 +28,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibraryResource: Codeunit "Library - Resource";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -3985,6 +3986,165 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText());
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalespersonCommissionRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalespersonCommissionReportAdjustedProfitLCY()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Resource: Record Resource;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CustomerList: TestPage "Customer List";
+        CustomerStatistics: TestPage "Customer Statistics";
+        RequestPageXML: Text;
+        AdjustedProfitLCY: Decimal;
+    begin
+        // [SCENARIO 422598] Report "Salesperson - Commission" should correctly calculate Adjusted Profit
+        Initialize();
+
+        // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandInt(10));
+        Item.Modify();
+
+        // [GIVEN] Create customer "CUST" with Salesperson = "SP"
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Modify();
+
+        // [GIVEN] Resource "R" with Unit Cost = 30, Unit Price = 100
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+
+        // [GIVEN] Create and post Sales Order for customer "CUST" with item "I" and Resource "RC"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Open statistics for customer "CUST" is being opened, Adjusted Profit (LCY) = 110
+        CustomerList.OpenView();
+        CustomerList.FILTER.SetFilter("No.", SalesHeader."Sell-to Customer No.");
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
+        AdjustedProfitLCY := CustomerStatistics.ThisPeriodAdjustedProfitLCY.AsDecimal();
+
+        Commit();
+        SalespersonPurchaser.SetFilter(Code, SalespersonPurchaser.Code);
+
+        // [WHEN] Run report "Salesperson - Commission"
+        RequestPageXML := Report.RunRequestPage(Report::"Salesperson - Commission", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Salesperson - Commission", SalespersonPurchaser, RequestPageXML);
+
+        // [THEN] "Adjusted Profit (LCY)" value = 110.
+        LibraryReportDataset.AssertElementWithValueExists('AdjProfit', AdjustedProfitLCY);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalespersonCommissionRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalespersonCommissionReportTotals()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Resource: Record Resource;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SalesHeader2: Record "Sales Header";
+        SalespersonPurchaser2: Record "Salesperson/Purchaser";
+        CustomerList: TestPage "Customer List";
+        CustomerStatistics: TestPage "Customer Statistics";
+        RequestPageXML: Text;
+        SubtotalsSalesLCY: Decimal;
+        SubtotalsProfitLCY: Decimal;
+        SubtotalsSalesLCY2: Decimal;
+        SubtotalsProfitLCY2: Decimal;
+    begin
+        // [SCENARIO 422598] Report "Salesperson - Commission" should correctly represent Subtotals and Totals values
+        Initialize();
+
+        // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Validate("Unit Price", Item."Unit Cost" + LibraryRandom.RandInt(10));
+        Item.Modify();
+
+        // [GIVEN] Create customer "CUST" with Salesperson = "SP" with Commission % = 20
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        SalespersonPurchaser.Validate("Commission %", LibraryRandom.RandDec(20, 2));
+        SalespersonPurchaser.Modify();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Modify();
+
+        // [GIVEN] Resource "R" with Unit Cost = 30, Unit Price = 100
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+
+        // [GIVEN] Create and post Sales Order for customer "CUST" with item "I" and Resource "RC"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create customer "CUST2" with Salesperson = "SP2" with a random Commission %
+        Clear(Customer);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser2);
+        SalespersonPurchaser2.Validate("Commission %", LibraryRandom.RandDec(20, 2));
+        SalespersonPurchaser2.Modify();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Salesperson Code", SalespersonPurchaser2.Code);
+        Customer.Modify();
+
+        // [GIVEN] Create and post Sales Order for customer "CUST2" with item "I" and Resource "RC2"
+        Clear(SalesLine);
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader2, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader2, SalesLine.Type::Resource, Resource."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+
+        // [GIVEN] View statistics for customer "CUST"
+        CustomerList.OpenView();
+        CustomerList.FILTER.SetFilter("No.", SalesHeader."Sell-to Customer No.");
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
+        SubtotalsSalesLCY := CustomerStatistics."CustSalesLCY[1]".AsDecimal();
+        SubtotalsProfitLCY := CustomerStatistics.ThisPeriodOriginalProfitLCY.AsDecimal();
+
+        // [GIVEN] View statistics for customer "CUST2"
+        CustomerList.FILTER.SetFilter("No.", SalesHeader2."Sell-to Customer No.");
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
+        SubtotalsSalesLCY2 := CustomerStatistics."CustSalesLCY[1]".AsDecimal();
+        SubtotalsProfitLCY2 := CustomerStatistics.ThisPeriodOriginalProfitLCY.AsDecimal();
+
+        Commit();
+        SalespersonPurchaser.SetFilter(Code, '%1|%2', SalespersonPurchaser.Code, SalespersonPurchaser2.Code);
+
+        // [WHEN] Run report "Salesperson - Commission"
+        RequestPageXML := Report.RunRequestPage(Report::"Salesperson - Commission", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Salesperson - Commission", SalespersonPurchaser, RequestPageXML);
+
+        // [THEN] Subtotals and Totals elements exist and their values match those generated by the "Customer Statistics" page 
+        // and the associated "Cust. Ledger Entry" records for "CUST" & "CUST2" Subtotals "CUST"
+        
+        // Subtotals for "SP1"
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Salesperson_Code', SalespersonPurchaser.Code);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Sales', SubtotalsSalesLCY);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Profit', SubtotalsProfitLCY);
+        // Subtotals for "SP2"
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Salesperson_Code', SalespersonPurchaser2.Code);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Sales', SubtotalsSalesLCY2);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Profit', SubtotalsProfitLCY2);
+        // Totals
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales', (SubtotalsSalesLCY + SubtotalsSalesLCY2));
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Profit', (SubtotalsProfitLCY + SubtotalsProfitLCY2));
     end;
 
     [Test]
@@ -8065,6 +8225,12 @@ codeunit 134387 "ERM Sales Documents III"
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalespersonCommissionRequestPageHandler(var SalespersonCommission: TestRequestPage "Salesperson - Commission")
+    begin
     end;
 
     [ModalPageHandler]

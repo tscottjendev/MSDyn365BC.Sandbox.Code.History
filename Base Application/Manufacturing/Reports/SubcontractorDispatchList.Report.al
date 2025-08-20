@@ -308,7 +308,6 @@ report 99000789 "Subcontractor - Dispatch List"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     var
