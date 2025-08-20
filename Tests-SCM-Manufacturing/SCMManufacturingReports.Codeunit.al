@@ -9,7 +9,9 @@ using System.TestLibraries.Utilities;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Costing;
+#if not CLEAN27
 using Microsoft.Manufacturing.Forecast;
+#endif
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Family;
 using Microsoft.Sales.Document;
@@ -624,7 +626,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('ExpCost6', ExpMatCost + ExpCapDirCost + ExpSubDirCost +
           ExpCapOvhdCost + ExpMfgOvhdCost);
     end;
-
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ProductionForecastRequestPageHandler')]
     [Scope('OnPrem')]
@@ -653,6 +655,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ForecastQty_ForecastEntry', ProductionForecastEntry."Forecast Quantity");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1393,11 +1396,13 @@ codeunit 137304 "SCM Manufacturing Reports"
         ProdOrderLine.FindSet();
     end;
 
+#if not CLEAN27
     local procedure UpdateProductionForecastQty(var ProductionForecastEntry: Record "Production Forecast Entry")
     begin
         ProductionForecastEntry.Validate("Forecast Quantity", LibraryRandom.RandDec(10, 2));
         ProductionForecastEntry.Modify(true);
     end;
+#endif
 
     local procedure SelectConsumptionLines(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch2: Record "Item Journal Batch")
     begin
@@ -1677,13 +1682,14 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         ProdOrderStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
-
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProductionForecastRequestPageHandler(var ProductionForecast: TestRequestPage "Demand Forecast")
     begin
         ProductionForecast.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
