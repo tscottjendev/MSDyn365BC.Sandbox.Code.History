@@ -2923,7 +2923,7 @@ codeunit 408 DimensionManagement
     /// <param name="DimensionName">Specifies the name of the dimension, if the the dimension doesn't exist yet.</param>
     /// <param name="DimensionValueName">Specifies the name of the dimension value, if the dimension value doesn't exist yet.</param>
     /// <returns>Returns the new dimension set ID.</returns>
-    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionName: Text[30]; DimensionValueName: Text[30]): Integer
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionName: Text[30]; DimensionValueName: Text[50]): Integer
     begin
         exit(SetDimensionValue(DimSetID, DimensionCode, DimensionName, DimensionValueCode, DimensionValueName, true, true));
     end;
@@ -2939,7 +2939,7 @@ codeunit 408 DimensionManagement
     /// <param name="AutoCreateMissingDimension">Specifies whether the dimension will be create if it doesn't exist.</param>
     /// <param name="AutoCreateMissingDimensionValue">Specifies whether the dimension value will be create if doesn't exist.</param>
     /// <returns>Returns the new dimension set ID.</returns>
-    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionName: Text[30]; DimensionValueCode: Code[20]; DimensionValueName: Text[30]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
+    procedure SetDimensionValue(DimSetID: Integer; DimensionCode: Code[20]; DimensionName: Text[30]; DimensionValueCode: Code[20]; DimensionValueName: Text[50]; AutoCreateMissingDimension: Boolean; AutoCreateMissingDimensionValue: Boolean): Integer
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
         Dimension: Record Dimension;
@@ -2979,7 +2979,7 @@ codeunit 408 DimensionManagement
         Dimension.Insert(true);
     end;
 
-    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionValueName: Text[30])
+    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; DimensionValueName: Text[50])
     begin
         DimensionValue.Init();
         DimensionValue.Validate("Code", DimensionValueCode);
