@@ -127,14 +127,19 @@ page 9010 "Production Planner Role Center"
                     RunObject = Report "Inventory - Availability Plan";
                     ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
                 }
+#if not CLEAN27
                 action("Planning Availability")
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'Planning Availability';
+                    Caption = 'Planning Availability (Obsolete)';
                     Image = "Report";
                     RunObject = Report "Planning Availability";
                     ToolTip = 'View all known existing requirements and receipts for the items that you select on a specific date. You can use the report to get a quick picture of the current demand-supply situation for an item. The report displays the item number and description plus the actual quantity in inventory.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 action("Capacity Task List")
                 {
                     ApplicationArea = Manufacturing;

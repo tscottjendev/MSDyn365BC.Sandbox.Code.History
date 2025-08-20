@@ -8,11 +8,15 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
+#if not CLEAN27
 using Microsoft.Inventory.Planning;
+#endif
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Forecast;
+#if not CLEAN27
 using Microsoft.Manufacturing.Reports;
+#endif
 using Microsoft.Manufacturing.Setup;
 
 codeunit 99000875 "Prod. Order Availability Mgt."
@@ -1029,11 +1033,11 @@ codeunit 99000875 "Prod. Order Availability Mgt."
           "Scheduled Receipt (Qty.)",
           "Reserved Qty. on Prod. Order");
     end;
-
+#if not CLEAN27
     [EventSubscriber(ObjectType::Report, Report::"Planning Availability", 'OnRequisitionLineOnBeforeTempPlanningBufferInsert', '', false, false)]
     local procedure OnRequisitionLineOnBeforeTempPlanningBufferInsert(var TempPlanningBuffer: Record "Planning Buffer" temporary; RequisitionLine: Record "Requisition Line")
     begin
         TempPlanningBuffer."Document No." := RequisitionLine."Prod. Order No.";
     end;
-
+#endif
 }

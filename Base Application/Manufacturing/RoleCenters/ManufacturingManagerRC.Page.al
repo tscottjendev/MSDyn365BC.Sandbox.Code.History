@@ -334,18 +334,26 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Item - Able to Make (Timeline)';
                         RunObject = report "Item - Able to Make (Timeline)";
                     }
+#if not CLEAN27
                     action("Planning Availability")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Planning Availability';
+                        Caption = 'Planning Availability (Obsolete)';
                         RunObject = report "Planning Availability";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
                     action("Production Forecast")
                     {
                         ApplicationArea = Manufacturing;
-                        Caption = 'Demand Forecast';
+                        Caption = 'Demand Forecast (Obsolete)';
                         RunObject = report "Demand Forecast";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+                        ObsoleteTag = '27.0';
                     }
+#endif
                     action("Item Substitutions")
                     {
                         ApplicationArea = Suite;
