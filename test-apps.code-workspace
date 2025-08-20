@@ -52,13 +52,13 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
-      "path": "./SubscriptionBilling/Test/Subscription Billing Tests"
+      "path": "./SubscriptionBilling/Test/Subscription Billing Tests/DisabledTests"
     },
     {
       "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
-      "path": "./Shopify/test/Shopify Connector Test"
+      "path": "./Shopify/test/Shopify Connector Test/DisabledTests"
     },
     {
       "path": "./testframework/testlibraries"
