@@ -123,8 +123,12 @@ table 5878 "Phys. Invt. Record Line"
                 TestStatusOpen();
                 TestField("Item No.");
 
-                if Rec."Variant Code" = '' then
+                if Rec."Variant Code" = '' then begin
+                    GetItem();
+                    Rec.Validate(Description, Item.Description);
+                    Rec.Validate("Description 2", Item."Description 2");
                     exit;
+                end;
 
                 ItemVariant.Get("Item No.", "Variant Code");
 

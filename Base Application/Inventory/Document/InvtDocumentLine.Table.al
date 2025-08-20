@@ -407,6 +407,9 @@ table 5851 "Invt. Document Line"
                     ItemVariant.Get("Item No.", "Variant Code");
                     ItemVariant.TestField(Blocked, false);
                     Description := ItemVariant.Description;
+                end else begin
+                    GetItem();
+                    Rec.Validate(Description, Item.Description);
                 end;
 
                 if "Variant Code" <> xRec."Variant Code" then begin
