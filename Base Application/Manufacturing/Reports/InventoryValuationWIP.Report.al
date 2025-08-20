@@ -419,7 +419,6 @@ report 5802 "Inventory Valuation - WIP"
         RunOnLabel = 'Run on';
         ReportNameLabel = 'Report name';
         DocumentationLabel = 'Documentation';
-        TimezoneLabel = 'UTC';
     }
 
     trigger OnPreReport()
