@@ -3023,7 +3023,7 @@ table 83 "Item Journal Line"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
-    internal procedure SetReservEntrySourceFilters(var ReservEntry: Record "Reservation Entry"; SourceKey: Boolean)
+    procedure SetReservEntrySourceFilters(var ReservEntry: Record "Reservation Entry"; SourceKey: Boolean)
     begin
         if IsSourceSales() then
             ReservEntry.SetSourceFilter(Database::"Item Journal Line", "Entry Type".AsInteger(), "Document No.", "Document Line No.", SourceKey)
