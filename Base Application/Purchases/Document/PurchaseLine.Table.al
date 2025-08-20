@@ -4414,7 +4414,7 @@ table 39 "Purchase Line"
         exit(true);
     end;
 
-    local procedure CheckLineAmount(MaxLineAmount: Decimal)
+    procedure CheckLineAmount(MaxLineAmount: Decimal)
     var
         IsHandled: Boolean;
     begin
@@ -4432,7 +4432,7 @@ table 39 "Purchase Line"
                 Error(LineAmountInvalidErr);
     end;
 
-    local procedure CheckLineTypeOnIndirectCostPercentUpdate()
+    procedure CheckLineTypeOnIndirectCostPercentUpdate()
     var
         IsHandled: Boolean;
     begin
