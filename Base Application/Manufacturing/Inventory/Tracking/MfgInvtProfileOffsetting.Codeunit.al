@@ -77,6 +77,8 @@ codeunit 99000869 "Mfg. Invt. Profile Offsetting"
                                     InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
                             end;
                         end;
+
+                        OnTransProdOrderToProfileOnBeforeInsertSupplyInvtProfile(InventoryProfile, ProdOrderLine);
                         InventoryProfile.InsertSupplyInvtProfile(ToDate);
                     end;
                 until ProdOrderLine.Next() = 0;
@@ -355,6 +357,11 @@ codeunit 99000869 "Mfg. Invt. Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindCombinationOnBeforeCreateTempSKUForLocation(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderToProfileOnBeforeInsertSupplyInvtProfile(var InventoryProfile: Record "Inventory Profile"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

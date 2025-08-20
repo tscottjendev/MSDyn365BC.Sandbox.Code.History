@@ -112,8 +112,12 @@ table 5876 "Phys. Invt. Order Line"
                     GetShelfNo();
                 end;
 
-                if Rec."Variant Code" = '' then
+                if Rec."Variant Code" = '' then begin
+                    GetItem();
+                    Validate(Description, Item.Description);
+                    Validate("Description 2", Item."Description 2");
                     exit;
+                end;
 
                 TestField("Item No.");
 
@@ -570,8 +574,8 @@ table 5876 "Phys. Invt. Order Line"
                 end;
                 OnCalcQtyAndTrackLinesExpectedOnAfterHandleItemLedgerEntryTracking2(ExpInvtOrderTracking, ItemLedgEntry);
             until ItemLedgEntry.Next() = 0;
-            ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2(ExpInvtOrderTracking, Rec);
+        ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
+        OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineItemLedgEntry2(ExpInvtOrderTracking, Rec);
         TestQtyExpected();
     end;
 
@@ -601,8 +605,8 @@ table 5876 "Phys. Invt. Order Line"
                 end;
                 OnCalcQtyAndTrackLinesExpectedOnAfterHandleWarehouseEntryTracking2(ExpInvtOrderTracking, WhseEntry);
             until WhseEntry.Next() = 0;
-            ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
-            OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2(ExpInvtOrderTracking, Rec);
+        ExpInvtOrderTracking.DeleteLine("Document No.", "Line No.", false);
+        OnCalcQtyAndTrackLinesExpectedOnAfterDeleteLineWhseEntry2(ExpInvtOrderTracking, Rec);
         TestQtyExpected();
     end;
 
