@@ -2601,6 +2601,13 @@ table 23 Vendor
                         exit(Vendor."No.");
             until Vendor.Next() = 0;
 
+        Vendor.SetFilter("Enterprise No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code"), 1, MaxStrLen(VATRegistrationNo))));
+        if Vendor.FindSet() then
+            repeat
+                if CountryRegion.DetermineCountry(Vendor."Country/Region Code") then
+                    if ExtractVatRegNo(Vendor."Enterprise No.", Vendor."Country/Region Code") = ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code") then
+                        exit(Vendor."No.");
+            until Vendor.Next() = 0;
         Clear(Vendor);
         Vendor.SetFilter("VAT Registration No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(VATRegistrationNo, 1, MaxStrLen(VATRegistrationNo))));
         if Vendor.FindSet() then
