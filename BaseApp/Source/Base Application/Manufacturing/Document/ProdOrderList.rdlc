@@ -2432,15 +2432,6 @@
       </DefaultValue>
       <Prompt>DocumentationLabel</Prompt>
     </ReportParameter>
-    <ReportParameter Name="TimezoneLabel">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>TimezoneLabel</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>TimezoneLabel</Prompt>
-    </ReportParameter>
     <ReportParameter Name="Production_Order__No__Caption">
       <DataType>String</DataType>
       <DefaultValue>
