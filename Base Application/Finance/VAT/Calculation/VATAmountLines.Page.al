@@ -234,14 +234,16 @@ page 9401 "VAT Amount Lines"
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         Currency: Record Currency;
         CurrencyCode: Code[10];
-        AllowVATDifference: Boolean;
-        AllowVATDifferenceOnThisTab: Boolean;
         PricesIncludingVAT: Boolean;
-        AllowInvDisc: Boolean;
         VATBaseDiscPct: Decimal;
         VATAmountEditable: Boolean;
         InvoiceDiscountAmountEditable: Boolean;
         NonDeductibleVATVisible: Boolean;
+
+    protected var
+        AllowVATDifference: Boolean;
+        AllowVATDifferenceOnThisTab: Boolean;
+        AllowInvDisc: Boolean;
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -317,4 +319,5 @@ page 9401 "VAT Amount Lines"
     begin
     end;
 }
+
 
