@@ -136,7 +136,6 @@ codeunit 7307 "Whse.-Activity-Register"
         TempWhseActivityLineGrouped.DeleteAll();
 
         GlobalWhseActivLine.ReadIsolation(IsolationLevel::UpdLock);
-        WhseJnlRegisterLine.LockIfLegacyPosting();
 
         // breakbulk first to provide quantity for pick lines in smaller UoM
         GlobalWhseActivLine.SetFilter("Breakbulk No.", '<>0');
