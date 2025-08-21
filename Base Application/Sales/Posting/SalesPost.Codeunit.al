@@ -8211,7 +8211,7 @@ codeunit 80 "Sales-Post"
         exit(Condition);
     end;
 
-    local procedure PostUpdateOrderLine(SalesHeader: Record "Sales Header")
+    procedure PostUpdateOrderLine(SalesHeader: Record "Sales Header")
     var
         TempSalesLine: Record "Sales Line" temporary;
         SetDefaultQtyBlank: Boolean;
