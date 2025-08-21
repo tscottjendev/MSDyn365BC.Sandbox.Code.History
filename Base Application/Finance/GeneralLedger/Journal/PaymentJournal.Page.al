@@ -392,6 +392,7 @@ page 256 "Payment Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Bal. VAT Number"; Rec."Bal. VAT Number")
