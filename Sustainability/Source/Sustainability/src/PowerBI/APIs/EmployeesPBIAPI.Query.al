@@ -9,7 +9,7 @@ query 6215 "Employees - PBI API"
     Caption = 'Power BI Employees';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiEmployee';
     EntitySetName = 'pbiEmployees';
     DataAccessIntent = ReadOnly;

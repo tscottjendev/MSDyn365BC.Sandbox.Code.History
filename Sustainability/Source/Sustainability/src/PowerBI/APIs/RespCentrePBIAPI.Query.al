@@ -9,7 +9,7 @@ query 6216 "Resp Centre - PBI API"
     Caption = 'Power BI Responsibility Centre';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiResponsibilityCentre';
     EntitySetName = 'pbiResponsibilityCentres';
     DataAccessIntent = ReadOnly;

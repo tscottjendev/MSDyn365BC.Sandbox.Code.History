@@ -9,7 +9,7 @@ query 6211 "Emission Fees - PBI API"
     Caption = 'Power BI Emission Fees';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiEmissionFee';
     EntitySetName = 'pbiEmissionFees';
     DataAccessIntent = ReadOnly;

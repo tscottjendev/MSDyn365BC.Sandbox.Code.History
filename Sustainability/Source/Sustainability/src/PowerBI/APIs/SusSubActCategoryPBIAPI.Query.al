@@ -9,7 +9,7 @@ query 6217 "SusSub Act Category - PBI API"
     Caption = 'Power BI Sustainability Entries';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiSustainabilitySubAccountCategory';
     EntitySetName = 'pbiSustainabilitySubAccountCategories';
     DataAccessIntent = ReadOnly;

@@ -134,9 +134,6 @@ enum 139793 "PowerBI API Endpoints"
     value(45; "Item Budget Entries - Purch.")
     {
     }
-    value(46; "Value Entries - Purch.")
-    {
-    }
     value(47; "Purch. Lines - Item Received")
     {
     }
@@ -147,9 +144,6 @@ enum 139793 "PowerBI API Endpoints"
     {
     }
     value(50; "Item Budget Entries - Sales")
-    {
-    }
-    value(51; "Value Entries - Sales")
     {
     }
     value(52; "Sales Line - Item Shipped")
@@ -187,9 +181,6 @@ enum 139793 "PowerBI API Endpoints"
         ObsoleteTag = '27.0';
     }
 #endif
-    value(61; "Sales Lines")
-    {
-    }
     value(62; "Opportunity")
     {
     }
@@ -222,4 +213,37 @@ enum 139793 "PowerBI API Endpoints"
         ObsoleteTag = '27.0';
     }
 #endif
+    value(71; Resources)
+    {
+    }
+    value(72; "Purchase Invoice Lines")
+    {
+    }
+    value(73; "Purchase Lines")
+    {
+    }
+    value(74; "Purchase Credit Lines")
+    {
+    }
+    value(75; "Sales Credit Lines")
+    {
+    }
+    value(76; "Sales Cr Project Ledger Entries")
+    {
+    }
+    value(78; "Sales Invoice Lines")
+    {
+    }
+    value(79; "Sales Inv Project Ledger Entry")
+    {
+    }
+    value(80; "Sales Lines V2")
+    {
+    }
+    value(81; "Sales Value Entries")
+    {
+    }
+    value(82; "Purch. Value Entries")
+    {
+    }
 }

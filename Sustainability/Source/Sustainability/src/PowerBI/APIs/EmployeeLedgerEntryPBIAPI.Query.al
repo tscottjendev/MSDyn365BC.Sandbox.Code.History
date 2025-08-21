@@ -9,7 +9,7 @@ query 6213 "EmployeeLedgerEntry - PBI API"
     Caption = 'Power BI Employee Ledger Entry';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiEmployeeLedgerEntry';
     EntitySetName = 'pbiEmployeeLedgerEntries';
     DataAccessIntent = ReadOnly;

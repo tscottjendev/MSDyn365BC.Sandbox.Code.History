@@ -9,7 +9,7 @@ query 6214 "Employee Quali - PBI API"
     Caption = 'Power BI Employee Qualifications';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiEmployeeQualification';
     EntitySetName = 'pbiEmployeeQualifications';
     DataAccessIntent = ReadOnly;

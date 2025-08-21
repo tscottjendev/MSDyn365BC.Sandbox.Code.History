@@ -9,7 +9,7 @@ query 6219 "Sust Accounts - PBI API"
     Caption = 'Power BI Sustainability Entries';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiSustainabilityAccount';
     EntitySetName = 'pbiSustainabilityAccounts';
     DataAccessIntent = ReadOnly;

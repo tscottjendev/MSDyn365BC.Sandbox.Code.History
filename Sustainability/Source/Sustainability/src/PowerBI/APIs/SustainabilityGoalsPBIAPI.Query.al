@@ -9,7 +9,7 @@ query 6220 "Sustainability Goals - PBI API"
     Caption = 'Power BI Sustainability Goals';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiSustainabilityGoal';
     EntitySetName = 'pbiSustainabilityGoals';
     DataAccessIntent = ReadOnly;

@@ -9,7 +9,7 @@ query 6212 "Employee Absence - PBI API"
     Caption = 'Power BI Employee Absence';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiEmployeeAbsence';
     EntitySetName = 'pbiEmployeeAbsences';
     DataAccessIntent = ReadOnly;

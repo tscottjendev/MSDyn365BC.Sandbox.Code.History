@@ -9,7 +9,7 @@ query 6210 "Country Region - PBI API"
     Caption = 'Power BI Country Region';
     APIPublisher = 'microsoft';
     APIGroup = 'analytics';
-    APIVersion = 'v0.5';
+    ApiVersion = 'v0.5', 'v1.0';
     EntityName = 'pbiCountryRegion';
     EntitySetName = 'pbiCountryRegions';
     DataAccessIntent = ReadOnly;

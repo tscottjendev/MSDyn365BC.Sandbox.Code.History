@@ -8,6 +8,7 @@ using System.TestLibraries.Security.AccessControl;
 using Microsoft.CRM.Contact;
 using System.Utilities;
 using System.Text;
+using Microsoft.Projects.Resources.Resource;
 
 
 codeunit 139875 "PowerBI Core Test"
@@ -25,6 +26,8 @@ codeunit 139875 "PowerBI Core Test"
         LibInv: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibERM: Codeunit "Library - ERM";
+        LibResource: Codeunit "Library - Resource";
+        LibRandom: Codeunit "Library - Random";
         UriBuilder: Codeunit "Uri Builder";
         FilterScenario: Enum "PowerBI Filter Scenarios";
         PowerBIAPIEndpoints: Enum "PowerBI API Endpoints";
@@ -665,5 +668,46 @@ codeunit 139875 "PowerBI Core Test"
         Assert.IsTrue(JsonMgt.SelectTokenFromRoot('$..value[?(@.reasonCode == ''' + Format(ReturnReason.Code) + ''')]'), 'Return Reason not found.');
         Assert.AreEqual(ReturnReason.Code, JsonMgt.GetValue('reasonCode'), 'Return Reason Code does not match.');
         Assert.AreEqual(ReturnReason.Description, JsonMgt.GetValue('reasonDescription'), 'Description does not match.');
+    end;
+
+    [Test]
+    procedure TestGetResource()
+    var
+        Resource: Record Resource;
+        Uri: Codeunit Uri;
+        Response: Text;
+        TargetURL: Text;
+    begin
+        Initialize();
+
+        // [GIVEN] A new resource
+        LibResource.CreateResourceNew(Resource);
+        Resource.Validate("Unit Cost", LibRandom.RandInt(50));
+        Resource.Modify();
+        Commit();
+
+        // [WHEN] Get request for Resource
+        TargetURL := PowerBIAPIRequests.GetEndpointUrl(PowerBIAPIEndpoints::Resources);
+        UriBuilder.Init(TargetURL);
+        UriBuilder.AddQueryParameter('$filter', 'resourceNo eq ''' + Format(Resource."No.") + '''');
+        UriBuilder.GetUri(Uri);
+        LibGraphMgt.GetFromWebService(Response, Uri.GetAbsoluteUri());
+
+        // [THEN] The response contains the resource information
+        Assert.AreNotEqual('', Response, ResponseEmptyErr);
+        VerifyResource(Response, Resource);
+    end;
+
+    local procedure VerifyResource(Response: Text; Resource: Record Resource)
+    var
+        JsonMgt: Codeunit "JSON Management";
+    begin
+        JsonMgt.InitializeObject(Response);
+        Assert.IsTrue(JsonMgt.SelectTokenFromRoot('$..value[?(@.resourceNo == ''' + Format(Resource."No.") + ''')]'), 'Resource not found.');
+        Assert.AreEqual(Resource."No.", JsonMgt.GetValue('resourceNo'), 'Resource no. does not match.');
+        Assert.AreEqual(Resource.Name, JsonMgt.GetValue('resourceName'), 'Resource name does not match.');
+        Assert.AreEqual(Resource."Base Unit of Measure", JsonMgt.GetValue('baseUnitofMeasure'), 'Base unit of measure does not match.');
+        Assert.AreEqual(Format(Resource."Unit Cost" / 1.0, 0, 9), JsonMgt.GetValue('unitCost'), 'Unit cost does not match.');
+        Assert.AreEqual(Format(Resource."Unit Price" / 1.0, 0, 9), JsonMgt.GetValue('unitPrice'), 'Unit price does not match.');
     end;
 }
