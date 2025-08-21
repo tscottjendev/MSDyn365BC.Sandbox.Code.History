@@ -621,6 +621,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -633,6 +634,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -645,6 +647,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -657,6 +660,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -869,6 +873,10 @@ table 98 "General Ledger Setup"
         field(192; "Hide Company Bank Account"; Boolean)
         {
             Caption = 'Hide Company Bank Account';
+        }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
         }
         field(11003; "Currency Code For EURO"; Code[10])
         {
