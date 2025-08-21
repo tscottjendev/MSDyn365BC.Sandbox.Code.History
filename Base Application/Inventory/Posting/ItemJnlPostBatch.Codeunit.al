@@ -136,9 +136,6 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemRegNo := ItemReg.GetLastEntryNo() + 1;
         end;
 
-        if WhseTransaction then
-            WhseJnlPostLine.LockIfLegacyPosting();
-
         Clear(PostponedValueEntries);
         BindSubscription(this); // To set ItemRegNo or WhseRegNo if an entry is created and collect value entries for GLPosting
 
