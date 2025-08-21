@@ -2532,15 +2532,6 @@
       </DefaultValue>
       <Prompt>ReportNameLabel</Prompt>
     </ReportParameter>
-    <ReportParameter Name="TimezoneLabel">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>TimezoneLabel</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>TimezoneLabel</Prompt>
-    </ReportParameter>
     <ReportParameter Name="Item__No__Caption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -2563,7 +2554,7 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>21</NumberOfRows>
+      <NumberOfRows>20</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -2658,16 +2649,11 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>18</RowIndex>
-          <ParameterName>TimezoneLabel</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>19</RowIndex>
           <ParameterName>Item__No__Caption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>20</RowIndex>
+          <RowIndex>19</RowIndex>
           <ParameterName>Item_DescriptionCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
