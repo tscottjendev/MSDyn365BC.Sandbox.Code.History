@@ -3779,15 +3779,6 @@
       </DefaultValue>
       <Prompt>DocumentationLabel</Prompt>
     </ReportParameter>
-    <ReportParameter Name="TimezoneLabel">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>TimezoneLabel</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>TimezoneLabel</Prompt>
-    </ReportParameter>
     <ReportParameter Name="ExpCost1Label">
       <DataType>String</DataType>
       <DefaultValue>
@@ -3990,7 +3981,7 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>35</NumberOfRows>
+      <NumberOfRows>34</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -4055,116 +4046,111 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>12</RowIndex>
-          <ParameterName>TimezoneLabel</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>13</RowIndex>
           <ParameterName>ExpCost1Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>14</RowIndex>
+          <RowIndex>13</RowIndex>
           <ParameterName>ExpCost2Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>15</RowIndex>
+          <RowIndex>14</RowIndex>
           <ParameterName>ExpCost3Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>16</RowIndex>
+          <RowIndex>15</RowIndex>
           <ParameterName>ExpCost4Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>17</RowIndex>
+          <RowIndex>16</RowIndex>
           <ParameterName>ExpCost5Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>18</RowIndex>
+          <RowIndex>17</RowIndex>
           <ParameterName>ExpCost6Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>19</RowIndex>
+          <RowIndex>18</RowIndex>
           <ParameterName>ActCost1Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>20</RowIndex>
+          <RowIndex>19</RowIndex>
           <ParameterName>ActCost2Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>21</RowIndex>
+          <RowIndex>20</RowIndex>
           <ParameterName>ActCost3Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>22</RowIndex>
+          <RowIndex>21</RowIndex>
           <ParameterName>ActCost4Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>23</RowIndex>
+          <RowIndex>22</RowIndex>
           <ParameterName>ActCost5Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>24</RowIndex>
+          <RowIndex>23</RowIndex>
           <ParameterName>ActCost6Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>25</RowIndex>
+          <RowIndex>24</RowIndex>
           <ParameterName>VarPct1Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>26</RowIndex>
+          <RowIndex>25</RowIndex>
           <ParameterName>VarPct2Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>27</RowIndex>
+          <RowIndex>26</RowIndex>
           <ParameterName>VarPct3Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>28</RowIndex>
+          <RowIndex>27</RowIndex>
           <ParameterName>VarPct4Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>29</RowIndex>
+          <RowIndex>28</RowIndex>
           <ParameterName>VarPct5Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>30</RowIndex>
+          <RowIndex>29</RowIndex>
           <ParameterName>VarPct6Label</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>31</RowIndex>
+          <RowIndex>30</RowIndex>
           <ParameterName>No_ProdOrderCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>32</RowIndex>
+          <RowIndex>31</RowIndex>
           <ParameterName>Desc_ProdOrderCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>33</RowIndex>
+          <RowIndex>32</RowIndex>
           <ParameterName>Quantity_ProdOrderCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
-          <RowIndex>34</RowIndex>
+          <RowIndex>33</RowIndex>
           <ParameterName>Status_ProdOrderCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
