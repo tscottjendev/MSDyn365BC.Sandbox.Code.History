@@ -139,6 +139,8 @@ codeunit 99000820 "Mfg. Bom Buffer"
               BOMBuffer."Rolled-up Mfg. Ovhd Cost") *
              BOMBuffer."Indirect Cost %" / 100) +
             (BOMBuffer."Overhead Rate" * LotSize);
+
+        OnBeforeRoundUnitAmtForRolledUpMfgOvhdCost(BOMBuffer);
         BOMBuffer."Rolled-up Mfg. Ovhd Cost" := BOMBuffer.RoundUnitAmt(BOMBuffer."Rolled-up Mfg. Ovhd Cost", 1);
     end;
 
@@ -211,4 +213,8 @@ codeunit 99000820 "Mfg. Bom Buffer"
         end;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundUnitAmtForRolledUpMfgOvhdCost(var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
 }
