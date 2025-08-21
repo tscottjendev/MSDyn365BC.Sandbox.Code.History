@@ -138,6 +138,14 @@ permissionset 36955 "Power BI Embedded - Objects"
         page "Sales Quote Overview" = X,
         page "Return Order Overview" = X,
         page "Project Timeline" = X,
-        page "Production Order WIP" = X;
+        page "Production Order WIP" = X,
+        page "Sales Forecasting" = X,
+        page "Inventory Forecasting" = X,
+        page "Purchase Forecasting" = X,
+        page "Late Payments (Receivables)" = X,
+        page "Vendor Quality Analysis" = X,
+        page "Purchase Return Overview" = X,
+        page "Key Purchase Influencers" = X,
+        page "Purchase Quote Overview" = X;
 }
 
