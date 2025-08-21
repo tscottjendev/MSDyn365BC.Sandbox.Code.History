@@ -179,7 +179,6 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
                 OnBeforePostSourceHeader(WhseShptLine, GlobalSourceHeader, WhsePostParameters);
                 PostSourceDocument(WhseShptLine, GlobalSourceHeader);
-                WhseJnlRegisterLine.LockIfLegacyPosting();
 
                 if WhseShptLine.FindLast() then;
                 WhseShptLine.SetRange(WhseShptLine."Source Type");

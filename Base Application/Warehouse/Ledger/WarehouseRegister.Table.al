@@ -75,13 +75,13 @@ table 7313 "Warehouse Register"
     {
     }
 
-    procedure InsertRecord(UseLegacyPosting: Boolean)
+ #if not CLEAN27
+   [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
+   procedure InsertRecord(UseLegacyPosting: Boolean)
     begin
-        if UseLegacyPosting then
-            Rec.Insert()
-        else
-            InsertRecord();
+        InsertRecord();
     end;
+#endif    
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Register", 'r')]
     procedure InsertRecord()
