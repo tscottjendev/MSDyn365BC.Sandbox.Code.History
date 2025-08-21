@@ -25,9 +25,6 @@ codeunit 265 "Feature Key Management"
         ManufacturingFlushingMethodActivateManualWithoutPickLbl: Label 'Manufacturing_FlushingMethod_ActivateManualWoPick', Locked = true;
         ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead, MockEnabledManufacturingFlushingMethodActivateManualWithoutPick : Boolean;
 #endif
-        ConcurrentWarehousingPostingLbl: Label 'ConcurrentWarehousingPosting', Locked = true;
-        ConcurrentWarehousingPosting: Boolean;
-        ConcurrentWarehousingPostingRead: Boolean;
         ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
         ConcurrentInventoryPosting: Boolean;
         ConcurrentInventoryPostingRead: Boolean;
@@ -55,13 +52,13 @@ codeunit 265 "Feature Key Management"
         exit(FeatureManagementFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId()));
     end;
 
+#if not CLEAN27
+    [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
     procedure IsConcurrentWarehousingPostingEnabled(): Boolean
     begin
-        if not ConcurrentWarehousingPostingRead then
-            ConcurrentWarehousingPosting := FeatureManagementFacade.IsEnabled(ConcurrentWarehousingPostingLbl);
-        ConcurrentWarehousingPostingRead := true;
-        exit(ConcurrentWarehousingPosting);
+        exit(true);
     end;
+#endif
 
     procedure IsConcurrentInventoryPostingEnabled(): Boolean
     begin
