@@ -27,7 +27,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
-using System.Environment.Configuration;
 using System.Security.User;
 using System.Utilities;
 
@@ -52,8 +51,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
         BASCalcSheet: Record "BAS Calculation Sheet";
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
         SkipFiscalYearCheck: Boolean;
         GenJnlTemplateFound: Boolean;
         OverrideDimErr: Boolean;
@@ -217,6 +219,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if not OverrideDimErr then
             CheckDimensions(GenJnlLine);
 
+#if not CLEAN25
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
+#endif
         CheckCurrencyCode(GenJnlLine);
 
         if CostAccSetup.Get() then
@@ -1352,3 +1357,4 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
     end;
 }
+
