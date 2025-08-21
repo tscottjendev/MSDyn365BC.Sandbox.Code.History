@@ -6704,7 +6704,7 @@ codeunit 90 "Purch.-Post"
         end;
     end;
 
-    local procedure GetCountryCode(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"): Code[10]
+    procedure GetCountryCode(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"): Code[10]
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         CountryRegionCode: Code[10];
