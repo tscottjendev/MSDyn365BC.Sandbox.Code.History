@@ -42,7 +42,7 @@ codeunit 6103 "E-Document Subscribers"
 
     var
         EDocExport: Codeunit "E-Doc. Export";
-        EDocumentHelper: Codeunit "E-Document Helper";
+        EDocumentProcessing: Codeunit "E-Document Processing";
         EDocumentProcessingPhase: Enum "E-Document Processing Phase";
         DeleteDocumentQst: Label 'This document is linked to E-Document %1. Do you want to continue?', Comment = '%1 - E-Document Entry No.';
         DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
@@ -57,6 +57,22 @@ codeunit 6103 "E-Document Subscribers"
         NullGuid: Guid;
     begin
         LogAfterValidate(Rec."Entry No", NullGuid, 'Vendor No.');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Document Purchase Draft", OnAfterValidateEvent, "Invoice Discount", false, false)]
+    local procedure OnAfterValidateDraftPageDiscount(var Rec: Record "E-Document"; var xRec: Record "E-Document")
+    var
+        NullGuid: Guid;
+    begin
+        LogAfterValidate(Rec."Entry No", NullGuid, 'Invoice Discount');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"E-Document Purchase Draft", OnAfterValidateEvent, "Total VAT", false, false)]
+    local procedure OnAfterValidateDraftPageVAT(var Rec: Record "E-Document"; var xRec: Record "E-Document")
+    var
+        NullGuid: Guid;
+    begin
+        LogAfterValidate(Rec."Entry No", NullGuid, 'Total VAT');
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"E-Doc. Purchase Draft Subform", OnAfterValidateEvent, "Line Type", false, false)]
@@ -172,19 +188,19 @@ codeunit 6103 "E-Document Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeReleaseSalesDoc', '', false, false)]
     local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipCheckReleaseRestrictions: Boolean)
     begin
-        RunEDocumentCheck(SalesHeader, EDocumentProcessingPhase::Release);
+        EDocumentProcessing.RunEDocumentCheck(SalesHeader, EDocumentProcessingPhase::Release);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnBeforeReleasePurchaseDoc', '', false, false)]
     local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var SkipCheckReleaseRestrictions: Boolean; var IsHandled: Boolean)
     begin
-        RunEDocumentCheck(PurchaseHeader, EDocumentProcessingPhase::Release);
+        EDocumentProcessing.RunEDocumentCheck(PurchaseHeader, EDocumentProcessingPhase::Release);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Service Document", 'OnBeforeReleaseServiceDoc', '', false, false)]
     local procedure OnBeforeReleaseServiceDoc(var ServiceHeader: Record "Service Header");
     begin
-        RunEDocumentCheck(ServiceHeader, EDocumentProcessingPhase::Release);
+        EDocumentProcessing.RunEDocumentCheck(ServiceHeader, EDocumentProcessingPhase::Release);
     end;
     #endregion Release events
 
@@ -192,31 +208,31 @@ codeunit 6103 "E-Document Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterCheckAndUpdate', '', false, false)]
     local procedure OnAfterCheckAndUpdateSales(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
-        RunEDocumentCheck(SalesHeader, EDocumentProcessingPhase::Post);
+        EDocumentProcessing.RunEDocumentCheck(SalesHeader, EDocumentProcessingPhase::Post);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterCheckAndUpdate', '', false, false)]
     local procedure OnAfterCheckAndUpdatePurch(var PurchaseHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
-        RunEDocumentCheck(PurchaseHeader, EDocumentProcessingPhase::Post);
+        EDocumentProcessing.RunEDocumentCheck(PurchaseHeader, EDocumentProcessingPhase::Post);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterInitialize', '', false, false)]
     local procedure OnAfterInitializeService(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
-        RunEDocumentCheck(ServiceHeader, EDocumentProcessingPhase::Post);
+        EDocumentProcessing.RunEDocumentCheck(ServiceHeader, EDocumentProcessingPhase::Post);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"FinChrgMemo-Issue", 'OnBeforeIssueFinChargeMemo', '', false, false)]
     local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
-        RunEDocumentCheck(FinChargeMemoHeader, EDocumentProcessingPhase::Post);
+        EDocumentProcessing.RunEDocumentCheck(FinChargeMemoHeader, EDocumentProcessingPhase::Post);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reminder-Issue", 'OnBeforeIssueReminder', '', false, false)]
     local procedure OnBeforeIssueReminder(var ReminderHeader: Record "Reminder Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var IsHandled: Boolean; var IssuedReminderHeader: Record "Issued Reminder Header")
     begin
-        RunEDocumentCheck(ReminderHeader, EDocumentProcessingPhase::Post);
+        EDocumentProcessing.RunEDocumentCheck(ReminderHeader, EDocumentProcessingPhase::Post);
     end;
     #endregion Posting check events
 
@@ -447,17 +463,6 @@ codeunit 6103 "E-Document Subscribers"
 #endif
     end;
 
-    local procedure RunEDocumentCheck(Record: Variant; EDocumentProcPhase: Enum "E-Document Processing Phase")
-    var
-        EDocument: Record "E-Document";
-        SourceDocumentHeader: RecordRef;
-    begin
-        SourceDocumentHeader.GetTable(Record);
-        EDocument.SetRange("Document Record ID", SourceDocumentHeader.RecordId);
-        if EDocumentHelper.IsElectronicDocument(SourceDocumentHeader) and EDocument.IsEmpty() then
-            EDocExport.CheckEDocument(SourceDocumentHeader, EDocumentProcPhase);
-    end;
-
     local procedure IsEDocumentLinkedToPurchaseDocument(var EDocument: Record "E-Document"; OpenRecord: Variant): Boolean
     var
         PurchaseHeader: Record "Purchase Header";
@@ -509,7 +514,7 @@ codeunit 6103 "E-Document Subscribers"
         EDocLogHelper.InsertLog(EDocument, EDocService, Enum::"E-Document Service Status"::"Imported Document Created");
     end;
 
-    local procedure CreateEDocumentFromPostedDocument(PostedRecord: Variant; DocumentSendingProfile: Record "Document Sending Profile"; DocumentType: Enum "E-Document Type")
+    procedure CreateEDocumentFromPostedDocument(PostedRecord: Variant; DocumentSendingProfile: Record "Document Sending Profile"; DocumentType: Enum "E-Document Type")
     var
         WorkFlow: Record Workflow;
         PostedSourceDocumentHeader: RecordRef;
