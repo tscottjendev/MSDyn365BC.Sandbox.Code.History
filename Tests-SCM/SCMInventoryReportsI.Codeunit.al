@@ -590,6 +590,81 @@ codeunit 137301 "SCM Inventory Reports - I"
     end;
 
     [Test]
+    [HandlerFunctions('InventoryCustomerSalesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryCustomerSalesTotals()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        RequestPageXML: Text;
+        TotalsProfitLCY: Decimal;
+        TotalsSalesLCY: Decimal;
+        TotalsProfitLCY2: Decimal;
+        TotalsSalesLCY2: Decimal;
+    begin
+        // [SCENARIO] Report "Inventory Customer Sales" should correctly represent Subtotals and Totals values
+        Initialize();
+
+        // [GIVEN] Create Item "I1" and post one Sales Order
+        CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Item "I2" and post one Sales Order
+        Clear(SalesHeader);
+        CreateItem(Item2);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, Item2."No.", LibraryRandom.RandDec(100, 2));
+        SalesLine2.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine2.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        Commit();
+
+        // [GIVEN] Calculate the Total Profit and Total Sales Amount (Actual) from the Item Ledger Entries for Item "I1"
+        ItemLedgerEntry.SetAutoCalcFields("Sales Amount (Actual)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                TotalsProfitLCY += ItemLedgerEntry."Sales Amount (Actual)" + ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Non-Invtbl.)";
+                TotalsSalesLCY += ItemLedgerEntry."Sales Amount (Actual)";
+            until ItemLedgerEntry.Next() = 0;
+
+        // [GIVEN] Calculate the Total Profit and Total Sales Amount (Actual) from the Item Ledger Entries for Item "I2"
+        ItemLedgerEntry.SetRange("Item No.", Item2."No.");
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                TotalsProfitLCY2 += ItemLedgerEntry."Sales Amount (Actual)" + ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Non-Invtbl.)";
+                TotalsSalesLCY2 += ItemLedgerEntry."Sales Amount (Actual)";
+            until ItemLedgerEntry.Next() = 0;
+
+        // [WHEN] Run report "Inventory Customer Sales"
+        Item.SetFilter("No.", '%1|%2', Item."No.", Item2."No.");
+        RequestPageXML := Report.RunRequestPage(Report::"Inventory - Customer Sales", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Inventory - Customer Sales", Item, RequestPageXML);
+
+
+        // [THEN] Subtotals and Totals elements exist and their values match those in the associated "Item Ledger Entry" records for "I1" & "I2"
+        // Subtotals for I1
+        LibraryReportDataset.AssertElementWithValueExists('SubTotals_SalesAmtActual', TotalsSalesLCY);
+        LibraryReportDataset.AssertElementWithValueExists('SubTotals_Profit', TotalsProfitLCY);
+        // Subtotals for I2
+        LibraryReportDataset.AssertElementWithValueExists('SubTotals_SalesAmtActual', TotalsSalesLCY2);
+        LibraryReportDataset.AssertElementWithValueExists('SubTotals_Profit', TotalsProfitLCY2);
+        // Totals
+        LibraryReportDataset.AssertElementWithValueExists('Totals_SalesAmtActual', (TotalsSalesLCY + TotalsSalesLCY2));
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Profit', (TotalsProfitLCY + TotalsProfitLCY2));
+        Clear(LibraryReportDataset);
+    end;
+
+    [Test]
     [HandlerFunctions('InvtVendorPurchasesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InventoryVendorPurchases()
@@ -1797,6 +1872,12 @@ codeunit 137301 "SCM Inventory Reports - I"
     procedure InvtCustomerSalesRequestPageHandler(var InventoryCustomerSales: TestRequestPage "Inventory - Customer Sales")
     begin
         InventoryCustomerSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InventoryCustomerSalesRequestPageHandler(var InventoryCustomerSales: TestRequestPage "Inventory - Customer Sales")
+    begin
     end;
 
     [RequestPageHandler]
