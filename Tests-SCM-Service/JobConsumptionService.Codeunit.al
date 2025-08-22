@@ -1,3 +1,14 @@
+namespace Microsoft.Service.Test;
+
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Posting;
+
 codeunit 136301 "Job Consumption Service"
 {
     Subtype = Test;
@@ -267,6 +278,257 @@ codeunit 136301 "Job Consumption Service"
         VerifyJobFieldsOnServiceLines(ServiceHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LinkScheduledServiceItem()
+    begin
+        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
+
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, ServiceConsumption())
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LinkBothServiceItem()
+    begin
+        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
+
+        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, ServiceConsumption())
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LinkScheduledServiceResource()
+    begin
+        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
+
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false, ServiceConsumption())
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LinkBothServiceResource()
+    begin
+        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
+
+        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false, ServiceConsumption())
+    end;
+
+    local procedure UseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Enum "Job Planning Line Line Type"; ApplyUsageLink: Boolean; Source: Option)
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        BeforeJobPlanningLine: Record "Job Planning Line";
+        NewJobPlanningLine: Record "Job Planning Line";
+        JobJournalLine: Record "Job Journal Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DateForm: DateFormula;
+        LineCount: Integer;
+    begin
+        // Use a planning line with an explicit link
+        // via job journal, gl journal, purchase, or service (Source).
+        // Verify remaining quantity
+        // Verify that the usage link is created.
+        // Verify that the planning line's amounts and quantities are updated.
+
+        // can only link to a planning line which type includes budget
+        Assert.IsTrue(
+          LineTypeToMatch in [LibraryJob.PlanningLineTypeSchedule(), LibraryJob.PlanningLineTypeBoth()],
+          'Line type should include budget.');
+
+        // Setup
+        Initialize();
+        CreateJob(ApplyUsageLink, true, Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // this is the planning line we want to match
+        LibraryJob.CreateJobPlanningLine(LineTypeToMatch, ConsumableType, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Modify(true);
+
+        AssertNoDiscounts(JobPlanningLine);
+        BeforeJobPlanningLine := JobPlanningLine;
+
+        // to make it more difficult
+        CreateSimilarJobPlanningLines(JobPlanningLine);
+
+        // with an explicit link, we can even have earlier planning lines that are identical
+        NewJobPlanningLine := JobPlanningLine;
+        Evaluate(DateForm, '<-1W>');
+        NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
+        NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        NewJobPlanningLine.Insert(true);
+        LineCount := JobPlanningLine.Count();
+
+        // Exercise
+        UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, Source, JobJournalLine);
+
+        // refresh
+        JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
+
+        // Verify - the Remaining Qty. field on the journal line is correct
+        JobJournalLine.TestField("Remaining Qty.", BeforeJobPlanningLine."Remaining Qty." - JobJournalLine.Quantity);
+
+        // Verify - line type is taken from planning line
+        Assert.AreEqual(
+          LibraryJob.UsageLineType(JobPlanningLine."Line Type"),
+          JobJournalLine."Line Type",
+          'Journal line type should the same as planning line type.');
+
+        // Verify - usage link has been created
+        JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
+        JobLedgerEntry.FindFirst();
+        VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
+
+        // Verify - no new planning lines are created
+        Assert.AreEqual(LineCount, JobPlanningLine.Count, 'No planning lines should have been created.');
+
+        // Verify - JobPlanningLine@Pre - JobJournalLine = JobPlanningLine@Post
+        VerifyJobPlanningLine(BeforeJobPlanningLine, JobPlanningLine, JobJournalLine)
+    end;
+
+    local procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        TempServiceLine: Record "Service Line" temporary;
+        ServicePost: Codeunit "Service-Post";
+        Ship: Boolean;
+        Consume: Boolean;
+        Invoice: Boolean;
+    begin
+        case Source of
+            ServiceConsumption():
+                begin
+                    Ship := true;
+                    Consume := true;
+                    Invoice := false;
+                    LibraryService.CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
+                    ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+                    ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
+                    JobJournalLine."Line Type" := ServiceLine."Job Line Type";
+                    JobJournalLine."Remaining Qty." := ServiceLine."Job Remaining Qty.";
+                    JobJournalLine.Quantity := ServiceLine."Qty. to Consume";
+                    JobJournalLine.Description := ServiceLine.Description;
+                    JobJournalLine."Total Cost" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost");
+                    JobJournalLine."Total Cost (LCY)" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost (LCY)");
+                    JobJournalLine."Line Amount" := ServiceLine."Qty. to Consume" * ServiceLine."Unit Price"
+                end;
+        end;
+    end;
+
+    local procedure ServiceConsumption(): Integer
+    begin
+        exit(1); // Service
+    end;
+
+    local procedure CreateJob(ApplyUsageLink: Boolean; BothAllowed: Boolean; var Job: Record Job)
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", ApplyUsageLink);
+        Job.Validate("Allow Schedule/Contract Lines", BothAllowed);
+        Job.Modify(true)
+    end;
+
+    local procedure AssertNoDiscounts(JobPlanningLine: Record "Job Planning Line")
+    var
+        Precision: Decimal;
+    begin
+        Precision := LibraryJob.GetAmountRoundingPrecision(JobPlanningLine."Currency Code");
+        JobPlanningLine.TestField("Total Cost", Round(JobPlanningLine.Quantity * JobPlanningLine."Unit Cost", Precision));
+        JobPlanningLine.TestField("Total Price", Round(JobPlanningLine.Quantity * JobPlanningLine."Unit Price", Precision));
+        JobPlanningLine.TestField("Line Discount %", 0);
+        JobPlanningLine.TestField("Line Discount Amount", 0);
+        JobPlanningLine.TestField("Line Amount", JobPlanningLine."Total Price");
+        JobPlanningLine.TestField("Remaining Qty.", JobPlanningLine.Quantity);
+        JobPlanningLine.TestField("Remaining Total Cost", JobPlanningLine."Total Cost");
+        JobPlanningLine.TestField("Remaining Line Amount", JobPlanningLine."Line Amount")
+    end;
+
+    local procedure CreateSimilarJobPlanningLines(JobPlanningLine: Record "Job Planning Line")
+    var
+        NewJobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        DateForm: DateFormula;
+    begin
+        // Create planning lines similar to <JobPlanningLine>
+
+        // same, but later
+        NewJobPlanningLine := JobPlanningLine;
+        Evaluate(DateForm, '<+1W>');
+        NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
+        NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        NewJobPlanningLine.Insert(true);
+
+        // earlier, but contract line
+        NewJobPlanningLine := JobPlanningLine;
+        Evaluate(DateForm, '<-1W>');
+        NewJobPlanningLine.Validate("Line Type", LibraryJob.PlanningLineTypeContract());
+        NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
+        NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        NewJobPlanningLine.Insert(true);
+
+        // earlier, but usage link disabled
+        Job.Get(JobPlanningLine."Job No.");
+        if not Job."Apply Usage Link" then begin
+            NewJobPlanningLine := JobPlanningLine;
+            NewJobPlanningLine.Validate("Usage Link", false);
+            NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
+            NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+            NewJobPlanningLine.Insert(true)
+        end;
+
+        // earlier, but opposite sign for quantity
+        NewJobPlanningLine := JobPlanningLine;
+        NewJobPlanningLine.Validate(Quantity, -JobPlanningLine.Quantity);
+        NewJobPlanningLine.Validate("Planning Date", CalcDate('<-1W>', JobPlanningLine."Planning Date"));
+        NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        NewJobPlanningLine.Insert(true);
+    end;
+
+    local procedure VerifyUsageLink(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    var
+        JobUsageLink: Record "Job Usage Link";
+    begin
+        Assert.IsTrue(
+          JobUsageLink.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.",
+            JobLedgerEntry."Entry No."), 'Usage link should have been created');
+
+        JobPlanningLine.TestField("Usage Link", true)
+    end;
+
+    local procedure VerifyJobPlanningLine(BeforeJobPlanningLine: Record "Job Planning Line"; AfterJobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line")
+    var
+        Precision: Decimal;
+        Sign: Integer;
+    begin
+        Assert.AreNotEqual(0, BeforeJobPlanningLine.Quantity, 'No planned quantity.');
+
+        // Get the sign of the planned quantity
+        Sign := BeforeJobPlanningLine.Quantity / Abs(BeforeJobPlanningLine.Quantity);
+
+        AfterJobPlanningLine.TestField(
+          Quantity,
+          Sign * Max(Sign * BeforeJobPlanningLine.Quantity, Sign * (JobJournalLine.Quantity + BeforeJobPlanningLine."Qty. Posted")));
+        AfterJobPlanningLine.TestField("Qty. Posted", BeforeJobPlanningLine."Qty. Posted" + JobJournalLine.Quantity);
+        AfterJobPlanningLine.TestField("Qty. to Transfer to Journal", AfterJobPlanningLine.Quantity - (JobJournalLine.Quantity + BeforeJobPlanningLine."Qty. Posted"));
+        AfterJobPlanningLine.TestField("Remaining Qty.", AfterJobPlanningLine.Quantity - AfterJobPlanningLine."Qty. Posted");
+
+        AfterJobPlanningLine.TestField("Posted Total Cost", BeforeJobPlanningLine."Posted Total Cost" + Round(JobJournalLine."Total Cost"));
+        AfterJobPlanningLine.TestField(
+          "Posted Total Cost (LCY)", BeforeJobPlanningLine."Posted Total Cost (LCY)" + Round(JobJournalLine."Total Cost (LCY)"));
+        Assert.AreNearlyEqual(
+          BeforeJobPlanningLine."Posted Line Amount" + JobJournalLine."Line Amount", AfterJobPlanningLine."Posted Line Amount", 0.01,
+          'Posted line Amoung on After Line Matches');
+
+        Precision := LibraryJob.GetAmountRoundingPrecision(AfterJobPlanningLine."Currency Code");
+        AfterJobPlanningLine.TestField("Remaining Total Cost", Round(AfterJobPlanningLine."Remaining Qty." * AfterJobPlanningLine."Unit Cost", Precision));
+        AfterJobPlanningLine.TestField("Remaining Total Cost (LCY)", Round(AfterJobPlanningLine."Remaining Qty." * AfterJobPlanningLine."Unit Cost", Precision));
+        AfterJobPlanningLine.TestField("Remaining Line Amount", Round(AfterJobPlanningLine."Remaining Qty." * AfterJobPlanningLine."Unit Price"));
+        AfterJobPlanningLine.TestField("Remaining Line Amount (LCY)", Round(AfterJobPlanningLine."Remaining Qty." * AfterJobPlanningLine."Unit Price (LCY)"))
+    end;
+
     local procedure AttachJobTaskToServiceDoc(JobTask: Record "Job Task"; var ServiceHeader: Record "Service Header")
     var
         ServiceLine: Record "Service Line";
@@ -349,6 +611,13 @@ codeunit 136301 "Job Consumption Service"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindSet();
+    end;
+
+    local procedure "Max"(x: Decimal; y: Decimal): Decimal
+    begin
+        if x > y then
+            exit(x);
+        exit(y)
     end;
 
     local procedure ModifyJobNoOnServiceLines(ServiceHeader: Record "Service Header"; JobNo: Code[20])
