@@ -540,29 +540,83 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesLine: Record "Sales Line";
+        Customer: Record Customer;
         PostedDocumentNo: Code[20];
+        RequestPageXML: Text;
     begin
-        // Check that correct Amount is available on Customer Item Sales Report after posting Sales Order.
-
-        // Setup.
+        // [SCENARIO] Check that correct Amount is available on Customer Item Sales Report after posting Sales Order.
         Initialize();
+
+        // [GIVEN] Create Customer "C1" and post two Sales Headers
         PostedDocumentNo := CreateAndPostSalesOrder(SalesHeader, SalesLine);
 
-        // Exercise: Save the Report in XML Format and fetch the Value of Amount Field for Verification.
-        LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
-        REPORT.Run(REPORT::"Customer/Item Sales");
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', SalesLine."No.");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, 'ValueEntryBuffer__Item_No__', SalesLine."No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals(
-          'ValueEntryBuffer__Sales_Amount__Actual___Control44', SalesLine.Amount);
+        Commit();
+        Customer.SetRange("No.", SalesHeader."Sell-to Customer No.");
+        
+        // [WHEN] Run report "Customer/Item Sales"
+        RequestPageXML := Report.RunRequestPage(Report::"Customer/Item Sales", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer/Item Sales", Customer, RequestPageXML);
 
-        // Verify: Verify that correct Amount is available on Posted Sales Invoice Line.
+        // [THEN] The Item and Amounts referenced on the Sales Line exist in the report data
+        LibraryReportDataset.AssertElementWithValueExists('ValueEntryBuffer__Item_No__', SalesLine."No.");
+        LibraryReportDataset.AssertElementWithValueExists('ValueEntryBuffer__Sales_Amount__Actual___Control44', SalesLine.Amount);
+
+        // [THEN] The correct Amount is available on Posted Sales Invoice Line.
         SalesInvoiceLine.SetRange("Document No.", PostedDocumentNo);
         SalesInvoiceLine.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Line Amount", SalesLine.Amount);
+
+        Clear(LibraryReportDataset);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerItemSalesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerItemSalesTotals()
+    var
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] Check that correct Sub Totals and Grand Totals are showing on the Customer Item Sales Report after posting several Sales Orders.
+        Initialize();
+        
+        // [GIVEN] Create Customer "C1" and post two Sales Headers
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(500, 1000, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(500, 1000, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        
+        // [GIVEN] Create Customer "C2" and post one Sales Header
+        LibrarySales.CreateCustomer(Customer2);
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer2."No.");
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(500, 1000, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        Commit();
+        Customer.SetFilter("No.", '%1|%2', Customer."No.", Customer2."No.");
+        
+        // [WHEN] Run report "Customer/Item Sales"
+        RequestPageXML := Report.RunRequestPage(Report::"Customer/Item Sales", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer/Item Sales", Customer, RequestPageXML);
+
+        // [THEN] Totals elements exist and their values match those in the associated "Value Entry" records for "C1" & "C2"
+        VerifyReportItemTotals(Customer."No.", Customer2."No.");
+
+        Clear(LibraryReportDataset);
     end;
 
     [Test]
@@ -2507,7 +2561,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('CustomerItemSalesRequestPageHandler')]
+    [HandlerFunctions('CustomerItemSalesEmptyRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerItemSalesEmptyDataset()
     var
@@ -4447,13 +4501,19 @@
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerItemSalesRequestPageHandler(var CustomerItemSales: TestRequestPage "Customer/Item Sales")
+    procedure CustomerItemSalesEmptyRequestPageHandler(var CustomerItemSales: TestRequestPage "Customer/Item Sales")
     var
         SellToCustomerNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(SellToCustomerNo);
         CustomerItemSales.Customer.SetFilter("No.", SellToCustomerNo);
         CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerItemSalesRequestPageHandler(var CustomerItemSales: TestRequestPage "Customer/Item Sales")
+    begin
     end;
 
     [RequestPageHandler]
@@ -4651,6 +4711,41 @@
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(Amount));
         LibraryReportDataset.AssertElementWithValueExists('TtlAmtCurrencyTtlBuff', TotalAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('postDt_DtldCustLedgEntry', Format(WorkDate() + 1));
+    end;
+
+    local procedure VerifyReportItemTotals(CustomerNo: Code[20]; CustomerNo2: Code[20])
+    var
+        ValueEntry: Record "Value Entry";
+        // Customer 1
+        SubtotalsAmount: Decimal;
+        SubtotalsProfit: Decimal;
+        // Customer 2
+        SubtotalsAmount2: Decimal;
+        SubtotalsProfit2: Decimal;
+    begin
+        // [THEN] Retrieve totals for "C1" from the Value Entry table
+        ValueEntry.SetRange("Source No.", CustomerNo);
+        ValueEntry.CalcSums("Sales Amount (Actual)", ValueEntry."Discount Amount", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        SubtotalsAmount := ValueEntry."Sales Amount (Actual)";
+        SubtotalsProfit := ValueEntry."Sales Amount (Actual)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)";
+
+        // [THEN] Retrieve totals for "C2" from the Value Entry table
+        ValueEntry.SetRange("Source No.", CustomerNo2);
+        ValueEntry.CalcSums("Sales Amount (Actual)", ValueEntry."Discount Amount", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        SubtotalsAmount2 := ValueEntry."Sales Amount (Actual)";
+        SubtotalsProfit2 := ValueEntry."Sales Amount (Actual)" + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Non-Invtbl.)";
+
+        // [THEN] The Subtotals on the Report match those in the value Entries table for Customer "C1"
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Amount', SubtotalsAmount);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Profit', SubtotalsProfit);
+
+        // [THEN] The Subtotals on the Report match those in the value Entries table for Customer "C2"
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Amount', SubtotalsAmount2);
+        LibraryReportDataset.AssertElementWithValueExists('Subtotals_Profit', SubtotalsProfit2);
+
+        // [THEN] The Grand Totals on the Report match those in the Value Entries table for Customers "C1" & "C2"
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Amount', (SubtotalsAmount + SubtotalsAmount2));
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Profit', (SubtotalsProfit + SubtotalsProfit2));
     end;
 
     [RequestPageHandler]
