@@ -13,7 +13,6 @@ codeunit 131920 "Library - Job"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
-        LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         ConsumptionSource: Option Job,Service,GenJournal,Purchase;
         PrefixTxt: Label 'ZZZ';
@@ -233,35 +232,15 @@ codeunit 131920 "Library - Job"
         PurchaseLine.Modify(true)
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var ServiceLine: Record "Service Line")
     var
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        ServiceHeader: Record "Service Header";
-        ServiceItemLine: Record "Service Item Line";
+        LibraryService: Codeunit "Library - Service";
     begin
-        Assert.IsTrue(JobPlanningLine."Usage Link", 'Usage link should be enabled');
-
-        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
-        Job.Get(JobPlanningLine."Job No.");
-
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, Job2ServiceConsumableType(JobPlanningLine.Type), JobPlanningLine."No.");
-
-        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLine.Validate(Description, LibraryUtility.GenerateGUID());
-        ServiceLine.Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
-        ServiceLine.Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
-        ServiceLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Validate("Job No.", JobPlanningLine."Job No.");
-        ServiceLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
-        ServiceLine.Validate("Job Line Type", UsageLineType);
-        ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        ServiceLine.Modify(true)
+        LibraryService.CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
     end;
+#endif
 
 #if not CLEAN25
     procedure CreateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
@@ -596,16 +575,9 @@ codeunit 131920 "Library - Job"
 
     procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
     var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         GenJournalLine: Record "Gen. Journal Line";
-        TempServiceLine: Record "Service Line" temporary;
-        ServicePost: Codeunit "Service-Post";
-        Ship: Boolean;
-        Consume: Boolean;
-        Invoice: Boolean;
     begin
         case Source of
             JobConsumption():
@@ -614,22 +586,6 @@ codeunit 131920 "Library - Job"
                     JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
                     JobJournalLine.Modify(true);
                     PostJobJournal(JobJournalLine)
-                end;
-            ServiceConsumption():
-                begin
-                    Ship := true;
-                    Consume := true;
-                    Invoice := false;
-                    CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
-                    ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-                    ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-                    JobJournalLine."Line Type" := ServiceLine."Job Line Type";
-                    JobJournalLine."Remaining Qty." := ServiceLine."Job Remaining Qty.";
-                    JobJournalLine.Quantity := ServiceLine."Qty. to Consume";
-                    JobJournalLine.Description := ServiceLine.Description;
-                    JobJournalLine."Total Cost" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost");
-                    JobJournalLine."Total Cost (LCY)" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost (LCY)");
-                    JobJournalLine."Line Amount" := ServiceLine."Qty. to Consume" * ServiceLine."Unit Price"
                 end;
             GenJournalConsumption():
                 begin
@@ -659,7 +615,7 @@ codeunit 131920 "Library - Job"
                     JobJournalLine."Line Amount" := PurchaseLine."Job Line Amount";
                 end;
             else
-                Assert.Fail('Consumption method not supported')
+                Assert.Fail('Consumption method not supported');
         end
     end;
 
@@ -1084,21 +1040,15 @@ codeunit 131920 "Library - Job"
         end
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure Job2ServiceConsumableType(Type: Enum "Job Planning Line Type"): Enum "Service Line Type"
     var
-        ServiceLine: Record "Service Line";
+        LibraryService: Codeunit "Library - Service";
     begin
-        case Type of
-            "Job Planning Line Type"::Resource:
-                exit(ServiceLine.Type::Resource);
-            "Job Planning Line Type"::Item:
-                exit(ServiceLine.Type::Item);
-            "Job Planning Line Type"::"G/L Account":
-                exit(ServiceLine.Type::"G/L Account");
-            else
-                Assert.Fail('Unsupported consumable type');
-        end
+        exit(LibraryService.Job2ServiceConsumableType(Type));
     end;
+#endif
 
     procedure GetUnitAmountRoundingPrecision(CurrencyCode: Code[10]): Decimal
     var
@@ -1252,10 +1202,13 @@ codeunit 131920 "Library - Job"
         exit(Right)
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Library Service', '27.0')]
     procedure ServiceConsumption(): Integer
     begin
         exit(ConsumptionSource::Service)
     end;
+#endif
 
     procedure JobConsumption(): Integer
     begin
@@ -1278,25 +1231,6 @@ codeunit 131920 "Library - Job"
         Location.SetRange("Bin Mandatory", false);
         Location.Next(LibraryRandom.RandInt(Location.Count));
         exit(Location.Code);
-    end;
-
-    local procedure FindLocationForPostingGroup(ServiceLine: Record "Service Line"): Code[10]
-    var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-        Location: Record Location;
-    begin
-        if ServiceLine.Type <> ServiceLine.Type::Item then
-            exit(ServiceLine."Location Code");
-
-        InventoryPostingSetup.SetRange("Invt. Posting Group Code", ServiceLine."Posting Group");
-        InventoryPostingSetup.SetFilter("Location Code", '<>%1', '');
-        InventoryPostingSetup.FindSet();
-        repeat
-            Location.Get(InventoryPostingSetup."Location Code");
-            if not Location."Use As In-Transit" and not Location."Bin Mandatory" and not Location."Require Shipment" then
-                exit(Location.Code)
-        until InventoryPostingSetup.Next() = 0;
-        exit('');
     end;
 
     [Normal]
