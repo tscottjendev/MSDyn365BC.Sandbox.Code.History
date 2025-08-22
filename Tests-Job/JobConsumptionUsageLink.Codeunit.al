@@ -247,42 +247,6 @@ codeunit 136303 "Job Consumption - Usage Link"
 
     [Test]
     [Scope('OnPrem')]
-    procedure LinkScheduledServiceItem()
-    begin
-        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkBothServiceItem()
-    begin
-        // [SCENARIO] Use a planning line (Type = Item, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkScheduledServiceResource()
-    begin
-        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeSchedule(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure LinkBothServiceResource()
-    begin
-        // [SCENARIO] Use a planning line (Type = Resource, "Line Type" = Budget & Billable) with an explicit link, post execution via Service Document, verify that link created and Quantities and Amounts are correct.
-
-        UseLinked(LibraryJob.ResourceType(), LibraryJob.PlanningLineTypeBoth(), false, LibraryJob.ServiceConsumption())
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure LinkScheduledGenJournal()
     begin
         // [SCENARIO] Use a planning line (Type = G/L Account, "Line Type" = Budget) with an explicit link, post execution via Gen. Journal, verify that link created and Quantities and Amounts are correct.
@@ -348,7 +312,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LineCount: Integer;
     begin
         // Use a planning line with an explicit link
-        // via job journal, gl journal, purchase, or service (Source).
+        // via job journal, gl journal, or purchase
         // Verify remaining quantity
         // Verify that the usage link is created.
         // Verify that the planning line's amounts and quantities are updated.

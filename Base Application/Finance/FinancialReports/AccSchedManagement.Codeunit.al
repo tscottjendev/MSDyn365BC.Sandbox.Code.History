@@ -442,7 +442,7 @@ codeunit 8 AccSchedManagement
         if not IsHandled then begin
             if ColumnLayout."Show in ACY" then
                 CalcAddCurr := true;
-            
+
             AccountScheduleLine."Dimension 1 Totaling" := AccSchedLine."Dimension 1 Totaling";
             AccountScheduleLine."Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
             AccountScheduleLine.CopyFilters(AccSchedLine);
@@ -1854,6 +1854,7 @@ codeunit 8 AccSchedManagement
         if DimCode = '' then
             exit(DimTotaling);
 
+        DimVal.SecurityFiltering := DimVal.SecurityFiltering::Filtered;
         DimVal.SetRange("Dimension Code", DimCode);
         DimVal.SetFilter(Code, DimTotaling);
         if DimVal.Find('-') then
