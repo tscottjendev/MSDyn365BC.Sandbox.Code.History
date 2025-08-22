@@ -123,6 +123,9 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./SustainabilityCopilotSuggestion/Test/Sustainability Copilot Tests"
+    },
+    {
       "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
