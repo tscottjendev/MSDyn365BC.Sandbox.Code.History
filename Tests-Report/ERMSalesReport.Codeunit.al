@@ -998,13 +998,15 @@
     end;
 
     [Test]
-    [HandlerFunctions('CustomerOrderSummaryExcelRequestPageHandler')]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TotalValueInCustomerOrderSummaryReport()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
+        Customer: Record Customer;
+        RequestPageXML: Text;
     begin
         // Verify the value of Total in Customer Order Summary Report is equal to the total value of Amount in corresponding Sales Lines.
 
@@ -1016,14 +1018,20 @@
         LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandDec(100, 2));
 
         // Exercise: Generate the Customer Order Summary Report.
-        RunCustOrderSummaryReport(SalesLine."Sell-to Customer No.", false);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(false);
+        Customer.SetRange("No.", SalesLine."Sell-to Customer No.");
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
 
         // Verify: Check that the value of Total in Customer Order Summary is equal to the total value of Amount in corresponding Sales Lines.
-        VerifyCustOrderSummaryTotalValue(SalesLine."Sell-to Customer No.", SalesLine."Line Amount" + SalesLine2."Line Amount");
+        LibraryReportDataset.AssertElementWithValueExists('SalesLineBuffer_SalesOrderAmount', SalesLine."Line Amount" + SalesLine2."Line Amount");
+        Clear(LibraryReportDataset);
     end;
 
     [Test]
-    [HandlerFunctions('CustomerOrderSummaryExcelRequestPageHandler')]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TotalValueForLCYInCustomerOrderSummaryReport()
     var
@@ -1031,6 +1039,7 @@
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
         Customer: Record Customer;
+        RequestPageXML: Text;
     begin
         // Verify the value of Total LCY in Customer Order Summary Report is equal to the total LCY value of Amount in corresponding Sales Lines.
 
@@ -1038,17 +1047,20 @@
         Initialize();
         CreateCustomerWithCurrencyCode(Customer);
         CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency(), Customer."No.");
-
         // Create one more Sales Line
         LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandDec(100, 2));
-
         // Exercise: Generate the Customer Order Summary Report.
-        RunCustOrderSummaryReport(SalesLine."Sell-to Customer No.", true);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(true);
+        Customer.SetRange("No.", SalesLine."Sell-to Customer No.");
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
 
         // Verify: Check that the value of Total LCY in Customer Order Summary is equal to the total LCY value of Amount in corresponding Sales Lines.
-        VerifyCustOrderSummaryTotalValue(
-          SalesLine."Sell-to Customer No.", ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code") +
+        LibraryReportDataset.AssertElementWithValueExists('SalesLineBuffer_SalesOrderAmount', ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code") +
           ConvertCurrency(SalesLine2."Line Amount", SalesHeader."Currency Code"));
+        Clear(LibraryReportDataset);
     end;
 
     [Test]
@@ -1073,10 +1085,12 @@
     end;
 
     [Test]
-    [HandlerFunctions('CustomerOrderSummaryExcelRequestPageHandler')]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerOrderSummaryReportWithShowAmountTrue()
     var
+        Customer: Record Customer;
+        RequestPageXML: Text;
         CustomerNo: Code[20];
         ExpectedAmount: Decimal;
     begin
@@ -1086,11 +1100,18 @@
         Initialize();
         CreateSalesOrderWithTwoLines(CustomerNo, ExpectedAmount);
 
-        // Exercise: Generate the Customer Order Summary report.
-        RunCustOrderSummaryReport(CustomerNo, true);
+        // Exercise: Generate the Customer Order Summary Report.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(true);
+        Customer.SetRange("No.", CustomerNo);
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
+
 
         // Verify: Check that the value of Balance in Order Summary is equal to the value of Amount in corresponding duration.
-        VerifyAmountOnCustomerOrderSummaryReport(CustomerNo, ExpectedAmount);
+        LibraryReportDataset.AssertElementWithValueExists('SalesLineBuffer_SalesAmtOnOrder2', ExpectedAmount);
+        Clear(LibraryReportDataset);
     end;
 
     [Test]
@@ -1121,13 +1142,15 @@
     end;
 
     [Test]
-    [HandlerFunctions('CustomerOrderSummaryExcelRequestPageHandler')]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomeOrderSummaryReportWithReleasedDocument()
     var
         SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
         CustomerNo: Code[20];
         ExpectedAmount: Decimal;
+        RequestPageXML: Text;
     begin
         // Verify Amount of a duration displayed correctly in Customer Order Summary Report.
 
@@ -1139,10 +1162,15 @@
         ReleaseSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
 
         // Exercise: Generate the Customer Order Summary report.
-        RunCustOrderSummaryReport(CustomerNo, true);
-
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(true);
+        Customer.SetRange("No.", CustomerNo);
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
         // Verify: Check that the value of Balance in Order Summary is equal to the value of Amount in corresponding duration.
-        VerifyAmountOnCustomerOrderSummaryReport(CustomerNo, ExpectedAmount);
+        LibraryReportDataset.AssertElementWithValueExists('SalesLineBuffer_SalesAmtOnOrder2', ExpectedAmount);
+        Clear(LibraryReportDataset);
     end;
 
     [Test]
@@ -1903,16 +1931,18 @@
     end;
 
     [Test]
-    [HandlerFunctions('CustomerOrderSummaryExcelRequestPageHandler')]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerOrderSummaryMultipleCurrencies()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        Customer: Record Customer;
         CustomerNo: Code[20];
         CurrencyCode: array[2] of Code[10];
         Amount: array[2] of Decimal;
         I: Integer;
+        RequestPageXML: Text;
     begin
         // [FEATURE] [Customer Order Summary]
         // [SCENARIO 286863] Customer Order Summary splits lines for orders in different currencies
@@ -1933,11 +1963,163 @@
 
         // [WHEN] Run Report "Customer Order Summary"
         LibraryReportValidation.SetFileName(CustomerNo);
-        RunCustOrderSummaryReport(CustomerNo, false);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(false);
+        Customer.SetRange("No.", CustomerNo);
+        Commit();  // Due to limitation in page testability, commit is needed in this test case.
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
 
         // [THEN] Amount = 100 for Currency "CUR01"
         // [THEN] Amount = 200 for Currency "CUR02"
-        VerifyMultipleCurrencyAmountsOnCustomerOrderSummaryReport(CurrencyCode, Amount);
+        for I := 1 to ArrayLen(CurrencyCode) do
+            LibraryReportDataset.AssertElementWithValueExists('SalesLineBuffer_SalesAmtOnOrder2', LibraryReportValidation.FormatDecimalValue(Amount[I]));
+        Clear(LibraryReportDataset);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustOrderSummaryRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerOrderSummaryMultipleCurrenciesTotals()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        RequestPageXML: Text;
+        CustomerNo: Code[20];
+        CustomerNo2: Code[20];
+        CurrencyCode: array[4] of Code[10];
+        Amount: array[4] of Decimal;
+        PeriodStartDate: array[5] of Date;
+        I: Integer;
+        SalesOrderAmountLCY1: Decimal;
+        SalesOrderAmountLCY2: Decimal;
+        SalesOrderAmountLCY3: Decimal;
+        SalesOrderAmountLCY4: Decimal;
+        SalesOrderAmountLCY5: Decimal;
+    begin
+        // [SCENARIO] Report "Customer Order Summary" should correctly represent Totals values
+        Initialize();
+
+        // [GIVEN] Created Customer "C1"
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Currency "CUR01" with Exchange Rate created
+        // [GIVEN] Sales Order "SO01" for Customer with Amount = 100 in Currency "CUR01"
+        // [GIVEN] Currency "CUR02" with Exchange Rate created
+        // [GIVEN] Sales Order "SO02" for Customer with Amount = 200 in Currency "CUR02"
+        for I := 1 to 2 do begin
+            CurrencyCode[I] := CreateCurrency();
+            CreateSalesOrder(SalesHeader, SalesLine, CurrencyCode[I], CustomerNo);
+            Amount[I] := SalesLine."Line Amount";
+        end;
+
+        // [GIVEN] Created Customer "C2"
+        CustomerNo2 := CreateCustomer();
+
+        // [GIVEN] Currency "CUR03" with Exchange Rate created
+        // [GIVEN] Sales Order "SO03" for Customer with Amount = 100 in Currency "CUR03"
+        // [GIVEN] Currency "CUR04" with Exchange Rate created
+        // [GIVEN] Sales Order "SO04" for Customer with Amount = 200 in Currency "CUR04"
+        for I := 3 to ArrayLen(CurrencyCode) do begin
+            CurrencyCode[I] := CreateCurrency();
+            CreateSalesOrder(SalesHeader, SalesLine, CurrencyCode[I], CustomerNo2);
+            Amount[I] := SalesLine."Line Amount";
+        end;
+
+        Commit();
+
+        // [GIVEN] Generate the periods[1-5] for calculating the customer order amounts 
+        if PeriodStartDate[1] = 0D then
+            PeriodStartDate[1] := WorkDate();
+        for i := 1 to 3 do
+            PeriodStartDate[i + 1] := CalcDate('<1M>', PeriodStartDate[i]);
+        PeriodStartDate[5] := DMY2Date(31, 12, 9999);
+
+        // [GIVEN] Calculate the Total Sales Order Amount (LCY) from the Sales Lines for Period "P1"
+        SalesLine.SetFilter("Bill-to Customer No.", '%1|%2', CustomerNo, CustomerNo2);
+        SalesLine.SetFilter("Shipment Date", '<%1', PeriodStartDate[1]);
+        if SalesLine.FindSet() then
+            repeat
+                CalculateCustomerOrderAmountLCY(SalesLine, SalesOrderAmountLCY1);
+            until SalesLine.Next() = 0;
+
+        // [GIVEN] Calculate the Total Sales Order Amount (LCY) from the Sales Lines for Period "P2"
+        SalesLine.SetFilter("Sell-to Customer No.", '%1|%2', CustomerNo, CustomerNo2);
+        SalesLine.SetFilter("Shipment Date", '%1..%2', PeriodStartDate[1], PeriodStartDate[2] - 1);
+        if SalesLine.FindSet() then
+            repeat
+                CalculateCustomerOrderAmountLCY(SalesLine, SalesOrderAmountLCY2);
+            until SalesLine.Next() = 0;
+
+        // [GIVEN] Calculate the Total Sales Order Amount (LCY) from the Sales Lines for Period "P3"
+        SalesLine.SetFilter("Bill-to Customer No.", '%1|%2', CustomerNo, CustomerNo2);
+        SalesLine.SetFilter("Shipment Date", '%1..%2', PeriodStartDate[2], PeriodStartDate[3] - 1);
+        if SalesLine.FindSet() then
+            repeat
+                CalculateCustomerOrderAmountLCY(SalesLine, SalesOrderAmountLCY3);
+            until SalesLine.Next() = 0;
+
+        // [GIVEN] Calculate the Total Sales Order Amount (LCY) from the Sales Lines for Period "P4"
+        SalesLine.SetFilter("Bill-to Customer No.", '%1|%2', CustomerNo, CustomerNo2);
+        SalesLine.SetFilter("Shipment Date", '%1..%2', PeriodStartDate[3], PeriodStartDate[4] - 1);
+        if SalesLine.FindSet() then
+            repeat
+                CalculateCustomerOrderAmountLCY(SalesLine, SalesOrderAmountLCY4);
+            until SalesLine.Next() = 0;
+
+        // [GIVEN] Calculate the Total Sales Order Amount (LCY) from the Sales Lines for Period "P5"
+        SalesLine.SetFilter("Bill-to Customer No.", '%1|%2', CustomerNo, CustomerNo2);
+        SalesLine.SetFilter("Shipment Date", '%1..', PeriodStartDate[3]);
+        if SalesLine.FindSet() then
+            repeat
+                CalculateCustomerOrderAmountLCY(SalesLine, SalesOrderAmountLCY5);
+            until SalesLine.Next() = 0;
+
+        // [WHEN] Run Report "Customer Order Summary"
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(false);
+        Customer.SetFilter("No.", '%1|%2', CustomerNo, CustomerNo2);
+        RequestPageXML := Report.RunRequestPage(Report::"Customer - Order Summary", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Customer - Order Summary", Customer, RequestPageXML);
+
+        // [THEN] Totals elements exist and their values match those in the associated "Sales Line" records for "C1" & "C2"
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales_Amt_On_Order1', SalesOrderAmountLCY1);
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales_Amt_On_Order2', SalesOrderAmountLCY2);
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales_Amt_On_Order3', SalesOrderAmountLCY3);
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales_Amt_On_Order4', SalesOrderAmountLCY4);
+        LibraryReportDataset.AssertElementWithValueExists('Totals_Sales_Amt_On_Order5', SalesOrderAmountLCY5);
+        Clear(LibraryReportDataset);
+    end;
+
+    local procedure CalculateCustomerOrderAmountLCY(SalesLine: Record "Sales Line"; var SalesOrderAmountLCY: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
+        SalesOrderAmount: Decimal;
+    begin
+        Currency.InitRoundingPrecision();
+        if SalesLine."VAT Calculation Type" in [SalesLine."VAT Calculation Type"::"Normal VAT", SalesLine."VAT Calculation Type"::"Reverse Charge VAT"] then
+            SalesOrderAmount :=
+              Round(
+                (SalesLine.Amount + SalesLine."VAT Base Amount" * SalesLine."VAT %" / 100) * SalesLine."Outstanding Quantity" / SalesLine.Quantity / (1 + SalesLine."VAT %" / 100),
+                Currency."Amount Rounding Precision")
+        else
+            SalesOrderAmount :=
+              Round(
+                SalesLine."Outstanding Amount" / (1 + SalesLine."VAT %" / 100),
+                Currency."Amount Rounding Precision");
+
+        if SalesLine."Currency Code" <> '' then begin
+            SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
+            if SalesHeader."Currency Factor" <> 0 then
+                SalesOrderAmountLCY +=
+                  Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                      WorkDate(), SalesHeader."Currency Code",
+                      SalesOrderAmount, SalesHeader."Currency Factor"));
+        end;
     end;
 
     [Test]
@@ -4875,36 +5057,6 @@
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainAmt_CustLedgEntry2', Amount);
     end;
 
-    local procedure VerifyCustOrderSummaryTotalValue(CustomerNo: Code[20]; TotalAmount: Decimal)
-    var
-        RowNo: Integer;
-    begin
-        LibraryReportValidation.OpenExcelFile();
-        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(2, CustomerNo);
-        LibraryReportValidation.VerifyCellValueByRef('K', RowNo, 1, LibraryReportValidation.FormatDecimalValue(TotalAmount));
-    end;
-
-    local procedure VerifyAmountOnCustomerOrderSummaryReport(CustomerNo: Code[20]; ExpectedAmount: Decimal)
-    var
-        RowNo: Integer;
-    begin
-        LibraryReportValidation.OpenExcelFile();
-        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(2, CustomerNo);
-        LibraryReportValidation.VerifyCellValueByRef('E', RowNo, 1, LibraryReportValidation.FormatDecimalValue(ExpectedAmount));
-    end;
-
-    local procedure VerifyMultipleCurrencyAmountsOnCustomerOrderSummaryReport(CurrencyCode: array[2] of Code[10]; ExpectedAmount: array[2] of Decimal)
-    var
-        RowNo: Integer;
-        I: Integer;
-    begin
-        LibraryReportValidation.OpenExcelFile();
-        for I := 1 to ArrayLen(CurrencyCode) do begin
-            RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(3, CurrencyCode[I]);
-            LibraryReportValidation.VerifyCellValueByRef('E', RowNo, 1, LibraryReportValidation.FormatDecimalValue(ExpectedAmount[I]));
-        end;
-    end;
-
     local procedure VerifyTotalOnCustomerOrderDetailReport(CustomerNo: Code[20]; ExpectedTotal: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile();
@@ -5096,6 +5248,20 @@
         CustomerOrderSummary.StartingDate.SetValue(StartingDate);
         CustomerOrderSummary.ShwAmtinLCY.SetValue(ShowAmountLCY);
         CustomerOrderSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CustOrderSummaryRequestPageHandler(var CustomerOrderSummary: TestRequestPage "Customer - Order Summary")
+    var
+        StartingDate: Variant;
+        ShowAmountLCY: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StartingDate);
+        LibraryVariableStorage.Dequeue(ShowAmountLCY);
+        CustomerOrderSummary.StartingDate.SetValue(StartingDate);
+        CustomerOrderSummary.ShwAmtinLCY.SetValue(ShowAmountLCY);
+        CustomerOrderSummary.OK().Invoke();
     end;
 
     [RequestPageHandler]
