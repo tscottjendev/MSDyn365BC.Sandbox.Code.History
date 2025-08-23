@@ -5,9 +5,14 @@
 namespace Microsoft.Finance.VAT.Setup;
 
 using Microsoft.Finance.VAT.Clause;
+#if not CLEAN27
 using Microsoft.Finance.VAT.Calculation;
+#endif
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
+#if not CLEAN27
+using System.Environment.Configuration;
+#endif
 
 page 187 "VAT Setup"
 {
@@ -37,6 +42,9 @@ page 187 "VAT Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if Calculate and Post VAT Settlement produces separate entries for each activity code.';
+#if not CLEAN27
+                    Visible = PerActivityCodeSettlEntryEnabled;
+#endif
                 }
             }
             group(VATDate)
@@ -245,19 +253,27 @@ page 187 "VAT Setup"
         }
     }
 
+
+#if not CLEAN27
     trigger OnOpenPage()
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+        FeatureManagementIT: Codeunit "Feature Management IT";
     begin
         IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         if not Rec.Get() then begin
             Rec.Init();
             Rec.Insert();
         end;
+        PerActivityCodeSettlEntryEnabled := FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled();
     end;
-
+#endif
 
     var
+#if not CLEAN27
+        PerActivityCodeSettlEntryEnabled: Boolean;
+#endif
         IsVATDateEnabled: Boolean;
+
 }
 
