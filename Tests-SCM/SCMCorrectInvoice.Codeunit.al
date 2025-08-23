@@ -1213,6 +1213,55 @@ codeunit 137019 "SCM Correct Invoice"
         Assert.IsTrue(WasConfirmShown, ConfirmDialogErr);
     end;
 
+    [Test]
+    procedure CancelSalesInvoiceWithLocationRequireWhseShipmentHavingZeroQuantity()
+    var
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 596983] Stan can cancel or correct this Posted Sales Invoice with Warehouse Receive is not required for Line without quantity when canceling Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create a Location with "Require Shipment" = true.
+        CreateLocationWithRequireShip(LocationCode);
+
+        // [GIVEN] Post positive adjustment for the Item.
+        PostItemJournalPositiveAdj(ItemNo, '', LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN]  Create a Sales Order.       
+        LibrarySales.CreateSalesOrderWithLocation(SalesHeader, LibrarySales.CreateCustomerNo(), '');
+
+        // [GIVEN] Create a Sales Line for an Item.
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, ItemNo, LibraryRandom.RandDec(10, 2), LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Create a Sales Line with Unit Price = 0 and Quantity = 0 and Validate "Location Code".
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, LibraryInventory.CreateItemNo(), 0, 0);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release sales order        
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Post the Sales Order as "Ship" and "Invoice".
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Cancel the Posted Sales Invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] The Sales Invoice is Cancled without an error.
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.SetRange(Corrective, true);
+        Assert.RecordIsNotEmpty(SalesCrMemoHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
