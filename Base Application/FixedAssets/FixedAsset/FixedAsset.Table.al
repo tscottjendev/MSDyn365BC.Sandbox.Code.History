@@ -300,7 +300,7 @@ table 5600 "Fixed Asset"
         }
         field(9001; "FA Location Id"; Guid)
         {
-            Caption = 'FA Location Code';
+            Caption = 'FA Location Id';
             DataClassification = SystemMetadata;
             TableRelation = "FA Location".SystemId;
 
@@ -521,10 +521,10 @@ table 5600 "Fixed Asset"
         if "No." = '' then begin
             FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
-			if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := FASetup."Fixed Asset Nos.";
+            if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := FASetup."Fixed Asset Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
             FixedAsset.ReadIsolation(IsolationLevel::ReadUncommitted);
             FixedAsset.SetLoadFields("No.");
