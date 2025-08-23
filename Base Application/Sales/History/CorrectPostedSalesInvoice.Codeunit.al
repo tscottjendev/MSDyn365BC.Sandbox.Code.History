@@ -1080,6 +1080,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
         if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::Item then
             exit;
+        if SalesInvoiceLine.Quantity = 0 then
+            exit;
         if not Item.Get(SalesInvoiceLine."No.") then
             exit;
         if not Item.IsInventoriableType() then
