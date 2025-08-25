@@ -85,12 +85,10 @@ table 740 "VAT Report Header"
                 HandleDateInput();
             end;
         }
-        field(6; Status; Option)
+        field(6; Status; Enum "VAT Report Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Released,Submitted,Accepted,Closed,Rejected,Canceled';
-            OptionMembers = Open,Released,Submitted,Accepted,Closed,Rejected,Canceled;
         }
         field(8; "No. Series"; Code[20])
         {
@@ -290,10 +288,10 @@ table 740 "VAT Report Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series");
         end;
 
