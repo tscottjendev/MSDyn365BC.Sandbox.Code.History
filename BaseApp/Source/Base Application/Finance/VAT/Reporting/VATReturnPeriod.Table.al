@@ -62,15 +62,13 @@ table 737 "VAT Return Period"
                 Rec.DrillDownVATReturn();
             end;
         }
-        field(21; "VAT Return Status"; Option)
+        field(21; "VAT Return Status"; Enum "VAT Return Status")
         {
             CalcFormula = lookup("VAT Report Header".Status where("VAT Report Config. Code" = const("VAT Return"),
                                                                    "No." = field("VAT Return No.")));
             Caption = 'VAT Return Status';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Open,Released,Submitted,Accepted,Closed,Rejected,Canceled';
-            OptionMembers = Open,Released,Submitted,Accepted,Closed,Rejected,Canceled;
         }
     }
 
@@ -99,10 +97,10 @@ table 737 "VAT Return Period"
         NoSeries: Codeunit "No. Series";
     begin
         if "No." = '' then begin
-			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series");
         end;
     end;
