@@ -32,9 +32,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
+#if not CLEAN27
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::GovTalkMessage);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Message Parts");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"BACS Ledger Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"BACS Register");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Fin. Charge Interest Rate");

@@ -12,7 +12,9 @@ codeunit 144052 "UT REP Purchase & Sales"
 
     var
         Assert: Codeunit Assert;
+#if not CLEAN27        
         LibraryApplicationArea: Codeunit "Library - Application Area";
+#endif        
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -278,6 +280,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         OnAfterGetRecordCreateReminders(true);  // Using True for Use Header Level.
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ECSalesListReportRPH')]
     [Scope('OnPrem')]
@@ -315,6 +318,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"EC Sales List");
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1026,6 +1030,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
 
+#if not CLEAN27
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ECSalesListReportRPH(var ECSalesList: TestRequestPage "EC Sales List")
@@ -1033,6 +1038,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         Assert.IsTrue(ECSalesList."Create XML File".Visible(), '');
         Assert.IsTrue(ECSalesList."Create XML File".Enabled(), '');
     end;
+#endif
 
     [RequestPageHandler]
     procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test");

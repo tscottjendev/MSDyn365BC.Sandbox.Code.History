@@ -558,6 +558,14 @@ table 79 "Company Information"
         {
             Caption = 'Branch Number';
             CharAllowed = '09';
+#if CLEAN27
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+            ObsoleteReason = 'Moved to GovTalk app';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+            ObsoleteReason = 'Moved to GovTalk app';
 
             trigger OnValidate()
             begin
@@ -565,6 +573,7 @@ table 79 "Company Information"
                     if StrLen("Branch Number") < MaxStrLen("Branch Number") then
                         FieldError("Branch Number", StrSubstNo(Text10500, MaxStrLen("Branch Number")));
             end;
+#endif
         }
         field(10508; "Contact Name"; Text[35])
         {
@@ -613,7 +622,9 @@ table 79 "Company Information"
         RecordHasBeenRead: Boolean;
 
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
+#if not CLEAN27
         Text10500: Label 'must be a %1 digit numeric number';
+#endif
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
 #pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';

@@ -455,7 +455,7 @@ page 1 "Company Information"
             group(Statutory)
             {
                 Caption = 'Statutory';
-                ObsoleteReason = 'This group is deprecated and will be removed in a future release.';
+                ObsoleteReason = 'Moved to GovTalk app';
                 ObsoleteState = Pending;
                 ObsoleteTag = '27.0';
                 field("Registration No."; Rec."Registration No.")
@@ -519,7 +519,7 @@ page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the three-digit numeric branch number.';
-                    ObsoleteReason = 'This field is deprecated and will be removed in a future release.';
+                    ObsoleteReason = 'Moved to GovTalk app';
                     ObsoleteState = Pending;
                     ObsoleteTag = '27.0';
                 }
