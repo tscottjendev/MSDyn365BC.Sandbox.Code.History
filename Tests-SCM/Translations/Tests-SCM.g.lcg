@@ -3695,6 +3695,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Item Tracking - NamedType DeletionMessage)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2034147439 - NamedType 2013327167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item Ledger Entry Lot No. %1 should be equal to the first lot with FEFO.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Lot No.]D;]A;(LookupHint=Codeunit SCM Inventory Item Tracking - NamedType ILELotNotMatchedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2034147439 - NamedType 1971332616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item tracking is defined for item]]></Val>
