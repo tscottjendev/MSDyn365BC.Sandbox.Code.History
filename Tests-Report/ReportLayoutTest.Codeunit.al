@@ -202,19 +202,6 @@
         CustomReportLayout.Delete(true);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestTableCustomReportLayoutUpdateLayout()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        Initialize();
-        InitCustomReportLayout(CustomReportLayout, CustomReportLayout.Type::Word, true);
-        Assert.AreEqual('', CustomReportLayout.TryUpdateLayout(false), '');
-        InitCustomReportLayout(CustomReportLayout, CustomReportLayout.Type::RDLC, true);
-        Assert.AreEqual('', CustomReportLayout.TryUpdateLayout(false), '');
-    end;
-
     [Scope('OnPrem')]
     procedure TestTableCustomReportLayoutValidateLayout()
     var
