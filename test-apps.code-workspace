@@ -130,10 +130,10 @@
       "path": "./Tests-Workflow"
     },
     {
-      "path": "./Base Application/System/DevTools/CALTest"
+      "path": "./System Application/Email/src/Test Email"
     },
     {
-      "path": "./System Application/Email/src/Test Email"
+      "path": "./Base Application/System/DevTools/CALTest"
     },
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
@@ -141,10 +141,10 @@
   ],
   "settings": {
     "allint.enabled": false,
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
+    }
   }
 }
