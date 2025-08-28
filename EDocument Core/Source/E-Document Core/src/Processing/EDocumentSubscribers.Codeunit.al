@@ -376,10 +376,12 @@ codeunit 6103 "E-Document Subscribers"
             CreateEDocumentFromPostedDocument(IssuedReminderHeader, DocumentSendingProfile, Enum::"E-Document Type"::"Issued Reminder");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnCheckElectronicSendingEnabled', '', false, false)]
-    local procedure OnCheckElectronicSendingEnabled(var ExchServiceEnabled: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", OnCheckElectronicSendingEnabled, '', false, false)]
+    local procedure OnCheckElectronicSendingEnabled(Sender: Record "Document Sending Profile"; var ExchServiceEnabled: Boolean)
     begin
-        ExchServiceEnabled := true;
+        // If document sending profile is Extended E-Document Service Flow, then this document sending profile is using "3rd party exchange service, aka E-Documents" 
+        if Sender."Electronic Document" = Sender."Electronic Document"::"Extended E-Document Service Flow" then
+            ExchServiceEnabled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnBeforeSend', '', false, false)]
