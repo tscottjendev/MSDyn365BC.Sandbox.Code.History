@@ -31,7 +31,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -63,7 +63,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -95,7 +95,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -127,7 +127,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -159,7 +159,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", GeneralLedgerSetup."Local Currency Symbol", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -191,7 +191,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -223,7 +223,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -255,7 +255,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
@@ -287,7 +287,7 @@ codeunit 134833 "Amount AutoFormat Currency"
         AmountAutoFormatCurrencyTestPage.GoToRecord(AmountAutoFormatCurrency);
 
         // [Then] the values are formatted correctly
-        //LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
+        LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case1LCY, GeneralLedgerSetup."Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case1LCY.Value(), 'The return value for Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case2LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case2LCY.Value(), 'The return value for Unit-Amount LCY is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case4LCY, GeneralLedgerSetup."Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case4LCY.Value(), 'The return value for Amount LCY (No Currency) is not correctly formatted');
         LibraryAssert.AreEqual(FormatValue(AmountAutoFormatCurrency.Case5LCY, GeneralLedgerSetup."Unit-Amount Decimal Places", '', GeneralLedgerSetup."Currency Symbol Position"), AmountAutoFormatCurrencyTestPage.Case5LCY.Value(), 'The return value for Unit-Amount LCY (No Currency) is not correctly formatted');
