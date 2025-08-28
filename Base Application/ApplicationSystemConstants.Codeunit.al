@@ -53,21 +53,21 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Build branch' with ! on both sides.
         // Will return a string representing the name of the internal branch that generated the build.
-        exit('NAV270');
+        exit('NAV27x');
     end;
 
     procedure PlatformProductVersion(): Text[80]
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('27.0.38539.0');
+        exit('27.0.38570.0');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('27.0.38539.0');
+        exit('27.0.38570.0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationVersion', '', false, false)]
