@@ -677,7 +677,7 @@ codeunit 1437 "Essential Bus. Headline Mgt."
     var
         EssentialBusinessHeadline: Record "Ess. Business Headline Per Usr";
     begin
-        if EssentialBusinessHeadline.Get(HeadlineName) then begin
+        if EssentialBusinessHeadline.Get(HeadlineName, UserSecurityId()) then begin
             EssentialBusinessHeadline.Validate("Headline Visible", false);
             EssentialBusinessHeadline.Modify();
         end;
