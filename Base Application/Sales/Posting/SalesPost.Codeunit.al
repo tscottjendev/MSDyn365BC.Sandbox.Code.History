@@ -3578,7 +3578,7 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnRoundAmountOnAfterAssignSalesLines(xSalesLine, SalesLineACY, SalesHeader, IsHandled, TotalSalesLine, TotalSalesLineLCY, SalesLine);
         if not IsHandled then
-            if SalesHeader."Currency Code" <> '' then begin
+            if (SalesHeader."Currency Code" <> '') and (SalesLine.Type <> SalesLine.Type::" ") then begin
                 NoVAT := SalesLine.Amount = SalesLine."Amount Including VAT";
                 if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Sales Tax" then
                     SalesLine."Amount Including VAT" :=

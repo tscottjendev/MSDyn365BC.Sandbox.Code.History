@@ -633,6 +633,7 @@ page 9004 "Bookkeeper Role Center"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 action("GIFI Codes")

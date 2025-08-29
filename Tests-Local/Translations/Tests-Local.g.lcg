@@ -3317,33 +3317,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType CodeDIV01B)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 1350740897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DIV-08]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeDiv)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 2156237713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[INT-05]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeInt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1629905518 - NamedType 1441483700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MISC-02]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT PAG Vendor 1099 - NamedType IRS1099CodeMisc)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 72376396 - NamedType 3215752075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CheckNoText]]></Val>
@@ -4413,6 +4386,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = document number;%2 = vendor number;%3 = IRS 1099 code.]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType UnkownCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 1445403785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Use the new IRS Forms feature]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType UseNewIRSFormsFeatureMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3014219630 - NamedType 1379643284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
