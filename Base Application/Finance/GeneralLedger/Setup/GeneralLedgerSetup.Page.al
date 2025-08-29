@@ -174,31 +174,6 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to automatically mark a new credit memo as a corrective entry. Correction flag does not affect how inventory reconciled with general ledger.';
                 }
-                field("EMU Currency"; Rec."EMU Currency")
-                {
-                    ApplicationArea = BasicEU;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if LCY is an EMU (Economic and Monetary Union) currency.';
-                }
-                field("LCY Code"; Rec."LCY Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                field("Use Document Date in Currency"; Rec."Use Document Date in Currency")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the document date is used to set exchange rates for currency valuation.';
-                }
-                field("Local Currency Symbol"; Rec."Local Currency Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the symbol for the local currency that you want to appear on checks and charts, such as $ for USD.';
-                }
-                field("Local Currency Description"; Rec."Local Currency Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the description of the local currency.';
-                }
                 field("Pmt. Disc. Excl. VAT"; Rec."Pmt. Disc. Excl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
@@ -388,6 +363,36 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 8, whose dimension values you can then enter directly on journals and sales or purchase lines.';
+                }
+            }
+            group(Currency)
+            {
+                Caption = 'Currency';
+
+                field("LCY Code"; Rec."LCY Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
+                field("Use Document Date in Currency"; Rec."Use Document Date in Currency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the document date is used to set exchange rates for currency valuation.';
+                }
+                field("Local Currency Symbol"; Rec."Local Currency Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the symbol for the local currency that you want to appear on checks and charts, such as $ for USD.';
+                }
+                field("Local Currency Description"; Rec."Local Currency Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the description of the local currency.';
+                }
+                field("EMU Currency"; Rec."EMU Currency")
+                {
+                    ApplicationArea = BasicEU;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if LCY is an EMU (Economic and Monetary Union) currency.';
                 }
             }
             group("Background Posting")
