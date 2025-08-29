@@ -5,7 +5,9 @@
 namespace Microsoft.Finance.VAT.Setup;
 
 using Microsoft.Finance.VAT.Clause;
+#if not CLEAN27
 using Microsoft.Finance.VAT.Calculation;
+#endif
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
 #if not CLEAN27
@@ -252,22 +254,20 @@ page 187 "VAT Setup"
     }
 
 
+#if not CLEAN27
     trigger OnOpenPage()
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
-#if not CLEAN27
         FeatureManagementIT: Codeunit "Feature Management IT";
-#endif
     begin
         IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         if not Rec.Get() then begin
             Rec.Init();
             Rec.Insert();
         end;
-#if not CLEAN27
         PerActivityCodeSettlEntryEnabled := FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled();
-#endif
     end;
+#endif
 
     var
 #if not CLEAN27
