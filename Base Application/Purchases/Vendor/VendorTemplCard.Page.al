@@ -359,6 +359,7 @@ page 1386 "Vendor Templ. Card"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 field("FATCA filing requirement"; Rec."FATCA filing requirement")
