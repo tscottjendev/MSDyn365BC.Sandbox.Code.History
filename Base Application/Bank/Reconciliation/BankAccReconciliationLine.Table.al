@@ -1216,6 +1216,7 @@ table 274 "Bank Acc. Reconciliation Line"
 
                 RemainingAmountAfterPosting += CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Amount";
                 DifferenceStatementAmtToApplEntryAmount -= CurrRemAmtAfterPosting - AppliedPmtEntry."Applied Pmt. Discount";
+                OnGetAppliedPmtDataOnAfterLoopIteration(Rec, AppliedPmtEntry);
             until AppliedPmtEntry.Next() = 0;
         end;
 
@@ -1515,6 +1516,11 @@ table 274 "Bank Acc. Reconciliation Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAppliedPmtDataOnAfterLoopIteration(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedPmtEntry: Record "Applied Payment Entry")
     begin
     end;
 }
