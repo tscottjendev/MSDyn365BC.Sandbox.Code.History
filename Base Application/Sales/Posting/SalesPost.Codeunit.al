@@ -480,7 +480,7 @@ codeunit 80 "Sales-Post"
 
         SalesLinesProcessed := false;
         if not InventorySetup.UseLegacyPosting() then
-            TempSalesLineGlobal.SetCurrentKey("Prepayment Line", Type, "Line No.");
+            TempSalesLineGlobal.SetCurrentKey(Type, "Line No.");
         if TempSalesLineGlobal.FindSet() then
             repeat
                 ErrorMessageMgt.PushContext(ErrorContextElementPostLine, TempSalesLineGlobal.RecordId, 0, PostDocumentLinesMsg);
@@ -925,7 +925,7 @@ codeunit 80 "Sales-Post"
             repeat
                 ErrorMessageMgt.PushContext(ErrorContextElement, TempSalesLineGlobal.RecordId(), 0, CheckSalesLineMsg);
                 TestSalesLine(SalesHeader, TempSalesLineGlobal);
-                if (SalesHeader.Ship or SalesHeader.Receive or SalesHeader.Invoice) and (TempSalesLineGlobal.Type = TempSalesLineGlobal.Type::Item) and (TempSalesLineGlobal."Qty. to Ship" <> 0) then
+                if (SalesHeader.Ship or SalesHeader.Receive or SalesHeader.Invoice) and (TempSalesLineGlobal.Type = TempSalesLineGlobal.Type::Item) and (TempSalesLineGlobal."Qty. to Ship" <> 0) then 
                     NoOfItemLines += 1;
             until TempSalesLineGlobal.Next() = 0;
         ErrorMessageMgt.PopContext(ErrorContextElement);
@@ -3449,7 +3449,7 @@ codeunit 80 "Sales-Post"
                                     TempVATAmountLine."VAT Amount" * SalesLine.CalcLineAmount() /
                                     (TempVATAmountLine."Line Amount" - SalesLine."Inv. Discount Amount");
                                 TempVATAmountLineRemainder."VAT Amount (ACY)" +=
-                                    TempVATAmountLine."VAT Amount (ACY)" * SalesLine.CalcLineAmount() /
+                                    TempVATAmountLine."VAT Amount (ACY)" * SalesLine.CalcLineAmount() / 
                                     (TempVATAmountLine."Line Amount" - SalesLine."Inv. Discount Amount");
                             end else begin
                                 TempVATAmountLineRemainder."VAT Amount" +=
