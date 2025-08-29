@@ -181,7 +181,7 @@ codeunit 6225 "Sust. Purchase Subscriber"
         N2OToPost: Decimal;
         CarbonFee: Decimal;
     begin
-        PurchaseHeader := PurchaseLine.GetPurchHeader();
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         GHGCredit := IsGHGCreditLine(PurchaseLine);
 
         if GHGCredit then begin

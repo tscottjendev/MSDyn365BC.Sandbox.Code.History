@@ -25,8 +25,8 @@ page 6115 "New E-Documents API"
 
     EntityCaption = 'E-Document';
     EntitySetCaption = 'E-Documents';
-    EntityName = 'newEDocument';
-    EntitySetName = 'newEDocuments';
+    EntityName = 'createEDocument';
+    EntitySetName = 'createEDocuments';
 
     ODataKeyFields = SystemId;
     SourceTable = "E-Document";

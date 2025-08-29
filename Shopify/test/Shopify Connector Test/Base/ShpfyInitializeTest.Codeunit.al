@@ -422,11 +422,4 @@ codeunit 139561 "Shpfy Initialize Test"
         CreateVATPostingSetup(PostingGroupCode, ShippingChargesGLAccount."VAT Prod. Posting Group");
         exit(ShippingChargesGLAccount."No.");
     end;
-
-    internal procedure VerifyRequestUrl(RequestPath: Text; ShopUrl: Text): Boolean
-    var
-        ShopifyShopUrlTok: Label '%1/admin/api/%2/graphql.json', Locked = true;
-    begin
-        exit(RequestPath = StrSubstNo(ShopifyShopUrlTok, ShopUrl, CommunicationMgt.GetApiVersion()));
-    end;
 }

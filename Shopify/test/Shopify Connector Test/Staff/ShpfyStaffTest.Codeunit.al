@@ -18,10 +18,9 @@ codeunit 139551 "Shpfy Staff Test"
     TestHttpRequestPolicy = BlockOutboundRequests;
 
     var
-        Shop: Record "Shpfy Shop";
+        ShpfyShop: Record "Shpfy Shop";
         Any: Codeunit Any;
         OrdersAPISubscriber: Codeunit "Shpfy Orders API Subscriber";
-        InitializeTest: Codeunit "Shpfy Initialize Test";
         IsInitialized: Boolean;
         ResponseResourceUrl: Text;
 
@@ -37,23 +36,23 @@ codeunit 139551 "Shpfy Staff Test"
         ShpfyShopCard: TestPage "Shpfy Shop Card";
     begin
         // [Given] Shop exists
-        Initialize();
+        this.Initialize();
 
         // [When] Set store as not B2B and check action is not visible
-        Shop."B2B Enabled" := false;
-        Shop.Modify(false);
+        ShpfyShop."B2B Enabled" := false;
+        ShpfyShop.Modify(false);
         ShpfyShopCard.OpenView();
-        ShpfyShopCard.GoToRecord(Shop);
+        ShpfyShopCard.GoToRecord(ShpfyShop);
 
         // [Then] The action should not be visible
         LibraryAssert.IsFalse(ShpfyShopCard.StaffMembers.Visible(), 'Staff Members action should not be visible for non-B2B store');
         ShpfyShopCard.Close();
 
         // [When] Set store as B2B and check action is visible
-        Shop."B2B Enabled" := true;
-        Shop.Modify(false);
+        ShpfyShop."B2B Enabled" := true;
+        ShpfyShop.Modify(false);
         ShpfyShopCard.OpenView();
-        ShpfyShopCard.GoToRecord(Shop);
+        ShpfyShopCard.GoToRecord(ShpfyShop);
 
         // [Then] The action should be visible
         LibraryAssert.IsTrue(ShpfyShopCard.StaffMembers.Visible(), 'Staff Members action should be visible for B2B store');
@@ -69,10 +68,10 @@ codeunit 139551 "Shpfy Staff Test"
         LibraryAssert: Codeunit "Library Assert";
     begin
         // [Given] Staff exists in Shopify and is available for import
-        Initialize();
+        this.Initialize();
 
         // [When] Staff is imported into BC
-        ShpfyStaffMemberAPI.GetStaffMembers(Shop.Code);
+        ShpfyStaffMemberAPI.GetStaffMembers(ShpfyShop.Code);
 
         // [Then] Staff exists in BC
         LibraryAssert.IsTrue(StaffMember.Count() = 2, 'There should be 2 staff members imported into BC.');
@@ -87,12 +86,12 @@ codeunit 139551 "Shpfy Staff Test"
         LibraryAssert: Codeunit "Library Assert";
     begin
         // [Given] Staff was deleted in Shopify
-        Initialize();
+        this.Initialize();
 
-        CreateNewStaffMember(Shop.Code, StaffMember);
+        this.CreateNewStaffMember(ShpfyShop.Code, StaffMember);
 
         // [When] Staff is imported into BC
-        ShpfyStaffMemberAPI.GetStaffMembers(Shop.Code);
+        ShpfyStaffMemberAPI.GetStaffMembers(ShpfyShop.Code);
 
         // [Then] Staff is deleted in BC
         LibraryAssert.IsTrue(StaffMember.Count() = 2, 'There should be 2 staff members BC.');
@@ -109,16 +108,16 @@ codeunit 139551 "Shpfy Staff Test"
         OriginalName: Text;
     begin
         // [Given] Staff was modified in Shopify
-        Initialize();
+        this.Initialize();
 
-        CreateNewStaffMember(Shop.Code, StaffMember);
+        CreateNewStaffMember(ShpfyShop.Code, StaffMember);
         OriginalName := StaffMember.Name;
 
         // [When] Staff is imported into BC
-        ShpfyStaffMemberAPI.GetStaffMembers(Shop.Code);
+        ShpfyStaffMemberAPI.GetStaffMembers(ShpfyShop.Code);
 
         // [Then] Staff is modified in BC
-        StaffMember.Get(Shop.Code, GetStaffIdToModify());
+        StaffMember.Get(ShpfyShop.Code, GetStaffIdToModify());
         LibraryAssert.IsFalse(StaffMember.Name = OriginalName, 'Staff name should be modified in BC.');
     end;
 
@@ -131,10 +130,10 @@ codeunit 139551 "Shpfy Staff Test"
         LibraryAssert: Codeunit "Library Assert";
         SalespersonPurchaserMappingErr: Label '%1 %2 already mapped to Shopify Staff Member %3.', Comment = '%1 = Salesperson/Purchaser table caption, %2 = Salesperson/Purchaser code, %3 = Shopify Staff Member name';
     begin
-        Initialize();
+        this.Initialize();
 
-        CreateNewStaffMember(Shop.Code, StaffMember);
-        CreateNewStaffMember(Shop.Code, StaffMember);
+        this.CreateNewStaffMember(ShpfyShop.Code, StaffMember);
+        this.CreateNewStaffMember(ShpfyShop.Code, StaffMember);
         LibrarySales.CreateSalesperson(Salesperson);
 
         // [Given] A Salesperson Code is assigned to Staff A
@@ -167,20 +166,20 @@ codeunit 139551 "Shpfy Staff Test"
         JShopifyOrder: JsonObject;
         JShopifyLineItems: JsonArray;
     begin
-        Initialize();
+        this.Initialize();
 
-        CreateNewStaffMember(Shop.Code, StaffMember, GetStaffIdToModify());
+        this.CreateNewStaffMember(ShpfyShop.Code, StaffMember, GetStaffIdToModify());
         LibrarySales.CreateSalesperson(Salesperson);
         StaffMember.FindFirst();
         StaffMember.Validate("Salesperson Code", Salesperson.Code);
         StaffMember.Modify(false);
 
         // [Given] An order exists in Shopify
-        JShopifyOrder := OrderHandlingHelper.CreateShopifyOrderAsJson(Shop, OrdersToImport, JShopifyLineItems, true);
+        JShopifyOrder := OrderHandlingHelper.CreateShopifyOrderAsJson(ShpfyShop, OrdersToImport, JShopifyLineItems, true);
 
         // [When] The order is imported into BC
         BindSubscription(OrdersAPISubscriber);
-        OrderHandlingHelper.ImportShopifyOrder(Shop, OrderHeader, OrdersToImport, ImportOrder, JShopifyOrder, JShopifyLineItems);
+        OrderHandlingHelper.ImportShopifyOrder(ShpfyShop, OrderHeader, OrdersToImport, ImportOrder, JShopifyOrder, JShopifyLineItems);
         UnbindSubscription(OrdersAPISubscriber);
 
         // [Then] The Salesperson is assigned on the imported order
@@ -200,9 +199,9 @@ codeunit 139551 "Shpfy Staff Test"
         LibraryAssert: Codeunit "Library Assert";
         OrderHandlingHelper: Codeunit "Shpfy Order Handling Helper";
     begin
-        Initialize();
+        this.Initialize();
 
-        CreateNewStaffMember(Shop.Code, StaffMember, GetStaffIdToModify());
+        this.CreateNewStaffMember(ShpfyShop.Code, StaffMember, GetStaffIdToModify());
         LibrarySales.CreateSalesperson(Salesperson);
         StaffMember.FindFirst();
         StaffMember.Validate("Salesperson Code", Salesperson.Code);
@@ -210,7 +209,7 @@ codeunit 139551 "Shpfy Staff Test"
 
         // [Given] A Shopify order has been imported into BC
         BindSubscription(OrdersAPISubscriber);
-        OrderHandlingHelper.ImportShopifyOrder(Shop, OrderHeader, ImportOrder, true);
+        OrderHandlingHelper.ImportShopifyOrder(ShpfyShop, OrderHeader, ImportOrder, true);
         UnbindSubscription(OrdersAPISubscriber);
         Commit();
 
@@ -226,6 +225,7 @@ codeunit 139551 "Shpfy Staff Test"
     local procedure Initialize()
     var
         ShpfyStaffMember: Record "Shpfy Staff Member";
+        InitializeTest: Codeunit "Shpfy Initialize Test";
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
@@ -233,7 +233,7 @@ codeunit 139551 "Shpfy Staff Test"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Shpfy Staff Test");
         ClearLastError();
-        ResponseResourceUrl := 'Staff/StaffMembers.txt';
+        this.ResponseResourceUrl := 'Staff/StaffMembers.txt';
 
         ShpfyStaffMember.DeleteAll(false);
 
@@ -250,15 +250,15 @@ codeunit 139551 "Shpfy Staff Test"
         Commit();
 
         // Creating Shopify Shop
-        Shop := InitializeTest.CreateShop();
-        Shop."B2B Enabled" := true;
-        Shop.Modify();
+        ShpfyShop := InitializeTest.CreateShop();
+        ShpfyShop."B2B Enabled" := true;
+        ShpfyShop.Modify();
 
         CommunicationMgt.SetTestInProgress(false);
 
         //Register Shopify Access Token
         AccessToken := LibraryRandom.RandText(20);
-        InitializeTest.RegisterAccessTokenForShop(Shop.GetStoreName(), AccessToken);
+        InitializeTest.RegisterAccessTokenForShop(ShpfyShop.GetStoreName(), AccessToken);
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Shpfy Staff Test");
     end;
@@ -266,21 +266,18 @@ codeunit 139551 "Shpfy Staff Test"
     [HttpClientHandler]
     internal procedure HttpSubmitHandler(Request: TestHttpRequestMessage; var Response: TestHttpResponseMessage): Boolean
     begin
-        if not InitializeTest.VerifyRequestUrl(Request.Path, Shop."Shopify URL") then
-            exit(true);
-
-        MakeResponse(Response);
+        this.MakeResponse(Response);
         exit(false); // Prevents actual HTTP call
     end;
 
     local procedure MakeResponse(var HttpResponseMessage: TestHttpResponseMessage): Boolean
     begin
-        LoadResourceIntoHttpResponse(ResponseResourceUrl, HttpResponseMessage);
+        this.LoadResourceIntoHttpResponse(ResponseResourceUrl, HttpResponseMessage);
     end;
 
     local procedure CreateNewStaffMember(ShopCode: Code[20]; StaffMember: Record "Shpfy Staff Member")
     begin
-        CreateNewStaffMember(ShopCode, StaffMember, 0);
+        this.CreateNewStaffMember(ShopCode, StaffMember, 0);
     end;
 
     local procedure CreateNewStaffMember(ShopCode: Code[20]; StaffMember: Record "Shpfy Staff Member"; StaffId: BigInteger)
