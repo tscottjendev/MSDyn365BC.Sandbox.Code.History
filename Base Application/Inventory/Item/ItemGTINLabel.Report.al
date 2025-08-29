@@ -58,6 +58,9 @@ report 6625 "Item GTIN Label"
                     // Encode the data string to the barcode font
                     GTINBarCode := BarcodeFontProvider.EncodeFont(BarcodeString, BarcodeSymbology);
                     GTINQRCode := BarcodeFontProvider2D.EncodeFont(BarcodeString, BarcodeSymbology2D);
+                end else begin
+                    GTINBarCode := '';
+                    GTINQRCode := '';
                 end
             end;
 
