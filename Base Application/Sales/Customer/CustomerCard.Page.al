@@ -843,7 +843,6 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Percent Paid Late';
                         ToolTip = 'Specifies the percentage of invoices that were paid late by the customer in the current fiscal year.';
-                        ExtendedDatatype = Ratio;
                         Importance = Additional;
                         DecimalPlaces = 1 : 2;
                     }
