@@ -67,6 +67,37 @@ codeunit 6135 "E-Document WorkFlow Processing"
 
     end;
 
+    internal procedure SendEDocFromEmailAndPDF(var EDocument: Record "E-Document"; WorkflowStepInstance: Record "Workflow Step Instance")
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        case EDocument."Document Type" of
+            Enum::"E-Document Type"::None:
+                Error(CannotSendEDocWithoutTypeErr);
+            Enum::"E-Document Type"::"Sales Invoice":
+                begin
+                    if not SalesInvHeader.Get(EDocument."Document No.")
+                    then
+                        Error(CannotFindEDocErr, Enum::"E-Document Type"::"Sales Invoice", EDocument."Document No.");
+
+                    SalesInvHeader.SetRecFilter();
+                    SalesInvHeader.EmailRecords(true);
+                end;
+            Enum::"E-Document Type"::"Sales Credit Memo":
+                begin
+                    if not SalesCrMemoHeader.Get(EDocument."Document No.")
+                    then
+                        Error(CannotFindEDocErr, Enum::"E-Document Type"::"Sales Credit Memo", EDocument."Document No.");
+
+                    SalesCrMemoHeader.SetRecFilter();
+                    SalesCrMemoHeader.EmailRecords(true);
+                end;
+            else
+                Error(NotSupportedEDocTypeErr, EDocument."Document Type");
+        end;
+
+    end;
     internal procedure GetEDocumentServicesInWorkflow(WorkFlow: Record Workflow; var EDocumentService: Record "E-Document Service"): Boolean
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
