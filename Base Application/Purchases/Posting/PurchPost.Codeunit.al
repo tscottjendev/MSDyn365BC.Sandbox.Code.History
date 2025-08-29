@@ -189,7 +189,7 @@ codeunit 90 "Purch.-Post"
 
         PurchaseLinesProcessed := false;
         if not InventorySetup.UseLegacyPosting() then
-            TempPurchLineGlobal.SetCurrentKey("Prepayment Line", Type, "Line No.");
+            TempPurchLineGlobal.SetCurrentKey(Type, "Line No.");
         if TempPurchLineGlobal.FindSet() then
             repeat
                 IsHandled := false;
