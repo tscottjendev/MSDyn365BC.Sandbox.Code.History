@@ -67,18 +67,25 @@ codeunit 6135 "E-Document WorkFlow Processing"
 
     end;
 
-    internal procedure GetEDocumentServicesInWorkflow(WorkFlow: Record Workflow; var EDocumentService: Record "E-Document Service"): Boolean
+    internal procedure GetServicesFromEntryPointResponseInWorkflow(WorkFlow: Record Workflow; var EDocumentService: Record "E-Document Service"): Boolean
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
-        WorkflowStep: Record "Workflow Step";
+        WorkflowStep, WorkflowStepEvent : Record "Workflow Step";
         Filter: Text;
     begin
+        // Find the entry point to workflow
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
+        if WorkflowStep.IsEmpty() then
+            exit(false);
+
         if WorkflowStep.FindSet() then
             repeat
-                WorkflowStepArgument.Get(WorkflowStep.Argument);
-                AddFilter(Filter, WorkflowStepArgument."E-Document Service");
+                if WorkflowStep.HasParentEvent(WorkflowStepEvent) then
+                    if WorkflowStepEvent."Entry Point" then begin
+                        WorkflowStepArgument.Get(WorkflowStep.Argument);
+                        AddFilter(Filter, WorkflowStepArgument."E-Document Service");
+                    end;
             until WorkflowStep.Next() = 0;
 
         if Filter = '' then
@@ -177,7 +184,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
         EDocExport: Codeunit "E-Doc. Export";
         EDocIntMgt: Codeunit "E-Doc. Integration Management";
         EDocumentLog: Codeunit "E-Document Log";
-        EDocumentBackgroundjobs: Codeunit "E-Document Background Jobs";
+        EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         TempBlob: Codeunit "Temp Blob";
         EDocServiceStatus: Enum "E-Document Service Status";
@@ -216,7 +223,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
         if not AnyErrors then begin
             EDocIntMgt.SendBatch(EDocument, EDocumentService, IsAsync);
             if IsAsync then
-                EDocumentBackgroundjobs.ScheduleGetResponseJob()
+                EDocumentBackgroundJobs.ScheduleGetResponseJob()
             else
                 HandleNextEvent(EDocument);
         end;
@@ -264,7 +271,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
         EDocServiceStatus: Record "E-Document Service Status";
         EDocExport: Codeunit "E-Doc. Export";
         EDocIntMgt: Codeunit "E-Doc. Integration Management";
-        EDocumentBackgroundjobs: Codeunit "E-Document Background Jobs";
+        EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
         SendContext: Codeunit SendContext;
         Sent, IsAsync : Boolean;
     begin
@@ -281,7 +288,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
 
         if Sent then
             if IsAsync then
-                EDocumentBackgroundjobs.ScheduleGetResponseJob()
+                EDocumentBackgroundJobs.ScheduleGetResponseJob()
             else
                 HandleNextEvent(EDocument);
     end;
