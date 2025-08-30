@@ -8132,6 +8132,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs - II - NamedType UnexpectedOrderLineDimValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3862164203 - NamedType 1432405642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New planning worksheet line not created for component item]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType CompoItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 2876186215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[\\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
@@ -8202,6 +8211,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType ExpectedOutputMissing)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3862164203 - NamedType 2293758765" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New planning worksheet line not created for main item]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM PS Bugs-I - NamedType MainItemErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 4214598878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
