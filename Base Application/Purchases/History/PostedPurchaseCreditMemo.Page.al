@@ -561,6 +561,7 @@ page 140 "Posted Purchase Credit Memo"
                         ObsoleteReason = 'Moved to IRS Forms App.';
                         ObsoleteState = Pending;
                         ObsoleteTag = '25.0';
+                        Visible = false;
                     }
 #endif
                 }
