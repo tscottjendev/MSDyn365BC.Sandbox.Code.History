@@ -32,8 +32,8 @@ pageextension 6101 "E-Document Sending Profile" extends "Document Sending Profil
                 field("EDocument Service Flow"; Rec."Electronic Service Flow")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'E-Document Workflow';
-                    ToolTip = 'Specifies E-Document workflow used for sending documents.';
+                    Caption = 'Electronic Document Service Flow Code';
+                    ToolTip = 'Specifies Electronic Service Flow that is used for sending documents.';
 
                     trigger OnValidate()
                     var
@@ -47,21 +47,9 @@ pageextension 6101 "E-Document Sending Profile" extends "Document Sending Profil
                 }
             }
         }
-        modify(Control16)
-        {
-            Visible = ElectronicDocumentFormatEmailVisible;
-        }
-        modify("E-Mail Attachment")
-        {
-            trigger OnAfterValidate()
-            begin
-                SetEmailElectronicDocumentVisibility();
-            end;
-        }
     }
     var
         ElectronicDocumentVisible: Boolean;
-        ElectronicDocumentFormatEmailVisible: Boolean;
 
     trigger OnOpenPage()
     var
@@ -69,16 +57,5 @@ pageextension 6101 "E-Document Sending Profile" extends "Document Sending Profil
         EDocumentFormat: Record "E-Document Service";
     begin
         ElectronicDocumentVisible := not ElectronicDocumentFormat.IsEmpty() or not EDocumentFormat.IsEmpty();
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        SetEmailElectronicDocumentVisibility();
-    end;
-
-    local procedure SetEmailElectronicDocumentVisibility()
-    begin
-        ElectronicDocumentFormatEmailVisible := not (Rec."E-Mail Attachment" in [Rec."E-Mail Attachment"::PDF,
-            Rec."E-Mail Attachment"::"E-Document", Rec."E-Mail Attachment"::"PDF & E-Document"]);
     end;
 }

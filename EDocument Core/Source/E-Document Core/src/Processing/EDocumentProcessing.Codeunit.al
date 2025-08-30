@@ -236,46 +236,6 @@ codeunit 6108 "E-Document Processing"
         end;
     end;
 
-    procedure GetTypeFromPostedSourceDocument(RecordVariant: Variant): Enum "E-Document Type"
-    var
-        TypeHelper: Codeunit "Type Helper";
-        RecordRef: RecordRef;
-        EDocumentType: Enum "E-Document Type";
-    begin
-        if not RecordVariant.IsRecord() then
-            exit(Enum::"E-Document Type"::None);
-
-        TypeHelper.CopyRecVariantToRecRef(RecordVariant, RecordRef);
-        case RecordRef.Number() of
-            Database::"Sales Invoice Header":
-                exit(EDocumentType::"Sales Invoice");
-            Database::"Sales Cr.Memo Header":
-                exit(EDocumentType::"Sales Credit Memo");
-            Database::"Purch. Inv. Header":
-                exit(EDocumentType::"Purchase Invoice");
-            Database::"Purch. Cr. Memo Hdr.":
-                exit(EDocumentType::"Purchase Credit Memo");
-            Database::"Service Invoice Header":
-                exit(EDocumentType::"Service Invoice");
-            Database::"Service Cr.Memo Header":
-                exit(EDocumentType::"Service Credit Memo");
-            Database::"Issued Fin. Charge Memo Header":
-                exit(EDocumentType::"Issued Finance Charge Memo");
-            Database::"Issued Reminder Header":
-                exit(EDocumentType::"Issued Reminder");
-            Database::"Gen. Journal Line":
-                exit(EDocumentType::"General Journal");
-            Database::"G/L Entry":
-                exit(EDocumentType::"G/L Entry");
-            Database::"Sales Shipment Header":
-                exit(EDocumentType::"Sales Shipment");
-            Database::"Transfer Shipment Header":
-                exit(EDocumentType::"Transfer Shipment");
-        end;
-        OnAfterGetTypeFromPostedSourceDocument(RecordVariant, EDocumentType);
-        exit(EDocumentType);
-    end;
-
     procedure GetEDocumentCount(Status: Enum "E-Document Status"; Direction: Enum "E-Document Direction"): Integer
     var
         EDocument: Record "E-Document";
@@ -575,10 +535,6 @@ codeunit 6108 "E-Document Processing"
         exit(RecCaption);
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetTypeFromPostedSourceDocument(RecordVariant: Variant; var EDocumentType: Enum "E-Document Type")
-    begin
-    end;
 
     [InternalEvent(false, false)]
     local procedure OnAfterModifyEDocumentStatus(var EDocument: Record "E-Document"; var EDocumentServiceStatus: Record "E-Document Service Status")

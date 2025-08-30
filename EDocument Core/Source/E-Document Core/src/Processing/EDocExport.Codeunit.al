@@ -59,32 +59,14 @@ codeunit 6102 "E-Doc. Export"
     var
         EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
-        EDocumentServiceStatus: Record "E-Document Service Status";
         EDocWorkFlowProcessing: Codeunit "E-Document WorkFlow Processing";
-        EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
     begin
-        if not EDocWorkFlowProcessing.GetServicesFromEntryPointResponseInWorkflow(WorkFlow, EDocumentService) then
+        if not EDocWorkFlowProcessing.GetEDocumentServicesInWorkflow(WorkFlow, EDocumentService) then
             exit;
 
         WorkFlow.TestField(Enabled);
         EDocument."Workflow Code" := WorkFlow.Code;
-
-        if not CreateEDocument(EDocument, DocumentHeader, EDocumentService, EDocumentType) then
-            exit;
-
-        // For each service supporting the document type, export it before creating E-Document Created Flow
-        EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
-        EDocumentServiceStatus.SetRange(Status, EDocumentServiceStatus.Status::Created);
-        if EDocumentServiceStatus.FindSet() then
-            repeat
-                EDocumentService.Get(EDocumentServiceStatus."E-Document Service Code");
-                if EDocumentService."Use Batch Processing" then
-                    continue;
-
-                ExportEDocument(EDocument, EDocumentService);
-            until EDocumentServiceStatus.Next() = 0;
-
-        EDocumentBackgroundJobs.StartEDocumentCreatedFlow(EDocument);
+        CreateEDocument(EDocument, DocumentHeader, EDocumentService, EDocumentType);
     end;
 
     /// <summary>
@@ -93,15 +75,16 @@ codeunit 6102 "E-Doc. Export"
     /// If services do not support the document type they are filtered out
     ///
     /// </summary>
-    local procedure CreateEDocument(var EDocument: Record "E-Document"; var DocumentHeader: RecordRef; var EDocumentService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type"): Boolean
+    local procedure CreateEDocument(EDocument: Record "E-Document"; var DocumentHeader: RecordRef; var EDocumentService: Record "E-Document Service"; EDocumentType: Enum "E-Document Type")
     var
         EDocumentLog: Codeunit "E-Document Log";
+        EDocumentBackgroundJobs: Codeunit "E-Document Background Jobs";
         SupportedServices: List of [Code[20]];
         Code: Code[20];
     begin
         EDocument.SetRange("Document Record ID", DocumentHeader.RecordId);
         if not EDocument.IsEmpty() then
-            exit(false);
+            exit;
 
         if EDocumentService.FindSet() then
             repeat
@@ -110,7 +93,7 @@ codeunit 6102 "E-Doc. Export"
             until EDocumentService.Next() = 0;
 
         if SupportedServices.Count() = 0 then
-            exit(false);
+            exit;
 
         OnBeforeCreateEDocument(EDocument, DocumentHeader);
 
@@ -135,8 +118,9 @@ codeunit 6102 "E-Doc. Export"
             EDocumentProcessing.ModifyEDocumentStatus(EDocument);
         end;
 
-        exit(true);
+        EDocumentBackgroundJobs.StartEDocumentCreatedFlow(EDocument);
     end;
+
 
     internal procedure ExportEDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service") Success: Boolean
     var
@@ -367,7 +351,6 @@ codeunit 6102 "E-Doc. Export"
             Database::"Transfer Shipment Header":
                 this.PopulateTransferShipmentEDocument(EDocument, SourceDocumentHeader);
         end;
-
     end;
 
     local procedure CreateEDocument(EDocumentService: Record "E-Document Service"; var EDocument: Record "E-Document"; var SourceDocumentHeader: RecordRef; var SourceDocumentLines: RecordRef; var TempBlob: Codeunit "Temp Blob")
@@ -581,7 +564,7 @@ codeunit 6102 "E-Doc. Export"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateEDocument(var EDocument: Record "E-Document"; var SourceDocumentHeader: RecordRef)
+    local procedure OnAfterCreateEdocument(var EDocument: Record "E-Document"; var SourceDocumentHeader: RecordRef)
     begin
     end;
 }
