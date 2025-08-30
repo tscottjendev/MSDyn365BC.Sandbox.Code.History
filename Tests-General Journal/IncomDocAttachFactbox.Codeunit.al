@@ -431,18 +431,17 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalLine: Record "Gen. Journal Line";
         PaymentJournalPage: TestPage "Payment Journal";
-        DocumentNo: Text;
     begin
         // [SCENARIO 596981] Verify Payment Journal Preview Posting without any error when Main Attachment in One Line and Supporting Attachment on Other Line.
 
         // [GIVEN] Create General Journal Batch.
         CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::Payments);
-        DocumentNo := LibraryRandom.RandText(9) + Format(LibraryRandom.RandIntInRange(1, 1));
+
         PaymentJournalPage.Trap();
         Page.Run(Page::"Payment Journal", GenJournalLine);
 
         // [GIVEN] Create First Line.
-        PaymentJournalPage."Document No.".SetValue(DocumentNo);
+        PaymentJournalPage."Document No.".SetValue(LibraryRandom.RandText(20));
         PaymentJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
         PaymentJournalPage."Account No.".SetValue(LibraryPurchase.CreateVendorNo());
         PaymentJournalPage."Bal. Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
@@ -455,7 +454,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         // [GIVEN] Create Second Line.
         PaymentJournalPage.New();
-        PaymentJournalPage."Document No.".SetValue(IncStr(DocumentNo));
+        PaymentJournalPage."Document No.".SetValue(LibraryRandom.RandText(20));
         PaymentJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
         PaymentJournalPage."Account No.".SetValue(LibraryPurchase.CreateVendorNo());
         PaymentJournalPage."Bal. Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
