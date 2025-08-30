@@ -674,8 +674,12 @@ table 60 "Document Sending Profile"
     procedure SendToVAN(RecordVariant: Variant)
     var
         ReportDistributionManagement: Codeunit "Report Distribution Management";
+        SendWithReportDistributionManagement: Boolean;
     begin
-        if "Electronic Document" = "Electronic Document"::No then
+        SendWithReportDistributionManagement := true;
+        OnSendWithReportDistributionManagement(Rec, SendWithReportDistributionManagement);
+        
+        if (not SendWithReportDistributionManagement) or ("Electronic Document" = "Electronic Document"::No) then
             exit;
 
         ReportDistributionManagement.VANDocumentReport(RecordVariant, Rec);
@@ -1104,6 +1108,11 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendToPrinter(var DocumentSendingProfile: Record "Document Sending Profile"; var ReportSelections: Record "Report Selections"; RecordVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendWithReportDistributionManagement(var DocumentSendingProfile: Record "Document Sending Profile"; var SendWithReportDistributionManagement: Boolean)
     begin
     end;
 }
