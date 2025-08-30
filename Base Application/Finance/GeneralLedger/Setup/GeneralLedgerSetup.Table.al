@@ -878,6 +878,11 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Check Source Curr. Consistency';
         }
+        field(194; "Acc. Payables Category"; Integer)
+        {
+            TableRelation = "G/L Account Category";
+            Caption = 'Account Payables G/L Account Category';
+        }
         field(11315; "VAT Statement Template Name"; Code[10])
         {
             Caption = 'VAT Statement Template Name';
