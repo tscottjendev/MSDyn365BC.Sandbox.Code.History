@@ -1026,6 +1026,7 @@ page 9001 "Accounting Manager Role Center"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 action("GIFI Codes")

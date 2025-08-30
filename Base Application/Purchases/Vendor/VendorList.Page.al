@@ -728,6 +728,7 @@ page 27 "Vendor List"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 action("Statistics by C&urrencies")

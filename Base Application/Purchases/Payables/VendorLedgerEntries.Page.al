@@ -343,6 +343,7 @@ page 29 "Vendor Ledger Entries"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
                 field("IRS 1099 Amount"; Rec."IRS 1099 Amount")
                 {
@@ -351,6 +352,7 @@ page 29 "Vendor Ledger Entries"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 field("Entry No."; Rec."Entry No.")
