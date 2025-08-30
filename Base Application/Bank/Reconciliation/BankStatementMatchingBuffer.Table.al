@@ -158,7 +158,7 @@ table 1250 "Bank Statement Matching Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertOrUpdateOneToManyRuleOnBeforeInsert(var BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer")
+    local procedure OnInsertOrUpdateOneToManyRuleOnBeforeInsert(var BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
     begin
     end;
 }
