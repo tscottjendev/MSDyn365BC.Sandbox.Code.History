@@ -10,6 +10,6 @@ enumextension 6101 "E-Doc. Send. Profile Elec. Doc" extends "Doc. Sending Profil
 {
     value(6102; "Extended E-Document Service Flow")
     {
-        Caption = 'Extended E-Document Service Flow';
+        Caption = 'E-Document Workflow';
     }
 }
