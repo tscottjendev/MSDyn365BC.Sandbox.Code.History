@@ -934,6 +934,7 @@ page 9020 "Small Business Owner RC"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
                 action("GIFI Codes")

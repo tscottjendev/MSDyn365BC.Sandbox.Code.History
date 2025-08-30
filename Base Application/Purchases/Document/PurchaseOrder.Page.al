@@ -604,6 +604,7 @@ page 50 "Purchase Order"
                     ObsoleteReason = 'Moved to IRS Forms App.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+                    Visible = false;
                 }
 #endif
             }
