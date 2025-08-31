@@ -15,7 +15,7 @@ codeunit 30292 "Shpfy GQL NextCatalogs" implements "Shpfy IGraphQL"
     /// <returns>Return value of type Text.</returns>
     internal procedure GetGraphQL(): Text
     begin
-        exit('{"query": "{catalogs(first:25, after:\"{{After}}\", query: \"company_id:''{{CompanyId}}'' status:ACTIVE\"){ pageInfo{hasNextPage} edges{cursor node{ id title priceList { currency }}}}}"}');
+        exit('{"query": "{catalogs(first:25, after:\"{{After}}\", query: \"company_id:''{{CompanyId}}'' status:ACTIVE\"){ pageInfo{hasNextPage} edges{cursor node{ id title}}}}"}');
     end;
 
     /// <summary>
