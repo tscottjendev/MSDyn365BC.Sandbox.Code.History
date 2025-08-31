@@ -871,6 +871,15 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Hide Company Bank Account';
         }
+        field(193; "Check Source Curr. Consistency"; Boolean)
+        {
+            Caption = 'Check Source Curr. Consistency';
+        }
+        field(194; "Acc. Payables Category"; Integer)
+        {
+            TableRelation = "G/L Account Category";
+            Caption = 'Account Payables G/L Account Category';
+        }
         field(11600; "BAS to be Lodged as a Group"; Boolean)
         {
             Caption = 'BAS to be Lodged as a Group';
@@ -883,10 +892,6 @@ table 98 "General Ledger Setup"
                       FieldCaption("BAS to be Lodged as a Group"), xRec."BAS to be Lodged as a Group",
                       FieldCaption("BAS Group Company"), "BAS Group Company");
             end;
-        }
-        field(193; "Check Source Curr. Consistency"; Boolean)
-        {
-            Caption = 'Check Source Curr. Consistency';
         }
         field(11601; "BAS Group Company"; Boolean)
         {
