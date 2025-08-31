@@ -43,6 +43,7 @@ codeunit 137045 "SCM Bugfixes"
         QtyPermismatchErr: Label 'Mismatch in Quantity per for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
         ExpectedQuantitymismatchErr: Label 'Mismatch in Expected Quantity for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
         TrackingMsg: Label 'The change will not affect existing entries';
+        NotificationNonCertifiedProductionBOMAndRoutingQst: Label 'The Production BOM or routing has not been certified. Are you sure you want to exit?';
 
     [Test]
     [Scope('OnPrem')]
@@ -1287,6 +1288,57 @@ codeunit 137045 "SCM Bugfixes"
         VerifyReservationEntryQuantity(Item."No.", SalesHeader."No.", -12);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNotification')]
+    procedure CheckNotificationWarnAboutNonCertifiedProductionBOMsandRoutings()
+    var
+        CompItem1: Record Item;
+        ProdItem1: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        ProductionBOMPage: TestPage "Production BOM";
+        RoutingPage: TestPage "Routing";
+    begin
+        // [SCENARIO 563276] Check Notification Warn About Non-Certified Production BOMs and Routings.
+        Initialize();
+
+        // [GIVEN] Create production item with Replenishment System: Prod. Order.
+        LibraryInventory.CreateItem(ProdItem1);
+        ProdItem1.Validate("Replenishment System", ProdItem1."Replenishment System"::"Prod. Order");
+        ProdItem1.Modify(true);
+
+        // [GIVEN] Create component production item.
+        LibraryInventory.CreateItem(CompItem1);
+
+        // [GIVEN] Create production BOM for first production item with first component
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem1."No.", 1);
+        ProductionBOMHeader.Status := ProductionBOMHeader.Status::New;  // Not certified
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Create routing, fill in "Setup Time", "Run Time", "Wait Time", and "Move Time".
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(1), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Wait Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Move Time", LibraryRandom.RandInt(100));
+        RoutingLine.Modify(true);
+
+        // [WHEN] Open Production BOM and Routing pages.
+        ProductionBOMPage.OpenEdit();
+        ProductionBOMPage.GotoRecord(ProductionBOMHeader);
+        ProductionBOMPage.Close();
+        RoutingPage.OpenEdit();
+        RoutingPage.GotoRecord(RoutingHeader);
+        RoutingPage.Close();
+        // [THEN] Verify that a notification is shown about non-certified Production BOMs and Routings.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2099,6 +2151,14 @@ codeunit 137045 "SCM Bugfixes"
     begin
         // Check confirmation message.
         Assert.AreNotEqual(StrPos(Question, ConfirmMessageQst), 0, Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNotification(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Check confirmation message.
+        Assert.AreNotEqual(StrPos(Question, NotificationNonCertifiedProductionBOMAndRoutingQst), 0, Question);
         Reply := true;
     end;
 
