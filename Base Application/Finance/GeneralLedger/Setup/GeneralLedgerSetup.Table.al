@@ -876,11 +876,6 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Check Source Curr. Consistency';
         }
-        field(194; "Acc. Payables Category"; Integer)
-        {
-            TableRelation = "G/L Account Category";
-            Caption = 'Account Payables G/L Account Category';
-        }
         field(11400; "Local SEPA Instr. Priority"; Boolean)
         {
             Caption = 'Local SEPA Instr. Priority';
