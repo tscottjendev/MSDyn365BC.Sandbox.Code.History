@@ -46,27 +46,23 @@ report 6625 "Item GTIN Label"
                 BarcodeFontProvider2D: Interface "Barcode Font Provider 2D";
 
             begin
-                // Clear strings
-                GTINBarCode := '';
-                GTINQRCode := '';
+                // Declare the barcode provider using the barcode provider interface and enum
+                BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;
+                BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
 
-                // Set data string source
+                // Set data string source 
                 if GTIN <> '' then begin
-                    // Declare the barcode provider using the barcode provider interface and enum
-                    BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;
-                    BarcodeFontProvider2D := Enum::"Barcode Font Provider 2D"::IDAutomation2D;
-
                     BarcodeString := GTIN;
                     // Validate the input
                     BarcodeFontProvider.ValidateInput(BarcodeString, BarcodeSymbology);
                     // Encode the data string to the barcode font
                     GTINBarCode := BarcodeFontProvider.EncodeFont(BarcodeString, BarcodeSymbology);
                     GTINQRCode := BarcodeFontProvider2D.EncodeFont(BarcodeString, BarcodeSymbology2D);
-                end;
+                end
             end;
+
         }
     }
-
     rendering
     {
         layout(Word)
@@ -81,6 +77,7 @@ report 6625 "Item GTIN Label"
         BarcodeSymbology2D: Enum "Barcode Symbology 2D";
         GTINBarCode: Text;
         GTINQRCode: Text;
+
 
     trigger OnInitReport()
     begin
