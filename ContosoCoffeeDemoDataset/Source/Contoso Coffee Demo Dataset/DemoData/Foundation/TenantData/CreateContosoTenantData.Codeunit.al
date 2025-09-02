@@ -124,6 +124,7 @@ codeunit 5691 "Create Contoso Tenant Data"
     local procedure ExcludeNewFeature(FeatureKey: Record "Feature Key"): Boolean
     begin
         if FeatureKey.ID in ['PowerAutomateCopilot',
+                             'FullTextSearch',
                              'AdvancedTellMe']
         then
             exit(true);
