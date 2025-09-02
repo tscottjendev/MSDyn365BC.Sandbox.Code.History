@@ -226,6 +226,7 @@ codeunit 101900 "Create Demonstration Data"
     local procedure ExcludeNewFeature(FeatureKey: Record "Feature Key"): Boolean
     begin
         if FeatureKey.ID in ['PowerAutomateCopilot',
+                             'SemanticMetadataSearch',
                              'AdvancedTellMe']
         then
             exit(true);
