@@ -4867,6 +4867,67 @@
         Assert.AreEqual(NewItemCode, Item2."No.", StrSubstNo(CannotRenameItemErr, Item2.FieldCaption("No."), Item2.TableCaption()));
     end;
 
+    [Test]
+    procedure ReservationQuantityReflectsWrongQuantityOnTheSaleOrderLineWithAlternateUOM()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 581623] Incorrect reservation quantity reflects 1.00001 quantity on the Sales order line with alternate UOM even though Base Unit of Measure reflects rounding to 1
+
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify();
+
+        // [GIVEN] Create Unit Of Measure Code 1.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+
+        // [GIVEN] Create Item Unit Of Measure 1.
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure[1],
+            Item."No.",
+            UnitOfMeasure[1].Code,
+            72);
+
+        // [GIVEN] Create and Post Item Joutnal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 4);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 19);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 49);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        //[GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item,
+          Item."No.", 1);
+        SalesLine.Validate(Reserve, SalesLine.Reserve::Always);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+        SalesLine.CalcFields("Reserved Quantity");
+
+        //[WHEN] Update Unit Of Measure Code on Sales Line
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure[1].Code);
+        SalesLine.modify();
+        AutoReserveSalesLine(SalesLine);
+
+        //[THEN] Check Reserve Quantity must be equal to sales line quantity
+        ReservationEntry.SetLoadFields("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", Quantity);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", SalesLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
+        ReservationEntry.SetRange("Source Subtype", 1);
+        ReservationEntry.CalcSums(Quantity);
+        Assert.AreEqual(SalesLine.Quantity, Abs(ReservationEntry.Quantity), '');
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6806,6 +6867,15 @@
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplateName);
         AnalysisColumn.FindFirst();
         LibraryVariableStorage.Enqueue(AnalysisColumn."Column Header");
+    end;
+
+    local procedure AutoReserveSalesLine(SalesLine: Record "Sales Line")
+    var
+        ReservMgt: Codeunit "Reservation Management";
+        FullAutoReservation: Boolean;
+    begin
+        ReservMgt.SetReservSource(SalesLine);
+        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
     [PageHandler]
