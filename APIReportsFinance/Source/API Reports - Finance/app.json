@@ -20,5 +20,8 @@
       "to": 30399
     }
   ],
-  "target": "Cloud"
+  "target": "Cloud",
+  "features": [
+    "TranslationFile"
+  ]
 }

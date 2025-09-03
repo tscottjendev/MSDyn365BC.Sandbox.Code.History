@@ -20,5 +20,14 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "target": "Cloud"
+  "idRanges": [
+    {
+      "from": 4400,
+      "to": 4420
+    }
+  ],
+  "target": "Cloud",
+  "features": [
+    "TranslationFile"
+  ]
 }

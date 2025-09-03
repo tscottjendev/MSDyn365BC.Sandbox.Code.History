@@ -26,5 +26,8 @@
     "includeSourceInSymbolFile": true
   },
   "contextSensitiveHelpUrl": "https://go.microsoft.com/fwlink/?linkid=870429",
-  "application": "$(app_minimumVersion)"
+  "application": "$(app_minimumVersion)",
+  "features": [
+    "TranslationFile"
+  ]
 }
