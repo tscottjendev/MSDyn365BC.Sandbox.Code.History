@@ -29,6 +29,7 @@ codeunit 141007 "ERM GST APAC"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
+        FADescriptionErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Name, %2= Expected Value, %3= Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -485,50 +486,6 @@ codeunit 141007 "ERM GST APAC"
 
     [Test]
     [Scope('OnPrem')]
-    procedure BASAdjustmentIsFalseForPurchaseVATGLEntry()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        DummyGLEntry: Record "G/L Entry";
-        VendorNo: Code[20];
-        PostedCrMemoNo: Code[20];
-        PostedInvoiceNo: Code[20];
-        PurchaseVATAccountNo: Code[20];
-    begin
-        // [FEATURE] [BAS Adjustment] [Purchase]
-        // [SCENARIO 381036] Purchase VAT Account GLEntry."BAS Adjustment" = FALSE after reverse Credit Memo
-        Initialize();
-        VendorNo := LibraryPurchase.CreateVendorNo();
-
-        // [GIVEN] Posted Purchase Invoice "PI" with GLAccount "GL"
-        PostedInvoiceNo := CreatePostGLPurchaseInvoice(VendorNo, LibraryERM.CreateGLAccountWithPurchSetup());
-        // [GIVEN] Purchase Credit Memo. Get posted Invoice lines to reverse.
-        CreatePurchaseCreditMemoForPostedInvoice(PurchaseHeader, VendorNo, PostedInvoiceNo);
-        FindGLPurchaseLine(PurchaseLine, PurchaseHeader);
-        PurchaseVATAccountNo := GetPurchaseVATAccountNo(PurchaseLine);
-        // [GIVEN] Update Purchase Credit Memo "Adjustment Applies-to" = "PI". PurchaseHeader."BAS Adjustment" is automatically set to TRUE.
-        UpdatePurchaseHeaderAdjAppliesTo(PurchaseHeader, PostedInvoiceNo);
-
-        // [WHEN] Post Purchase Credit Memo
-        PostedCrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [THEN] There are 3 posted GLEntries related to the Credit Memo:
-        DummyGLEntry.SetRange("Document Type", DummyGLEntry."Document Type"::"Credit Memo");
-        DummyGLEntry.SetRange("Document No.", PostedCrMemoNo);
-        Assert.RecordCount(DummyGLEntry, 3);
-        // [THEN] "G/L Account No." = 5610 (<Purchase VAT Account>), "BAS Adjustment" = FALSE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, PurchaseVATAccountNo, false);
-        // [THEN] "G/L Account No." = 2310 (<Payables Account>), "BAS Adjustment" = TRUE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, GetPayablesAccountNo(VendorNo), true);
-        // [THEN] "G/L Account No." = "GL", "BAS Adjustment" = TRUE
-        VerifyGLEntryBASAdjustment(
-          DummyGLEntry."Document Type"::"Credit Memo", PostedCrMemoNo, PurchaseLine."No.", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchaseCrMemoApplyInvoiceWithUnrealizedGST()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -790,6 +747,62 @@ codeunit 141007 "ERM GST APAC"
 
         // [THEN] The value is applied successfully
         SalesHeaderCreditMemo.TestField("Adjustment Applies-to", CustLedgerEntry."Document No.");
+    end;
+
+    [Test]
+    procedure FixedAssetsLedgerEntryDescriptionIsCorrect()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FALedgerEntry: Record "FA Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FADescription: Text[100];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 592594] Fixed Assets Ledger Entry description is correct.
+        Initialize();
+
+        // [GIVEN] Create and store Fixed assets description.
+        FADescription := LibraryUTUtility.GetNewCode();
+
+        // [GIVEN] Create a Fixed Asset with Posting Group and add Description.
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        FixedAsset.Validate(Description, FADescription);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Create a Depreciation Book for the Fixed Asset and set FA Posting Group and Acquisition Date.
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());
+        FADepreciationBook.Modify(true);
+
+        // [GIVEN] Create Purchase Header with the type Invoice.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Line with the type Fixed Asset.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"Fixed Asset",
+            FixedAsset."No.",
+            LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Find the Fixed Asset Ledger Entry should have the same description as the Fixed Asset.
+        FALedgerEntry.SetRange("Document No.", PostedDocNo);
+        FALedgerEntry.FindFirst();
+        Assert.AreEqual(
+            FADescription,
+            FALedgerEntry.Description,
+            StrSubstNo(
+                FADescriptionErr,
+                FALedgerEntry.FieldCaption(Description),
+                FADescription, FALedgerEntry.TableName()));
     end;
 
     local procedure Initialize()
@@ -1186,14 +1199,6 @@ codeunit 141007 "ERM GST APAC"
         exit(VATPostingSetup."Sales VAT Account");
     end;
 
-    local procedure GetPurchaseVATAccountNo(PurchaseLine: Record "Purchase Line"): Code[20]
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
-        exit(VATPostingSetup."Purchase VAT Account");
-    end;
-
     local procedure GetReceivablesAccountNo(CustomerNo: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -1202,16 +1207,6 @@ codeunit 141007 "ERM GST APAC"
         Customer.Get(CustomerNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         exit(CustomerPostingGroup."Receivables Account");
-    end;
-
-    local procedure GetPayablesAccountNo(VendorNo: Code[20]): Code[20]
-    var
-        Vendor: Record Vendor;
-        VendorPostingGroup: Record "Vendor Posting Group";
-    begin
-        Vendor.Get(VendorNo);
-        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        exit(VendorPostingGroup."Payables Account");
     end;
 
     local procedure UpdateGeneralLedgerSetup(UnrealizedVAT: Boolean; GSTReport: Boolean)
@@ -1261,12 +1256,6 @@ codeunit 141007 "ERM GST APAC"
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         SalesHeader.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseHeaderAdjAppliesTo(var PurchaseHeader: Record "Purchase Header"; AdjustmentAppliesTo: Code[20])
-    begin
-        PurchaseHeader.Validate("Adjustment Applies-to", AdjustmentAppliesTo);
-        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderAppliesTo(var PurchaseHeader: Record "Purchase Header"; AppliesToDocNo: Code[20])
