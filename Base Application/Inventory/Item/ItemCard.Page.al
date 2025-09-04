@@ -166,7 +166,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
-                    ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
                 }
                 field("Purchasing Code"; Rec."Purchasing Code")
                 {
@@ -192,6 +191,18 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = false;
+                }
+                field("No. 2"; Rec."No. 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    Importance = Additional;
+                }
+                field("Alternative Item No."; Rec."Alternative Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    Importance = Additional;
                 }
             }
             group(InventoryGrp)
