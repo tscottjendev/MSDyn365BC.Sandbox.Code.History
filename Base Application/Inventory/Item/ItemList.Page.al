@@ -91,7 +91,7 @@ page 31 "Item List"
                 }
                 field(InventoryField; Rec.Inventory)
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     HideValue = IsNonInventoriable;
                     ToolTip = 'Specifies how many units, such as pieces, boxes, or cans, of the item are in inventory.';
                 }
@@ -120,7 +120,7 @@ page 31 "Item List"
                 }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.';
                 }
                 field("Shelf No."; Rec."Shelf No.")
@@ -171,7 +171,7 @@ page 31 "Item List"
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price for one unit of the item, in LCY.';
                 }
                 field("Inventory Posting Group"; Rec."Inventory Posting Group")
@@ -206,7 +206,21 @@ page 31 "Item List"
                 field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number that the vendor uses for this item.';
+                    Visible = false;
+                }
+                field("No. 2"; Rec."No. 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Common Item No."; Rec."Common Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Alternative Item No."; Rec."Alternative Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
                 field("Tariff No."; Rec."Tariff No.")
