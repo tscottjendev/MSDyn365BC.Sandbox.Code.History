@@ -1,3 +1,4 @@
+#pragma warning disable AS0018
 namespace System.IO;
 
 #if not CLEAN25
@@ -724,7 +725,6 @@ codeunit 8616 "Config. Management"
                               Database::"Tenant Permission Set Rel.",
                               Database::"Tenant Permission Set",
                               Database::"Tenant Permission"];
-        OnAfterTableIsInAllowedRange(TableID, Result);
     end;
 
     local procedure IsNormalTable(TableID: Integer): Boolean
@@ -742,7 +742,6 @@ codeunit 8616 "Config. Management"
                                                               Database::"Tenant Permission Set Rel.",
                                                               Database::"Tenant Permission Set",
                                                               Database::"Tenant Permission"]);
-        OnAfterIsSystemTable(TableID, Result);
     end;
 
     procedure AssignParentLineNos()
@@ -850,16 +849,6 @@ codeunit 8616 "Config. Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTableIsInAllowedRange(TableID: Integer; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsSystemTable(TableID: Integer; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDataDialog(var ConfigLine: Record "Config. Line"; NewCompanyName: Text[30]; var IsHandled: Boolean)
     begin
     end;
@@ -869,4 +858,5 @@ codeunit 8616 "Config. Management"
     begin
     end;
 }
+#pragma warning restore AS0018
 
