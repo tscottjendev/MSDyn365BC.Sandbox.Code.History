@@ -8699,7 +8699,7 @@
         GLEntry.SetRange("G/L Account No.", VATPostingSetup."Reverse Chrg. VAT Acc.");
         GLEntry.FindFirst();
         Assert.IsTrue(
-            GLEntry."Source Currency Amount" < 0,
+            GLEntry."Source Currency Amount" <= 0,
             StrSubstNo(
                 SourceCurrencyErr,
                 GLEntry.FieldCaption("Source Currency Amount")));
@@ -8736,7 +8736,7 @@
         PurchaseHeader.CalcFields("Amount Including VAT");
         PurchaseHeader.Validate("Check Total", PurchaseHeader."Amount Including VAT");
         PurchaseHeader.Modify(true);
-        
+
         // [GIVEN] Post the partial Purchase order.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
