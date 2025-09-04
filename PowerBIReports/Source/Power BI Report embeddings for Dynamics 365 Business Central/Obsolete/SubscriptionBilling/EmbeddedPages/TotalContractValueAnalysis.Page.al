@@ -1,15 +1,19 @@
+//#if not CLEAN28
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 37069 "Revenue YoY"
+page 37077 "Total Contract Value Analysis"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     PageType = UserControlHost;
-    Caption = 'Revenue YoY';
-    AboutTitle = 'About Revenue YoY';
-    AboutText = 'The Revenue YoY report compares Monthly Recurring Revenue performance across a year-over-year period.';
+    Caption = 'Total Contract Value Analysis';
+    AboutTitle = 'About Total Contract Value Analysis';
+    AboutText = 'The Total Contract Value Analysis report breaks down Total Contract Value by various dimension such as billing rhythm, contract type or customer.';
+    //ObsoleteReason = 'Please use and extend page "Contract Val Analysis Power BI" on the Subscription Billing app.';
+    //ObsoleteState = Pending;
+    //ObsoleteTag = '28.0';
 
     layout
     {
@@ -41,14 +45,22 @@ page 37069 "Revenue YoY"
     var
         SetupHelper: Codeunit "Power BI Report Setup";
         ReportId: Guid;
-        ReportPageLbl: Label '3e6e12bc48782630bd89', Locked = true;
+        ReportPageLbl: Label '6d4dcc705ea9db21d91b', Locked = true;
 
+#if not CLEAN28  // Temporary while uptake of the move of the table extension gets to BCApps
     trigger OnOpenPage()
     var
         PowerBIReportsSetup: Record "PowerBI Reports Setup";
     begin
         SetupHelper.EnsureUserAcceptedPowerBITerms();
+        //#if not CLEAN28
+#pragma warning disable AL0801
+        //#endif
         ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Subscription Billing Report Id"));
+        //#if not CLEAN28
+#pragma warning restore AL0801
+        //#endif
     end;
+#endif  // Temporary while uptake of the move of the table extension gets to BCApps
 }
-
+//#endif

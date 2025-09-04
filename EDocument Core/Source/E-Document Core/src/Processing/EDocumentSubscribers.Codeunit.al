@@ -489,8 +489,6 @@ codeunit 6103 "E-Document Subscribers"
     /// </summary>
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", OnAfterSendToEMail, '', false, false)]
     local procedure OnAfterSendToEMailEDocument(var DocumentSendingProfile: Record "Document Sending Profile"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20]; DocNoFieldNo: Integer; ShowDialog: Boolean)
-    var
-        EDocumentEmailing: Codeunit "E-Document Emailing";
     begin
         if DocumentSendingProfile."E-Mail" = DocumentSendingProfile."E-Mail"::"No" then
             exit;
@@ -499,8 +497,8 @@ codeunit 6103 "E-Document Subscribers"
                                                                 Enum::"Document Sending Profile Attachment Type"::"PDF & E-Document"]) then
             exit;
 
-        // Email if attachment is E-Document or PDF & E-Document
-        EDocumentEmailing.SendEDocumentEmail(DocumentSendingProfile, ReportUsage, RecordVariant, DocNo, DocName, ToCust, ShowDialog);
+
+        EDocumentProcessing.ProcessEDocumentAsEmail(DocumentSendingProfile, ReportUsage, RecordVariant, DocNo, DocName, ToCust, ShowDialog);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", OnSendWithReportDistributionManagement, '', false, false)]

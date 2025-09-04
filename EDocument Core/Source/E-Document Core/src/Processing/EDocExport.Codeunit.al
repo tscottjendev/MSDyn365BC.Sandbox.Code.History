@@ -142,6 +142,7 @@ codeunit 6102 "E-Doc. Export"
     var
         TempEDocMapping: Record "E-Doc. Mapping" temporary;
         EDocLog: Record "E-Document Log";
+        EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentLog: Codeunit "E-Document Log";
         TempBlob: Codeunit "Temp Blob";
         SourceDocumentHeaderMapped, SourceDocumentLineMapped : RecordRef;
@@ -163,7 +164,14 @@ codeunit 6102 "E-Doc. Export"
 
         EDocLog := EDocumentLog.InsertLog(EDocument, EDocumentService, TempBlob, EDocServiceStatus);
         EDocumentLog.InsertMappingLog(EDocLog, TempEDocMapping);
-        EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocServiceStatus);
+
+        EDocumentServiceStatus.ReadIsolation(IsolationLevel::ReadUncommitted);
+        EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
+        EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
+        if EDocumentServiceStatus.IsEmpty() then
+            EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, EDocServiceStatus)
+        else
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocServiceStatus);
         EDocumentProcessing.ModifyEDocumentStatus(EDocument);
     end;
 

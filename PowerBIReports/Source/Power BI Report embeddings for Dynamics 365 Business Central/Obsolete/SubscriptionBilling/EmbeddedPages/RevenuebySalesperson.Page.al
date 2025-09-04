@@ -1,15 +1,19 @@
+//#if not CLEAN28
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 37073 "Revenue by Item"
+page 37075 "Revenue by Salesperson"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     PageType = UserControlHost;
-    Caption = 'Revenue by Item';
-    AboutTitle = 'About Revenue by Item';
-    AboutText = 'The Revenue by Item report breaks down subscription performance by item category, highlighting metrics such as Monthly Recurring Revenue, Monthly Recurring Cost, Monthly Net Profit Amount and Monthly Net Profit %. This report provides detailed insights into which categories and items are driving subscription revenue and profitability.';
+    Caption = 'Revenue by Salesperson';
+    AboutTitle = 'About Revenue by Salesperson';
+    AboutText = 'The Revenue by Salesperson report breaks down subscription performance by Salesperson, highlighting metrics such as Monthly Recurring Revenue, Monthly Recurring Cost, Monthly Net Profit Amount and Churn.';
+    //ObsoleteReason = 'Please use and extend page "Rev. by Salesperson Power BI" on the Subscription Billing app.';
+    //ObsoleteState = Pending;
+    //ObsoleteTag = '28.0';
 
     layout
     {
@@ -41,14 +45,22 @@ page 37073 "Revenue by Item"
     var
         SetupHelper: Codeunit "Power BI Report Setup";
         ReportId: Guid;
-        ReportPageLbl: Label 'cd6be9e72c3ae66a3dc4', Locked = true;
+        ReportPageLbl: Label '926fa2c13070086cb999', Locked = true;
 
+#if not CLEAN28  // Temporary while uptake of the move of the table extension gets to BCApps
     trigger OnOpenPage()
     var
         PowerBIReportsSetup: Record "PowerBI Reports Setup";
     begin
         SetupHelper.EnsureUserAcceptedPowerBITerms();
+        //#if not CLEAN28
+#pragma warning disable AL0801
+        //#endif
         ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Subscription Billing Report Id"));
+        //#if not CLEAN28
+#pragma warning restore AL0801
+        //#endif
     end;
+#endif  // Temporary while uptake of the move of the table extension gets to BCApps
 }
-
+//#endif

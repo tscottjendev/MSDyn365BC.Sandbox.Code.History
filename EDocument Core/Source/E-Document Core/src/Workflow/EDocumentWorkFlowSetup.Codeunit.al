@@ -5,6 +5,8 @@
 namespace Microsoft.eServices.EDocument;
 
 using System.Automation;
+using Microsoft.Foundation.Reporting;
+using System.Reflection;
 codeunit 6139 "E-Document Workflow Setup"
 {
     Access = Public;
@@ -90,7 +92,7 @@ codeunit 6139 "E-Document Workflow Setup"
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         EDocumentCreatedLbl: Label 'E-Document Created';
-        EDocumentStatusChangedLbl: Label 'E-Document has changed';
+        EDocumentStatusChangedLbl: Label 'E-Document Service Status has changed';
         EDocumentImportedLbl: Label 'E-Document has been imported';
         EDocumentExportedLbl: Label 'E-Document has been exported';
     begin
@@ -107,12 +109,14 @@ codeunit 6139 "E-Document Workflow Setup"
         SendEdocUsingSetupLbl: Label 'Send E-Document using service: %1', Comment = '%1 - E-Document Service';
         ImportEdocUsingSetupLbl: Label 'Import E-Document using setup: %1', Comment = '%1 - E-Document Service';
         ExportEdocUsingSetupLbl: Label 'Export E-Document using setup: %1', Comment = '%1 - E-Document Service';
+        EmailEDocLbl: Label 'Email E-Document to Customer';
+        EmailPDFAndEDocLbl: Label 'Email PDF and E-Document to Customer';
     begin
         WorkflowResponseHandling.AddResponseToLibrary(EDocSendEDocResponseCode(), Database::"E-Document", SendEdocUsingSetupLbl, 'GROUP 50100');
         WorkflowResponseHandling.AddResponseToLibrary(ResponseEDocImport(), Database::"E-Document", ImportEdocUsingSetupLbl, 'GROUP 50100');
         WorkflowResponseHandling.AddResponseToLibrary(ResponseEDocExport(), Database::"E-Document", ExportEdocUsingSetupLbl, 'GROUP 50100');
-        WorkflowResponseHandling.AddResponseToLibrary(ResponseSendEDocByEmail(), Database::"E-Document", 'Email E-Document to Customer', 'GROUP 50101');
-        WorkflowResponseHandling.AddResponseToLibrary(ResponseSendEDocAndPDFByEmail(), Database::"E-Document", 'Email PDF and E-Document to Customer', 'GROUP 50101');
+        WorkflowResponseHandling.AddResponseToLibrary(ResponseSendEDocByEmail(), Database::"E-Document", EmailEDocLbl, 'GROUP 50101');
+        WorkflowResponseHandling.AddResponseToLibrary(ResponseSendEDocAndPDFByEmail(), Database::"E-Document", EmailPDFAndEDocLbl, 'GROUP 50101');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", OnAfterGetDescription, '', false, false)]
@@ -161,27 +165,30 @@ codeunit 6139 "E-Document Workflow Setup"
     var
         WorkflowResponse: Record "Workflow Response";
         EDocWorkflowProcessing: Codeunit "E-Document WorkFlow Processing";
+        DataTypeManagement: Codeunit "Data Type Management";
+        RecordRef: RecordRef;
     begin
+        DataTypeManagement.GetRecordRef(Variant, RecordRef);
         WorkflowResponse.Get(ResponseWorkflowStepInstance."Function Name");
         case WorkflowResponse."Function Name" of
             EDocSendEDocResponseCode():
                 begin
-                    EDocWorkflowProcessing.SendEDocument(Variant, ResponseWorkflowStepInstance);
+                    EDocWorkflowProcessing.SendEDocument(RecordRef, ResponseWorkflowStepInstance);
                     ResponseExecuted := true;
                 end;
             ResponseEDocExport():
                 begin
-                    EDocWorkflowProcessing.ExportEDocument(Variant, ResponseWorkflowStepInstance);
+                    EDocWorkflowProcessing.ExportEDocument(RecordRef, ResponseWorkflowStepInstance);
                     ResponseExecuted := true;
                 end;
             ResponseSendEDocByEmail():
                 begin
-                    EDocWorkflowProcessing.SendEDocFromEmail(Variant, ResponseWorkflowStepInstance);
+                    EDocWorkflowProcessing.SendEDocFromEmail(RecordRef, ResponseWorkflowStepInstance, Enum::"Document Sending Profile Attachment Type"::"E-Document");
                     ResponseExecuted := true;
                 end;
             ResponseSendEDocAndPDFByEmail():
                 begin
-                    EDocWorkflowProcessing.SendEDocFromEmailAndPDF(Variant, ResponseWorkflowStepInstance);
+                    EDocWorkflowProcessing.SendEDocFromEmail(RecordRef, ResponseWorkflowStepInstance, Enum::"Document Sending Profile Attachment Type"::"PDF & E-Document");
                     ResponseExecuted := true;
                 end;
         end;

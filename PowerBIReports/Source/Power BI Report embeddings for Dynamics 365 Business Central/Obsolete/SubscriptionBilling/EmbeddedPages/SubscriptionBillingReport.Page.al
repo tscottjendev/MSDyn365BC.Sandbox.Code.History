@@ -1,15 +1,20 @@
+//#if not CLEAN28
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
 
-page 37075 "Revenue by Salesperson"
+page 37067 "Subscription Billing Report"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     PageType = UserControlHost;
-    Caption = 'Revenue by Salesperson';
-    AboutTitle = 'About Revenue by Salesperson';
-    AboutText = 'The Revenue by Salesperson report breaks down subscription performance by Salesperson, highlighting metrics such as Monthly Recurring Revenue, Monthly Recurring Cost, Monthly Net Profit Amount and Churn.';
+    Caption = 'Subscription Billing Report';
+    AboutTitle = 'About Subscription Billing Report';
+    AboutText = 'The Subscription Billing Report offers a consolidated view of all subscription report pages, conveniently embedded into a single page for easy access.';
+    //ObsoleteReason = 'Please use and extend page "Sub. Billing Report Power BI" on the Subscription Billing app.';
+    //ObsoleteState = Pending;
+    //ObsoleteTag = '28.0';
+
 
     layout
     {
@@ -41,14 +46,22 @@ page 37075 "Revenue by Salesperson"
     var
         SetupHelper: Codeunit "Power BI Report Setup";
         ReportId: Guid;
-        ReportPageLbl: Label '926fa2c13070086cb999', Locked = true;
+        ReportPageLbl: Label '', Locked = true;
 
+#if not CLEAN28  // Temporary while uptake of the move of the table extension gets to BCApps
     trigger OnOpenPage()
     var
         PowerBIReportsSetup: Record "PowerBI Reports Setup";
     begin
         SetupHelper.EnsureUserAcceptedPowerBITerms();
+        //#if not CLEAN28
+#pragma warning disable AL0801
+        //#endif
         ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Subscription Billing Report Id"));
+        //#if not CLEAN28
+#pragma warning restore AL0801
+        //#endif
     end;
+#endif  // Temporary while uptake of the move of the table extension gets to BCApps
 }
-
+//#endif

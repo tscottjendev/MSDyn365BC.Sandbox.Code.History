@@ -21,6 +21,8 @@ using Microsoft.Sales.Reminder;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using System.Reflection;
+using System.Automation;
+using System.Utilities;
 
 codeunit 6108 "E-Document Processing"
 {
@@ -153,6 +155,58 @@ codeunit 6108 "E-Document Processing"
         RunEDocumentCheck(PostedRecord, Enum::"E-Document Processing Phase"::Post);
         EDocumentSubscribers.CreateEDocumentFromPostedDocument(PostedRecord, DocumentSendingProfile, DocumentType);
         exit(true);
+    end;
+
+    procedure ProcessEDocumentAsEmail(DocumentSendingProfile: Record "Document Sending Profile"; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
+                                        DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20]; ShowDialog: Boolean)
+    var
+        EDocument: Record "E-Document";
+        EDocumentService: Record "E-Document Service";
+        EDocumentEmailing: Codeunit "E-Document Emailing";
+        EDocumentLog: Codeunit "E-Document Log";
+        TempBlob: Codeunit "Temp Blob";
+        TempBlobList: Codeunit "Temp Blob List";
+        TypeHelper: Codeunit "Type Helper";
+        SourceReference: RecordRef;
+    begin
+        // Email if attachment is E-Document or PDF & E-Document
+        TypeHelper.CopyRecVariantToRecRef(RecordVariant, SourceReference);
+
+        EDocument.SetRange("Document Record ID", SourceReference.RecordId());
+        if not EDocument.FindFirst() then
+            exit;
+
+        GetEDocumentServicesFromWorkflow(EDocument, EDocumentService);
+
+        // Find exported blobs for all services and add them to email attachments
+        if EDocumentService.FindSet() then
+            repeat
+                Clear(TempBlob);
+                if EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Exported) then
+                    TempBlobList.Add(TempBlob);
+            until EDocumentService.Next() = 0;
+
+        EDocumentEmailing.SetAttachments(TempBlobList);
+        EDocumentEmailing.SendEDocumentEmail(DocumentSendingProfile, ReportUsage, RecordVariant, DocNo, DocName, ToCust, ShowDialog);
+    end;
+
+    local procedure GetEDocumentServicesFromWorkflow(EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"): Boolean
+    var
+        Workflow: Record "Workflow";
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        EDocumentWorkflowProcessing: Codeunit "E-Document WorkFlow Processing";
+    begin
+        // Get E-Document Service from previous Send or Export response in workflow, otherwise entry point
+        if IsNullGuid(EDocument."Workflow Step Instance ID") then begin
+            if not Workflow.Get(EDocument."Workflow Code") then
+                exit(false);
+            exit(EDocumentWorkflowProcessing.GetServicesFromEntryPointResponseInWorkflow(Workflow, EDocumentService));
+        end;
+
+        WorkflowStepInstance.SetRange("Workflow Code", EDocument."Workflow Code");
+        WorkflowStepInstance.SetRange(ID, EDocument."Workflow Step Instance ID");
+        if WorkflowStepInstance.FindFirst() then;
+        exit(EDocumentWorkflowProcessing.GetEDocumentServiceFromPreviousSendOrExportResponse(WorkflowStepInstance, EDocumentService));
     end;
 
     procedure GetDocSendingProfileForDocRef(var RecRef: RecordRef): Record "Document Sending Profile";
