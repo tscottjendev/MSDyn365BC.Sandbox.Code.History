@@ -95,6 +95,7 @@ table 27 Item
         field(2; "No. 2"; Code[20])
         {
             Caption = 'No. 2';
+            ToolTip = 'Specifies an alternative account number which can be used internally in the company.';
             OptimizeForTextSearch = true;
         }
         field(3; Description; Text[100])
@@ -458,6 +459,7 @@ table 27 Item
         field(32; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            ToolTip = 'Specifies the number that the vendor uses for this item.';
             OptimizeForTextSearch = true;
         }
         field(33; "Lead Time Calculation"; DateFormula)
@@ -494,6 +496,7 @@ table 27 Item
         field(37; "Alternative Item No."; Code[20])
         {
             Caption = 'Alternative Item No.';
+            ToolTip = 'Specifies another identifier for this item.';
             OptimizeForTextSearch = true;
             TableRelation = Item;
         }
@@ -2342,6 +2345,7 @@ table 27 Item
         field(99008500; "Common Item No."; Code[20])
         {
             Caption = 'Common Item No.';
+            ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
             OptimizeForTextSearch = true;
         }
     }
