@@ -166,8 +166,10 @@ codeunit 442 "Sales-Post Prepayments"
         FeatureTelemetry.LogUptake('0000KQB', PrepaymentSalesTok, Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000KQC', PrepaymentSalesTok, PrepaymentSalesTok);
 
-        if (SalesSetup."Calc. Inv. Discount" and (SalesHeader.Status = SalesHeader.Status::Open)) then
+        if (SalesSetup."Calc. Inv. Discount" and (SalesHeader.Status = SalesHeader.Status::Open)) then begin
             DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+            SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."); // Reload SalesHeader that might have been changed
+        end;
 
         OnCodeOnBeforeCheckPrepmtDoc(SalesHeader, DocumentType);
 
