@@ -1271,7 +1271,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
                   tabledata "Registered Invt. Movement Hdr." = RimD,
-                  tabledata "Registered Invt. Movement Line" = Rimd,
+                  tabledata "Registered Invt. Movement Line" = RimD,
                   tabledata "Registered Whse. Activity Hdr." = Rimd,
                   tabledata "Registered Whse. Activity Line" = Rimd,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
