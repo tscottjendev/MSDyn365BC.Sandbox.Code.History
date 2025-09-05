@@ -20,14 +20,11 @@
       "to": 49999
     }
   ],
-  "resourceFolders": [
-    ".resources"
-  ],
   "target": "OnPrem",
   "resourceExposurePolicy": {
     "allowDebugging": false,
-    "allowDownloadingSource": false,
-    "includeSourceInSymbolFile": false
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
   },
-  "application": "25.5.0.0"
+  "application": "25.2.0.0"
 }
