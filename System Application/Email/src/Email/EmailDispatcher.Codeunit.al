@@ -14,7 +14,8 @@ codeunit 8888 "Email Dispatcher"
     Permissions = tabledata "Sent Email" = ri,
                   tabledata "Email Outbox" = rimd,
                   tabledata "Email Message" = r,
-                  tabledata "Email Error" = ri;
+                  tabledata "Email Error" = ri,
+                  tabledata "Email Rate Limit" = r;
 
     var
         EmailMessageImpl: Codeunit "Email Message Impl.";
@@ -60,7 +61,6 @@ codeunit 8888 "Email Dispatcher"
         // -----------
         // NB: Avoid adding events here as any error would cause a roll-back and possibly an inconsistent state of the Email Outbox.
         // -----------
-
         UpdateOutboxStatus(EmailOutbox, EmailOutbox.Status::Processing);
 
         if EmailMessageImpl.Get(EmailOutbox."Message Id") then begin
