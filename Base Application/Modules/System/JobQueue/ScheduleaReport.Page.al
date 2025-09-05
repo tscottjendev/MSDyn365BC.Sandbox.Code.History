@@ -176,7 +176,7 @@ page 682 "Schedule a Report"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOnQueryClosePageOnBeforeJobQueueEnqueue(JobQueueEntryRec: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry")
+    local procedure OnOnQueryClosePageOnBeforeJobQueueEnqueue(var JobQueueEntryRec: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }
