@@ -289,8 +289,6 @@ codeunit 6060 "Hybrid Deployment"
         InstanceId: Text;
         JsonOutput: Text;
     begin
-        OnBeforeRunReplication();
-
         if not TryRunReplication(InstanceId, ReplicationType) then
             Error(FailedRunReplicationErr);
 
@@ -491,11 +489,6 @@ codeunit 6060 "Hybrid Deployment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegenerateIntegrationRuntimeKeys(var InstanceId: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunReplication()
     begin
     end;
 
