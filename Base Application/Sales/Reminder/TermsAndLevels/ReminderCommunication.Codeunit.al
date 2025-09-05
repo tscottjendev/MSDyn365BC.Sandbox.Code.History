@@ -11,7 +11,7 @@ using Microsoft.Sales.Customer;
 using System.Globalization;
 using System.Text;
 using Microsoft.Sales.FinanceCharge;
-#if not CLEAN26
+#if not CLEAN25
 using System.Environment.Configuration;
 #endif
 using System.Reflection;
@@ -23,12 +23,12 @@ codeunit 1890 "Reminder Communication"
 {
 
     internal procedure NewReminderCommunicationEnabled(): Boolean
-#if not CLEAN26
+#if not CLEAN25
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
 #endif
     begin
-#if not CLEAN26
+#if not CLEAN25
         exit(FeatureManagementFacade.IsEnabled(FeatureIdTok));
 #else
     exit(true);
@@ -90,7 +90,7 @@ codeunit 1890 "Reminder Communication"
             end;
         end;
 
-#if not CLEAN26
+#if not CLEAN25
         if not NewReminderCommunicationEnabled() then
             IntroduceBeginningTextFromReminderText(ReminderHeader, ReminderLevel, ReminderLine);
 #endif
@@ -137,13 +137,13 @@ codeunit 1890 "Reminder Communication"
             end;
         end;
 
-#if not CLEAN26
+#if not CLEAN25
         if not NewReminderCommunicationEnabled() then
             IntroduceEndingTextFromReminderText(ReminderHeader, ReminderLevel, ReminderLine);
 #endif
     end;
 
-#if not CLEAN26
+#if not CLEAN25
     [Obsolete('Reminder Text is being obsoleted. Use the new records Reminder Attachment Text and Reminder Email Text', '24.0')]
     local procedure IntroduceBeginningTextFromReminderText(var ReminderHeader: Record "Reminder Header"; var ReminderLevel: Record "Reminder Level"; var ReminderLine: Record "Reminder Line")
     var
@@ -407,7 +407,7 @@ codeunit 1890 "Reminder Communication"
             SubstituteRelatedValues(GreetingTxt, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
             SubstituteRelatedValues(ClosingTxt, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
         end;
-#if not CLEAN26
+#if not CLEAN25
         if not NewReminderCommunicationEnabled() then
             PopulateEmailTextFromReminderText(IssuedReminderHeader, CompanyInfo, GreetingTxt, AmtDueTxt, BodyTxt, ClosingTxt, DescriptionTxt, NNC_TotalInclVAT);
 #endif
@@ -468,7 +468,7 @@ codeunit 1890 "Reminder Communication"
             IssuedReminderHeader."Add. Fee per Line");
     end;
 
-#if not CLEAN26
+#if not CLEAN25
     local procedure PopulateEmailTextFromReminderText(var IssuedReminderHeader: Record "Issued Reminder Header"; var CompanyInfo: Record "Company Information"; var GreetingTxt: Text; var AmtDueTxt: Text; var BodyTxt: Text; var ClosingTxt: Text; var DescriptionTxt: Text; NNC_TotalInclVAT: Decimal)
     var
         ReminderEmailText: Record "Reminder Email Text";
@@ -887,7 +887,7 @@ codeunit 1890 "Reminder Communication"
     end;
 
     var
-#if not CLEAN26
+#if not CLEAN25
         FeatureIdTok: Label 'ReminderTermsCommunicationTexts', Locked = true;
 #endif
         ReplaceTextTok: Label '==ReplaceText==', Locked = true;
