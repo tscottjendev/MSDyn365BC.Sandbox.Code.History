@@ -3855,6 +3855,9 @@ table 39 "Purchase Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+        if not HasPurchHeader then
+            Error(CannotInsertPurchLineWithoutHeaderErr);
+
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             PurchLineReserve.VerifyQuantity(Rec, xRec);
@@ -3932,6 +3935,7 @@ table 39 "Purchase Line"
         HasBeenShown: Boolean;
         PrePaymentLineAmountEntered: Boolean;
         PurchSetupRead: Boolean;
+        HasPurchHeader: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
@@ -4007,6 +4011,7 @@ table 39 "Purchase Line"
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
         InvoiceOrOrderDocTypeErr: Label '%1 must be either %2 or %3.', Comment = '%1 - Document Type; %2, %3 - Purchase Document Type, Invoice or Order';
+        CannotInsertPurchLineWithoutHeaderErr: Label 'You cannot insert a purchase line without a purchase header.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4669,6 +4674,7 @@ table 39 "Purchase Line"
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
     begin
         PurchHeader := NewPurchHeader;
+        HasPurchHeader := true;
 
         if PurchHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision()
@@ -4705,7 +4711,8 @@ table 39 "Purchase Line"
 
         TestField("Document No.");
         if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
-            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then begin
+                HasPurchHeader := true;
                 if PurchHeader."Currency Code" = '' then
                     Currency.InitRoundingPrecision()
                 else begin
@@ -4713,7 +4720,7 @@ table 39 "Purchase Line"
                     Currency.Get(PurchHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end
-            else
+            end else
                 Clear(PurchHeader);
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
