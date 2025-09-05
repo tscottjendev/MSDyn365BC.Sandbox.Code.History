@@ -50,6 +50,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WhseHandlingRequiredErr: Label 'Warehouse handling is required';
         InventoryMovementIsNotRegisteredErr: Label 'Inventory Movement is not registered.';
         InventoryPickNotFoundErr: Label 'Warehouse Activity Header not found for Production Order Components.';
+        PickQtyToHandleErr: Label 'Quantity to Handle on Warehouse Activity Line must be equal to %1.', Comment = '%1 = Expected quantity';
 
     [Test]
     [Scope('OnPrem')]
@@ -2215,6 +2216,73 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Assert.IsTrue(WareHouseActivityHeader.Count = 2, InventoryPickNotFoundErr);
     end;
 
+    [Test]
+    [HandlerFunctions('DummyMessageHandler,ConfirmHandlerTrue,ReservationPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestWarehousePickCreationForProductionOrder()
+    var
+        Bin, Bin2, Bin3 : Record Bin;
+        CompItem, ProdItem : Record Item;
+        Location: Record Location;
+        ProductionOrder: array[2] of Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: Integer;
+    begin
+        // [SCENARIO 580550] Warehouse pick is created for a production order,when enough items are available and some Quantity of this item is moved to a dedicated BIN
+        Initialize();
+
+        // [GIVEN] Reset Warehouse Employee Default Location.
+        ResetWarehouseEmployeeDefaultLocation();
+
+        // [GIVEN] Create Location with WMS enabled Bin mandatory
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
+
+        // [GIVEN] Set "Prod. Consump. Whse. Handling" = "Warehouse Pick (mandatory)" and assign Bins to "To-Production Bin Code" and "From-Production Bin Code".
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Validate("Default Bin Selection", Location."Default Bin Selection"::"Fixed Bin");
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create three Bins for Location.
+        CreateBin(Location.Code, Bin, true);
+        CreateBin(Location.Code, Bin2, false);
+        CreateBin(Location.Code, Bin3, true);
+
+        // [GIVEN] Create Component Item with "Replenishment System" = "Purchase" and "Flushing Method" = "Manual".
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create three Bin Content for Component Item.   
+        CreateBinContent(Location.Code, Bin.Code, CompItem, true, true, true);
+        CreateBinContent(Location.Code, Bin2.Code, CompItem, false, false, false);
+        CreateBinContent(Location.Code, Bin3.Code, CompItem, false, false, true);
+
+        // [GIVEN] Create Production BOM for Component Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
+        ProdItem.Validate("Production BOM No.", LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1));
+        ProdItem.Modify();
+
+        // [GIVEN] Create Inventory for Component Item.
+        Quantity := LibraryRandom.RandIntInRange(1000, 1000);
+        CreateInventory(CompItem, Quantity, Location.Code, Bin2.Code, LibraryRandom.RandInt(100));
+
+        // [GIVEN] Create two Production Orders for Production Item
+        CreateMultipleReleasedProdOrderAndReserveQtyOnComp(ProductionOrder, Location.Code, ProdItem."No.", CompItem."No.", Quantity / 2);
+
+        // [WHEN] Create Inventory movement for half of the quantity to dedicated bin
+        CreateAndRegisterInventoryMovement(Location.Code, Bin2, Bin3, CompItem."No.", Quantity / 2);
+
+        // [WHEN] Create Warehouse Pick for one of the Production Order
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder[2]);
+
+        // [THEN] Verify Warehouse Pick Line
+        VerifyWhseActivityLine(CompItem."No.", Location.Code, Quantity / 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3921,6 +3989,73 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ItemJournalLine.Modify();
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure CreateBin(LocationCode: Code[10]; var Bin: Record Bin; Dedicated: Boolean)
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, Bin.Code, '', '');
+
+        if Dedicated then begin
+            Bin.Validate("Dedicated", Dedicated);
+            Bin.Modify(true);
+        end;
+    end;
+
+    local procedure CreateBinContent(LocationCode: Code[10]; BinCode: Code[20]; var Item: Record "Item"; Fixed: Boolean; Default: Boolean; Dedicated: Boolean)
+    var
+        BinContent: Record "Bin Content";
+    begin
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Fixed, Fixed);
+        BinContent.Validate(Default, Default);
+        BinContent.Validate(Dedicated, Dedicated);
+        BinContent.Modify(true);
+    end;
+
+    local procedure CreateMultipleReleasedProdOrderAndReserveQtyonComp(var ProductionOrder: array[2] of Record "Production Order"; LocationCode: Code[10]; ProdItemNo: Code[20]; CompItemNo: Code[20]; Quantity: Decimal)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(ProductionOrder) do begin
+            LibraryManufacturing.CreateProductionOrder(
+                ProductionOrder[i], ProductionOrder[i].Status::Released, ProductionOrder[i]."Source Type"::Item, ProdItemNo, Quantity);
+            ProductionOrder[i].Validate("Location Code", LocationCode);
+            ProductionOrder[i].Modify(true);
+            LibraryManufacturing.RefreshProdOrder(ProductionOrder[i], false, true, true, true, false);
+
+            ReserveQuantityOnComponent(CompItemNo, ProductionOrder[i]."No.");
+        end;
+    end;
+
+    local procedure CreateAndRegisterInventoryMovement(LocationCode: Code[10]; FromBin: Record Bin; ToBin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, FromBin, ToBin, ItemNo, '', Quantity);
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Movement");
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Location Code", LocationCode);
+        WhseActivityLine.FindSet();
+
+        WhseActivityHeader.Get(WhseActivityLine."Activity Type", WhseActivityLine."No.");
+        WhseActivityLine.AutofillQtyToHandle(WhseActivityLine);
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+    end;
+
+    local procedure VerifyWhseActivityLine(ItemNo: Code[20]; LocationCode: Code[10]; ExpectedQtyToHandle: Decimal)
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Location Code", LocationCode);
+        WhseActivityLine.FindSet();
+        repeat
+            Assert.IsTrue(ExpectedQtyToHandle = WhseActivityLine."Qty. to Handle", StrSubstNo(PickQtyToHandleErr, ExpectedQtyToHandle));
+        until WhseActivityLine.Next() = 0;
     end;
 
     [MessageHandler]
