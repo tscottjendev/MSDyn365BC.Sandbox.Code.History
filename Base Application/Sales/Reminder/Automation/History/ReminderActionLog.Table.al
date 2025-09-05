@@ -29,12 +29,10 @@ table 6752 "Reminder Action Log"
 #if not CLEANSCHEMA28
         field(6; "Total Errors"; Integer)
         {
-#if not CLEAN26
+#if not CLEAN25
             ObsoleteState = Pending;
             ObsoleteReason = 'This field is obsolete and should not be used.';
-#pragma warning disable AS0074
-                ObsoleteTag = '26.0';
-#pragma warning restore AS0074
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Removed;
             ObsoleteReason = 'This field is obsolete and should not be used.';
