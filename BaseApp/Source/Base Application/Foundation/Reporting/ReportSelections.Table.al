@@ -1972,7 +1972,7 @@ table 77 "Report Selections"
         exit(CopyReportSelectionToReportSelection(TempReportSelections));
     end;
 
-    procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer) Result: Boolean
+    local procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer) Result: Boolean
     var
         CustomReportSelection: Record "Custom Report Selection";
         IsHandled: Boolean;
@@ -2021,7 +2021,6 @@ table 77 "Report Selections"
                 if TempToReportSelections.Insert() then;
             until Next() = 0;
 
-        OnAfterCopyReportSelectionToReportSelection(Rec, TempToReportSelections);
         exit(TempToReportSelections.FindSet());
     end;
 
@@ -2694,11 +2693,6 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempBlob: Codeunit "Temp Blob"; var DocumentMailing: Codeunit "Document-Mailing"; DocumentNo: Code[20]; DocumentName: Text[150]; EmailAddress: Text[250]; AllEmailsWereSuccessful: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyReportSelectionToReportSelection(ReportSelections: Record "Report Selections"; var TempToReportSelections: Record "Report Selections" temporary)
     begin
     end;
 }
