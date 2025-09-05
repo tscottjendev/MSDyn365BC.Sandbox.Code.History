@@ -3567,6 +3567,9 @@ table 37 "Sales Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+        if not HasSalesHeader then
+            Error(CannotInsertSalesLineWithoutHeaderErr);
+
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             SalesLineReserve.VerifyQuantity(Rec, xRec);
@@ -3652,6 +3655,7 @@ table 37 "Sales Line"
         HasBeenShown: Boolean;
         PlannedShipmentDateCalculated: Boolean;
         PlannedDeliveryDateCalculated: Boolean;
+        HasSalesHeader: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2.';
@@ -3743,6 +3747,7 @@ table 37 "Sales Line"
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
+        CannotInsertSalesLineWithoutHeaderErr: Label 'You cannot insert a sales line without a sales header.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4332,6 +4337,7 @@ table 37 "Sales Line"
     procedure SetSalesHeader(NewSalesHeader: Record "Sales Header")
     begin
         SalesHeader := NewSalesHeader;
+        HasSalesHeader := true;
         OnBeforeSetSalesHeader(SalesHeader);
 
         if SalesHeader."Currency Code" = '' then
@@ -4372,7 +4378,8 @@ table 37 "Sales Line"
 
         TestField("Document No.");
         if ("Document Type" <> SalesHeader."Document Type") or ("Document No." <> SalesHeader."No.") then
-            if SalesHeader.Get("Document Type", "Document No.") then
+            if SalesHeader.Get("Document Type", "Document No.") then begin
+                HasSalesHeader := true;
                 if SalesHeader."Currency Code" = '' then
                     Currency.InitRoundingPrecision()
                 else begin
@@ -4380,7 +4387,7 @@ table 37 "Sales Line"
                     Currency.Get(SalesHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end
-            else
+            end else
                 Clear(SalesHeader);
 
         OnAfterGetSalesHeader(Rec, SalesHeader, Currency);
