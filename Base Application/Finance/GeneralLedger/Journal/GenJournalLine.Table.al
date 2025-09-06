@@ -7618,7 +7618,13 @@ table 81 "Gen. Journal Line"
         Employee: Record Employee;
         BankAccount: Record "Bank Account";
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccCurrencyCode(Rec, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit(CurrencyCode);
+
         if ("Account No." = '') or ("Currency Code" = '') then
             exit;
 
@@ -11902,6 +11908,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccCurrencyCode(var GenJnlLine: Record "Gen. Journal Line"; var CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

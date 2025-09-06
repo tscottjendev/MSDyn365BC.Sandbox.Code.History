@@ -466,6 +466,8 @@ codeunit 1890 "Reminder Communication"
             IssuedReminderHeader."Posting Date",
             CompanyName,
             IssuedReminderHeader."Add. Fee per Line");
+            
+        OnAfterSubstituteRelatedValues(BodyTxt, IssuedReminderHeader);
     end;
 
 #if not CLEAN25
@@ -1000,6 +1002,11 @@ codeunit 1890 "Reminder Communication"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExitReportIDOnReplaceHTMLText(ReportID: Integer; var RecordVariant: Variant; var ReportIDExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSubstituteRelatedValues(var BodyTxt: Text; var IssuedReminderHeader: Record "Issued Reminder Header")
     begin
     end;
 }
