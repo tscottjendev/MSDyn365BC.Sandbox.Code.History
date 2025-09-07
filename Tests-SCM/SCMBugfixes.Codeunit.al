@@ -1217,6 +1217,76 @@ codeunit 137045 "SCM Bugfixes"
         AssertReservationEntryCountForSales(SalesHeader, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerOrderTracking,ItemTrackingLinesPageHandler')]
+    procedure CheckTrackingReservationEntriesUpdatedWheLotNoAllocated()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        UnitofMeasure: Record "Unit of Measure";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry, ReservationEntry1 : Record "Reservation Entry";
+        LotNo, LotNo1, LotNo2 : Code[50];
+    begin
+        // [SCENARIO 580079] Wrong Decimal Rounding with Quantity in Reservation Entries, using Order Tracking Policy where tracking lines are split into 3, each ending in x.xxxx7, which results with all 3 adding up to x.00001
+        Initialize();
+
+        // [GIVEN] Created Lot Tracked Item.
+        CreateTrackedItemWithOrderTrackingPolicy(Item);
+
+        // [GIVEN] Create new UOM for CASE (CA), Qty 24 Per Base UOM of PCS
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitofMeasure.Code, 24);
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Inventory Posting Setup with Inventory Account
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, Item."Inventory Posting Group");
+        InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+        InventoryPostingSetup.Modify();
+
+        // [GIVEN] Create Positive Adjustment for 288 Quantity with 1 Lot No
+        LotNo := LibraryUtility.GenerateGUID();
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, Item."No.", Location.Code, 288);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, 288);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+
+        // [GIVEN] Create Positive Adjustment for 440 Quantity with 2 different Lot
+        LotNo1 := LibraryUtility.GenerateGUID();
+        LotNo2 := LibraryUtility.GenerateGUID();
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, Item."No.", Location.Code, 440);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo1, 220);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry1, ItemJournalLine, '', LotNo2, 220);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+
+        // [GIVEN] Created Sales Order with 1 Item and 3 quantity.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 12);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] From Item tracking lines (Sales Order), add a Lot No to the item.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignSpecificLot);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(288);
+        SalesLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [WHEN] Change the quantity from Item tracking lines (Sales Order), of a Lot No to 13.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignSpecificLot);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(13);
+        SalesLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [THEN] Reservation entry Quantity field should come with -12
+        VerifyReservationEntryQuantity(Item."No.", SalesHeader."No.", -12);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1308,6 +1378,23 @@ codeunit 137045 "SCM Bugfixes"
             ItemJournalLine.Modify(true);
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemJournalLineItemTrackingEnabled(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, "Item Journal Template Type"::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, "Item Journal Template Type"::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
     end;
 
     local procedure CreateCertifiedProductionBOMWithComponentStartingDate(var ProductionBOMHeader: Record "Production BOM Header"; UOMCode: Code[10]; ItemNo: Code[20]; QtyPer: Decimal; StartingDate: Date)
@@ -1983,6 +2070,16 @@ codeunit 137045 "SCM Bugfixes"
         ReservationEntry.SetRange("Source Type", Database::"Sales Line");
         ReservationEntry.SetRange("Source ID", SalesHeader."No.");
         Assert.RecordCount(ReservationEntry, ExpectedCount);
+    end;
+
+    local procedure VerifyReservationEntryQuantity(ItemNo: Code[20]; SourceID: Code[20]; ExpectedQuantity: Decimal)
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.SetRange("Item No.", ItemNo);
+        ReservEntry.SetRange("Source ID", SourceID);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, ExpectedQuantity);
     end;
 
     [ModalPageHandler]
