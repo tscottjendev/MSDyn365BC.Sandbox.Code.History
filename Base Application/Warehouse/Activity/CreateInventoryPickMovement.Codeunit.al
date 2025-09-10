@@ -2611,7 +2611,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; var SourceDocRecordVar: Variant)
+    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; var SourceDocRecordVar: Variant)
     begin
     end;
 
