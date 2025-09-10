@@ -39,7 +39,7 @@ codeunit 989 "Asm. Create Invt.Pick/Movement"
     local procedure OnCheckSourceDocForWhseRequest(
         var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecordVar: Variant; var Result: Boolean;
         var WhseActivHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter";
-        CheckLineExist: Boolean; ApplyAdditionalSourceDocFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
+        CheckLineExist: Boolean; ApplySourceFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -48,7 +48,7 @@ codeunit 989 "Asm. Create Invt.Pick/Movement"
                 begin
                     Result :=
                         SetFilterAssemblyLine(
-                            AssemblyLine, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplyAdditionalSourceDocFilters, IsInvtMovement);
+                            AssemblyLine, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters, IsInvtMovement);
                     IsHandled := true;
                 end;
         end;

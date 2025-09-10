@@ -39,7 +39,7 @@ codeunit 99000899 "Mfg. Create Invt.Pick/Movement"
     local procedure OnCheckSourceDocForWhseRequest(
         var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecordVar: Variant; var Result: Boolean;
         var WhseActivHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter";
-        CheckLineExist: Boolean; ApplyAdditionalSourceDocFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
+        CheckLineExist: Boolean; ApplySourceFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -48,7 +48,7 @@ codeunit 99000899 "Mfg. Create Invt.Pick/Movement"
                 begin
                     Result :=
                         SetFilterProductionLine(
-                            ProdOrderComponent, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplyAdditionalSourceDocFilters, IsInvtMovement);
+                            ProdOrderComponent, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters, IsInvtMovement);
                     IsHandled := true;
                 end;
         end;
