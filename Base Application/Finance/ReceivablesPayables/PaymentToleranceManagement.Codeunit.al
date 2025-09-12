@@ -2245,11 +2245,10 @@ codeunit 426 "Payment Tolerance Management"
         if (GenJnlLineGlobal."Journal Template Name" = '') or (GenJnlLineGlobal."Journal Batch Name" = '') then
             exit;
 
-        if not GenJnlLine.Get(
+        GenJnlLine.Get(
             GenJnlLineGlobal."Journal Template Name",
             GenJnlLineGlobal."Journal Batch Name",
-            GenJnlLineGlobal."Line No.") then
-            exit;
+            GenJnlLineGlobal."Line No.");
 
         GenJnlLine.Amount := NewAmount;
 
