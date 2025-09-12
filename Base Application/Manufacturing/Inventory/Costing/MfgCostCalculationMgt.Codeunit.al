@@ -807,6 +807,8 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
             UnitCostCalculation::Units:
                 CostTime := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum);
         end;
+
+        OnAfterCalculateCostTime(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum, UnitCostCalculation, CostTime);
     end;
 
     procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20]) RecFound: Boolean
@@ -1002,6 +1004,11 @@ codeunit 99000758 "Mfg. Cost Calculation Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; var QtyAdjdForRoutingScrap: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateCostTime(MfgItemQtyBase: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; UnitCostCalculationType: Enum "Unit Cost Calculation Type"; var CostTime: Decimal)
     begin
     end;
 }
