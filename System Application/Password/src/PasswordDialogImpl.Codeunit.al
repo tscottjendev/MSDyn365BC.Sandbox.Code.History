@@ -91,11 +91,4 @@ codeunit 9811 "Password Dialog Impl."
         if CurrentPasswordToCompare.Unwrap() = NewPassword.Unwrap() then
             Error(PasswordSameAsNewErr);
     end;
-
-    [NonDebuggable]
-    procedure ValidatedPasswordMatch(CurrentPasswordToCompare: SecretText; PasswordToCompare: SecretText)
-    begin
-        if CurrentPasswordToCompare.Unwrap() <> PasswordToCompare.Unwrap() then
-            Error(CurrentPasswordMismatchErr);
-    end;
 }
