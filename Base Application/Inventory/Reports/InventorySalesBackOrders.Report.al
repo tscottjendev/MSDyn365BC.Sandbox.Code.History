@@ -160,7 +160,7 @@ report 718 "Inventory - Sales Back Orders"
                 {
                     IncludeCaption = true;
                 }
-                column(OtherBackOrders_SalesLine; OtherBackOrdersText)
+                column(OtherBackOrders_SalesLine; OtherBackOrders)
                 {
                 }
                 trigger OnAfterGetRecord()
@@ -171,7 +171,7 @@ report 718 "Inventory - Sales Back Orders"
 
                     SalesOrderLine.SetRange("Bill-to Customer No.", Cust."No.");
                     SalesOrderLine.SetFilter("No.", '<>' + Item."No.");
-                    OtherBackOrdersText := SalesOrderLine.FindFirst() ? 'Yes' : 'No';
+                    OtherBackOrders := SalesOrderLine.FindFirst();
                     SubtotalsOutstandingQty += "Sales Line"."Outstanding Quantity";
                 end;
 
@@ -299,7 +299,7 @@ report 718 "Inventory - Sales Back Orders"
     var
         Cust: Record Customer;
         SalesOrderLine: Record "Sales Line";
-        OtherBackOrdersText: Text;
+        OtherBackOrders: Boolean;
         ItemFilter: Text;
         ItemFilterTxt: Text;
         SalesLineFilter: Text;
