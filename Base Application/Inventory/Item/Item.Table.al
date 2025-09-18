@@ -3073,11 +3073,6 @@ table 27 Item
     end;
 
     procedure CheckDocuments(CurrentFieldNo: Integer)
-    begin
-        CheckDocuments(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-    end;
-
-    procedure CheckDocuments(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         IsHandled: Boolean;
     begin
@@ -3089,7 +3084,7 @@ table 27 Item
         if IsHandled then
             exit;
 
-        OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
+        OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo);
     end;
 
     procedure GetCannotChangeItemWithExistingDocumentLinesErr(): Text
@@ -3250,6 +3245,40 @@ table 27 Item
         if 1 + CalcVAT() = 0 then
             exit(0);
         exit(Round("Unit Price" / (1 + CalcVAT()), GLSetup."Unit-Amount Rounding Precision"));
+    end;
+
+    procedure GetFirstItemNoFromLookup(ItemText: Text): Code[20]
+    var
+        Item: Record Item;
+        SearchFilter: Text;
+    begin
+        if ItemText = '' then
+            exit('');
+        Item.SetLoadFields("No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then
+            if Item.Get(ItemText) then
+                exit(Item."No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then begin
+            Item.SetFilter("No.", ItemText + '*');
+            if Item.FindFirst() then
+                exit(Item."No.");
+            Item.SetRange("No.");
+        end;
+
+        // Filter the same way as in item lookup/dropdown, ref. fieldgroup for DropDown
+        SearchFilter := '@*' + ItemText + '*';
+        Item.FilterGroup(-1);
+        Item.SetFilter("No.", SearchFilter);
+        Item.SetFilter("No. 2", SearchFilter);
+        Item.SetFilter(Description, SearchFilter);
+        Item.SetFilter(GTIN, SearchFilter);
+        Item.SetFilter("Vendor Item No.", SearchFilter);
+        Item.SetFilter("Common Item No.", SearchFilter);
+        Item.SetFilter("Shelf No.", SearchFilter);
+        Item.FilterGroup(0);
+        if Item.FindFirst() then
+            exit(Item."No.");
+        Error(SelectItemErr);
     end;
 
     procedure GetItemNo(ItemText: Text): Code[20]
@@ -3862,7 +3891,7 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer)
     begin
     end;
 

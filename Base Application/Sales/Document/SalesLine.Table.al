@@ -186,6 +186,7 @@ table 37 "Sales Line"
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
             ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+            ValidateTableRelation = false;
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -214,6 +215,7 @@ table 37 "Sales Line"
                     exit;
 
                 GetSalesSetup();
+                Rec."No." := FindOrCreateRecordByNo(Rec."No.");
 
                 TestJobPlanningLine();
                 TestStatusOpen();
@@ -3791,6 +3793,7 @@ table 37 "Sales Line"
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
+        PurchasingCodeOnSalesInvoiceErr: Label 'The Purchasing Code should be blank for item %1 on the sales invoice because it is used only for the drop shipment process.', Comment = '%1= Item No.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4173,7 +4176,8 @@ table 37 "Sales Line"
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::"Blanket Order"] then
+        CheckPurchasingCodeForInvoice();
+        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"] then
             Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo, xRec);
 
@@ -7523,15 +7527,14 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Finds or creates a record by a given number and returns the number of the found or created record.
+    /// Finds or creates a record by a given number and returns the number of the found
     /// </summary>
-    /// <param name="SourceNo">A record number to find or create.</param>
-    /// <returns>Number of the found or newly created record.</returns>
+    /// <param name="SourceNo">A record number to find.</param>
+    /// <returns>Number of the found record.</returns>
     procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7539,15 +7542,12 @@ table 37 "Sales Line"
         if IsHandled then
             exit("No.");
 
-        GetSalesSetup();
-
-        if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
-
-        exit(SourceNo);
     end;
 
     /// <summary>
@@ -10360,6 +10360,23 @@ table 37 "Sales Line"
     local procedure CheckReceiptOrderStatus()
     begin
         OnCheckReceiptOrderStatus(Rec);
+    end;
+
+    local procedure CheckPurchasingCodeForInvoice()
+    var
+        Item: Record Item;
+        Purchasing: Record Purchasing;
+    begin
+        if (Rec."Document Type" <> Rec."Document Type"::Invoice) or (Rec.Type <> Rec.Type::Item) then
+            exit;
+
+        Item := GetItem();
+        if Item."Purchasing Code" = '' then
+            exit;
+
+        Purchasing.Get(Item."Purchasing Code");
+        if Purchasing."Drop Shipment" then
+            Error(PurchasingCodeOnSalesInvoiceErr, Rec."No.");
     end;
 
     [IntegrationEvent(false, false)]
