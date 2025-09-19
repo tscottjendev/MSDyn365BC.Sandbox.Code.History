@@ -3925,6 +3925,7 @@ codeunit 134984 "ERM Sales Report III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", CurrencyCode);
         GeneralLedgerSetup.Modify(true);
     end;
