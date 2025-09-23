@@ -7618,7 +7618,13 @@ table 81 "Gen. Journal Line"
         Employee: Record Employee;
         BankAccount: Record "Bank Account";
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccCurrencyCode(Rec, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit(CurrencyCode);
+
         if ("Account No." = '') or ("Currency Code" = '') then
             exit;
 
