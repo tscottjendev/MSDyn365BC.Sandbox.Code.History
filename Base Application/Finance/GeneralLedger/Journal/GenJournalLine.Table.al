@@ -5308,7 +5308,13 @@ table 81 "Gen. Journal Line"
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         CurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConvertAmtFCYToLCYForSourceCurrency(Rec, Amount, IsHandled);
+        if IsHandled then
+            exit(Amount);
+
         if (Amount = 0) or ("Source Currency Code" = '') then
             exit(Amount);
 
