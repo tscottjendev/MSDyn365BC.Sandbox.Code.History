@@ -4,16 +4,24 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 
+$requestedCountry = $country
+
 [System.Collections.ArrayList]$Versions = @()
 Get-BCArtifactUrl -select All -Type Sandbox -country $country -accept_insiderEula -storageAccount bcinsider -after ([DateTime]::Today.AddDays(-1)) | % {
     [System.Uri]$Url = $_
     $TempString = $Url.AbsolutePath
     [version]$Version = $TempString.Split('/')[2]
-    $country = $TempString.Split('/')[3]
+    $urlCountry = $TempString.Split('/')[3]
+
+    # Skip artifacts that don't match the requested country
+    if ($urlCountry -ne $requestedCountry) {
+        Write-Host "Skipping $urlCountry-$Version (requested country: $requestedCountry)"
+        return
+    }
 
     [hashtable]$objectProperty = @{}
     $objectProperty.Add('Version', $Version)
-    $objectProperty.Add('Country', $country)
+    $objectProperty.Add('Country', $urlCountry)
     $objectProperty.Add('URL', $Url)
     $ourObject = New-Object -TypeName psobject -Property $objectProperty
 
