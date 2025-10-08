@@ -2610,10 +2610,13 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+    // revert event parameter name back to 26.x name
+#pragma warning disable AS0025
     [IntegrationEvent(false, false)]
-    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; var SourceDocRecordVar: Variant)
+    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; var SourceDocRecordVar: Variant)
     begin
     end;
+#pragma warning restore AS0025
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvtMvntWithoutSourceOnAfterTransferFields(var WarehouseActivityLine: Record "Warehouse Activity Line"; InternalMovementLine: Record "Internal Movement Line")
@@ -2625,10 +2628,13 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+    // revert event parameter name back to 26.x name
+#pragma warning disable AS0025
     [IntegrationEvent(true, false)]
-    local procedure OnAutoCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant);
+    local procedure OnAutoCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant);
     begin
     end;
+#pragma warning restore AS0025
 
     [IntegrationEvent(true, false)]
     local procedure OnCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant)
