@@ -7,7 +7,6 @@ namespace Microsoft.FixedAssets.Posting;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.FixedAssets.Journal;
-using Microsoft.Foundation.NoSeries;
 
 codeunit 5636 "FA. Jnl.-Post"
 {
@@ -15,10 +14,7 @@ codeunit 5636 "FA. Jnl.-Post"
     TableNo = "FA Journal Line";
 
     trigger OnRun()
-    var
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
         FAJnlLine.Copy(Rec);
         Code();
         Rec.Copy(FAJnlLine);

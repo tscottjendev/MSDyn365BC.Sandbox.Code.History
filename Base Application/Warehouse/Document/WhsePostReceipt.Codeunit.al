@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Document;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Preview;
@@ -34,10 +38,7 @@ codeunit 5760 "Whse.-Post Receipt"
     TableNo = "Warehouse Receipt Line";
 
     trigger OnRun()
-    var
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
         OnBeforeRun(Rec, SuppressCommit, PreviewMode);
 
         WhseRcptLine.Copy(Rec);
@@ -155,7 +156,9 @@ codeunit 5760 "Whse.-Post Receipt"
             if not IsHandled then
                 PostSourceDocument(WhseRcptLine);
 
+            WhseRcptLine.ReadIsolation(IsolationLevel::ReadUnCommitted); // to avoid range lock with next batch
             if WhseRcptLine.FindLast() then;
+            WhseRcptLine.ReadIsolation(IsolationLevel::UpdLock);
             WhseRcptLine.SetRange("Source Type");
             WhseRcptLine.SetRange("Source Subtype");
             WhseRcptLine.SetRange("Source No.");
@@ -220,7 +223,6 @@ codeunit 5760 "Whse.-Post Receipt"
                     SourceHeader := PurchHeader;
                 end;
             Database::"Sales Line":
-                // Return Order
                 begin
                     SalesHeader.Get(WhseRcptLine."Source Subtype", WhseRcptLine."Source No.");
                     SourceHeader := SalesHeader;
