@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.Posting;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Inventory.Journal;
-using Microsoft.Foundation.NoSeries;
 
 codeunit 241 "Item Jnl.-Post"
 {
@@ -15,10 +14,7 @@ codeunit 241 "Item Jnl.-Post"
     TableNo = "Item Journal Line";
 
     trigger OnRun()
-    var
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
         ItemJnlLine.Copy(Rec);
         Code();
         Rec.Copy(ItemJnlLine);
