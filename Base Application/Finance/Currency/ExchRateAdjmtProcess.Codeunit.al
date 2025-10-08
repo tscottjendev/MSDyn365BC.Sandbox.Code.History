@@ -19,7 +19,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -44,11 +43,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     TableNo = "Exch. Rate Adjmt. Parameters";
 
     trigger OnRun()
-    var
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
-
     begin
-        SequenceNoMgt.SetPreviewMode(Rec."Preview Posting");
         ExchRateAdjmtParameters.Copy(Rec);
 
         SourceCodeSetup.Get();
@@ -1747,6 +1742,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
         GenJournalLine."Journal Template Name" := ExchRateAdjmtParameters."Journal Template Name";
         GenJournalLine."Journal Batch Name" := ExchRateAdjmtParameters."Journal Batch Name";
+        GenJournalLine."Zero Src. Curr. Amount" := true;
         SetPostingDimensions(GenJournalLine, DimensionSetEntry);
         OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJournalLine, ExchRateAdjmtParameters);
         GenJnlPostLine.Run(GenJournalLine);
