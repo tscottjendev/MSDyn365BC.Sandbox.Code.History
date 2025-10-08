@@ -26,15 +26,15 @@ codeunit 6400 "Flow Service Management"
         FlowUrlProdTxt: Label 'https://make.powerautomate.com/', Locked = true;
         FlowUrlTip1Txt: Label 'https://make.test.powerautomate.com/', Locked = true;
         FlowARMResourceUrlTxt: Label 'https://management.core.windows.net/', Locked = true;
-        FlowEnvironmentsProdApiTxt: Label 'https://api.flow.microsoft.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
-        FlowEnvironmentsTip1ApiTxt: Label 'https://tip1.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
         GenericErr: Label 'An error occurred while trying to access the Power Automate service. Please try again or contact your system administrator if the error persists.';
         FlowResourceNameTxt: Label 'Flow Services';
         FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Power Automate in the Azure portal. Contact your system administrator.';
         FlowLinkUrlFormatTxt: Label '%1/flows/%2/details', Locked = true;
         FlowLinkInvalidFlowIdErr: Label 'An invalid flow ID was provided.';
-        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
         NullGuidReceivedMsg: Label 'Encountered an null GUID value as Power Automate Environment ID.', Locked = true;
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
+        EmptyPowerPlatformTenantTelemetryMsg: Label 'Encountered an empty Power Platform Tenant URL for Power Automate services.', Locked = true;
+        PowerAutomateURLTelemetryMsg: Label 'Power Automate Environment URL: %1', Locked = true, Comment = '%1: URL used to access Power Automate environments';
         PowerAutomatePickerTelemetryCategoryLbl: Label 'AL Power Automate Environment Picker', Locked = true;
         MicrosoftPowerAutomatePrivacyIdTxt: Label 'Power Automate', Locked = true;
 
@@ -77,7 +77,7 @@ codeunit 6400 "Flow Service Management"
         if TryGetFlowEnvironmentsApi(FlowEnvironmentsApi) then
             exit(FlowEnvironmentsApi);
 
-        exit(FlowEnvironmentsProdApiTxt);
+        exit('');
     end;
 
     procedure GetFlowDetailsUrl(FlowId: Guid) FlowDetailsUrl: Text
@@ -314,14 +314,16 @@ codeunit 6400 "Flow Service Management"
     [TryFunction]
     local procedure TryGetFlowEnvironmentsApi(var FlowEnvironmentsApi: Text)
     var
-        FlowServiceConfiguration: Record "Flow Service Configuration";
+        AzureADTenant: Codeunit "Azure AD Tenant";
     begin
-        FlowEnvironmentsApi := FlowEnvironmentsProdApiTxt;
-        if FlowServiceConfiguration.FindFirst() then
-            case FlowServiceConfiguration."Flow Service" of
-                FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)":
-                    FlowEnvironmentsApi := FlowEnvironmentsTip1ApiTxt;
-            end;
+        if AzureADTenant.GetPowerPlatformTenantURL() = '' then begin
+            Session.LogMessage('0000Q79', EmptyPowerPlatformTenantTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
+            FlowEnvironmentsApi := '';
+            exit;
+        end;
+
+        FlowEnvironmentsApi := 'https://' + AzureADTenant.GetPowerPlatformTenantURL() + '/powerautomate/environments?api-version=1';
+        Session.LogMessage('0000Q7A', StrSubstNo(PowerAutomateURLTelemetryMsg, FlowEnvironmentsApi), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
     end;
 
     [InternalEvent(false)]
