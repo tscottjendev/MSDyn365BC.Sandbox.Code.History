@@ -6,6 +6,8 @@ namespace System.Tooling;
 
 using System.Reflection;
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 codeunit 9640 "Column Picker Helper"
 {
     Access = Internal;
