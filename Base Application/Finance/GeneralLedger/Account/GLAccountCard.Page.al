@@ -145,6 +145,17 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the balance on this account.';
                 }
+#if not CLEAN25
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the foreign currency code.';
+                    ObsoleteReason = 'Replaced by W1 field Account Currency Code';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    Visible = not SourceCurrencyVisible;
+                }
+#endif
                 field("Reconciliation Account"; Rec."Reconciliation Account")
                 {
                     ApplicationArea = Basic, Suite;

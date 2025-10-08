@@ -11,6 +11,9 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
+#if not CLEAN25
+using Microsoft.Finance.Currency;
+#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
@@ -52,6 +55,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
 #if not CLEAN25
+        GLForeignCurrMgt: Codeunit GlForeignCurrMgt;
         FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
 #endif
         SkipFiscalYearCheck: Boolean;
@@ -202,8 +206,13 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
 #if not CLEAN25
         if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
-#endif
+            CheckCurrencyCode(GenJnlLine)
+        else
+            if CheckGLForeignCurrMgtPermission() or (CopyStr(SerialNumber, 7, 3) = '000') then
+                GLForeignCurrMgt.CheckCurrCode(GenJnlLine);
+#else
         CheckCurrencyCode(GenJnlLine);
+#endif
 
         if CostAccSetup.Get() then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
@@ -703,6 +712,16 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     GenJournalLine));
     end;
 
+#if not CLEAN25
+    local procedure CheckGLForeignCurrMgtPermission(): Boolean
+    var
+        LicensePermission: Record System.Security.AccessControl."License Permission";
+    begin
+        exit(
+          (LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::GlForeignCurrMgt) and
+          (LicensePermission."Read Permission" = LicensePermission."Read Permission"::Yes)));
+    end;
+#endif
 
     procedure CheckDocType(GenJnlLine: Record "Gen. Journal Line")
     var

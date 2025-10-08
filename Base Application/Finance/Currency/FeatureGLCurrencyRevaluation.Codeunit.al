@@ -1,13 +1,15 @@
-#if not CLEAN25
+﻿#if not CLEAN25
 namespace System.Environment.Configuration;
 
 using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Navigate;
 
 codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
 {
     Access = Internal;
-    Permissions = TableData "Feature Data Update Status" = rm;
+    Permissions = TableData "Feature Data Update Status" = rm,
+                  TableData "G/L Entry" = m;
     ObsoleteReason = 'Feature G/L Currency Revaluation will be enabled by default in version 27.0.';
     ObsoleteState = Pending;
     ObsoleteTag = '24.0';
@@ -17,7 +19,7 @@ codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
         TempDocumentEntry: Record "Document Entry" temporary;
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";
         GLAccountRevaluationTxt: Label 'G/L Currency Revaluation';
-        DescriptionTxt: Label 'If you enable this feature, general ledger entries with postings in source currency will be processed to set up corresponding G/L accounts.';
+        DescriptionTxt: Label '(CH Only) If you enable this feature, data from local Currency Code and Amount fields will be transferred to new Source Currency and Amount fields.';
 
     procedure IsDataUpdateRequired(): Boolean;
     begin
@@ -64,17 +66,25 @@ codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
     local procedure CountRecords(): Integer
     var
         GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
     begin
         TempDocumentEntry.Reset();
         TempDocumentEntry.DeleteAll();
 
+        GLAccount.SetFilter("Currency Code", '<>%1', '');
+        GLEntry.SetFilter("Amount (FCY)", '<>%1', 0);
+        if GLAccount.IsEmpty() and GLEntry.IsEmpty() then
+            exit(0);
+
         InsertDocumentEntry(Database::"G/L Account", GLAccount.TableCaption(), GLAccount.CountApprox());
+        InsertDocumentEntry(Database::"G/L Entry", GLEntry.TableCaption(), GLEntry.CountApprox());
     end;
 
     local procedure MigrateCurrencyData()
     var
         GLAccount: Record "G/L Account";
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
+        GLEntry: Record "G/L Entry";
         CurrencyCounter: Integer;
     begin
         GLAccount.Reset();
@@ -93,6 +103,15 @@ codeunit 5891 "Feature-GLCurrencyRevaluation" implements "Feature Data Update"
                 if CurrencyCounter > 0 then
                     GLAccount.Modify();
             until GLAccount.Next() = 0;
+
+        GLEntry.SetFilter("Amount (FCY)", '<>%1', 0);
+        if GLEntry.FindSet() then
+            repeat
+                GLAccount.Get(GLEntry."G/L Account No.");
+                GLEntry."Source Currency Code" := GLAccount."Source Currency Code";
+                GLEntry."Source Currency Amount" := GLEntry."Amount (FCY)";
+                GLEntry.Modify();
+            until GLEntry.Next() = 0;
     end;
 
     local procedure InsertDocumentEntry(TableID: Integer; TableName: Text; RecordCount: Integer)

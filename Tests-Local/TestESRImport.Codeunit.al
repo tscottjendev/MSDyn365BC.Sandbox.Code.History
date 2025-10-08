@@ -753,15 +753,24 @@ codeunit 144043 "Test ESR Import"
         // We cannot use LibraryERM since we need exactly 3 bytes CurrencyCodes that we can properly fill out the ESR file.
         CurrencyCode := Format(LibraryRandom.RandIntInRange(100, 999));
         StartingDate := WorkDate();
+#if not CLEAN25
+        GLAccount."Currency Code" := CurrencyCode;
+#else
         GLAccount."Source Currency Code" := CurrencyCode;
+#endif
         GLAccount.Modify(true);
 
         if not Currency.Get(CurrencyCode) then begin
             Currency.Init();
             Currency.Validate(Code, CurrencyCode);
             Currency.Insert(true);
+#if not CLEAN25
+            LibraryERM.CreateExchangeRate(GLAccount."Currency Code", StartingDate,
+              LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+#else
             LibraryERM.CreateExchangeRate(GLAccount."Source Currency Code", StartingDate,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+#endif
         end;
     end;
 
@@ -2235,3 +2244,4 @@ codeunit 144043 "Test ESR Import"
         FileHdl.Close();
     end;
 }
+

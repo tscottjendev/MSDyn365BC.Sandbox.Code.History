@@ -172,6 +172,26 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies the G/L account balance on the last date included in the Date Filter field.';
                     Visible = false;
                 }
+#if not CLEAN25
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the foreign currency code.';
+                    ObsoleteReason = 'Replaced by W1 field Account Currency Code';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    Visible = not SourceCurrencyVisible;
+                }
+                field("Balance (FCY)"; Rec."Balance (FCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the foreign currency balance in the G/L account.';
+                    ObsoleteReason = 'Replaced by W1 field Balance FCY';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    Visible = not SourceCurrencyVisible;
+                }
+#endif
                 field("Additional-Currency Net Change"; Rec."Additional-Currency Net Change")
                 {
                     ApplicationArea = Basic, Suite;

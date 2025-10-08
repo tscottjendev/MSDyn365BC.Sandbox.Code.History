@@ -489,13 +489,18 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-#if not CLEANSCHEMA27
+#if not CLEANSCHEMA28
         field(3010536; "Amount (FCY)"; Decimal)
         {
             Caption = 'Amount (FCY)';
             ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
+#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#endif
         }
 #endif
     }

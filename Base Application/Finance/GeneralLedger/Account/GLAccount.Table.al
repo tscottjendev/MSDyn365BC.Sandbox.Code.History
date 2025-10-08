@@ -786,14 +786,26 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
         }
-#if not CLEANSCHEMA27
+#if not CLEANSCHEMA28
         field(3010536; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
             ObsoleteReason = 'Replaced by W1 field Source Currency Code';
+#if CLEAN25
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+
+            trigger OnValidate()
+            var
+                GlForeignCurrMgt: Codeunit GlForeignCurrMgt;
+            begin
+                GlForeignCurrMgt.NewCurrCode(Rec, xRec);
+            end;
+#endif
         }
         field(3010537; "Balance (FCY)"; Decimal)
         {
@@ -807,8 +819,13 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Currency Balance';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
             ObsoleteState = removed;
             ObsoleteTag = '27.0';
+#endif
         }
         field(3010538; "Balance at Date (FCY)"; Decimal)
         {
@@ -823,8 +840,13 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Curr. Balance at Date';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
             ObsoleteState = removed;
             ObsoleteTag = '27.0';
+#endif
         }
         field(3010539; "Movement (FCY)"; Decimal)
         {
@@ -839,8 +861,13 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by W1 field Source Currency Net Change';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
             ObsoleteState = removed;
             ObsoleteTag = '27.0';
+#endif
         }
 #endif
     }

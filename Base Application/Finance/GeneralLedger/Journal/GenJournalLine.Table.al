@@ -70,6 +70,9 @@ using System.Automation;
 using System.IO;
 using System.DateTime;
 using System.Environment.Configuration;
+#if not CLEAN25
+using System.Security.AccessControl;
+#endif
 using System.Utilities;
 
 table 81 "Gen. Journal Line"
@@ -3348,6 +3351,10 @@ table 81 "Gen. Journal Line"
         DimMgt: Codeunit DimensionManagement;
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         LSVMgt: Codeunit LSVMgt;
+#if not CLEAN25
+        GLForeignCurrMgt: Codeunit GlForeignCurrMgt;
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         DTAMgt: Codeunit DtaMgt;
         DeferralUtilities: Codeunit "Deferral Utilities";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -3484,20 +3491,14 @@ table 81 "Gen. Journal Line"
     /// Also, updates the allocations for the line and validates the deferral code field if necessary.
     /// </remarks>
     procedure UpdateLineBalance()
+    var
+        IsHandled: Boolean;
     begin
-        "Debit Amount" := 0;
-        "Credit Amount" := 0;
+        IsHandled := false;
+        OnUpdateLineBalanceOnBeforeUpdateAmounts(Rec, IsHandled);
+        if not IsHandled then
+            UpdateAmounts();
 
-        if ((Amount > 0) and (not Correction)) or
-           ((Amount < 0) and Correction)
-        then
-            "Debit Amount" := Amount
-        else
-            if Amount <> 0 then
-                "Credit Amount" := -Amount;
-
-        if "Currency Code" = '' then
-            "Amount (LCY)" := Amount;
         case true of
             ("Account No." <> '') and ("Bal. Account No." <> ''):
                 "Balance (LCY)" := 0;
@@ -3517,6 +3518,26 @@ table 81 "Gen. Journal Line"
 
         if ("Deferral Code" <> '') and (Amount <> xRec.Amount) and ((Amount <> 0) and (xRec.Amount <> 0)) then
             Validate("Deferral Code");
+    end;
+
+    /// <summary>
+    /// Updates the debit and credit amounts based on the current line's amount and correction status.
+    /// </summary>
+    procedure UpdateAmounts()
+    begin
+        "Debit Amount" := 0;
+        "Credit Amount" := 0;
+
+        if ((Amount > 0) and (not Correction)) or
+           ((Amount < 0) and Correction)
+        then
+            "Debit Amount" := Amount
+        else
+            if Amount <> 0 then
+                "Credit Amount" := -Amount;
+
+        if "Currency Code" = '' then
+            "Amount (LCY)" := Amount;
     end;
 
     /// <summary>
@@ -5952,6 +5973,16 @@ table 81 "Gen. Journal Line"
         OnAfterClearBalPostingGroups(Rec);
     end;
 
+#if not CLEAN25
+    local procedure CheckGLForeignCurrMgtPermission(): Boolean
+    var
+        LicensePermission: Record "License Permission";
+    begin
+        exit(
+          (LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::GlForeignCurrMgt) and
+          (LicensePermission."Read Permission" = LicensePermission."Read Permission"::Yes)));
+    end;
+#endif
 
     procedure CancelBackgroundPosting()
     var
@@ -7004,9 +7035,19 @@ table 81 "Gen. Journal Line"
                 ClearPostingGroups();
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
+#if not CLEAN25
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+            GLSetup.Get();
+            if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
+                "Currency Code" := GLAcc."Source Currency Code";
+        end else
+            if CheckGLForeignCurrMgtPermission() or (CopyStr(SerialNumber, 7, 3) = '000') then
+                GLForeignCurrMgt.GetCurrCode("Account No.", Rec);
+#else
         GLSetup.Get();
         if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
             "Currency Code" := GLAcc."Source Currency Code";
+#endif
 
         OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc, CurrFieldNo);
     end;
@@ -7055,9 +7096,19 @@ table 81 "Gen. Journal Line"
             if "Posting Date" = ClosingDate("Posting Date") then
                 ClearBalancePostingGroups();
 
+#if not CLEAN25
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+            GLSetup.Get();
+            if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
+                "Currency Code" := GLAcc."Source Currency Code";
+        end else
+            if CheckGLForeignCurrMgtPermission() then
+                GLForeignCurrMgt.GetCurrCode("Bal. Account No.", Rec);
+#else
         GLSetup.Get();
         if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
             "Currency Code" := GLAcc."Source Currency Code";
+#endif
 
         OnAfterAccountNoOnValidateGetGLBalAccount(Rec, GLAcc, CurrFieldNo);
     end;
@@ -12019,6 +12070,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFAAddCurrExchRateOnBeforeFADeprBookTestField(var FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
