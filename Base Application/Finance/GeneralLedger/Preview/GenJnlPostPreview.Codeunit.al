@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Preview;
 
 using Microsoft.Finance.Dimension;
@@ -69,6 +73,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecVar, 0, PreviewModeErr);
         OnAfterBindSubscription(PostingPreviewEventHandler);
+        SequenceNoMgt.StartPreviewMode();
 
         RunResult := RunPreview(Subscriber, RecVar);
 
