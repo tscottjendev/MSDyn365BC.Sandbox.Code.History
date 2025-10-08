@@ -186,6 +186,7 @@ table 37 "Sales Line"
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
             ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+            ValidateTableRelation = false;
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -214,6 +215,7 @@ table 37 "Sales Line"
                     exit;
 
                 GetSalesSetup();
+                Rec."No." := FindOrCreateRecordByNo(Rec."No.");
 
                 TestJobPlanningLine();
                 TestStatusOpen();
@@ -7442,15 +7444,14 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Finds or creates a record by a given number and returns the number of the found or created record.
+    /// Finds or creates a record by a given number and returns the number of the found
     /// </summary>
-    /// <param name="SourceNo">A record number to find or create.</param>
-    /// <returns>Number of the found or newly created record.</returns>
+    /// <param name="SourceNo">A record number to find.</param>
+    /// <returns>Number of the found record.</returns>
     procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7458,15 +7459,12 @@ table 37 "Sales Line"
         if IsHandled then
             exit("No.");
 
-        GetSalesSetup();
-
-        if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
-
-        exit(SourceNo);
     end;
 
     /// <summary>
