@@ -6,6 +6,8 @@ namespace System.Tooling;
 
 using System.Reflection;
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 page 9644 "Column Picker Part"
 {
     PageType = ListPart;
