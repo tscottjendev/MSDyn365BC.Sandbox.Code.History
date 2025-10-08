@@ -1269,7 +1269,8 @@ table 77 "Report Selections"
                                             Database::"Sales Invoice Header",
                                             Database::"Sales Cr.Memo Header",
                                             Database::"Sales Shipment Header",
-                                            Database::"Return Receipt Header"];
+                                            Database::"Return Receipt Header",
+                                            Database::"Issued Reminder Header"];
 
         OnAfterIsCustomerAccount(DocumentTableId, IsCustomer);
     end;
@@ -1521,7 +1522,10 @@ table 77 "Report Selections"
         // Related Source - Customer or vendor receiving the document
         TableId := GetAccountTableId(DocumentRecord.Number());
         if TableId = Database::Customer then begin
-            FieldName := 'Sell-to Customer No.';
+            if DocumentRecord.Number() = Database::"Issued Reminder Header" then
+                FieldName := 'Customer No.'
+            else
+                FieldName := 'Sell-to Customer No.';
             OnSendEmailDirectlyOnAfterSetFieldName(DocumentRecord.Number(), FieldName);
             if DataTypeManagement.FindfieldByName(DocumentRecord, FieldRef, FieldName) and Customer.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Customer);
@@ -1972,7 +1976,7 @@ table 77 "Report Selections"
         exit(CopyReportSelectionToReportSelection(TempReportSelections));
     end;
 
-    local procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer) Result: Boolean
+    procedure CopyCustomReportSectionToReportSelection(AccountNo: Code[20]; var TempToReportSelections: Record "Report Selections" temporary; TableNo: Integer) Result: Boolean
     var
         CustomReportSelection: Record "Custom Report Selection";
         IsHandled: Boolean;
@@ -2021,6 +2025,7 @@ table 77 "Report Selections"
                 if TempToReportSelections.Insert() then;
             until Next() = 0;
 
+        OnAfterCopyReportSelectionToReportSelection(Rec, TempToReportSelections);
         exit(TempToReportSelections.FindSet());
     end;
 
@@ -2693,6 +2698,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempBlob: Codeunit "Temp Blob"; var DocumentMailing: Codeunit "Document-Mailing"; DocumentNo: Code[20]; DocumentName: Text[150]; EmailAddress: Text[250]; AllEmailsWereSuccessful: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyReportSelectionToReportSelection(ReportSelections: Record "Report Selections"; var TempToReportSelections: Record "Report Selections" temporary)
     begin
     end;
 }
