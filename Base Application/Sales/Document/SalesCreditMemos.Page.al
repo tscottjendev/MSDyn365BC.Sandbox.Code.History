@@ -29,6 +29,7 @@ page 9302 "Sales Credit Memos"
     DataCaptionFields = "Sell-to Customer No.";
     Editable = false;
     PageType = List;
+    AboutText = 'Create, manage, and post sales credit memos to process customer refunds, returns, cancellations, and allowances, and apply credits to specific customer ledger entries to update account balances.';
     QueryCategory = 'Sales Credit Memos';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
@@ -711,6 +712,15 @@ page 9302 "Sales Credit Memos"
                         Image = "Report";
                         RunObject = Report "Customer - Summary Aging Simp.";
                         ToolTip = 'View, print, or save a summary of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
+                    }
+                    action("Customer - Detailed Aging")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Customer - Detailed Aging';
+                        Image = "Report";
+                        RunObject = Report "Customer Detailed Aging";
+                        ToolTip = 'View, print, or save a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
+                        Visible = false;
                     }
                     action("Aged Accounts Receivable")
                     {
