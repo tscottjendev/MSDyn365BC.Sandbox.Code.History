@@ -4983,6 +4983,7 @@ codeunit 22 "Item Jnl.-Post Line"
         OnUndoQuantityPostingOnBeforeInsertApplEntry(NewItemLedgEntry, OldItemLedgEntry, GlobalItemLedgEntry);
         if NewItemLedgEntry.Positive then begin
             UpdateOrigAppliedFromEntry(OldItemLedgEntry."Entry No.");
+            OldItemLedgEntry.SetAppliedEntryToAdjust(true);
             InsertApplEntry(
               NewItemLedgEntry."Entry No.", NewItemLedgEntry."Entry No.",
               OldItemLedgEntry."Entry No.", 0, NewItemLedgEntry."Posting Date",
