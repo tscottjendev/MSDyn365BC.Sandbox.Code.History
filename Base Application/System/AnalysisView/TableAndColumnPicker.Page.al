@@ -4,6 +4,8 @@
 // // ------------------------------------------------------------------------------------------------
 namespace System.Tooling;
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 page 9643 "Table and Column Picker"
 {
     PageType = List;

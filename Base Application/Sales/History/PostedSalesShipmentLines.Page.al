@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Utilities;
 
 page 525 "Posted Sales Shipment Lines"
 {
@@ -12,6 +13,7 @@ page 525 "Posted Sales Shipment Lines"
     Caption = 'Posted Sales Shipment Lines';
     Editable = false;
     PageType = List;
+    AboutText = 'Review detailed records of items, quantities, and related information for each line in posted sales shipments, helping you track what has been shipped to customers and the status of invoicing for those shipments.';
     SourceTable = "Sales Shipment Line";
     UsageCategory = History;
 
@@ -151,9 +153,11 @@ page 525 "Posted Sales Shipment Lines"
                     ToolTip = 'Open the document that the selected line exists on.';
 
                     trigger OnAction()
+                    var
+                        PageManagement: Codeunit "Page Management";
                     begin
                         SalesShptHeader.Get(Rec."Document No.");
-                        PAGE.Run(PAGE::"Posted Sales Shipment", SalesShptHeader);
+                        PageManagement.PageRun(SalesShptHeader);
                     end;
                 }
                 action(Dimensions)
