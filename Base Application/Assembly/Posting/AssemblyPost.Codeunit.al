@@ -50,7 +50,6 @@ codeunit 900 "Assembly-Post"
         AssemblyHeader: Record "Assembly Header";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         SavedSuppressCommit: Boolean;
         SavedPreviewMode: Boolean;
     begin
@@ -64,7 +63,6 @@ codeunit 900 "Assembly-Post"
         ClearAll();
         SuppressCommit := SavedSuppressCommit;
         PreviewMode := SavedPreviewMode;
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
 
         AssemblyHeader := Rec;
 
@@ -75,9 +73,11 @@ codeunit 900 "Assembly-Post"
         Window.Update(1, StrSubstNo('%1 %2', Rec."Document Type", Rec."No."));
 
         InitPost(AssemblyHeader);
+        Clear(PostponedValueEntries);
         BindSubscription(this); // To collect value entries for GLPosting
         Post(AssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine, false);
         UnBindSubscription(this);
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
         FinalizePost(AssemblyHeader);
         if not (SuppressCommit or PreviewMode) then
             Commit();
@@ -103,6 +103,7 @@ codeunit 900 "Assembly-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
+        PostponedValueEntries: List of [Integer];
         ItemsToAdjust: List of [Code[20]];
         PostingDate: Date;
         SourceCode: Code[10];
@@ -1042,8 +1043,14 @@ codeunit 900 "Assembly-Post"
     procedure Undo(var PostedAsmHeader: Record "Posted Assembly Header"; RecreateAsmOrder: Boolean)
     var
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        SavedSuppressCommit: Boolean;
+        SavedPreviewMode: Boolean;
     begin
+        SavedSuppressCommit := SuppressCommit;
+        SavedPreviewMode := PreviewMode;
         ClearAll();
+        SuppressCommit := SavedSuppressCommit;
+        PreviewMode := SavedPreviewMode;
 
         Window.Open(
           '#1#################################\\' +
@@ -1600,6 +1607,17 @@ codeunit 900 "Assembly-Post"
             WhseItemTrackingLine.Delete();
             exit(true);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
