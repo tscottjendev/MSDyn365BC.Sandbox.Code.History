@@ -4921,6 +4921,8 @@ table 37 "Sales Line"
     var
         PriceCalculation: Interface "Price Calculation";
     begin
+        if Rec.Type = Rec.Type::" " then
+            exit(false);
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
@@ -9683,7 +9685,7 @@ table 37 "Sales Line"
         "Currency Code" := SalesHeader."Currency Code";
         InitHeaderLocactionCode(SalesHeader);
         "Customer Price Group" := SalesHeader."Customer Price Group";
-        "Customer Disc. Group" := SalesHeader."Customer Disc. Group";
+        Validate("Customer Disc. Group", SalesHeader."Customer Disc. Group");
         "Allow Line Disc." := SalesHeader."Allow Line Disc.";
         "Transaction Type" := SalesHeader."Transaction Type";
         "Transport Method" := SalesHeader."Transport Method";
