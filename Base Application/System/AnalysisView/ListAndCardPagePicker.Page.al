@@ -7,6 +7,8 @@ namespace System.Tooling;
 using System.Reflection;
 using System.Apps;
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
 page 9641 "List and Card page picker"
 {
     PageType = List;
