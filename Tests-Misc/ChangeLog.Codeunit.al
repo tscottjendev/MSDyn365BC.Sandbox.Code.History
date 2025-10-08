@@ -2029,6 +2029,7 @@ codeunit 139031 "Change Log"
     var
         TenantWebService: Record "Tenant Web Service";
         ChangeLogEntry: Record "Change Log Entry";
+        ChangelogManagement: Codeunit "Change Log Management";
         RecRef: RecordRef;
         LocalTableNo: Integer;
     begin
@@ -2040,20 +2041,21 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(LocalTableNo, LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // Exercise: Setting the primary key value, exceeding the max length for ChangeLogEntry fields.
-        TenantWebService.Init();
         TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
         TenantWebService."Service Name" :=
           CopyStr(LibraryRandom.RandText(MaxStrLen(ChangeLogEntry."Primary Key Field 2 Value") + 1),
             1, MaxStrLen(TenantWebService."Service Name"));
-        TenantWebService.Insert(true);
 
         RecRef.GetTable(TenantWebService);
+
+        // Global trigger management may have cache the mask for this table. We need to call the method directly to unit test the functionality
+        ChangelogManagement.LogInsertion(RecRef);
 
         // Verify: Check if the values are correctly logged in ChangeLogEntry
         ChangeLogEntry.SetRange("Table No.", LocalTableNo);
         ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Insertion);
         ChangeLogEntry.SetRange("User ID", UserId);
-        ChangeLogEntry.SetRange("Primary Key", RecRef.GetPosition(false));
+        ChangeLogEntry.SetRange("Primary Key", CopyStr(RecRef.GetPosition(false), 1, MaxStrLen(ChangeLogEntry."Primary Key")));
         ChangeLogEntry.SetRange("Field No.", TenantWebService.FieldNo("Service Name"));
 
         Assert.RecordCount(ChangeLogEntry, 1);
