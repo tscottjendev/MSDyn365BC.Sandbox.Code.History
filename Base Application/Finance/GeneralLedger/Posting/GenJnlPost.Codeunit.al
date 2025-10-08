@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Posting;
 
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -6,7 +10,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.BatchProcessing;
-using Microsoft.Foundation.NoSeries;
 using System.Utilities;
 
 codeunit 231 "Gen. Jnl.-Post"
@@ -17,9 +20,7 @@ codeunit 231 "Gen. Jnl.-Post"
     trigger OnRun()
     var
         GenJnlLine: Record "Gen. Journal Line";
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
         GenJnlLine.Copy(Rec);
         Code(GenJnlLine);
         Rec.Copy(GenJnlLine);
