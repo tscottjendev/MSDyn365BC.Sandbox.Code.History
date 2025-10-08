@@ -1025,7 +1025,6 @@
         exit(Language.Code);
     end;
 
-#if not CLEAN25
     procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Enum "Sales Line Discount Type"; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesLineDiscount.Init();
@@ -1055,7 +1054,6 @@
         PurchaseLineDiscount.Validate("Minimum Quantity", MinimumQuantity);
         PurchaseLineDiscount.Insert(true);
     end;
-#endif
 
     procedure CreateNoSeriesCode(): Code[20]
     var
@@ -2832,6 +2830,7 @@
     procedure SetLCYCode(LCYCode: Code[10])
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", LCYCode);
         GeneralLedgerSetup.Modify(true);
     end;

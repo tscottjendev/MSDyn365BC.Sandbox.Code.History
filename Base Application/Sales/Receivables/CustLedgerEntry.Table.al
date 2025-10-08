@@ -15,6 +15,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Intercompany.Partner;
@@ -993,6 +994,7 @@ table 21 "Cust. Ledger Entry"
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         IssuedReminderHeader: Record "Issued Reminder Header";
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
         IsPageOpened: Boolean;
     begin
@@ -1004,12 +1006,12 @@ table 21 "Cust. Ledger Entry"
         case "Document Type" of
             "Document Type"::Invoice:
                 if SalesInvoiceHdr.Get("Document No.") then begin
-                    PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHdr);
+                    PageManagement.PageRun(SalesInvoiceHdr);
                     exit(true);
                 end;
             "Document Type"::"Credit Memo":
                 if SalesCrMemoHdr.Get("Document No.") then begin
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHdr);
+                    PageManagement.PageRun(SalesCrMemoHdr);
                     exit(true);
                 end;
             "Document Type"::"Finance Charge Memo":
@@ -1347,6 +1349,70 @@ table 21 "Cust. Ledger Entry"
             exit(false);
 
         exit(Math.Sign(Amount1) <> Math.Sign(Amount2));
+    end;
+
+
+    procedure GetDocumentVATPostingSetup(var TempVATPostingSetup: Record "VAT Posting Setup"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if not (Rec."Document Type" in [Rec."Document Type"::"Credit Memo", Rec."Document Type"::Invoice]) then
+            exit;
+
+        if not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::"Credit Memo", GenJnlLine."Document Type"::Invoice]) then
+            exit;
+
+        InsertTempVATPostingSetup(TempVATPostingSetup, GenJnlLine."Document No.");
+        InsertTempVATPostingSetup(TempVATPostingSetup, Rec."Document No.");
+    end;
+
+    procedure GetDocumentVATPostingSetup(var TempVATPostingSetup: Record "VAT Posting Setup"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        if not (Rec."Document Type" in [Rec."Document Type"::"Credit Memo", Rec."Document Type"::Invoice]) then
+            exit;
+
+        if not (CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice]) then
+            exit;
+        InsertTempVATPostingSetup(TempVATPostingSetup, CustLedgerEntry."Document No.");
+    end;
+
+    local procedure InsertTempVATPostingSetup(var TempVATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20])
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                if not TempVATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then begin
+                    TempVATPostingSetup.Init();
+                    TempVATPostingSetup."VAT Bus. Posting Group" := SalesCrMemoLine."VAT Bus. Posting Group";
+                    TempVATPostingSetup."VAT Prod. Posting Group" := SalesCrMemoLine."VAT Prod. Posting Group";
+                    TempVATPostingSetup.Insert();
+                end;
+            until SalesCrMemoLine.Next() = 0;
+    end;
+
+    procedure GetInvoicePartAmountByVAT(DocType: Enum "Gen. Journal Document Type"; GenJnlLine: Record "Gen. Journal Line";
+        VATBusPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20]) InvoicePartAmount: Decimal
+    var
+        SalesInvLine: Record "Sales Invoice Line";
+        BaseInvoicePartAmount: Decimal;
+    begin
+        BaseInvoicePartAmount := Rec."Amount (LCY)";
+
+        SalesInvLine.SetCurrentKey("Document No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group");
+        SalesInvLine.SetRange("Document No.", Rec."Document No.");
+        SalesInvLine.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+        SalesInvLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        if SalesInvLine.FindSet() then
+            repeat
+                InvoicePartAmount += SalesInvLine."Amount Including VAT";
+                if InvoicePartAmount >= BaseInvoicePartAmount then begin
+                    InvoicePartAmount := BaseInvoicePartAmount;
+                    exit;
+                end;
+            until SalesInvLine.Next() = 0
+        else
+            InvoicePartAmount := BaseInvoicePartAmount;
     end;
 
     [IntegrationEvent(false, false)]

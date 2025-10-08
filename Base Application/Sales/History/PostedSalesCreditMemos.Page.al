@@ -9,6 +9,7 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Utilities;
 using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -21,6 +22,7 @@ page 144 "Posted Sales Credit Memos"
     CardPageID = "Posted Sales Credit Memo";
     Editable = false;
     PageType = List;
+    AboutText = 'Review posted sales credit memos, including details of amounts, customer information, payment status, and related documents, to track reversals of sales invoices, returns, and cancellations. Filter and analyze credit memos by contract or other criteria to support financial reconciliation and customer account management.';
     QueryCategory = 'Posted Sales Credit Memos';
     SourceTable = "Sales Cr.Memo Header";
     SourceTableView = sorting("Posting Date")
@@ -436,8 +438,10 @@ page 144 "Posted Sales Credit Memos"
                     ToolTip = 'Open the posted sales credit memo.';
 
                     trigger OnAction()
+                    var
+                        PageManagement: Codeunit "Page Management";
                     begin
-                        PAGE.Run(PAGE::"Posted Sales Credit Memo", Rec)
+                        PageManagement.PageRun(Rec);
                     end;
                 }
 #if not CLEAN27
@@ -841,10 +845,11 @@ page 144 "Posted Sales Credit Memos"
     local procedure DoDrillDown()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PageManagement: Codeunit "Page Management";
     begin
         SalesCrMemoHeader.Copy(Rec);
         SalesCrMemoHeader.SetRange("No.");
-        PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+        PageManagement.PageRun(SalesCrMemoHeader);
     end;
 
     var
