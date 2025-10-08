@@ -46,9 +46,7 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Posting;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Comment;
@@ -187,6 +185,7 @@ table 37 "Sales Line"
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
             ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+            ValidateTableRelation = false;
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -215,6 +214,7 @@ table 37 "Sales Line"
                     exit;
 
                 GetSalesSetup();
+                Rec."No." := FindOrCreateRecordByNo(Rec."No.");
 
                 TestJobPlanningLine();
                 TestStatusOpen();
@@ -4883,6 +4883,8 @@ table 37 "Sales Line"
     var
         PriceCalculation: Interface "Price Calculation";
     begin
+        if Rec.Type = Rec.Type::" " then
+            exit(false);
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
@@ -4941,8 +4943,6 @@ table 37 "Sales Line"
         end;
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     procedure FindResUnitCost()
     var
         ResCost: Record "Resource Cost";
@@ -4956,18 +4956,15 @@ table 37 "Sales Line"
         Validate("Unit Cost (LCY)", ResCost."Unit Cost" * "Qty. per Unit of Measure");
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure FindResUnitCostOnAfterInitResCost(var ResourceCost: Record "Resource Cost")
     begin
         OnFindResUnitCostOnAfterInitResCost(Rec, ResourceCost);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterFindResUnitCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterFindResUnitCost(Rec, ResourceCost);
     end;
-#endif
 
     /// <summary>
     /// Updates the prepayment VAT fields on the sales line based on the VAT posting setup
@@ -7572,15 +7569,14 @@ table 37 "Sales Line"
     end;
 
     /// <summary>
-    /// Finds or creates a record by a given number and returns the number of the found or created record.
+    /// Finds or creates a record by a given number and returns the number of the found
     /// </summary>
-    /// <param name="SourceNo">A record number to find or create.</param>
-    /// <returns>Number of the found or newly created record.</returns>
+    /// <param name="SourceNo">A record number to find.</param>
+    /// <returns>Number of the found record.</returns>
     procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7588,15 +7584,12 @@ table 37 "Sales Line"
         if IsHandled then
             exit("No.");
 
-        GetSalesSetup();
-
-        if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
-
-        exit(SourceNo);
     end;
 
     /// <summary>
@@ -9136,7 +9129,7 @@ table 37 "Sales Line"
         "Currency Code" := SalesHeader."Currency Code";
         InitHeaderLocactionCode(SalesHeader);
         "Customer Price Group" := SalesHeader."Customer Price Group";
-        "Customer Disc. Group" := SalesHeader."Customer Disc. Group";
+        Validate("Customer Disc. Group", SalesHeader."Customer Disc. Group");
         "Allow Line Disc." := SalesHeader."Allow Line Disc.";
         "Transaction Type" := SalesHeader."Transaction Type";
         "Transport Method" := SalesHeader."Transport Method";
@@ -10590,13 +10583,10 @@ table 37 "Sales Line"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResUnitCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFAPostingGroup(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account")
@@ -11738,13 +11728,10 @@ table 37 "Sales Line"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnFindResUnitCostOnAfterInitResCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnLookUpICPartnerReferenceTypeCaseElse()
