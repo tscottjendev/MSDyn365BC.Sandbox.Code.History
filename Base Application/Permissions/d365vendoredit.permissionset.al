@@ -52,7 +52,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Cont. Duplicate Search String" = RIMD,
                   tabledata Contact = RIM,
                   tabledata "Contact Business Relation" = RImD,
-                  tabledata "Contact Duplicate" = R,
+                  tabledata "Contact Duplicate" = Rd,
                   tabledata "Company Size" = rimd,
                   tabledata Currency = RM,
                   tabledata "Cust. Ledger Entry" = r,
