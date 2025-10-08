@@ -1584,14 +1584,14 @@ End Function
         <Field Name="ItemTableCaptItemFilter">
           <DataField>ItemTableCaptItemFilter</DataField>
         </Field>
+        <Field Name="StrSubStNoSalesLineFltr">
+          <DataField>StrSubStNoSalesLineFltr</DataField>
+        </Field>
         <Field Name="ItemFilter">
           <DataField>ItemFilter</DataField>
         </Field>
         <Field Name="ItemFilterTxt">
           <DataField>ItemFilterTxt</DataField>
-        </Field>
-        <Field Name="StrSubStNoSalesLineFltr">
-          <DataField>StrSubStNoSalesLineFltr</DataField>
         </Field>
         <Field Name="SalesLineFilter">
           <DataField>SalesLineFilter</DataField>
@@ -1665,14 +1665,11 @@ End Function
         <Field Name="OtherBackOrders_SalesLine">
           <DataField>OtherBackOrders_SalesLine</DataField>
         </Field>
-        <Field Name="Subtotals_Outstanding_Qty">
-          <DataField>Subtotals_Outstanding_Qty</DataField>
+        <Field Name="SubTotals_Outstanding_Qty">
+          <DataField>SubTotals_Outstanding_Qty</DataField>
         </Field>
-        <Field Name="Subtotals_Outstanding_QtyFormat">
-          <DataField>Subtotals_Outstanding_QtyFormat</DataField>
-        </Field>
-        <Field Name="Subtotals_Item_Description">
-          <DataField>Subtotals_Item_Description</DataField>
+        <Field Name="SubTotals_Outstanding_QtyFormat">
+          <DataField>SubTotals_Outstanding_QtyFormat</DataField>
         </Field>
       </Fields>
       <Query>
