@@ -177,6 +177,7 @@ table 39 "Purchase Line"
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
             ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+            ValidateTableRelation = false;
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -205,6 +206,7 @@ table 39 "Purchase Line"
                     exit;
 
                 GetPurchSetup();
+                Rec."No." := FindOrCreateRecordByNo(Rec."No.");
 
                 TestStatusOpen();
                 TestField("Qty. Rcd. Not Invoiced", 0);
@@ -3635,7 +3637,7 @@ table 39 "Purchase Line"
             begin
                 if "No. of Fixed Asset Cards" <> 0 then begin
                     TestField(Type, Type::"Fixed Asset");
-                    TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                    CheckAcquisitionCost();
                     if not ("Document Type" in ["Purchase Document Type"::Invoice, "Purchase Document Type"::Order]) then
                         Error(InvoiceOrOrderDocTypeErr, FieldCaption("Document Type"), "Purchase Document Type"::Invoice, "Purchase Document Type"::Order);
                 end;
@@ -3875,6 +3877,9 @@ table 39 "Purchase Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+        if not HasPurchHeader then
+            Error(CannotInsertPurchLineWithoutHeaderErr);
+
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             PurchLineReserve.VerifyQuantity(Rec, xRec);
@@ -3917,7 +3922,6 @@ table 39 "Purchase Line"
         PurchHeader: Record "Purchase Header";
         PurchLine2: Record "Purchase Line";
         GLAcc: Record "G/L Account";
-        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         VATPostingSetup: Record "VAT Posting Setup";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
@@ -3952,6 +3956,7 @@ table 39 "Purchase Line"
         HasBeenShown: Boolean;
         PrePaymentLineAmountEntered: Boolean;
         PurchSetupRead: Boolean;
+        HasPurchHeader: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
@@ -4027,8 +4032,10 @@ table 39 "Purchase Line"
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
         ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
         InvoiceOrOrderDocTypeErr: Label '%1 must be either %2 or %3.', Comment = '%1 - Document Type; %2, %3 - Purchase Document Type, Invoice or Order';
+        CannotInsertPurchLineWithoutHeaderErr: Label 'You cannot insert a purchase line without a purchase header.';
 
     protected var
+        Currency: Record Currency;
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         SkipTaxCalculation: Boolean;
@@ -4689,6 +4696,7 @@ table 39 "Purchase Line"
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
     begin
         PurchHeader := NewPurchHeader;
+        HasPurchHeader := true;
 
         if PurchHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision()
@@ -4725,7 +4733,8 @@ table 39 "Purchase Line"
 
         TestField("Document No.");
         if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
-            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then begin
+                HasPurchHeader := true;
                 if PurchHeader."Currency Code" = '' then
                     Currency.InitRoundingPrecision()
                 else begin
@@ -4733,7 +4742,7 @@ table 39 "Purchase Line"
                     Currency.Get(PurchHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end
-            else
+            end else
                 Clear(PurchHeader);
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
@@ -6734,6 +6743,7 @@ table 39 "Purchase Line"
         LineAmountToInvoiceDiscounted: Decimal;
         DeferralAmount: Decimal;
         IsHandled: Boolean;
+        IsLineAmountToInvoiceSimple: Boolean;
     begin
         LineWasModified := false;
         if QtyType = QtyType::Shipping then
@@ -6768,7 +6778,12 @@ table 39 "Purchase Line"
                             TempVATAmountLineRemainder.Insert();
                         end;
 
-                        if QtyType = QtyType::General then
+                        IsLineAmountToInvoiceSimple := QtyType = QtyType::General;
+
+                        if not IsLineAmountToInvoiceSimple then
+                            OnAfterCheckIsLineAmountToInvoiceSimple(PurchHeader, IsLineAmountToInvoiceSimple);
+
+                        if IsLineAmountToInvoiceSimple then
                             LineAmountToInvoice := PurchLine."Line Amount"
                         else
                             LineAmountToInvoice :=
@@ -6778,7 +6793,7 @@ table 39 "Purchase Line"
                             if (VATAmountLine."Inv. Disc. Base Amount" = 0) or (LineAmountToInvoice = 0) then
                                 InvDiscAmount := 0
                             else begin
-                                if QtyType = QtyType::General then
+                                if IsLineAmountToInvoiceSimple then
                                     LineAmountToInvoice := PurchLine."Line Amount"
                                 else
                                     LineAmountToInvoice :=
@@ -6794,7 +6809,7 @@ table 39 "Purchase Line"
                                 TempVATAmountLineRemainder."Invoice Discount Amount" :=
                                   TempVATAmountLineRemainder."Invoice Discount Amount" - InvDiscAmount;
                             end;
-                            if QtyType = QtyType::General then begin
+                            if IsLineAmountToInvoiceSimple then begin
                                 PurchLine."Inv. Discount Amount" := InvDiscAmount;
                                 PurchLine.CalcInvDiscToInvoice();
                             end else
@@ -7009,13 +7024,17 @@ table 39 "Purchase Line"
                             end;
                         QtyType::Shipping:
                             begin
-                                if PurchLine.IsCreditDocType() then begin
-                                    QtyToHandle := PurchLine."Return Qty. to Ship";
-                                    VATAmountLine.Quantity += PurchLine."Return Qty. to Ship (Base)";
-                                end else begin
-                                    QtyToHandle := PurchLine."Qty. to Receive";
-                                    VATAmountLine.Quantity += PurchLine."Qty. to Receive (Base)";
-                                end;
+                                IsHandled := false;
+                                OnCalcVATAmountLinesOnBeforeAssignShippingQuantities(PurchHeader, PurchLine, VATAmountLine, QtyToHandle, IsHandled);
+                                if not IsHandled then
+                                    if PurchLine.IsCreditDocType() then begin
+                                        QtyToHandle := PurchLine."Return Qty. to Ship";
+                                        VATAmountLine.Quantity += PurchLine."Return Qty. to Ship (Base)";
+                                    end else begin
+                                        QtyToHandle := PurchLine."Qty. to Receive";
+                                        VATAmountLine.Quantity += PurchLine."Qty. to Receive (Base)";
+                                    end;
+                                OnCalcVATAmountLinesOnQtyTypeShippingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                 AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                 SumVATAmountLine(PurchHeader, PurchLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
@@ -7497,7 +7516,6 @@ table 39 "Purchase Line"
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7507,11 +7525,11 @@ table 39 "Purchase Line"
 
         GetPurchSetup();
 
-        if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '')
-            then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
 
         exit(SourceNo);
@@ -9814,6 +9832,17 @@ table 39 "Purchase Line"
         Rec.TestField("Job Task No.");
     end;
 
+    local procedure CheckAcquisitionCost()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAcquisitionCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -11871,6 +11900,26 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAcquisitionCost(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIsLineAmountToInvoiceSimple(PurchHeader: Record "Purchase Header"; var IsLineAmountToInvoiceSimple: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeAssignShippingQuantities(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmountLine: record "VAT Amount Line"; var QtyToHandle: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnQtyTypeShippingOnBeforeCalcAmtToHandle(var PurchLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var QtyToHandle: Decimal; var VATAmountLine: record "VAT Amount Line")
     begin
     end;
 }

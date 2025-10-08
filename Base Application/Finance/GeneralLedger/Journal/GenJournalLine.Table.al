@@ -70,6 +70,9 @@ using System.Automation;
 using System.IO;
 using System.DateTime;
 using System.Environment.Configuration;
+#if not CLEAN25
+using System.Security.AccessControl;
+#endif
 using System.Utilities;
 
 table 81 "Gen. Journal Line"
@@ -3348,6 +3351,10 @@ table 81 "Gen. Journal Line"
         DimMgt: Codeunit DimensionManagement;
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         LSVMgt: Codeunit LSVMgt;
+#if not CLEAN25
+        GLForeignCurrMgt: Codeunit GlForeignCurrMgt;
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         DTAMgt: Codeunit DtaMgt;
         DeferralUtilities: Codeunit "Deferral Utilities";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -5433,7 +5440,13 @@ table 81 "Gen. Journal Line"
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         CurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConvertAmtFCYToLCYForSourceCurrency(Rec, Amount, IsHandled);
+        if IsHandled then
+            exit(Amount);
+
         if (Amount = 0) or ("Source Currency Code" = '') then
             exit(Amount);
 
@@ -5966,6 +5979,16 @@ table 81 "Gen. Journal Line"
         OnAfterClearBalPostingGroups(Rec);
     end;
 
+#if not CLEAN25
+    local procedure CheckGLForeignCurrMgtPermission(): Boolean
+    var
+        LicensePermission: Record "License Permission";
+    begin
+        exit(
+          (LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::GlForeignCurrMgt) and
+          (LicensePermission."Read Permission" = LicensePermission."Read Permission"::Yes)));
+    end;
+#endif
 
     procedure CancelBackgroundPosting()
     var
@@ -7018,9 +7041,19 @@ table 81 "Gen. Journal Line"
                 ClearPostingGroups();
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
+#if not CLEAN25
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+            GLSetup.Get();
+            if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
+                "Currency Code" := GLAcc."Source Currency Code";
+        end else
+            if CheckGLForeignCurrMgtPermission() or (CopyStr(SerialNumber, 7, 3) = '000') then
+                GLForeignCurrMgt.GetCurrCode("Account No.", Rec);
+#else
         GLSetup.Get();
         if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
             "Currency Code" := GLAcc."Source Currency Code";
+#endif
 
         OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc, CurrFieldNo);
     end;
@@ -7069,9 +7102,19 @@ table 81 "Gen. Journal Line"
             if "Posting Date" = ClosingDate("Posting Date") then
                 ClearBalancePostingGroups();
 
+#if not CLEAN25
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+            GLSetup.Get();
+            if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
+                "Currency Code" := GLAcc."Source Currency Code";
+        end else
+            if CheckGLForeignCurrMgtPermission() then
+                GLForeignCurrMgt.GetCurrCode("Bal. Account No.", Rec);
+#else
         GLSetup.Get();
         if ("Currency Code" = '') or (("Currency Code" = GLSetup."LCY Code") and (GLAcc."Source Currency Code" <> '')) then
             "Currency Code" := GLAcc."Source Currency Code";
+#endif
 
         OnAfterAccountNoOnValidateGetGLBalAccount(Rec, GLAcc, CurrFieldNo);
     end;
@@ -7754,7 +7797,13 @@ table 81 "Gen. Journal Line"
         Employee: Record Employee;
         BankAccount: Record "Bank Account";
         ICPartner: Record "IC Partner";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccCurrencyCode(Rec, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit(CurrencyCode);
+
         if ("Account No." = '') or ("Currency Code" = '') then
             exit;
 
@@ -12038,6 +12087,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertAmtFCYToLCYForSourceCurrency(var Rec: Record "Gen. Journal Line"; var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccCurrencyCode(var GenJnlLine: Record "Gen. Journal Line"; var CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

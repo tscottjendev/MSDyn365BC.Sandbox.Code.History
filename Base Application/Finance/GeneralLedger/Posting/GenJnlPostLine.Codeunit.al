@@ -40,6 +40,9 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
+#if not CLEAN25
+using System.Environment.Configuration;
+#endif
 using System.Telemetry;
 
 codeunit 12 "Gen. Jnl.-Post Line"
@@ -96,6 +99,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         DeferralUtilities: Codeunit "Deferral Utilities";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+#if not CLEAN25
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         DeferralDocType: Enum "Deferral Document Type";
         LastDocType: Enum "Gen. Journal Document Type";
         AddCurrencyCode: Code[10];
@@ -2147,12 +2153,28 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 GLEntry."Source Currency Amount" := AmountSrcCurr;
         end;
 
+#if not CLEAN25
+        if not FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then begin
+            if not (GLAcc."Currency Code" in ['', GLSetup."LCY Code"]) and
+                not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
+                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+                not IsVendorPayableAccount(GLAcc."No.")
+            then
+                GLEntry."Amount (FCY)" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
+        end else
+            if not (GLAcc."Source Currency Code" in ['', GLSetup."LCY Code"]) and
+                not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
+                not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only")
+            then
+                GLEntry."Source Currency Amount" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
+#else
         if not (GLAcc."Source Currency Code" in ['', GLSetup."LCY Code"]) and
             not (GenJnlLine."Currency Code" in ['', GLSetup."LCY Code"]) and
             not (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
             not IsVendorPayableAccount(GLAcc."No.")
         then
             GLEntry."Source Currency Amount" := GenJnlLine.Amount / (1 + GenJnlLine."VAT %" / 100);
+#endif
 
         OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
     end;

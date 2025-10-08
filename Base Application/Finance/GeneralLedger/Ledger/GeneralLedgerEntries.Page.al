@@ -185,6 +185,20 @@ page 20 "General Ledger Entries"
                     Visible = SourceCurrencyVisible;
 #endif
                 }
+#if not CLEAN25
+                field("Amount (FCY)"; Rec."Amount (FCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the foreign currency amount for G/L entries.';
+                    Visible = not SourceCurrencyVisible;
+#pragma warning disable AS0072
+                    ObsoleteReason = 'Replaced by W1 field Source Currency Amount';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+#pragma warning restore AS0072
+                }
+#endif
                 field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;

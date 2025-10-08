@@ -17,7 +17,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
 
     [Test]
-    [HandlerFunctions('ReportRequestPageHandler')]
+    [HandlerFunctions('ReportRequestPageHandler,GLAccountCreationMessageHandler')]
     [Scope('OnPrem')]
     procedure VerifyGLEntriesForeignCurrencyReportWithNoConstraints()
     var
@@ -39,7 +39,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
     end;
 
     [Test]
-    [HandlerFunctions('ReportRequestPageHandler')]
+    [HandlerFunctions('ReportRequestPageHandler,GLAccountCreationMessageHandler')]
     [Scope('OnPrem')]
     procedure VerifyGLEntriesForeignCurrencyReportWithGLRegisterInput()
     var
@@ -63,7 +63,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
     end;
 
     [Test]
-    [HandlerFunctions('ReportRequestPageHandler')]
+    [HandlerFunctions('ReportRequestPageHandler,GLAccountCreationMessageHandler')]
     [Scope('OnPrem')]
     procedure VerifyGLEntriesForeignCurrencyReportWithFilter()
     var
@@ -142,9 +142,13 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+#if not CLEAN25
+        GLAccount.Validate("Currency Code", CurrencyCode);
+#else
         if CurrencyCode <> '' then
             GLAccount.Validate("Source Currency Posting", GLAccount."Source Currency Posting"::"Same Currency");
         GLAccount.Validate("Source Currency Code", CurrencyCode);
+#endif
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -164,4 +168,11 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         // Save the report as XML
         GLEntriesForeginCurrency.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure GLAccountCreationMessageHandler(Message: Text[1024])
+    begin
+    end;
 }
+

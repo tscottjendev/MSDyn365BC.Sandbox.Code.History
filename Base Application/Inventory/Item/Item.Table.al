@@ -2107,6 +2107,44 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+        field(9110; "Qty. on Blanket Sales Order"; Decimal)
+        {
+            CalcFormula = sum("Sales Line"."Outstanding Qty. (Base)" where("Document Type" = const("Blanket Order"),
+                                                                            Type = const(Item),
+                                                                            "No." = field("No."),
+                                                                            "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                            "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                            "Location Code" = field("Location Filter"),
+                                                                            "Drop Shipment" = field("Drop Shipment Filter"),
+                                                                            "Variant Code" = field("Variant Filter"),
+                                                                            "Shipment Date" = field("Date Filter"),
+                                                                            "Unit of Measure Code" = field("Unit of Measure Filter")));
+            Caption = 'Qty. on Blanket Sales Order';
+            ToolTip = 'Specifies how many units of the item are allocated to blanket sales orders, meaning listed on outstanding blanket sales order lines.';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+            AutoFormatType = 0;
+        }
+        field(9210; "Qty. on Blanket Purch. Order"; Decimal)
+        {
+            CalcFormula = sum("Purchase Line"."Outstanding Qty. (Base)" where("Document Type" = const("Blanket Order"),
+                                                                            Type = const(Item),
+                                                                            "No." = field("No."),
+                                                                            "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                            "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                            "Location Code" = field("Location Filter"),
+                                                                            "Drop Shipment" = field("Drop Shipment Filter"),
+                                                                            "Variant Code" = field("Variant Filter"),
+                                                                            "Expected Receipt Date" = field("Date Filter"),
+                                                                            "Unit of Measure Code" = field("Unit of Measure Filter")));
+            Caption = 'Qty. on Blanket Purch. Order';
+            ToolTip = 'Specifies how many units of the item are allocated to blanket purchase orders, meaning listed on outstanding blanket purchase order lines.';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+            AutoFormatType = 0;
+        }
 #if not CLEANSCHEMA25
         field(11500; "No Stockkeeping"; Boolean)
         {
@@ -3280,6 +3318,40 @@ table 27 Item
         exit(Round("Unit Price" / (1 + CalcVAT()), GLSetup."Unit-Amount Rounding Precision"));
     end;
 
+    procedure GetFirstItemNoFromLookup(ItemText: Text): Code[20]
+    var
+        Item: Record Item;
+        SearchFilter: Text;
+    begin
+        if ItemText = '' then
+            exit('');
+        Item.SetLoadFields("No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then
+            if Item.Get(ItemText) then
+                exit(Item."No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then begin
+            Item.SetFilter("No.", ItemText + '*');
+            if Item.FindFirst() then
+                exit(Item."No.");
+            Item.SetRange("No.");
+        end;
+
+        // Filter the same way as in item lookup/dropdown, ref. fieldgroup for DropDown
+        SearchFilter := '@*' + ItemText + '*';
+        Item.FilterGroup(-1);
+        Item.SetFilter("No.", SearchFilter);
+        Item.SetFilter("No. 2", SearchFilter);
+        Item.SetFilter(Description, SearchFilter);
+        Item.SetFilter(GTIN, SearchFilter);
+        Item.SetFilter("Vendor Item No.", SearchFilter);
+        Item.SetFilter("Common Item No.", SearchFilter);
+        Item.SetFilter("Shelf No.", SearchFilter);
+        Item.FilterGroup(0);
+        if Item.FindFirst() then
+            exit(Item."No.");
+        Error(SelectItemErr);
+    end;
+
     procedure GetItemNo(ItemText: Text): Code[20]
     var
         ItemNo: Text[50];
@@ -3889,6 +3961,11 @@ table 27 Item
         OnCalcRelOrderReceiptQty(Rec, Result);
     end;
 
+    procedure CalcQtyOnServiceOrder() Result: Decimal
+    begin
+        OnCalcQtyOnServiceOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     begin
@@ -4441,6 +4518,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcRelOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnServiceOrder(var Item: Record Item; var Result: Decimal)
     begin
     end;
 
