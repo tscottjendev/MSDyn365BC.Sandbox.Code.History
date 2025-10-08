@@ -2301,6 +2301,9 @@ codeunit 426 "Payment Tolerance Management"
             GenJnlLineGlobal."Line No.") then
             exit;
 
+        if (GenJnlLine."Applies-to ID" = '') then
+            exit;
+
         GenJnlLine.Amount := NewAmount;
 
         if GenJnlLine."Currency Code" = '' then

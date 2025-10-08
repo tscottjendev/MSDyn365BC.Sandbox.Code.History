@@ -15,6 +15,7 @@ page 9347 "Purchase Order Archives"
     CardPageID = "Purchase Order Archive";
     Editable = false;
     PageType = List;
+    AboutText = 'Review archived versions of purchase orders, including historical details, vendor information, and attached incoming documents, to track changes and access supporting files for audit or reference purposes.';
     SourceTable = "Purchase Header Archive";
     SourceTableView = where("Document Type" = const(Order));
     UsageCategory = History;

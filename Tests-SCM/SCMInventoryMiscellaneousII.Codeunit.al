@@ -51,6 +51,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         InventoryMovementIsNotRegisteredErr: Label 'Inventory Movement is not registered.';
         InventoryPickNotFoundErr: Label 'Warehouse Activity Header not found for Production Order Components.';
         PickQtyToHandleErr: Label 'Quantity to Handle on Warehouse Activity Line must be equal to %1.', Comment = '%1 = Expected quantity';
+        InsufficientQtyErr: Label 'You have insufficient quantity of Item %1 on inventory.', Comment = '%1 = Item No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2283,6 +2284,86 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         VerifyWhseActivityLine(CompItem."No.", Location.Code, Quantity / 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationPageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ConsumptionDoesNotConsumeOtherReserveQuantity()
+    var
+
+        CompItem, CompItem2, ProdItem : Record Item;
+        Location: Record Location;
+        ProductionOrder: array[2] of Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderLine: Record "Prod. Order Line";
+        Quantity: Decimal;
+        ErrorMessage: Text;
+    begin
+        // [SCENARIO 581222] Insufficient quantity error when consuming reserved quantity on production order
+        Initialize();
+
+        // [GIVEN] Create Location with inventory posting setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Set random Quantity between 1 and 100.
+        Quantity := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create Component Item1 with "Replenishment System" = "Purchase" and "Flushing Method" = "Manual".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Modify();
+
+        // [GIVEN] Create Component Item2 with "Replenishment System" = "Purchase" and "Flushing Method" = "Manual".
+        LibraryInventory.CreateItem(CompItem2);
+        CompItem2.Validate("Replenishment System", CompItem2."Replenishment System"::Purchase);
+        CompItem2.Validate("Flushing Method", CompItem2."Flushing Method"::Manual);
+        CompItem2.Validate("Base Unit of Measure", CompItem."Base Unit of Measure");
+        CompItem2.Modify();
+
+        // [GIVEN] Create Production BOM for Component Item1 and Item2.
+        CreateAndCertifyProductionBOMOfTwoComponents(ProductionBOMHeader, CompItem."Base Unit of Measure", CompItem."No.", CompItem2."No.");
+
+        // [GIVEN] Create Production BOM for Component Items.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify();
+
+        // [GIVEN] Create Inventory for Component Items.
+        CreateInventory(CompItem, Quantity, Location.Code, '', 0);
+        CreateInventory(CompItem2, Quantity, Location.Code, '', 0);
+
+        // [GIVEN] Create first Production Orders for Production Item of quantity = Total Inventory
+        LibraryManufacturing.CreateProductionOrder(
+           ProductionOrder[1], ProductionOrder[1].Status::Released, ProductionOrder[1]."Source Type"::Item, ProdItem."No.", Quantity);
+        ProductionOrder[1].Validate("Location Code", Location.Code);
+        ProductionOrder[1].Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+
+        // [GIVEN] Reserve Component Item on Production Order one
+        ReserveQuantityOnComponent(CompItem."No.", ProductionOrder[1]."No.");
+        ReserveQuantityOnComponent(CompItem2."No.", ProductionOrder[1]."No.");
+
+        // [GIVEN] Create second Production Order for Production Item of same quantity.
+        LibraryManufacturing.CreateProductionOrder(
+           ProductionOrder[2], ProductionOrder[2].Status::Released, ProductionOrder[2]."Source Type"::Item, ProdItem."No.", Quantity);
+        ProductionOrder[2].Validate("Location Code", Location.Code);
+        ProductionOrder[2].Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[2], false, true, true, true, false);
+
+        // [WHEN] Try to consume Component Item1 on Production Order 2
+        ProdOrderLine.SetRange(Status, ProductionOrder[2].Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder[2]."No.");
+        ProdOrderLine.FindFirst();
+        asserterror LibraryManufacturing.POSTConsumption(ProdOrderLine, CompItem, Location.Code, '', Quantity, WorkDate(), CompItem."Unit Cost");
+        ErrorMessage := GetLastErrorText();
+
+        // [THEN] Verify Insufficient Quantity error.
+        Assert.Equal(StrSubstNo(InsufficientQtyErr, CompItem."No."), ErrorMessage);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4062,6 +4143,21 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         ProductionOrder.SetHideValidationDialog(true);
         ProductionOrder.CreatePick(CopyStr(UserId(), 1, 50), 0, false, false, false);
+    end;
+
+    local procedure CreateAndCertifyProductionBOMOfTwoComponents(
+        var ProductionBOMHeader: Record "Production BOM Header";
+        BaseUnitOfMeasure: Code[10];
+        CompItem: Code[20];
+        CompItem2: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem, 1);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem2, 1);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
     end;
 
     [MessageHandler]

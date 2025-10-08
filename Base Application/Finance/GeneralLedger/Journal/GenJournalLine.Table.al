@@ -11916,4 +11916,14 @@ table 81 "Gen. Journal Line"
     local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertAmtFCYToLCYForSourceCurrency(var Rec: Record "Gen. Journal Line"; var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccCurrencyCode(var GenJnlLine: Record "Gen. Journal Line"; var CurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
 }
