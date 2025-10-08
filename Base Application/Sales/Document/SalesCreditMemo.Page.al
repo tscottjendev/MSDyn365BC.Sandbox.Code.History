@@ -1132,6 +1132,8 @@ page 44 "Sales Credit Memo"
                     trigger OnAction()
                     begin
                         Rec.GetPstdDocLinesToReverse();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action(CalculateInvoiceDiscount)
@@ -1707,6 +1709,7 @@ page 44 "Sales Credit Memo"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PageManagement: Codeunit "Page Management";
         PreAssignedNo: Code[20];
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
@@ -1745,7 +1748,7 @@ page 44 "Sales Credit Memo"
             OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader, IsHandled);
             if not IsHandled then
                 if SalesCrMemoHeader.FindFirst() then
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    PageManagement.PageRun(SalesCrMemoHeader);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                 ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
@@ -1924,4 +1927,3 @@ page 44 "Sales Credit Memo"
     begin
     end;
 }
-
