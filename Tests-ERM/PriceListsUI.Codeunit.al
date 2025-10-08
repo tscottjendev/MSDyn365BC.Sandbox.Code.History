@@ -1,4 +1,4 @@
-codeunit 134117 "Price Lists UI"
+﻿codeunit 134117 "Price Lists UI"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -16,15 +16,14 @@ codeunit 134117 "Price Lists UI"
         LibraryJob: Codeunit "Library - Job";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN25
         FeatureIsOffErr: Label 'This page is used by a feature that is not enabled.';
-#endif
         IsInitialized: Boolean;
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
@@ -32,6 +31,8 @@ codeunit 134117 "Price Lists UI"
         AmountTypeNotAlowedErr: Label '%1 is not allowed for %2.', Comment = '%1 - Amount type, %2 - source type';
         TestFieldErr: Label '%1 must have a value', Comment = '%1 = Field Caption';
         CodeErr: Label '%1 must be %2 in %3.', Comment = '%1 = Code, %2 = Next No. from No. Series, %3 = Sales/Purchase Price List';
+        CustDiscountGroupDeleteErr: Label 'You cannot delete the Customer Discount Group %1 because it is used in Customer.', Comment = '%1= Customer Discount Group Code.';
+        CustDiscountGroupCodeDeleteErr: Label 'The field Customer Disc. Group of table Sales Line contains a value (%1) that cannot be found in the related table (Customer Discount Group).', Comment = '%1= Customer Discount Group Code.';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -139,10 +140,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesPriceLists.Next(), 'found 4th');
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T003_SalesPriceListsDiscountsFromCustomersList()
     var
         Customer: array[2] of Record Customer;
@@ -190,8 +188,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(SalesPriceLists.Next(), 'found third');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T004_SalesPriceLinesFromCustomersCard()
     var
@@ -386,10 +383,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd');
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T008_SalesPriceListsDiscForDiscGroupFromCustomersCard()
     var
         Customer: array[2] of Record Customer;
@@ -451,8 +445,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[5]."Source No.");
         Assert.IsFalse(SalesPriceLists.Next(), 'found fourth');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T009_SalesDisounctLinesForDiscGroupFromCustomerDiscountGroups()
     var
@@ -870,17 +863,12 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerCard.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(CustomerCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(CustomerCard."Line Discounts".Visible(), 'Line Discounts. Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T021_CustomerCardPriceListsActionNotVisibleIfFeatureOff()
     var
         CustomerCard: TestPage "Customer Card";
@@ -897,8 +885,6 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(CustomerCard.Prices.Visible(), 'Prices. not Visible');
         Assert.IsTrue(CustomerCard."Line Discounts".Visible(), 'Line Discounts. not Visible');
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T022_CustomerListPriceListsActionVisibleIfFeatureOn()
@@ -913,17 +899,12 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerList.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(CustomerList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerList.Prices_Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(CustomerList.Prices_LineDiscounts.Visible(), 'Prices_LineDiscounts. Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T023_CustomerListPriceListsActionNotVisibleIfFeatureOff()
     var
         CustomerList: TestPage "Customer List";
@@ -942,7 +923,6 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T024_SalesPriceListsPageNotOpenIfFeatureOff()
     begin
         Initialize(false);
@@ -954,7 +934,6 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T025_SalesPriceListPageNotOpenIfFeatureOff()
     begin
         Initialize(false);
@@ -964,8 +943,6 @@ codeunit 134117 "Price Lists UI"
         asserterror Page.Run(Page::"Sales Price List");
         Assert.ExpectedError(FeatureIsOffErr);
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T026_SalesPriceListPageAllowDiscountsOn()
@@ -1894,10 +1871,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceLists.Next(), 'found 4th');
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T053_PurchasePriceListsDiscountsFromVendorsList()
     var
         Vendor: array[2] of Record Vendor;
@@ -1945,8 +1919,7 @@ codeunit 134117 "Price Lists UI"
         PurchasePriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(PurchasePriceLists.Next(), 'found third');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T054_PurchasePriceLinesFromVendorsCard()
     var
@@ -2353,17 +2326,12 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorCard.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(VendorCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(VendorCard."Line Discounts".Visible(), 'Line Discounts. Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T071_VendorCardPriceListsActionNotVisibleIfFeatureOff()
     var
         VendorCard: TestPage "Vendor Card";
@@ -2380,8 +2348,6 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(VendorCard.Prices.Visible(), 'Prices. not Visible');
         Assert.IsTrue(VendorCard."Line Discounts".Visible(), 'Line Discounts. not Visible');
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T072_VendorListPriceListsActionVisibleIfFeatureOn()
@@ -2396,17 +2362,12 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorList.PriceLists.Visible(), 'PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(VendorList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorList.Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(VendorList."Line Discounts".Visible(), 'Prices_LineDiscounts. Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T073_VendorListPriceListsActionNotVisibleIfFeatureOff()
     var
         VendorList: TestPage "Vendor List";
@@ -2425,7 +2386,6 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T074_PurchPriceListsPageNotOpenIfFeatureOff()
     begin
         Initialize(false);
@@ -2437,7 +2397,6 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T075_PurchPriceListPageNotOpenIfFeatureOff()
     begin
         Initialize(false);
@@ -2447,8 +2406,6 @@ codeunit 134117 "Price Lists UI"
         asserterror Page.Run(Page::"Purchase Price List");
         Assert.ExpectedError(FeatureIsOffErr);
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T076_PurchPriceListPageAllowDiscountsOn()
@@ -2712,10 +2669,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesJobPriceLists.Next(), 'found 5th');
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T103_SalesJobPriceListsDiscountsFromJobsList()
     var
         Job: array[2] of Record Job;
@@ -2763,8 +2717,7 @@ codeunit 134117 "Price Lists UI"
         SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(SalesJobPriceLists.Next(), 'found third');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T104_SalesJobPricesFromJobsCard()
     var
@@ -2900,19 +2853,14 @@ codeunit 134117 "Price Lists UI"
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobCard.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
         Assert.IsTrue(JobCard.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobCard."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobCard."&G/L Account".Visible(), '"&G/L Account". Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T121_JobCardPriceListsActionNotVisibleIfFeatureOff()
     var
         JobCard: TestPage "Job Card";
@@ -2932,8 +2880,6 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(JobCard."&Item".Visible(), '"&Item". not Visible');
         Assert.IsTrue(JobCard."&G/L Account".Visible(), '"&G/L Account". not Visible');
     end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure T122_JobListPriceListsActionVisibleIfFeatureOn()
@@ -2949,19 +2895,14 @@ codeunit 134117 "Price Lists UI"
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobList.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
         Assert.IsTrue(JobList.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
-#if not CLEAN25
         Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobList."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobList."&G/L Account".Visible(), '"&G/L Account". Visible');
-#endif
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T123_JobListPriceListsActionNotVisibleIfFeatureOff()
     var
         JobList: TestPage "Job List";
@@ -2981,8 +2922,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(JobList."&Item".Visible(), '"&Item". not Visible');
         Assert.IsTrue(JobList."&G/L Account".Visible(), '"&G/L Account". not Visible');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T124_JobCardFactBoxPricesIfFeatureOn()
     var
@@ -3215,10 +3155,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found 5th');
     end;
 
-#if not CLEAN25
-#pragma warning disable AS0072
     [Test]
-    [Obsolete('Not Used.', '23.0')]
     procedure T153_PurchaseJobPriceListsDiscountsFromJobList()
     var
         Job: array[2] of Record Job;
@@ -3266,8 +3203,7 @@ codeunit 134117 "Price Lists UI"
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found third');
     end;
-#pragma warning restore AS0072
-#endif
+
     [Test]
     procedure T154_PurchaseJobPricesFromJobsCard()
     var
@@ -4440,6 +4376,94 @@ codeunit 134117 "Price Lists UI"
         PriceListLineReview."Source Type".AssertEquals(PriceListLine."Source Type");
         PriceListLineReview."Asset Type".AssertEquals(PriceListLine."Asset Type");
         PriceListLineReview."Unit Cost".AssertEquals(PriceListLine."Unit Cost");
+    end;
+
+    [Test]
+    procedure ErrorOnCustomerDiscountGroupDeleteWhenAssignedToCustomer()
+    var
+        Customer: Record Customer;
+        CustomerDiscountGroup: array[2] of Record "Customer Discount Group";
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO 595896] The Customer Discount Group assigned to Customer should not be abled to delete.
+        Initialize(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create an Item.
+        Item.Get(LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Assign a Customer Discount Group and assign it to the Customer.
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[1]);
+        Customer.Validate("Customer Disc. Group", CustomerDiscountGroup[1].Code);
+        Customer.Modify();
+
+        // [GIVEN] Create a Sales Price List line for the Customer Discount Group.
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine,
+            LibraryUtility.GenerateGUID(),
+            "Price Source Type"::"Customer Disc. Group",
+            CustomerDiscountGroup[1].Code,
+            "Price Asset Type"::Item,
+             Item."No.");
+
+        // [WHEN] Try to delete the Customer Discount Group.
+        asserterror CustomerDiscountGroup[1].Delete(true);
+
+        // [THEN] An error occurs that the Customer Discount Group is tried to delete in use by a Customer.
+        Assert.ExpectedError(StrSubstNo(CustDiscountGroupDeleteErr, CustomerDiscountGroup[1].Code));
+    end;
+
+    [Test]
+    procedure ErrorOnSalesLineWhenDeletedCustomerDiscountGroupIsAssigned()
+    var
+        Customer: Record Customer;
+        CustomerDiscountGroup: array[2] of Record "Customer Discount Group";
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 595896] Deleted Customer Discount Group assigned to Customer should give error on Sales Line.
+        Initialize(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create an Item.
+        Item.Get(LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Create a Customer Discount Group and assign it to the Customer.
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup[1]);
+        Customer.Validate("Customer Disc. Group", CustomerDiscountGroup[1].Code);
+        Customer.Modify();
+
+        // [GIVEN] Create a Sales Price List line for the Customer Discount Group.
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine,
+            LibraryUtility.GenerateGUID(),
+            "Price Source Type"::"Customer Disc. Group",
+            CustomerDiscountGroup[1].Code,
+            "Price Asset Type"::Item,
+             Item."No.");
+
+        // [GIVEN] Delete the Customer Discount Group.
+        CustomerDiscountGroup[1].Delete();
+
+        // [GIVEN] Create a Sales Header for the Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Try to create a Sales Line for the Item.
+        asserterror LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
+
+        // [THEN] An error occurs that the Customer Discount Group assigned to the Customer is not found.
+        Assert.ExpectedError(
+            StrSubstNo(
+                CustDiscountGroupCodeDeleteErr,
+                CustomerDiscountGroup[1].Code,
+                CustomerDiscountGroup[1].TableCaption()));
     end;
 
     local procedure Initialize(Enable: Boolean)
