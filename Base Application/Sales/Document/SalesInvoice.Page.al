@@ -2106,6 +2106,7 @@ page 43 "Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PageManagement: Codeunit "Page Management";
         PreAssignedNo: Code[20];
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
@@ -2141,7 +2142,7 @@ page 43 "Sales Invoice"
                 SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
             end;
             if SalesInvoiceHeader.FindFirst() then
-                PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+                PageManagement.PageRun(SalesInvoiceHeader);
         end else
             case Navigate of
                 Enum::"Navigate After Posting"::"Posted Document":
