@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Receivables;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
@@ -11,7 +15,6 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 
 codeunit 226 "CustEntry-Apply Posted Entries"
@@ -23,9 +26,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     trigger OnRun()
     var
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
-        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        SequenceNoMgt.SetPreviewMode(PreviewMode);
         if PreviewMode then
             case RunOptionPreviewContext of
                 RunOptionPreview::Apply:

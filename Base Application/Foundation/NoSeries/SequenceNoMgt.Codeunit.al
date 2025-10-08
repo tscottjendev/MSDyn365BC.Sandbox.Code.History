@@ -8,25 +8,56 @@ codeunit 9500 "Sequence No. Mgt."
 {
     SingleInstance = true;
     InherentPermissions = X;
-    Permissions = tabledata "Sequence No. Preview State" = rid;
 
     var
         GlobalPreviewMode: Boolean;
-        GlobalPreviewModeID: Integer;
+        GlobalPreviewModeTag: Text;
         LastSeqNoChecked: List of [Integer];
+        SeqNoBufferFrom: Dictionary of [Integer, Integer];
+        SeqNoBufferTo: Dictionary of [Integer, Integer];
+        PendingAllocation: Dictionary of [Integer, Integer];
         SeqNameLbl: Label 'TableSeq%1', Comment = '%1 - Table No.', Locked = true;
         PreviewSeqNameLbl: Label 'PreviewTableSeq%1', Comment = '%1 - Table No.', Locked = true;
 
     /// <summary>
-    /// Returns the next NumberSequence value for a given table ID.
     /// Clears allocations and other internal states
     /// </summary>
     procedure ClearState()
     begin
         ClearAll(); // may not work for SingleInstance codeunits....
         Clear(GlobalPreviewMode);
-        Clear(GlobalPreviewModeID);
+        Clear(GlobalPreviewModeTag);
         Clear(LastSeqNoChecked);
+        Clear(SeqNoBufferFrom);
+        Clear(SeqNoBufferFrom);
+        Clear(SeqNoBufferTo);
+        Clear(PendingAllocation);
+    end;
+
+    /// <summary>
+    /// Allocates sequence numbers for a given table ID.
+    /// if the sequence does not exist, it will be created.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
+    procedure AllocateSeqNoBuffer(TableNo: Integer; NoOfEntries: Integer)
+    var
+        SignedTableNo: Integer;
+        PreviewMode: Boolean;
+        RemainingNoOfEntries: Integer;
+    begin
+        if NoOfEntries < 2 then  // no need reserve 1, as it it still one sql call
+            exit; 
+        ValidateSeqNo(TableNo);
+        PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
+        SignedTableNo := PreviewMode ? -TableNo : TableNo;
+        if SeqNoBufferFrom.ContainsKey(SignedTableNo) and SeqNoBufferTo.ContainsKey(SignedTableNo) then  // lefterovers from previous allocation?
+            RemainingNoOfEntries := SeqNoBufferTo.Get(SignedTableNo) - SeqNoBufferFrom.Get(SignedTableNo);
+        if RemainingNoOfEntries >= NoOfEntries then
+            exit; // we have enough already    
+        if PendingAllocation.ContainsKey(SignedTableNo) then
+            PendingAllocation.Set(SignedTableNo, PendingAllocation.Get(SignedTableNo) + NoOfEntries - RemainingNoOfEntries)
+        else
+            PendingAllocation.Add(SignedTableNo, NoOfEntries - RemainingNoOfEntries);
     end;
 
     /// <summary>
@@ -37,10 +68,45 @@ codeunit 9500 "Sequence No. Mgt."
     procedure GetNextSeqNo(TableNo: Integer): Integer
     var
         NewSeqNo: Integer;
+        FromNo: Integer;
+        NoOfEntries: Integer;
+        SignedTableNo: Integer;
         PreviewMode: Boolean;
     begin
-        ValidateSeqNo(TableNo);
         PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
+
+        // First check if we have pre-allocated entry numbers
+        SignedTableNo := PreviewMode ? -TableNo : TableNo;  // we use -tableno for index for preview numbers.
+        if PendingAllocation.ContainsKey(SignedTableNo) then
+            if not SeqNoBufferFrom.ContainsKey(SignedTableNo) or not SeqNoBufferTo.ContainsKey(SignedTableNo) then begin
+                NoOfEntries := PendingAllocation.Get(SignedTableNo);
+                PendingAllocation.Remove(SignedTableNo);
+                ValidateSeqNo(TableNo);
+                NewSeqNo := NumberSequence.Range(GetTableSequenceName(SignedTableNo < 0, TableNo), NoOfEntries);
+                if SeqNoBufferFrom.ContainsKey(SignedTableNo) then
+                    SeqNoBufferFrom.Set(SignedTableNo, NewSeqNo)
+                else
+                    SeqNoBufferFrom.Add(SignedTableNo, NewSeqNo);
+                if SeqNoBufferTo.ContainsKey(SignedTableNo) then
+                    SeqNoBufferTo.Set(SignedTableNo, NewSeqNo + NoOfEntries - 1)
+                else
+                    SeqNoBufferTo.Add(SignedTableNo, NewSeqNo + NoOfEntries - 1);
+            end;
+        if SeqNoBufferFrom.ContainsKey(SignedTableNo) and SeqNoBufferTo.ContainsKey(SignedTableNo) then begin
+            FromNo := SeqNoBufferFrom.Get(SignedTableNo);
+            NewSeqNo := FromNo;
+            FromNo += 1;
+            if FromNo <= SeqNoBufferTo.Get(SignedTableNo) then
+                SeqNoBufferFrom.Set(SignedTableNo, FromNo)
+            else begin
+                if SeqNoBufferFrom.Remove(SignedTableNo) then;
+                if SeqNoBufferTo.Remove(SignedTableNo) then;
+            end;
+            exit(NewSeqNo);
+        end;
+
+        // No pre-allocated numbers - get entry no. from sequence
+        ValidateSeqNo(TableNo);
         if TryGetNextNo(PreviewMode, TableNo, NewSeqNo) then
             exit(NewSeqNo);
         ClearLastError();
@@ -142,9 +208,10 @@ codeunit 9500 "Sequence No. Mgt."
     local procedure CreateSequence(SequenceName: Text; StartSeqNo: BigInteger)
     begin
         if NumberSequence.Exists(SequenceName) then
-            NumberSequence.Restart(SequenceName, StartSeqNo)
+            NumberSequence.Restart(SequenceName, StartSeqNo - 1)  // to avoid the issue with current and next being the same for a new sequence.
         else
-            NumberSequence.Insert(SequenceName, StartSeqNo, 1, true);
+            NumberSequence.Insert(SequenceName, StartSeqNo - 1, 1, true);  // to avoid the issue with current and next being the same for a new sequence.
+        if NumberSequence.Next(SequenceName) = 1 then;  // do.
     end;
 
     local procedure GetLastEntryNoFromTable(TableNo: Integer; WithLock: Boolean): BigInteger
@@ -197,49 +264,32 @@ codeunit 9500 "Sequence No. Mgt."
 
     // An error during preview may mean that the PreviewMode variable doesn't get reset after preview, so we need to rely on transactional consistency
     local procedure IsPreviewMode(): Boolean
-    var
-        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         if not GlobalPreviewMode then
             exit(false);
-        if GlobalPreviewModeID <> 0 then
-            if SequenceNoPreviewState.Get(GlobalPreviewModeID) then  // double-check
+        if GlobalPreviewModeTag <> '' then
+            if NumberSequence.Exists(GlobalPreviewModeTag) then
                 exit(true);
         GlobalPreviewMode := false;
-        GlobalPreviewModeID := 0;
+        GlobalPreviewModeTag := '';
     end;
 
     internal procedure StartPreviewMode()
-    var
-        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         if GlobalPreviewMode then // missing cleanup from previous preview?
             StopPreviewMode();
-        SequenceNoPreviewState.ID := 0;
-        SequenceNoPreviewState.Insert();
-        SequenceNoPreviewState.Consistent(false); // make sure we cannot commit the transaction
         GlobalPreviewMode := true;
-        GlobalPreviewModeID := SequenceNoPreviewState.ID;
+        GlobalPreviewModeTag := 'Preview_' + Format(CreateGuid(), 20, 3);
+        CreateSequence(GlobalPreviewModeTag, 1); // Preview is in a transaction that does not allow commits and will be rolled back.
     end;
 
     internal procedure StopPreviewMode()
-    var
-        SequenceNoPreviewState: Record "Sequence No. Preview State";
     begin
         GlobalPreviewMode := false;
-        if GlobalPreviewModeID <> 0 then
-            if SequenceNoPreviewState.Get(GlobalPreviewModeID) then
-                SequenceNoPreviewState.Delete();
-        GlobalPreviewModeID := 0;
-        SequenceNoPreviewState.Consistent(true); // make sure we can commit the transaction
-    end;
-
-    internal procedure SetPreviewMode(NewPreviewMode: Boolean)
-    begin
-        if NewPreviewMode then
-            StartPreviewMode()
-        else
-            StopPreviewMode();
+        if GlobalPreviewModeTag <> '' then
+            if NumberSequence.Exists(GlobalPreviewModeTag) then
+                NumberSequence.Delete(GlobalPreviewModeTag);
+        GlobalPreviewModeTag := '';
     end;
 
     [IntegrationEvent(false, false)]
