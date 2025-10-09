@@ -1490,19 +1490,9 @@ codeunit 5812 "Calculate Standard Cost"
     begin
     end;
 
-    internal procedure RunOnBeforeCalcItems(var Item: Record Item)
-    begin
-        OnBeforeCalcItems(Item);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcItems(var Item: Record Item)
     begin
-    end;
-
-    internal procedure RunOnBeforeCalcItem(var Item: Record Item; UseAssemblyList: Boolean; var IsHandled: Boolean)
-    begin
-        OnBeforeCalcItem(Item, UseAssemblyList, IsHandled);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1520,19 +1510,9 @@ codeunit 5812 "Calculate Standard Cost"
     begin
     end;
 
-    internal procedure RunOnCalcAssemblyItemOnAfterInitItemCost(var Item: Record Item)
-    begin
-        OnCalcAssemblyItemOnAfterInitItemCost(Item);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcAssemblyItemOnAfterInitItemCost(var Item: Record Item)
     begin
-    end;
-
-    internal procedure RunOnCalcAssemblyItemOnAfterCalcItemRolledupCost(var Item: Record Item)
-    begin
-        OnCalcAssemblyItemOnAfterCalcItemRolledupCost(Item);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1550,19 +1530,9 @@ codeunit 5812 "Calculate Standard Cost"
     begin
     end;
 
-    internal procedure RunOnCalcAssemblyItemOnAfterCalcSingleLevelCost(var Item: Record Item)
-    begin
-        OnCalcAssemblyItemOnAfterCalcSingleLevelCost(Item);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnCalcAssemblyItemOnAfterCalcSingleLevelCost(var Item: Record Item)
     begin
-    end;
-
-    internal procedure RunOnCalcAssemblyItemOnAfterCalcItemCost(var Item: Record Item; CompItem: Record Item; BOMComponent: Record "BOM Component"; ComponentQuantity: Decimal)
-    begin
-        OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem, BOMComponent, ComponentQuantity);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1620,11 +1590,6 @@ codeunit 5812 "Calculate Standard Cost"
     begin
     end;
 
-    internal procedure RunOnAfterGetItem(var Item: Record Item; StdCostWkshName: Text[50]; IsInBuffer: Boolean)
-    begin
-        OnAfterGetItem(Item, StdCostWkshName, IsInBuffer);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItem(var Item: Record Item; StdCostWkshName: Text[50]; IsInBuffer: Boolean)
     begin
@@ -1640,19 +1605,9 @@ codeunit 5812 "Calculate Standard Cost"
     begin
     end;
 
-    internal procedure RunOnBeforeDoCalcAssemblyItemPrice(var Item: Record Item; Level: Integer; MaxLevel: Integer; CalcMultiLevel: Boolean; var IsHandled: Boolean)
-    begin
-        OnBeforeDoCalcAssemblyItemPrice(Item, Level, MaxLevel, CalcMultiLevel, IsHandled);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoCalcAssemblyItemPrice(var Item: Record Item; Level: Integer; MaxLevel: Integer; CalcMultiLevel: Boolean; var IsHandled: Boolean)
     begin
-    end;
-
-    internal procedure RunOnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(var Item: Record Item; var BOMComponent: Record "BOM Component")
-    begin
-        OnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(Item, BOMComponent);
     end;
 
     [IntegrationEvent(false, false)]
