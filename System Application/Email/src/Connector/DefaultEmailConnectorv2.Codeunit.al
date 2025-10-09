@@ -10,16 +10,10 @@ namespace System.Email;
 /// </summary>
 #if not CLEAN26
 #pragma warning disable AL0432
-codeunit 8998 "Default Email Connector v2" implements "Email Connector v2", "Email Connector v3", "Email Connector v4"
+codeunit 8998 "Default Email Connector v2" implements "Email Connector v2", "Email Connector v3"
 #pragma warning restore AL0432
 #else
-#if not CLEAN28
-#pragma warning disable AL0432
-codeunit 8998 "Default Email Connector v2" implements "Email Connector v3", "Email Connector v4"
-#pragma warning restore AL0432
-#else
-codeunit 8998 "Default Email Connector v2" implements "Email Connector v4"
-#endif
+codeunit 8998 "Default Email Connector v2" implements "Email Connector v3"
 #endif
 {
 
@@ -79,9 +73,5 @@ codeunit 8998 "Default Email Connector v2" implements "Email Connector v4"
     procedure MarkAsRead(AccountId: Guid; ExternalId: Text)
     begin
 
-    end;
-
-    procedure GetEmailFolders(AccountId: Guid; var EmailFolders: Record "Email Folders" temporary)
-    begin
     end;
 }
