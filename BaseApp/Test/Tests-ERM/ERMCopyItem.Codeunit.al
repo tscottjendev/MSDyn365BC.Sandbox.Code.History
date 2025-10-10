@@ -11,9 +11,7 @@ codeunit 134462 "ERM Copy Item"
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
@@ -36,6 +34,7 @@ codeunit 134462 "ERM Copy Item"
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
         CustomerNameErr: Label 'Invalid Customer Name';
+        CostAdjustedTrueErr: Label 'Cost is Adjusted should be TRUE for new copied item';
 
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
@@ -403,7 +402,6 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -465,7 +463,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyPurchaseLineDiscount(PurchaseLineDiscount, CopyItemBuffer."Target Item No.");
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
-#endif
+
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -1620,6 +1618,36 @@ codeunit 134462 "ERM Copy Item"
         Assert.RecordIsNotEmpty(PurchaseLine);
     end;
 
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemCostIsAdjustedSetToTrue()
+    var
+        SourceItem: Record Item;
+        TargetItem: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+    begin
+        // [FEATURE] Copy Item [Cost is Adjusted = True]
+        // [SCENARIO] When copying an item, the new item should have 'Cost is Adjusted' = TRUE regardless of source item value
+        Initialize();
+
+        // [GIVEN] Create item with 'Cost is Adjusted' = FALSE (simulating an item with unadjusted cost)
+        LibraryInventory.CreateItem(SourceItem);
+        SourceItem."Cost is Adjusted" := false;
+        SourceItem.Modify();
+
+        // [WHEN] Copy the item
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
+        CopyItemBuffer."Units of Measure" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(SourceItem."No.");
+
+        // [THEN] The new item has 'Cost is Adjusted' = TRUE
+        TargetItem.Get(CopyItemBuffer."Target Item No.");
+        Assert.IsTrue(TargetItem."Cost is Adjusted", CostAdjustedTrueErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1761,7 +1789,6 @@ codeunit 134462 "ERM Copy Item"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchasePriceWithLineDiscount(var PurchasePrice: Record "Purchase Price"; var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreatePurchasePrice(
@@ -1781,7 +1808,7 @@ codeunit 134462 "ERM Copy Item"
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer,
           SalesPrice."Sales Code", WorkDate(), '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
     end;
-#endif
+
     local procedure CreateTroubleshootingHeader(var TroubleshootingHeader: Record "Troubleshooting Header")
     begin
         TroubleshootingHeader.Init();
@@ -1922,7 +1949,6 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
-#if not CLEAN25
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";
@@ -1961,7 +1987,6 @@ codeunit 134462 "ERM Copy Item"
         SalesPrice2.FindFirst();
         SalesPrice2.TestField("Minimum Quantity", SalesPrice."Minimum Quantity");
     end;
-#endif
 
     local procedure VerifyItemGeneralInformation(ItemNo: Code[20]; Description: Text[100])
     var
@@ -2203,4 +2228,3 @@ codeunit 134462 "ERM Copy Item"
         CopyItem.OK().Invoke();
     end;
 }
-

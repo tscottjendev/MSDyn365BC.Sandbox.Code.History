@@ -225,7 +225,6 @@ codeunit 6103 "E-Document Subscribers"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
         DocumentSendingProfile: Record "Document Sending Profile";
-        EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         if (SalesInvHdrNo = '') and (SalesCrMemoHdrNo = '') and (SalesShptHdrNo = '') then
             exit;
@@ -265,7 +264,6 @@ codeunit 6103 "E-Document Subscribers"
     local procedure CreateEDocumentFromPostedTransferShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferShipmentHeader: Record "Transfer Shipment Header"; InvtPickPutaway: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
-        EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         if TransferShipmentHeader."No." = '' then
             exit;
@@ -308,7 +306,6 @@ codeunit 6103 "E-Document Subscribers"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHdr: Record "Service Cr.Memo Header";
         DocumentSendingProfile: Record "Document Sending Profile";
-        EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         if (ServInvoiceNo = '') and (ServCrMemoNo = '') then
             exit;
@@ -329,7 +326,6 @@ codeunit 6103 "E-Document Subscribers"
     var
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         DocumentSendingProfile: Record "Document Sending Profile";
-        EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         if not EDocumentProcessing.GetDocSendingProfileForCust(FinChargeMemoHeader."Customer No.", DocumentSendingProfile) then
             exit;
@@ -345,7 +341,6 @@ codeunit 6103 "E-Document Subscribers"
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
         DocumentSendingProfile: Record "Document Sending Profile";
-        EDocumentProcessing: Codeunit "E-Document Processing";
     begin
         if not EDocumentProcessing.GetDocSendingProfileForCust(ReminderHeader."Customer No.", DocumentSendingProfile) then
             exit;
@@ -433,7 +428,9 @@ codeunit 6103 "E-Document Subscribers"
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Record Link");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Document Notification");
 #if not CLEAN26
+#pragma warning disable AL0432
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"EDoc. Purch. Line Field Setup");
+#pragma warning restore AL0432
 #endif
     end;
 
@@ -577,7 +574,11 @@ codeunit 6103 "E-Document Subscribers"
     var
         WorkFlow: Record Workflow;
         PostedSourceDocumentHeader: RecordRef;
+        IsHandled: Boolean;
     begin
+        OnBeforeCreateEDocumentFromPostedDocument(PostedRecord, IsHandled);
+        if IsHandled then
+            exit;
         PostedSourceDocumentHeader.GetTable(PostedRecord);
         if (DocumentSendingProfile."Electronic Document" <> DocumentSendingProfile."Electronic Document"::"Extended E-Document Service Flow") then
             exit;
@@ -620,4 +621,8 @@ codeunit 6103 "E-Document Subscribers"
         Telemetry.LogMessage('0000PYF', DraftChangeTok, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateEDocumentFromPostedDocument(PostedRecord: Variant; var IsHandled: Boolean)
+    begin
+    end;
 }

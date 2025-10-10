@@ -25,9 +25,7 @@
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         WorkflowSetup: Codeunit "Workflow Setup";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
@@ -74,6 +72,7 @@
         CorrectPostedSalesInvoiceErr: Label 'Cancelled must be %1 for %2', Comment = '%1= Value ,%2=Table Name';
         SalesLineQtyErr: Label 'Sales Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
         OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
+        ConfirmMsg: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
 
     [Test]
     [Scope('OnPrem')]
@@ -267,7 +266,6 @@
         LibrarySales.SetStockoutWarning(true);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesOrder()
@@ -301,7 +299,6 @@
         // Tear Down: Cleanup of Setup Done.
         LibrarySales.SetStockoutWarning(true);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1249,7 +1246,6 @@
         VerifyValueEntry(SalesInvoiceHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnSalesInvoice()
@@ -1304,7 +1300,6 @@
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), TotalLineDiscountInGLEntry(TempSalesLine, SalesInvoiceHeader."No."),
           StrSubstNo(ValueErr, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -5907,6 +5902,64 @@
         VerifySalesOrderQuantityforManualSalesCreditMemo(SalesHeader."No.", 10);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMessage')]
+    procedure MessageAddedUndoShipmentCreatesNegativeLineSalesShipmentWhenUndoneCancelledSalesInvoice()
+    var
+        // SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: array[2] of Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        // [SCENARIO 579539] Message Added when Undo Shipment creates negative lines in Sales Shipment when already undone via cancelled Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Find VATPostingSetup with Normal VAT Calculation Type.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        // UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+
+        // [GIVEN] Create and Post Sales Order with partial shipment and invoice.
+        CreateSalesDocument(
+            SalesHeader[1],
+            SalesLine,
+            SalesHeader[1]."Document Type"::Order,
+            CreateCustomer(),
+            CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Order with Shipment.
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Find Sales Shipment Line created from posted Sales Order with Shipment.
+        SalesShipmentLine[1].SetRange("Order No.", SalesHeader[1]."No.");
+
+        // [GIVEN] Create Sales Invoice Header.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, SalesHeader[1]."Sell-to Customer No.");
+
+        // [GIVEN] Create Sales Line using Get Shipment.
+        SalesGetShipment.SetSalesHeader(SalesHeader[2]);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine[1]);
+
+        // [GIVEN] Post Sales Order with Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader[2], false, true));
+
+        // [GIVEN] Cancel Posted Sales Invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Find Sales Shipment Line created from posted Sales Order with Shipment.
+        SalesShipmentLine[2].SetRange("Sell-to Customer No.", SalesHeader[1]."Sell-to Customer No.");
+        SalesShipmentLine[2].SetRange("No.", SalesLine."No.");
+        SalesShipmentLine[2].FindFirst();
+
+        // [THEN] New Confrimation Message is shown when Undo Shipment creates negative lines in Sales Shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine[2]);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -6339,7 +6392,6 @@
         ReturnReceiptLine.FindFirst();
     end;
 
-#if not CLEAN25
     local procedure SalesLinesWithMinimumQuantity(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -6353,7 +6405,6 @@
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
         end;
     end;
-#endif
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
@@ -6667,7 +6718,7 @@
             SalesLine.Insert();
         until SalesLine2.Next() = 0;
     end;
-#if not CLEAN25
+
     local procedure TotalLineDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6679,7 +6730,7 @@
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
         exit(TotalAmountInGLEntry(GLEntry));
     end;
-#endif
+
     local procedure TotalInvoiceDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6798,7 +6849,6 @@
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -6813,7 +6863,6 @@
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));
         SalesLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure UpdateSalesReceivableSetup()
     var
@@ -6871,7 +6920,7 @@
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
         SalesLine.Modify(true);
     end;
-#if not CLEAN25
+
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -6880,7 +6929,7 @@
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -7331,7 +7380,7 @@
           InvoiceDiscountAmount, SalesLine."Inv. Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Inv. Discount Amount"), InvoiceDiscountAmount, SalesLine.TableCaption()));
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountAmount(SalesLine: Record "Sales Line"; DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7350,7 +7399,7 @@
           LineDiscountAmount, SalesLine."Line Discount Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
     end;
-#endif
+
     local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; LineDiscountAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7492,7 +7541,7 @@
               StrSubstNo(VATAmountErr, VATAmountSalesLine, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#if not CLEAN25
+
     local procedure VerifyLineDiscountOnInvoice(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7507,7 +7556,7 @@
               StrSubstNo(AmountErr, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure VerifyInvoiceDiscountOnInvoice(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -7786,6 +7835,13 @@
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerMessage(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(ConfirmMsg, Question);
+        Reply := true;
     end;
 
     [StrMenuHandler]

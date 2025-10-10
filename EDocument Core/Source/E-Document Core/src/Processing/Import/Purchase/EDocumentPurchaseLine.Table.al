@@ -66,6 +66,8 @@ table 6101 "E-Document Purchase Line"
             Caption = 'Quantity';
             ToolTip = 'Specifies the quantity.';
             Editable = false;
+            DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(7; "Unit of Measure"; Text[50])
         {
@@ -98,6 +100,7 @@ table 6101 "E-Document Purchase Line"
         {
             Caption = 'VAT Rate';
             Editable = false;
+            AutoFormatType = 0;
         }
         field(12; "Currency Code"; Code[10])
         {
@@ -118,7 +121,7 @@ table 6101 "E-Document Purchase Line"
             ToolTip = 'Specifies what you''re selling. The options vary, depending on what you choose in the Type field.';
             TableRelation = if ("[BC] Purchase Line Type" = const(" ")) "Standard Text"
             else
-            if ("[BC] Purchase Line Type" = const("G/L Account")) "G/L Account"
+            if ("[BC] Purchase Line Type" = const("G/L Account")) "G/L Account" where("Direct Posting" = const(true))
             else
             if ("[BC] Purchase Line Type" = const("Fixed Asset")) "Fixed Asset"
             else
@@ -165,7 +168,9 @@ table 6101 "E-Document Purchase Line"
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
         }
-        field(107; "[BC] Item Reference No."; Code[20])
+#pragma warning disable AS0086
+        field(107; "[BC] Item Reference No."; Code[50])
+#pragma warning restore AS0086
         {
             Caption = 'Item Reference No.';
             ToolTip = 'Specifies the item reference number.';

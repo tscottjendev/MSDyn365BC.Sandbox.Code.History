@@ -34,6 +34,7 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
         UserName: Code[50];
         Identifier: Integer;
     begin
+        VerifyThatAllEntriesHaveSamePolicy(GLEntry);
         ValidateEntries(GLEntry);
         Identifier := GetNextIdentifier();
         UserName := CopyStr(Database.UserId(), 1, MaxStrLen(UserName));
@@ -91,6 +92,25 @@ codeunit 22200 "Review G/L Entry" implements "G/L Entry Reviewer"
                 ErrorMsg := StrSubstNo(BalanceNotMatchingMsg, GLAccount."No.", GLAccount.Name);
                 Error(ErrorMsg);
             end;
+    end;
+
+    local procedure VerifyThatAllEntriesHaveSamePolicy(var GLEntry: Record "G/L Entry")
+    var
+        GLAccount: Record "G/L Account";
+        ReviewPolicyType: Enum "Review Policy Type";
+        NoMatchingPolicyErr: Label 'All entries must have the same review policy.';
+    begin
+        GLEntry.SetLoadFields("G/L Account No.");
+        if GLEntry.FindSet() then begin
+            GLAccount.Get(GLEntry."G/L Account No.");
+            ReviewPolicyType := GLAccount."Review Policy";
+            repeat
+                GLAccount.Get(GLEntry."G/L Account No.");
+                if GLAccount."Review Policy" <> ReviewPolicyType then
+                    Error(NoMatchingPolicyErr);
+            until GLEntry.Next() = 0;
+        end;
+
     end;
 
     local procedure CreditDebitSumsToZero(var GLEntry: Record "G/L Entry"): Boolean

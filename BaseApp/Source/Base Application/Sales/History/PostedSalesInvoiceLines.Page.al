@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Utilities;
 
 page 526 "Posted Sales Invoice Lines"
 {
@@ -12,6 +13,7 @@ page 526 "Posted Sales Invoice Lines"
     Caption = 'Posted Sales Invoice Lines';
     Editable = false;
     PageType = List;
+    AboutText = 'Review detailed line information from posted sales invoices, including customer, item, quantity, pricing, discounts, and related order data for financial analysis and reporting.';
     SourceTable = "Sales Invoice Line";
     UsageCategory = History;
 
@@ -190,9 +192,12 @@ page 526 "Posted Sales Invoice Lines"
                     ToolTip = 'Open the document that the selected line exists on.';
 
                     trigger OnAction()
+                    var
+                        SalesInvHeader: Record "Sales Invoice Header";
+                        PageManagement: Codeunit "Page Management";
                     begin
                         SalesInvHeader.Get(Rec."Document No.");
-                        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                        PageManagement.PageRun(SalesInvHeader);
                     end;
                 }
                 action(Dimensions)
@@ -242,9 +247,6 @@ page 526 "Posted Sales Invoice Lines"
             }
         }
     }
-
-    var
-        SalesInvHeader: Record "Sales Invoice Header";
 
     trigger OnOpenPage()
     begin

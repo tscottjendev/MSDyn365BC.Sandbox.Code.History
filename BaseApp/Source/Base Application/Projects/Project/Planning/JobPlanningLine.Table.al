@@ -28,9 +28,7 @@ using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
@@ -120,7 +118,7 @@ table 1003 "Job Planning Line"
             Caption = 'No.';
             TableRelation = if (Type = const(Resource)) Resource
             else
-            if (Type = const(Item)) Item where(Blocked = const(false))
+            if (Type = const(Item)) Item
             else
             if (Type = const("G/L Account")) "G/L Account"
             else
@@ -2102,13 +2100,10 @@ table 1003 "Job Planning Line"
         OnAfterCalculateRetrievedCost(Rec, xRec, SKU, Item, RetrievedCost);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost");
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
-#endif
 
     protected procedure RetrieveCostPrice(CalledByFieldNo: Integer): Boolean
     var
@@ -2165,18 +2160,12 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN25
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN25
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
-#else
-        exit(true);
-#endif
     end;
 
     local procedure UpdateTotalCost()
@@ -3370,7 +3359,6 @@ table 1003 "Job Planning Line"
     var
         Item2: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3378,10 +3366,11 @@ table 1003 "Job Planning Line"
         if IsHandled then
             exit("No.");
 
-        if Type = Type::Item then begin
-            if Item2.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item2.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(GetType(Type), "No.", false));
 
         exit(SourceNo);
@@ -3498,13 +3487,10 @@ table 1003 "Job Planning Line"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobPlanningLine: Record "Job Planning Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line");

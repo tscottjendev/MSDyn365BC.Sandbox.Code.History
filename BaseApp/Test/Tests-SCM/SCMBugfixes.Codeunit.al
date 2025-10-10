@@ -44,6 +44,7 @@ codeunit 137045 "SCM Bugfixes"
         ExpectedQuantitymismatchErr: Label 'Mismatch in Expected Quantity for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
         TrackingMsg: Label 'The change will not affect existing entries';
         NotificationNonCertifiedProductionBOMAndRoutingQst: Label 'The Production BOM or routing has not been certified. Are you sure you want to exit?';
+        BinCodeErr: Label 'Planning Component Bin Code for non-inventory item is not empty';
 
     [Test]
     [Scope('OnPrem')]
@@ -1339,6 +1340,76 @@ codeunit 137045 "SCM Bugfixes"
         // [THEN] Verify that a notification is shown about non-certified Production BOMs and Routings.
     end;
 
+    [Test]
+    procedure CheckBincodeForNonInventoryItemForPlanningWorksheet()
+    var
+        Bin1: Record Bin;
+        Bin2: Record Bin;
+        ComponentItem1: Record Item;
+        ComponentItem2: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ParentItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 599311] Checking Bin code for Non-Inventory Item for Planning Worksheet.
+        Initialize();
+
+        // [GIVEN] Created Two Component Items, One Non-Inventory and Another Inventory.
+        LibraryInventory.CreateItem(ComponentItem1);
+        ComponentItem1.Validate(Type, ComponentItem1.Type::"Non-Inventory");
+        ComponentItem1.Modify(true);
+        LibraryInventory.CreateItem(ComponentItem2);
+
+        // [GIVEN] Created Location with Bin Mandatory and Inventory Posting Setup, To-Production Bin and From-Production Bin.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin1, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, '', '', '');
+        Location.Validate("To-Production Bin Code", Bin1.Code);
+        Location.Validate("From-Production Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Created Parent Item with Replenishment System:Prod. Order,Manufacturing Policy:Make-to-Order and Reordering Policy:Lot-for-Lot.
+        LibraryInventory.CreateItem(ParentItem);
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        ParentItem.Validate("Reordering Policy", ParentItem."Reordering Policy"::"Lot-for-Lot");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Created Production BOM for Parent Item with ComponentItem1 and ComponentItem2.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ParentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem1."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem2."No.", 1);
+        ProductionBOMHeader.Validate("Status", ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Created Positive Adjustment for ComponentItem2 with 100 Qty at Location and Bin1.
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem2."No.", 100);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin1.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+
+        // [GIVEN] Created New Sales Order with Parent Item with 1 Qty and Future Shipment Date.
+        CreateSalesOrder(SalesHeader, ParentItem."No.", Location.Code, 1, SalesHeader."Document Type"::Order);
+
+        // [WHEN] Calculate regenerative plan in planning worksheet update Planning Worksheet.
+        CalculateRegenerativePlanningWorksheet(ParentItem, WorkDate(), CalcDate('<1Y>', WorkDate()), false, false);
+
+        // [THEN] Verify Planning Component for ComponentItem1 should have Bin Code empty.
+        VerifyPlanningComponentBinEmpty(ComponentItem1."No.", Location.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2132,6 +2203,25 @@ codeunit 137045 "SCM Bugfixes"
         ReservEntry.SetRange("Source ID", SourceID);
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, ExpectedQuantity);
+    end;
+
+    local procedure VerifyPlanningComponentBinEmpty(ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        PlanningComponent.SetRange("Location Code", LocationCode);
+        PlanningComponent.SetRange("Item No.", ItemNo);
+        if PlanningComponent.FindFirst() then;
+        Assert.AreEqual('', PlanningComponent."Bin Code", BinCodeErr);
+    end;
+
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJnlTemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJnlTemplateType, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ModalPageHandler]

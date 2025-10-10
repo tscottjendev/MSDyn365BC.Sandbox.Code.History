@@ -38,6 +38,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    ShowMandatory = true;
                 }
                 field("Item Reference No."; Rec."[BC] Item Reference No.")
                 {
@@ -63,6 +64,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                 {
                     ApplicationArea = All;
                     Editable = true;
+
                     trigger OnValidate()
                     begin
                         UpdateCalculatedAmounts(true);
@@ -93,6 +95,8 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the line amount.';
                     Editable = false;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = Rec."Currency Code";
                 }
                 field("Deferral Code"; Rec."[BC] Deferral Code")
                 {
@@ -178,6 +182,11 @@ page 6183 "E-Doc. Purchase Draft Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Clear(LineAmount);
     end;
 
     trigger OnAfterGetRecord()

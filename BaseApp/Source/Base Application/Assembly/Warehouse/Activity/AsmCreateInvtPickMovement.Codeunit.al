@@ -39,7 +39,7 @@ codeunit 989 "Asm. Create Invt.Pick/Movement"
     local procedure OnCheckSourceDocForWhseRequest(
         var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecordVar: Variant; var Result: Boolean;
         var WhseActivHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter";
-        CheckLineExist: Boolean; ApplySourceFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
+        CheckLineExist: Boolean; ApplyAdditionalSourceDocFilters: Boolean; IsInvtMovement: Boolean; var IsHandled: Boolean)
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -48,7 +48,7 @@ codeunit 989 "Asm. Create Invt.Pick/Movement"
                 begin
                     Result :=
                         SetFilterAssemblyLine(
-                            AssemblyLine, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters, IsInvtMovement);
+                            AssemblyLine, SourceDocRecordVar, WhseActivHeader, WarehouseSourceFilter, CheckLineExist, ApplyAdditionalSourceDocFilters, IsInvtMovement);
                     IsHandled := true;
                 end;
         end;
@@ -72,13 +72,13 @@ codeunit 989 "Asm. Create Invt.Pick/Movement"
     local procedure OnAutoCreatePickOrMoveFromWhseRequest(
         var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var SourceDocRecVar: Variant;
         var WhseActivityHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter";
-        CheckLineExist: Boolean; ApplySourceFilters: Boolean; IsInvtMovement: Boolean;
+        CheckLineExist: Boolean; ApplyAdditionalSourceDocFilters: Boolean; IsInvtMovement: Boolean;
         ReservedFromStock: Enum "Reservation From Stock"; var sender: Codeunit "Create Inventory Pick/Movement")
     begin
         case WarehouseRequest."Source Document" of
             WarehouseRequest."Source Document"::"Assembly Consumption":
                 CreatePickOrMoveFromAssembly(
-                    SourceDocRecVar, WhseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters, IsInvtMovement, ReservedFromStock, sender);
+                    SourceDocRecVar, WhseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplyAdditionalSourceDocFilters, IsInvtMovement, ReservedFromStock, sender);
         end;
     end;
 

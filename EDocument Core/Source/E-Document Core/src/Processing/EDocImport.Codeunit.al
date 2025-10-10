@@ -33,8 +33,10 @@ codeunit 6140 "E-Doc. Import"
         AllEDocumentsProcessed: Boolean;
     begin
 #if not CLEAN26
+#pragma warning disable AL0432
         if EDocumentService."Service Integration V2" = "Service Integration"::"No Integration" then
             exit(EDocIntegrationMgt.ReceiveDocument(EDocumentService, EDocumentService."Service Integration"));
+#pragma warning restore AL0432
 #endif
         EDocIntegrationMgt.ReceiveDocuments(EDocumentService, ReceiveContext);
 
@@ -814,7 +816,10 @@ codeunit 6140 "E-Doc. Import"
 
     local procedure V1_CopyFromPurchaseLine(PurchaseLine: Record "Purchase Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
     begin
-        EDocumentPurchaseLine."Product Code" := PurchaseLine."No.";
+        if PurchaseLine."Item Reference No." <> '' then // No. takes precedence over Item Reference No., but if only Item Reference No. is set we use that 
+            EDocumentPurchaseLine."Product Code" := PurchaseLine."Item Reference No.";
+        if PurchaseLine."No." <> '' then
+            EDocumentPurchaseLine."Product Code" := PurchaseLine."No.";
         EDocumentPurchaseLine."Description" := PurchaseLine.Description;
         EDocumentPurchaseLine.Quantity := PurchaseLine.Quantity;
         EDocumentPurchaseLine."Unit Price" := PurchaseLine."Direct Unit Cost";
@@ -866,12 +871,16 @@ codeunit 6140 "E-Doc. Import"
 #if not CLEAN26
     internal procedure V1_AfterInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     begin
+#pragma warning disable AL0432
         OnAfterInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse);
+#pragma warning restore AL0432
     end;
 
     internal procedure V1_BeforeInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var IsCreated: Boolean; var IsProcessed: Boolean)
     begin
+#pragma warning disable AL0432
         OnBeforeInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
+#pragma warning restore AL0432
     end;
 #endif
 

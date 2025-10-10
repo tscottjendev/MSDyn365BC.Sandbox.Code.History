@@ -7,9 +7,7 @@ namespace Microsoft.Sales.Pricing;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Pricing.Asset;
-#if not CLEAN25
 using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 
@@ -19,6 +17,7 @@ page 7015 "Sales Price Lists"
     CardPageID = "Sales Price List";
     Editable = false;
     PageType = List;
+    AboutText = 'Manage and update sales price lists for items and services, including setting prices, discounts, validity periods, and assignment to customers or groups.';
     QueryCategory = 'Sales Price Lists';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
@@ -246,14 +245,12 @@ page 7015 "Sales Price Lists"
         }
     }
 
-#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif   
 
     trigger OnAfterGetRecord()
     begin

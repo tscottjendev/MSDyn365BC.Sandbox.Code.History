@@ -1772,7 +1772,11 @@ table 246 "Requisition Line"
         ItemReference: Record "Item Reference";
         ItemTranslation: Record "Item Translation";
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateItemReferenceDescription(Rec, IsHandled);
+        if IsHandled then
+            exit;
         if not ItemReference.FindItemDescription(
                 Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
                 Rec."Order Date", Enum::"Item Reference Type"::Vendor, "Vendor No.")
@@ -2739,6 +2743,9 @@ table 246 "Requisition Line"
         Level := 1;
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        "Drop Shipment" := UnplannedDemand."Drop Shipment";
+
+        UpdateSalesOrderDetailForDropShipment();
 
         UpdateDim();
 
@@ -3303,6 +3310,25 @@ table 246 "Requisition Line"
             ItemVariant.SetLoadFields("Blocked");
             ItemVariant.Get(Rec."No.", Rec."Variant Code");
         end;
+    end;
+
+    local procedure UpdateSalesOrderDetailForDropShipment()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        if Rec."Demand Type" <> Database::"Sales Line" then
+            exit;
+
+        if not Rec."Drop Shipment" then
+            exit;
+
+        SalesLine.SetLoadFields("Sell-to Customer No.");
+        if not SalesLine.Get(Rec."Demand Subtype", Rec."Demand Order No.", Rec."Demand Line No.") then
+            exit;
+
+        Rec."Sales Order No." := SalesLine."Document No.";
+        Rec."Sales Order Line No." := SalesLine."Line No.";
+        Rec."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
     end;
 
     procedure ReserveBindingOrder(TrackingSpecification: Record "Tracking Specification"; SourceDescription: Text[100]; ExpectedDate: Date; ReservQty: Decimal; ReservQtyBase: Decimal; UpdateReserve: Boolean)
@@ -3993,6 +4019,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemReferenceDescription(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

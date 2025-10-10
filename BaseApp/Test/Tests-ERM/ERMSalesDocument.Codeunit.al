@@ -14,6 +14,9 @@
 
     var
         Assert: Codeunit Assert;
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibraryKitting: Codeunit "Library - Kitting";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
@@ -26,13 +29,12 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
-#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-#endif
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,AssignSerialNo,ApplyFromItemEntry,AssignAutoSerialNo,AssignAutoLotAndSerialNo,AssignManualLotNo,AssignManualTwoLotNo,AssignTwoLotNo,SelectEntriesForMultipleLines,UpdateQty,PartialAssignManualTwoLotNo;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         FieldError: Label '%1 must be %2 in %3.';
         DiscountError: Label 'Discount Amount must be equal to %1.';
@@ -373,7 +375,6 @@
         VerifyValueEntries(SalesHeader."No.", SalesHeader.Amount);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnCreditMemo()
@@ -428,7 +429,6 @@
           SumLineDiscountAmount(TempSalesLine, SalesHeader."No."), -TotalLineDiscountInGLEntry(TempSalesLine, SalesCrMemoHeader."No."),
           StrSubstNo(DiscountError, TempSalesLine.FieldCaption("Line Discount Amount")));
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4928,6 +4928,96 @@
         Assert.AreEqual(SalesLine.Quantity, Abs(ReservationEntry.Quantity), '');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDueDateBeforeWorkDate,MessageHandlerValidateMessage')]
+    [Scope('OnPrem')]
+    procedure CheckQuantityBaseMustNotBe0InBinContentErrorShouldNotAppearWhenPostInventoryPick()
+    var
+        AssemblyItem: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Customer: Record Customer;
+        ItemComponent: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        MyNotifications: Record "My Notifications";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SerialNo: Code[50];
+        DueDate: Date;
+    begin
+        // [SCENARIO 592151] Check "Quantity (Base) must not be 0 in Bin Content" error should not appear when post Inventory Pick for Assembly Item.
+        Initialize();
+
+        MyNotifications.Disable(InstructionMgt.GetPostingAfterWorkingDateNotificationId());
+        DueDate := LibraryPlanning.SetSafetyWorkDate();
+        // [GIVEN] Create Location with required pick
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, false);
+
+        // [GIVEN] Create Bin in Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location."Default Bin Code" := Bin.Code;
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee with default location
+        CreateDefaultWarehouseEmployee(Location);
+
+        // [GIVEN] Create Assembly Item And Component Item and set as Assembly BOM
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", Enum::"Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Validate("Item Tracking Code", 'SNALL');
+        AssemblyItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblyItem.Modify(true);
+        CreateAssemblyBomComponent(ItemComponent, AssemblyItem."No.");
+
+        //[GIVEN] Bin Content for Assembly Item
+        LibraryWarehouse.CreateBinContent(
+             BinContent, Location.Code, Bin."Zone Code", Bin.Code, AssemblyItem."No.", '', AssemblyItem."Base Unit of Measure");
+
+        // [GIVEN] Create and Post Item Journal with and without Variant Code.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+         ItemJournalLine, ItemJournalBatch."Journal Template Name",
+         ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemComponent."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        ItemJournalLine."Location Code" := Location.Code;
+        ItemJournalLine."Bin Code" := Bin.Code;
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Item Tracking Line for Assembly Order
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(DueDate, AssemblyItem."No.", 1));
+        AssemblyHeader."Location Code" := Location.Code;
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Create an Assembly Line for an Item
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine, Enum::"BOM Component Type"::Item, ItemComponent."No.", 1, ItemComponent."Base Unit of Measure");
+        SerialNo := 'TEST';
+        EnqueueValuesForItemTrackingLines(SerialNo, 1);
+
+        // [GIVEN] Create Sales order and create and post Inventory Pick
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        NotificationLifecycleMgt.RecallAllNotifications();
+        CreateSalesHeader(SalesHeader, AssemblyHeader."Due Date");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyHeader."Item No.", AssemblyHeader.Quantity);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [THEN] Check that the Inventory Pick is created and Post successfully
+        CreateInventoryPickOnSalesLine(SalesLine, Bin.Code);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5639,7 +5729,6 @@
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN25
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -5650,7 +5739,7 @@
               SalesLine, SalesHeader, SalesLine.Type::Item, SalesLineDiscount.Code,
               SalesLineDiscount."Minimum Quantity" + LibraryRandom.RandDec(10, 2));
     end;
-#endif
+
     local procedure CreateSalesLinesFromDocument(var SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.FindSet();
@@ -5670,7 +5759,6 @@
         AnalysisReportSale.EditAnalysisReport.Invoke();
     end;
 
-#if not CLEAN25
     local procedure SumLineDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) LineDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5679,7 +5767,7 @@
             LineDiscountAmount += SalesLine."Line Discount Amount";
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure SumInvoiceDiscountAmount(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]) InvoiceDiscountAmount: Decimal
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5697,7 +5785,6 @@
         CustInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure SetupLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -5725,7 +5812,7 @@
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Line Disc. Account");
         exit(TotalAmountInGLEntry(GLEntry));
     end;
-#endif
+
     local procedure TotalInvoiceDiscountInGLEntry(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -6418,7 +6505,6 @@
           StrSubstNo(FieldError, CustLedgerEntry.FieldCaption("Amount (LCY)"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
-#if not CLEAN25
     local procedure VerifyLineDiscountOnCreditMemo(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6433,7 +6519,7 @@
               StrSubstNo(FieldError, SalesLine.FieldCaption("Line Discount Amount"), LineDiscountAmount, SalesLine.TableCaption()));
         until SalesLine.Next() = 0;
     end;
-#endif
+
     local procedure VerifyInvoiceDiscount(SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6749,6 +6835,108 @@
         ItemChargeAssignmentSales.FindFirst();
     end;
 
+    local procedure CreateInventoryPickOnSalesLine(var SalesLine: Record "Sales Line"; BinCode: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PickCreated: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
+    begin
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryVariableStorage.Enqueue(PickCreated);
+        LibraryWarehouse.CreateInvtPutPickMovement(SalesHeader."Document Type", SalesHeader."No.", false, true, false);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick", SalesLine."Location Code",
+          WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
+        WarehouseActivityLine.Validate("Serial No.", 'TEST');
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify(true);
+
+        //Post Inventory Pick
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure EnqueueValuesForItemTrackingLines(LotNo: Code[50]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; ShipmentDate: Date)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Order Date", ShipmentDate);
+        SalesHeader.Validate("Shipment Date", ShipmentDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure CreateAssemblyOrderLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UoM: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        if No <> '' then begin
+            LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, Type, No, UoM, Quantity, 1, '');
+            exit;
+        end;
+        Clear(AssemblyLine);
+        AssemblyLine."Document Type" := AssemblyHeader."Document Type";
+        AssemblyLine."Document No." := AssemblyHeader."No.";
+        RecRef.GetTable(AssemblyLine);
+        AssemblyLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AssemblyLine.FieldNo("Line No.")));
+        AssemblyLine.Insert(true);
+        AssemblyLine.Validate(Type, Type);
+        AssemblyLine.Modify(true);
+    end;
+
+    local procedure CreateAssemblyBomComponent(var Item: Record Item; ParentItemNo: Code[20])
+    var
+        BomComponent: Record "BOM Component";
+        BomRecordRef: RecordRef;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Modify(true);
+
+        BomComponent.Init();
+        BomComponent.Validate(BomComponent."Parent Item No.", ParentItemNo);
+        BomRecordRef.GetTable(BomComponent);
+        BomComponent.Validate(BomComponent."Line No.", LibraryUtility.GetNewLineNo(BomRecordRef, BomComponent.FieldNo(BomComponent."Line No.")));
+        BomComponent.Validate(BomComponent.Type, BomComponent.Type::Item);
+        BomComponent.Validate(BomComponent."No.", Item."No.");
+        BomComponent.Validate(BomComponent."Quantity per", LibraryRandom.RandInt(10));
+        BomComponent.Insert(true);
+    end;
+
+    local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange(Default, true);
+        if WarehouseEmployee.FindFirst() then begin
+            if WarehouseEmployee."Location Code" <> NewDefaultLocation.Code then begin
+                WarehouseEmployee.Delete(true);
+                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+            end;
+        end
+        else
+            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -6789,6 +6977,13 @@
     begin
         PostedSalesDocumentLines.PostedShpts.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
         PostedSalesDocumentLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQtyToCreate(var EnterQtyToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQtyToCreate.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -6850,6 +7045,15 @@
     procedure MessageHandlerWithEnqueue(Message: Text)
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerValidateMessage(Message: Text[1024])
+    var
+        ExpectedMessage: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMessage);
     end;
 
     [PageHandler]
@@ -6977,6 +7181,13 @@
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmDueDateBeforeWorkDate(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;

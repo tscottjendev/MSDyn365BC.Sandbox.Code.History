@@ -5,11 +5,9 @@
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Pricing.Asset;
-#if not CLEAN25
-using Microsoft.Pricing.Calculation;
-#endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Calculation;
 
 page 7017 "Purchase Price Lists"
 {
@@ -17,6 +15,7 @@ page 7017 "Purchase Price Lists"
     CardPageID = "Purchase Price List";
     Editable = false;
     PageType = List;
+    AboutText = 'Set up and manage special purchase prices and discounts for vendors by creating, editing, and activating purchase price lists, including assigning items, specifying validity dates, and controlling pricing details.';
     QueryCategory = 'Purchase Price Lists';
     RefreshOnActivate = true;
     SourceTable = "Price List Header";
@@ -124,14 +123,12 @@ page 7017 "Purchase Price Lists"
         }
     }
 
-#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-#endif
 
     trigger OnAfterGetRecord()
     begin

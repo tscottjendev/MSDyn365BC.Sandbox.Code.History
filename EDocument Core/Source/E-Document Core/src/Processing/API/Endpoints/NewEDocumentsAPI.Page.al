@@ -5,6 +5,7 @@
 namespace Microsoft.eServices.EDocument.API;
 
 using Microsoft.eServices.EDocument;
+using System.IO;
 using System.Utilities;
 using System.Text;
 
@@ -23,8 +24,8 @@ page 6115 "New E-Documents API"
     InherentEntitlements = X;
     InherentPermissions = X;
 
-    EntityCaption = 'E-Document';
-    EntitySetCaption = 'E-Documents';
+    EntityCaption = 'New E-Document';
+    EntitySetCaption = 'New E-Documents';
     EntityName = 'newEDocument';
     EntitySetName = 'newEDocuments';
 
@@ -33,10 +34,8 @@ page 6115 "New E-Documents API"
     SourceTableTemporary = true;
 
     Extensible = false;
-    Editable = true;
     DeleteAllowed = false;
     DelayedInsert = true;
-    InsertAllowed = true;
 
     Permissions =
         tabledata "E-Document Service" = r;
@@ -65,13 +64,10 @@ page 6115 "New E-Documents API"
                     Caption = 'File Content';
                     ToolTip = 'Base64 encoded file content of the E-Document.';
                 }
-                field(fileName; Rec."File Name")
+                field(fileName; FileName)
                 {
-                }
-                field(fileType; Format(FileType))
-                {
-                    Caption = 'File Type';
-                    ToolTip = 'Type of the file being uploaded for the E-Document.';
+                    Caption = 'File Name';
+                    ToolTip = 'Name of the file including extension (e.g., document.pdf).';
                 }
                 field(processDocument; ProcessDocument)
                 {
@@ -85,7 +81,7 @@ page 6115 "New E-Documents API"
     var
 
         FileType: Enum "E-Doc. File Format";
-        FileContent: Text;
+        FileContent, FileName : Text;
         ProcessDocument: Boolean;
         EDocumentServiceText: Text[20];
         ReceivingNotSupportedErr: Label 'This API does not support the receiving data.';
@@ -96,24 +92,37 @@ page 6115 "New E-Documents API"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
         EDocument: Record "E-Document";
-        EDocumentService: Record "E-Document Service";
+        EDocumentServiceVar: Record "E-Document Service";
         EDocumentImport: Codeunit "E-Doc. Import";
+        FileMgt: Codeunit "File Management";
         TempBlob: Codeunit "Temp Blob";
         Instream: InStream;
     begin
         if not IsFieldsValid() then
             Error(ContentOrFileEmptyErr);
 
-        if not EDocumentService.Get(EDocumentServiceText) then
-            Error(EDocumentServiceNotFoundErr, EDocumentService);
+        if not EDocumentServiceVar.Get(EDocumentServiceText) then
+            Error(EDocumentServiceNotFoundErr, EDocumentServiceVar);
+
+        case LowerCase(FileMgt.GetExtension(FileName)) of
+            'xml':
+                FileType := FileType::XML;
+            'pdf':
+                FileType := FileType::PDF;
+            'json':
+                FileType := FileType::JSON;
+            else
+                FileType := FileType::Unspecified;
+        end;
 
         GetFileContent(FileContent, TempBlob);
         TempBlob.CreateInStream(Instream, TextEncoding::UTF8);
-        EDocumentImport.CreateFromType(EDocument, EDocumentService, FileType, Rec."File Name", Instream);
+        EDocumentImport.CreateFromType(EDocument, EDocumentServiceVar, FileType, Rec."File Name", Instream);
         if ProcessDocument then begin
             if EDocumentImport.ProcessAutomaticallyIncomingEDocument(EDocument) then;
             Rec := EDocument;
         end;
+        exit(false);
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -125,7 +134,7 @@ page 6115 "New E-Documents API"
     begin
         if (FileContent = '') or
             (EDocumentServiceText = '') or
-            (FileType = Enum::"E-Doc. File Format"::Unspecified) then
+            (FileName = '') then
             exit(false);
         exit(true);
     end;

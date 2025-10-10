@@ -836,9 +836,6 @@ table 7001 "Price List Line"
 
         CopyFromAssetType();
 
-#if not CLEAN25
-        OnAfterCopyFromPriceAsset(PriceAsset, Rec);
-#endif
         OnAfterCopyFromForPriceAsset(PriceAsset, Rec);
     end;
 
@@ -1168,14 +1165,6 @@ table 7001 "Price List Line"
             end;
         end;
     end;
-
-#if not CLEAN25
-    [Obsolete('typo, use OnAfterCopyFromForPriceAsset instead', '23.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset"; var riceListLine: Record "Price List Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromForPriceAsset(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line")

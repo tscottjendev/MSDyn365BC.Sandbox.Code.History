@@ -73,10 +73,8 @@ table 18 Customer
                   tabledata "Payment Terms" = R,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN25
                   TableData "Sales Price" = rd,
                   TableData "Sales Line Discount" = rd,
-#endif
                   TableData "Sales Price Access" = rd,
                   TableData "Sales Discount Access" = rd,
                   tabledata "Customer Templ." = rm,
@@ -588,7 +586,7 @@ table 18 Customer
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
+            ToolTip = 'Specifies the total amount the customer owes you, or you owe them, based on all sales and credits for the customer. A positive amount means they owe you, and a negative amount means you owe them. The amount isn''t necessarily due today though. The customer''s payment terms determine due dates. Select the amount to explore the ledger entries behind it.';
         }
         field(60; "Net Change"; Decimal)
         {
@@ -686,10 +684,10 @@ table 18 Customer
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                                  "Currency Code" = field("Currency Filter")));
-            Caption = 'Balance Due (LCY)';
+            Caption = 'Overdue Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
+            ToolTip = 'Specifies the total amount that''s due from the customer as of today. Consider using reminders to minimize late payments and optimize cashflow.';
         }
         field(69; Payments; Decimal)
         {
@@ -2372,30 +2370,32 @@ table 18 Customer
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
-        SalesOutstandingAmountFromShipment: Decimal;
+        SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders: Decimal;
         InvoicedPrepmtAmountLCY: Decimal;
         RetRcdNotInvAmountLCY: Decimal;
         AdditionalAmountLCY: Decimal;
         IsHandled: Boolean;
         TotalAmountLCY: Decimal;
-        ShippedFromOrderLCY: Decimal;
-        ShippedOutstandingInvoicesLCY: Decimal;
     begin
         IsHandled := false;
         OnBeforeGetTotalAmountLCYCommon(Rec, AdditionalAmountLCY, IsHandled);
         if IsHandled then
             exit(AdditionalAmountLCY);
 
-        SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
+        // Sum up "Outstanding Amount (LCY)" of sales invoices for invoicing shipped orders. This amount is already included in "Shipped Not Invoiced (LCY)", and should be subtracted from outstanding invoices.
+        SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
+
         InvoicedPrepmtAmountLCY := GetInvoicedPrepmtAmountLCY();
         RetRcdNotInvAmountLCY := GetReturnRcdNotInvAmountLCY();
-        ShippedFromOrderLCY := GetShippedFromOrderLCYAmountLCY();
-        ShippedOutstandingInvoicesLCY := GetShippedOutstandingInvoicesAmountLCY();
 
         TotalAmountLCY :=
-            "Balance (LCY)" + "Outstanding Orders (LCY)" + ("Shipped Not Invoiced (LCY)" - ShippedFromOrderLCY) +
-            ("Outstanding Invoices (LCY)" - ShippedOutstandingInvoicesLCY) + SalesOutstandingAmountFromShipment -
-            InvoicedPrepmtAmountLCY - RetRcdNotInvAmountLCY + AdditionalAmountLCY;
+            "Balance (LCY)"
+            + "Outstanding Orders (LCY)"
+            + "Shipped Not Invoiced (LCY)"
+            + "Outstanding Invoices (LCY)" - SalesInvoiceOutstandingAmountLCYForInvoicingShippedOrders
+            - InvoicedPrepmtAmountLCY
+            - RetRcdNotInvAmountLCY
+            + AdditionalAmountLCY;
 
         OnAfterGetTotalAmountLCYCommon(Rec, TotalAmountLCY);
         exit(TotalAmountLCY);
@@ -3482,6 +3482,8 @@ table 18 Customer
         OnAfterGetVATRegistrationNo(Rec, VATRegNo);
     end;
 
+#if not CLEAN28
+    [Obsolete('It is no longer used in GetTotalAmountLCYCommon procedure.', '28.0')]
     procedure GetShippedOutstandingInvoicesAmountLCY(): Decimal
     var
         SalesLine: Record "Sales Line";
@@ -3494,6 +3496,7 @@ table 18 Customer
         exit(SalesLine."Outstanding Amount (LCY)");
     end;
 
+    [Obsolete('It is no longer used in GetTotalAmountLCYCommon procedure.', '28.0')]
     procedure GetShippedFromOrderLCYAmountLCY(): Decimal
     var
         SalesShippedNotInvoicedLCY: Query "Sales Shipped Not Invoiced LCY";
@@ -3514,6 +3517,7 @@ table 18 Customer
             end;
         exit(ShippedFromOrderLCY);
     end;
+#endif
 
     procedure GetDefaultLocation() ReturnLocationCode: Code[10]
     var
