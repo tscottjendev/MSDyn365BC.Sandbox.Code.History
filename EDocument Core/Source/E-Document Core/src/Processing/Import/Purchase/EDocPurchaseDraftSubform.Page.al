@@ -181,6 +181,11 @@ page 6183 "E-Doc. Purchase Draft Subform"
         SetDimensionsVisibility();
     end;
 
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Clear(LineAmount);
+    end;
+
     trigger OnAfterGetRecord()
     begin
         if EDocumentPurchaseLine.Get(Rec."E-Document Entry No.", Rec."Line No.") then;

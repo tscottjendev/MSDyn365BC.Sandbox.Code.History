@@ -681,7 +681,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
                   tabledata "Registered Invt. Movement Hdr." = RimD,
-                  tabledata "Registered Invt. Movement Line" = Rimd,
+                  tabledata "Registered Invt. Movement Line" = RimD,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
                   tabledata Relative = RIMD,
                   tabledata "Reminder Terms Translation" = RIMD,

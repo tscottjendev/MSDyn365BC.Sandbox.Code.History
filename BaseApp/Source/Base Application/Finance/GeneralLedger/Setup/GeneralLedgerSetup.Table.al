@@ -385,7 +385,12 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             var
                 Currency: Record Currency;
+                GLEntry: Record "G/L Entry";
             begin
+                if (Rec."LCY Code" <> xRec."LCY Code") and (xRec."LCY Code" <> '') then
+                    if not GLEntry.IsEmpty() then
+                        Error(CannotUpdateLCYCodeErr);
+
                 if "Local Currency Symbol" = '' then
                     "Local Currency Symbol" := Currency.ResolveCurrencySymbol("LCY Code");
 
@@ -947,6 +952,7 @@ table 98 "General Ledger Setup"
         VATPeriodControlUsageMsg: Label 'Control VAT Period is changed', Locked = true;
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
+        CannotUpdateLCYCodeErr: Label 'You cannot update the local currency code because there are posted general ledger entries.';
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var

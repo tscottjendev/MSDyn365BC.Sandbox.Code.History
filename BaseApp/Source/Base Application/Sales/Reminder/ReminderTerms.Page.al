@@ -12,7 +12,7 @@ page 431 "Reminder Terms"
     Caption = 'Reminder Terms';
     PageType = List;
     SourceTable = "Reminder Terms";
-#if not CLEAN25
+#if not CLEAN26
     UsageCategory = Administration;
 #else
     UsageCategory = None;

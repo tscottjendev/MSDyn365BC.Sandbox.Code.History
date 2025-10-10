@@ -39,6 +39,7 @@ codeunit 30180 "Shpfy Product Import"
                         ShopifyVariant.SetRange("Item Variant SystemId", NullGuid);
                         if ShopifyVariant.FindSet() then
                             repeat
+                                Commit();
                                 ItemCreated := CreateItem.Run(ShopifyVariant);
                                 SetProductConflict(ShopifyProduct.Id, ItemCreated);
                             until ShopifyVariant.Next() = 0;
@@ -84,6 +85,12 @@ codeunit 30180 "Shpfy Product Import"
                 ShopifyProduct."Shop Code" := Shop.Code;
                 ShopifyProduct.Insert(false);
             end;
+
+            if ShopifyProduct."Shop Code" <> Shop.Code then begin
+                ShopifyProduct."Shop Code" := Shop.Code;
+                ShopifyProduct.Modify(true);
+            end;
+
             if ProductApi.RetrieveShopifyProduct(ShopifyProduct) then begin
                 VariantApi.RetrieveShopifyProductVariantIds(ShopifyProduct, VariantIds);
                 ShopifyVariant.SetRange("Product Id", Id);
