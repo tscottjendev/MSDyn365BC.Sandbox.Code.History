@@ -272,7 +272,6 @@ page 76 "Resource Card"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the person''s social security number or the machine''s serial number.';
-                    MaskType = Concealed;
                 }
                 field(Education; Rec.Education)
                 {
