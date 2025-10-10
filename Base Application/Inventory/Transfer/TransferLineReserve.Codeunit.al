@@ -47,7 +47,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     begin
         SkipCheck := false;
         OnCreateReservationOnBeforeCheckSourceType(TransferLine, FromTrackingSpecification, SkipCheck);
-
+        
         if (FromTrackingSpecification."Source Type" = 0) and (not SkipCheck) then
             Error(Text000Err);
 
