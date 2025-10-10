@@ -1485,7 +1485,6 @@ table 5902 "Service Line"
                         GetItem(Item);
                         Description := Item.Description;
                         "Description 2" := Item."Description 2";
-                        UpdateItemReference();
                         OnValidateVariantCodeOnAssignItem(Rec, Item);
                         GetItemTranslation();
                     end;
@@ -1500,8 +1499,6 @@ table 5902 "Service Line"
                 "Description 2" := ItemVariant."Description 2";
                 OnValidateVariantCodeOnAssignItemVariant(Rec, ItemVariant);
 
-                if Rec.Type = Rec.Type::Item then
-                    UpdateItemReference();
                 GetServHeader();
                 if ServHeader."Language Code" <> '' then
                     GetItemTranslation();
@@ -6466,11 +6463,6 @@ table 5902 "Service Line"
             exit(Result);
 
         exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
-    end;
-
-    local procedure UpdateItemReference()
-    begin
-        ServItemReferenceMgt.EnterServiceItemReference(Rec);
     end;
 
     internal procedure ClearVATPct()
