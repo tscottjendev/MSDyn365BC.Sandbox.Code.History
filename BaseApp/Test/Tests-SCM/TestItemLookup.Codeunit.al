@@ -1159,6 +1159,25 @@ codeunit 134835 "Test Item Lookup"
         SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
     end;
 
+    [Test]
+    procedure TestGetFirstItemNoFromLookup()
+    var
+        Item: Record Item;
+    begin
+        CreateItemWithNosAndDescription(Item, 'ABRACADABRA1000', 'MAGIC1000', 'Magic wand for the price concious sourcerer');
+        CreateItemWithNosAndDescription(Item, 'ABRACADABRA1001', 'MAGIC1001', 'Magic wand for the price concious sourcerer. Painted.');
+        CreateItemWithNosAndDescription(Item, 'ABRACADABRA2000', 'MAGIC2000', 'Magic wand for the ambitious sourcerer');
+        CreateItemWithNosAndDescription(Item, 'CAPE1000', 'MAGIC3000', 'Regular invisibility cape');
+        CreateItemWithNosAndDescription(Item, 'CAPE2000', 'MAGIC3001', 'Really invisible invisibility cape');
+
+        Assert.AreEqual('', Item.GetFirstItemNoFromLookup(''), 'Unexpected item selected 1.');
+        Assert.AreEqual('ABRACADABRA1000', Item.GetFirstItemNoFromLookup('wand'), 'Unexpected item selected 2.');
+        Assert.AreEqual('ABRACADABRA1001', Item.GetFirstItemNoFromLookup('ABRACADABRA1001'), 'Unexpected item selected 2.');
+        Assert.AreEqual('ABRACADABRA1001', Item.GetFirstItemNoFromLookup('MAGIC1001'), 'Unexpected item selected 3.');
+        Assert.AreEqual('CAPE1000', Item.GetFirstItemNoFromLookup('regular'), 'Unexpected item selected 4.');
+        Assert.AreEqual('CAPE2000', Item.GetFirstItemNoFromLookup('MAGIC3001'), 'Unexpected item selected 5.');
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -1201,6 +1220,17 @@ codeunit 134835 "Test Item Lookup"
         LibraryInventory.CreateItem(Item);
         Item.Validate(Description, NewDescription);
         Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithNosAndDescription(var Item: Record Item; NewNo: Text[20]; NewNo2: Text[20]; NewDescription: Text[100])
+    begin
+        if Item.Get(NewNo) then
+            Item.Delete();
+        Item.Init();
+        Item."No." := NewNo;
+        Item."No. 2" := NewNo2;
+        Item.Description := NewDescription;
+        Item.Insert(true);
     end;
 
     local procedure CreateItemWithUnitPriceCostDescription(var Item: Record Item; NewDescription: Text[100]; UnitPrice: Decimal; UnitCost: Decimal)

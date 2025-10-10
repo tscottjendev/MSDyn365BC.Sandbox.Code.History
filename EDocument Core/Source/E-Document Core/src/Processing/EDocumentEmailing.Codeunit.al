@@ -8,7 +8,6 @@ using Microsoft.Foundation.Reporting;
 using System.Telemetry;
 using System.EMail;
 using Microsoft.Sales.Customer;
-using System.Automation;
 using System.Utilities;
 using System.IO;
 using System.Reflection;
@@ -20,6 +19,7 @@ codeunit 6188 "E-Document Emailing"
     InherentPermissions = X;
 
     var
+        TempBlobList: Codeunit "Temp Blob List";
         EDocumentAttachmentNameTok: Label '%1 %2', Locked = true, Comment = '%1 = Attachment name, %2 = File format';
         XMLFileTypeTok: Label '.xml', Locked = true;
         PDFFileTypeTok: Label '.pdf', Locked = true;
@@ -46,7 +46,6 @@ codeunit 6188 "E-Document Emailing"
        ShowDialog: Boolean)
     var
         ReportSelections: Record "Report Selections";
-        EDocument: Record "E-Document";
         DocumentMailing: Codeunit "Document-Mailing";
         TypeHelper: Codeunit "Type Helper";
         AttachmentsTempBlob: Codeunit "Temp Blob";
@@ -60,22 +59,16 @@ codeunit 6188 "E-Document Emailing"
         AttachmentFileExtension: Text[4];
     begin
         TypeHelper.CopyRecVariantToRecRef(RecordVariant, SourceReference);
-
-        EDocument.SetRange("Document Record ID", SourceReference.RecordId());
-        if not EDocument.FindFirst() then
-            exit;
-
         CreateSourceLists(ToCust, SourceReference, SourceTableIDs, SourceIDs, SourceRelationTypes);
         ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
 
-        AttachmentsTempBlob := GetAttachmentsBlob(
+        AttachmentsTempBlob := CreateAttachmentsBlob(
             DocumentSendingProfile,
             ReportUsage,
             RecordVariant,
             DocNo,
             DocName,
             ToCust,
-            EDocument,
             AttachmentFileName,
             AttachmentFileExtension);
 
@@ -92,6 +85,11 @@ codeunit 6188 "E-Document Emailing"
             SourceIDs,
             SourceRelationTypes
         );
+    end;
+
+    procedure SetAttachments(Attachments: Codeunit "Temp Blob List")
+    begin
+        TempBlobList := Attachments;
     end;
 
     local procedure CreateSourceLists(ToCust: Code[20]; var SourceReference: RecordRef; var SourceTableIDs: List of [Integer]; var SourceIDs: List of [Guid]; var SourceRelationTypes: List of [Integer])
@@ -141,22 +139,22 @@ codeunit 6188 "E-Document Emailing"
             DataCompression.AddEntry(TempBlob.CreateInStream(), AttachmentFileName + PDFFileTypeTok);
     end;
 
-    local procedure GetAttachmentsBlob(
+    local procedure CreateAttachmentsBlob(
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportUsage: Enum "Report Selection Usage";
         RecordVariant: Variant;
         DocNo: Code[20];
         DocName: Text[150];
         ToCust: Code[20];
-        EDocument: Record "E-Document";
         var AttachmentFileName: Text[250];
         var AttachmentFileExtension: Text[4]): Codeunit "Temp Blob"
     var
         DataCompression: Codeunit "Data Compression";
-        TempBlobList: Codeunit "Temp Blob List";
         TempBlob: Codeunit "Temp Blob";
     begin
-        GetAttachment(EDocument, TempBlobList, DocumentSendingProfile);
+        if TempBlobList.IsEmpty() then
+            exit(TempBlob);
+
         AttachmentFileName := CreateAttachmentName(DocNo, DocName);
         if (TempBlobList.Count() = 1) and (DocumentSendingProfile."E-Mail Attachment" = Enum::"Document Sending Profile Attachment Type"::"E-Document")
         then begin
@@ -173,29 +171,6 @@ codeunit 6188 "E-Document Emailing"
             AttachmentFileExtension := ZipFileTypeTok;
         end;
         exit(TempBlob);
-    end;
-
-    local procedure GetAttachment(EDocument: Record "E-Document"; TempBlobList: Codeunit "Temp Blob List"; DocumentSendingProfile: Record "Document Sending Profile")
-    var
-        Workflow: Record Workflow;
-        EDocumentService: Record "E-Document Service";
-        EDocumentLog: Codeunit "E-Document Log";
-        TempBlob: Codeunit "Temp Blob";
-        Telemetry: Codeunit Telemetry;
-        EDocumentWorkFlowProcessing: Codeunit "E-Document WorkFlow Processing";
-        EDocEmailingGetAttachmentNoWorkflowErr: Label 'No workflow found for the e-document sending profile';
-    begin
-        if not Workflow.Get(DocumentSendingProfile."Electronic Service Flow") then begin
-            Telemetry.LogMessage('0000Q1Q', EDocEmailingGetAttachmentNoWorkflowErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All);
-            exit;
-        end;
-        EDocumentWorkFlowProcessing.GetServicesFromEntryPointResponseInWorkflow(Workflow, EDocumentService);
-        if EDocumentService.FindSet() then
-            repeat
-                Clear(TempBlob);
-                if EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Exported) then
-                    TempBlobList.Add(TempBlob);
-            until EDocumentService.Next() = 0;
     end;
 
     local procedure CreateAttachmentName(PostedDocNo: Code[20]; EmailDocName: Text[250]): Text[250]

@@ -93,6 +93,7 @@ page 6287 "Sustainability Excise Journal"
                 {
                     ToolTip = 'Specifies the sustainability account number.';
                     ShowMandatory = true;
+                    Visible = false;
 
                     trigger OnValidate()
                     var
@@ -106,6 +107,7 @@ page 6287 "Sustainability Excise Journal"
                 {
                     ToolTip = 'Specifies the sustainability account name.';
                     DrillDown = false;
+                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
@@ -115,10 +117,12 @@ page 6287 "Sustainability Excise Journal"
                 field("Sustainability Account Category"; Rec."Account Category")
                 {
                     ToolTip = 'Specifies the sustainability account category.';
+                    Visible = false;
                 }
                 field("Sustainability Account Subcategory"; Rec."Account Subcategory")
                 {
                     ToolTip = 'Specifies the sustainability account subcategory.';
+                    Visible = false;
                 }
                 field("Partner Type"; Rec."Partner Type")
                 {
@@ -371,7 +375,7 @@ page 6287 "Sustainability Excise Journal"
                         Image = EditLines;
                         RunObject = page "Sustainability Account Card";
                         RunPageLink = "No." = field("Account No.");
-                        ToolTip = 'View or change detailed information about the record on the document or journal line.';
+                        Visible = false;
                     }
                 }
                 action(Dimension)

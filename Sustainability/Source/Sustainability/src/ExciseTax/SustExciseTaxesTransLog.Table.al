@@ -332,10 +332,6 @@ table 6241 "Sust. Excise Taxes Trans. Log"
         Rec."Posting Date" := SustainabilityExciseJnlLine."Posting Date";
         Rec."Document Type" := SustainabilityExciseJnlLine."Document Type";
         Rec."Document No." := SustainabilityExciseJnlLine."Document No.";
-        Rec."Account No." := SustainabilityExciseJnlLine."Account No.";
-        Rec."Account Name" := SustainabilityExciseJnlLine."Account Name";
-        Rec."Account Category" := SustainabilityExciseJnlLine."Account Category";
-        Rec."Account Subcategory" := SustainabilityExciseJnlLine."Account Subcategory";
         Rec.Description := SustainabilityExciseJnlLine.Description;
         Rec."Partner Type" := SustainabilityExciseJnlLine."Partner Type";
         Rec."Partner No." := SustainabilityExciseJnlLine."Partner No.";

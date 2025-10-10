@@ -3233,6 +3233,40 @@ table 27 Item
         exit(Round("Unit Price" / (1 + CalcVAT()), GLSetup."Unit-Amount Rounding Precision"));
     end;
 
+    procedure GetFirstItemNoFromLookup(ItemText: Text): Code[20]
+    var
+        Item: Record Item;
+        SearchFilter: Text;
+    begin
+        if ItemText = '' then
+            exit('');
+        Item.SetLoadFields("No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then
+            if Item.Get(ItemText) then
+                exit(Item."No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then begin
+            Item.SetFilter("No.", ItemText + '*');
+            if Item.FindFirst() then
+                exit(Item."No.");
+            Item.SetRange("No.");
+        end;
+
+        // Filter the same way as in item lookup/dropdown, ref. fieldgroup for DropDown
+        SearchFilter := '@*' + ItemText + '*';
+        Item.FilterGroup(-1);
+        Item.SetFilter("No.", SearchFilter);
+        Item.SetFilter("No. 2", SearchFilter);
+        Item.SetFilter(Description, SearchFilter);
+        Item.SetFilter(GTIN, SearchFilter);
+        Item.SetFilter("Vendor Item No.", SearchFilter);
+        Item.SetFilter("Common Item No.", SearchFilter);
+        Item.SetFilter("Shelf No.", SearchFilter);
+        Item.FilterGroup(0);
+        if Item.FindFirst() then
+            exit(Item."No.");
+        Error(SelectItemErr);
+    end;
+
     procedure GetItemNo(ItemText: Text): Code[20]
     var
         ItemNo: Text[50];

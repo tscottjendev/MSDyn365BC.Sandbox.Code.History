@@ -120,7 +120,7 @@ table 1003 "Job Planning Line"
             Caption = 'No.';
             TableRelation = if (Type = const(Resource)) Resource
             else
-            if (Type = const(Item)) Item where(Blocked = const(false))
+            if (Type = const(Item)) Item
             else
             if (Type = const("G/L Account")) "G/L Account"
             else
@@ -3370,7 +3370,6 @@ table 1003 "Job Planning Line"
     var
         Item2: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3378,10 +3377,11 @@ table 1003 "Job Planning Line"
         if IsHandled then
             exit("No.");
 
-        if Type = Type::Item then begin
-            if Item2.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item2.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(GetType(Type), "No.", false));
 
         exit(SourceNo);

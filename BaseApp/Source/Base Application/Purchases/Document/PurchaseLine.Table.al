@@ -177,6 +177,7 @@ table 39 "Purchase Line"
             CaptionClass = GetCaptionClass(FieldNo("No."));
             Caption = 'No.';
             ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+            ValidateTableRelation = false;
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
             if (Type = const("G/L Account"), "System-Created Entry" = const(false)) "G/L Account" where("Direct Posting" = const(true), "Account Type" = const(Posting), Blocked = const(false))
@@ -205,6 +206,7 @@ table 39 "Purchase Line"
                     exit;
 
                 GetPurchSetup();
+                Rec."No." := FindOrCreateRecordByNo(Rec."No.");
 
                 TestStatusOpen();
                 TestField("Qty. Rcd. Not Invoiced", 0);
@@ -7478,7 +7480,6 @@ table 39 "Purchase Line"
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
-        FoundNo: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7488,11 +7489,11 @@ table 39 "Purchase Line"
 
         GetPurchSetup();
 
-        if Type = Type::Item then begin
-            if Item.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '')
-            then
-                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
-        end else
+        if (SourceNo = '') then
+            exit('');
+        if Type = Type::Item then
+            exit(Item.GetFirstItemNoFromLookup(SourceNo))
+        else
             exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
 
         exit(SourceNo);

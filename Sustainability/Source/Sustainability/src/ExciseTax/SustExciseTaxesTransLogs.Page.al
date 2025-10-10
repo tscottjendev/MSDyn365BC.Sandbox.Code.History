@@ -62,10 +62,12 @@ page 6288 "Sust. Excise Taxes Trans. Logs"
                 field("Sustainability Account No."; Rec."Account No.")
                 {
                     ToolTip = 'Specifies the sustainability account number.';
+                    Visible = false;
                 }
                 field("Sustainability Account Name"; Rec."Account Name")
                 {
                     ToolTip = 'Specifies the sustainability account name.';
+                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
@@ -74,10 +76,12 @@ page 6288 "Sust. Excise Taxes Trans. Logs"
                 field("Sustainability Account Category"; Rec."Account Category")
                 {
                     ToolTip = 'Specifies the sustainability account category.';
+                    Visible = false;
                 }
                 field("Sustainability Account Subcategory"; Rec."Account Subcategory")
                 {
                     ToolTip = 'Specifies the sustainability account subcategory.';
+                    Visible = false;
                 }
                 field("Partner Type"; Rec."Partner Type")
                 {
