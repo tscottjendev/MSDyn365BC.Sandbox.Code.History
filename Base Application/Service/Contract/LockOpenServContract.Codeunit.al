@@ -75,8 +75,7 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
                 ServContractLine.SetRange("New Line", true);
                 if not ServContractLine.IsEmpty() then
-                    if not SignServContract(ServContractHeader) then
-                        exit;
+                    SignServContract(ServContractHeader);
             end;
         ServContractHeader.Get(FromServContractHeader."Contract Type", FromServContractHeader."Contract No.");
         ServContractHeader."Change Status" := ServContractHeader."Change Status"::Locked;
@@ -98,7 +97,7 @@ codeunit 5943 "Lock-OpenServContract"
         OnAfterOpenServContract(ServContractHeader);
     end;
 
-    local procedure SignServContract(ServContractHeader: Record "Service Contract Header"): Boolean
+    local procedure SignServContract(ServContractHeader: Record "Service Contract Header")
     var
         ConfirmManagement: Codeunit "Confirm Management";
         AutoSign: Boolean;
@@ -108,14 +107,13 @@ codeunit 5943 "Lock-OpenServContract"
         IsHandled := false;
         OnBeforeSignServContract(ServContractHeader, AutoSign, IsHandled);
         if IsHandled then
-            exit(true);
+            exit;
 
         if not AutoSign then
             if not ConfirmManagement.GetResponseOrDefault(Text002, true) then
-                exit(false);
+                exit;
 
         SignServContractDoc.AddendumToContract(ServContractHeader);
-        exit(true);
     end;
 
     local procedure CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(var ServiceContractHeader: Record "Service Contract Header")
