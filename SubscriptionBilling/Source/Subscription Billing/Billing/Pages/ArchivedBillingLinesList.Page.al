@@ -17,15 +17,15 @@ page 8017 "Archived Billing Lines List"
             {
                 field("Document Type"; Rec."Document Type")
                 {
-                    ToolTip = 'Specifies the document type of the document created for posting.';
+                    ToolTip = 'Shows the document type of the document created for posting.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
-                    ToolTip = 'Specifies the document number of the document created for posting.';
+                    ToolTip = 'Shows the document number of the document created for posting.';
                 }
                 field("Document Line No."; Rec."Document Line No.")
                 {
-                    ToolTip = 'Specifies the document line number of the document, it was posted in.';
+                    ToolTip = 'Shows the document line number of the document, it was posted in.';
                 }
                 field(Partner; Rec.Partner)
                 {
@@ -42,10 +42,6 @@ page 8017 "Archived Billing Lines List"
                 field("Billing to"; Rec."Billing to")
                 {
                     ToolTip = 'Specifies the date to which the Subscription Line is billed.';
-                }
-                field("Billing Reference Date Changed"; Rec."Billing Reference Date Changed")
-                {
-                    Visible = false;
                 }
                 field("Service Object Description"; Rec."Subscription Description")
                 {
@@ -158,7 +154,7 @@ page 8017 "Archived Billing Lines List"
                 }
                 field("User ID"; Rec."User ID")
                 {
-                    ToolTip = 'Specifies the user who created the line.';
+                    ToolTip = 'Shows the user who created the line.';
                     Visible = false;
                 }
             }

@@ -1,4 +1,3 @@
-
 namespace Microsoft.SubscriptionBilling;
 
 using System.Utilities;
@@ -10,11 +9,13 @@ using Microsoft.Finance.Currency;
 codeunit 8062 "Billing Proposal"
 {
     var
-        SalesHeaderGlobal: Record "Sales Header";
-        PurchaseHeaderGlobal: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        CreateBillingDocuments: Codeunit "Create Billing Documents";
+        CreateBillingDocumentPage: Page "Create Billing Document";
         LastContractNo: Code[20];
         LastPartnerNo: Code[20];
-        BillingToChangeNotAllowedErr: Label 'A change of Billing to field from %1 to %2 for %3 and %4 is not allowed because the Subscription Line has already been calculated up to %5.', Comment = '%1: Old Billing To Date, %2: New Billing To Date, %3: Subscription Contract No., %4: Subscription Contract Line No., %5: Last Billing To Date';
+        BillingToChangeNotAllowedErr: Label 'A change of Billing to field from %1 to %2 for %3 and %4 is not allowed because the Subscription Line has already been calculated up to %5.';
         NoBillingDateErr: Label 'Please enter the Billing Date.';
         BillingToChangeNotAllowedDocNoExistsErr: Label 'Billing to field is not allowed to change because an unposted invoice or credit memo exists.';
         CreditMemoPreventsProposalCreationLbl: Label 'The credit memos listed here must be posted or deleted before further billing lines can be created.';
@@ -24,6 +25,7 @@ codeunit 8062 "Billing Proposal"
         SalesCreditMemoExistsForBillingLineQst: Label 'There is a sales credit memo that needs to be posted before an invoice can be created. Do you want to open the credit memo?';
         PurchaseCreditMemoExistsForBillingLineQst: Label 'There is a purchase credit memo that needs to be posted before an invoice can be created. Do you want to open the credit memo?';
         BillingLinesForAllContractLinesExistsErr: Label 'There are billing lines for all contract lines. For contract lines with billing lines, the invoice must be created in recurring billing.';
+        BillingPeriodStart, BillingPeriodEnd : Date;
 
     procedure InitTempTable(var TempBillingLine: Record "Billing Line" temporary; GroupBy: Enum "Contract Billing Grouping")
     var
@@ -150,7 +152,7 @@ codeunit 8062 "Billing Proposal"
         FilterText: Text;
         BillingRhythmFilterText: Text;
     begin
-        SalesHeaderGlobal.Reset();
+        SalesHeader.Reset();
         BillingTemplate.Get(BillingTemplateCode);
         if BillingDate = 0D then
             Error(NoBillingDateErr);
@@ -188,17 +190,17 @@ codeunit 8062 "Billing Proposal"
         case BillingTemplate.Partner of
             Enum::"Service Partner"::Customer:
                 begin
-                    SalesHeaderGlobal.MarkedOnly(true);
-                    if SalesHeaderGlobal.Count <> 0 then begin
-                        Page.Run(Page::"Sales Credit Memos", SalesHeaderGlobal);
+                    SalesHeader.MarkedOnly(true);
+                    if SalesHeader.Count <> 0 then begin
+                        Page.Run(Page::"Sales Credit Memos", SalesHeader);
                         Message(CreditMemoPreventsProposalCreationLbl);
                     end;
                 end;
             Enum::"Service Partner"::Vendor:
                 begin
-                    PurchaseHeaderGlobal.MarkedOnly(true);
-                    if PurchaseHeaderGlobal.Count <> 0 then begin
-                        Page.Run(Page::"Purchase Credit Memos", PurchaseHeaderGlobal);
+                    PurchaseHeader.MarkedOnly(true);
+                    if PurchaseHeader.Count <> 0 then begin
+                        Page.Run(Page::"Purchase Credit Memos", PurchaseHeader);
                         Message(CreditMemoPreventsProposalCreationLbl);
                     end;
                 end;
@@ -229,12 +231,10 @@ codeunit 8062 "Billing Proposal"
             RecalculateHarmonizedBillingFieldsBasedOnNextBillingDate(BillingLine, ContractNo);
     end;
 
-    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; BillingDate: Date; BillingToDate: Date)
+    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; var BillingDate: Date; var BillingToDate: Date)
     var
         UsageDataBilling: Record "Usage Data Billing";
         SkipServiceCommitment: Boolean;
-        BillingPeriodStart: Date;
-        BillingPeriodEnd: Date;
     begin
         SkipServiceCommitment := false;
         FilterBillingLinesOnServiceCommitment(BillingLine, ServiceCommitment);
@@ -246,11 +246,11 @@ codeunit 8062 "Billing Proposal"
                     SkipServiceCommitment := true;
                     case BillingLine.Partner of
                         Enum::"Service Partner"::Customer:
-                            if SalesHeaderGlobal.Get(SalesHeaderGlobal."Document Type"::"Credit Memo", BillingLine."Document No.") then
-                                SalesHeaderGlobal.Mark(true);
+                            if SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", BillingLine."Document No.") then
+                                SalesHeader.Mark(true);
                         Enum::"Service Partner"::Vendor:
-                            if PurchaseHeaderGlobal.Get(PurchaseHeaderGlobal."Document Type"::"Credit Memo", BillingLine."Document No.") then
-                                PurchaseHeaderGlobal.Mark(true);
+                            if PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", BillingLine."Document No.") then
+                                PurchaseHeader.Mark(true);
                     end;
                 end;
             ServiceCommitment."Usage Based Billing":
@@ -266,9 +266,13 @@ codeunit 8062 "Billing Proposal"
         end;
 
         if not SkipServiceCommitment then begin
-            CalculateBillingPeriod(ServiceCommitment, BillingDate, BillingToDate, BillingPeriodStart, BillingPeriodEnd);
-            BillingLine.InitNewBillingLine();
-            UpdateBillingLine(BillingLine, ServiceCommitment, BillingTemplate, BillingPeriodStart, BillingPeriodEnd);
+            CalculateBillingPeriod(ServiceCommitment, BillingDate, BillingToDate);
+            if FindBillingLine(BillingLine, ServiceCommitment, BillingPeriodStart, CalculateNextBillingToDateForServiceCommitment(ServiceCommitment, BillingPeriodStart)) then
+                UpdateBillingLine(BillingLine, ServiceCommitment, BillingTemplate, BillingPeriodStart)
+            else begin
+                BillingLine.InitNewBillingLine();
+                UpdateBillingLine(BillingLine, ServiceCommitment, BillingTemplate, BillingPeriodStart);
+            end;
         end;
     end;
 
@@ -276,6 +280,14 @@ codeunit 8062 "Billing Proposal"
     begin
         BillingLine.Reset();
         BillingLine.SetRange("Subscription Line Entry No.", ServiceCommitment."Entry No.");
+    end;
+
+    local procedure FindBillingLine(var BillingLine: Record "Billing Line"; ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date; BillingToDate: Date): Boolean
+    begin
+        FilterBillingLinesOnServiceCommitment(BillingLine, ServiceCommitment);
+        BillingLine.SetRange("Billing from", BillingFromDate);
+        BillingLine.SetRange("Billing to", BillingToDate);
+        exit(BillingLine.FindFirst())
     end;
 
     local procedure DeleteUpdateRequiredBillingLines(BillingTemplateCode: Code[20]): Boolean
@@ -291,7 +303,7 @@ codeunit 8062 "Billing Proposal"
         exit(true);
     end;
 
-    local procedure UpdateBillingLine(var BillingLine: Record "Billing Line"; var ServiceCommitment: Record "Subscription Line"; BillingTemplate: Record "Billing Template"; BillingFrom: Date; BillingPeriodEnd: Date)
+    local procedure UpdateBillingLine(var BillingLine: Record "Billing Line"; var ServiceCommitment: Record "Subscription Line"; BillingTemplate: Record "Billing Template"; BillingFrom: Date)
     var
         BillingLine2: Record "Billing Line";
         NewBillingToDate, NewBillingToDate2, NewBillingFromDate2, SupplierChargeEndDate : Date;
@@ -336,8 +348,9 @@ codeunit 8062 "Billing Proposal"
             ServiceCommitmentNotEnded := NewBillingFromDate2 <= ServiceCommitment."Subscription Line End Date";
 
         if (NewBillingToDate <= BillingPeriodEnd) and ServiceCommitmentNotEnded then begin
-            BillingLine2.InitNewBillingLine();
-            UpdateBillingLine(BillingLine2, ServiceCommitment, BillingTemplate, NewBillingFromDate2, BillingPeriodEnd);//recursion
+            if not FindBillingLine(BillingLine2, ServiceCommitment, NewBillingFromDate2, NewBillingToDate2) then
+                BillingLine2.InitNewBillingLine();
+            UpdateBillingLine(BillingLine2, ServiceCommitment, BillingTemplate, NewBillingFromDate2);//recursion
         end;
     end;
 
@@ -392,7 +405,7 @@ codeunit 8062 "Billing Proposal"
         GLSetup.Get();
         Currency.Initialize(ServiceCommitment."Currency Code");
 
-        ServiceCommitment.UnitPriceAndCostForPeriod(BillingLine."Billing Rhythm", BillingLine."Billing from", BillingLine."Billing to", BillingLine."Unit Price", BillingLine."Unit Cost", BillingLine."Unit Cost (LCY)", BillingLine."Billing Reference Date Changed");
+        ServiceCommitment.UnitPriceAndCostForPeriod(BillingLine."Billing Rhythm", BillingLine."Billing from", BillingLine."Billing to", BillingLine."Unit Price", BillingLine."Unit Cost", BillingLine."Unit Cost (LCY)");
         BillingLine."Unit Price" := Round(BillingLine."Unit Price", Currency."Unit-Amount Rounding Precision");
         BillingLine."Unit Cost" := Round(BillingLine."Unit Cost", Currency."Unit-Amount Rounding Precision");
         BillingLine."Unit Cost (LCY)" := Round(BillingLine."Unit Cost (LCY)", GLSetup."Unit-Amount Rounding Precision");
@@ -444,7 +457,7 @@ codeunit 8062 "Billing Proposal"
         OnAfterUpdateBillingLineFromSubscriptionLine(BillingLine, ServiceCommitment);
     end;
 
-    local procedure CalculateBillingPeriod(ServiceCommitment: Record "Subscription Line"; BillingDate: Date; BillToDate: Date; var BillingPeriodStart: Date; var BillingPeriodEnd: Date)
+    local procedure CalculateBillingPeriod(ServiceCommitment: Record "Subscription Line"; BillingDate: Date; BillToDate: Date)
     var
         UsageDataBilling: Record "Usage Data Billing";
     begin
@@ -473,6 +486,20 @@ codeunit 8062 "Billing Proposal"
               ((BillingPeriodEnd < ServiceCommitment."Subscription Line End Date") or (ServiceCommitment."Subscription Line End Date" = 0D))
         do
             BillingPeriodEnd := CalculateNextBillingToDateForServiceCommitment(ServiceCommitment, BillingPeriodEnd + 1);
+
+        CalculateCustomerContractHarmonizedBillingPeriodEnd(ServiceCommitment);
+    end;
+
+    local procedure CalculateCustomerContractHarmonizedBillingPeriodEnd(ServiceCommitment: Record "Subscription Line")
+    var
+        CustomerContract: Record "Customer Subscription Contract";
+    begin
+        if ServiceCommitment.IsPartnerVendor() then
+            exit;
+        CustomerContract.Get(ServiceCommitment."Subscription Contract No.");
+        if CustomerContract.IsContractTypeSetAsHarmonizedBilling() then
+            if ((BillingPeriodEnd > CustomerContract."Next Billing To") and (CustomerContract."Next Billing From" <> 0D)) then
+                BillingPeriodEnd := CustomerContract."Next Billing To" - 1;
     end;
 
     procedure CalculateNextBillingToDateForServiceCommitment(ServiceCommitment: Record "Subscription Line"; BillingFromDate: Date) NextBillingToDate: Date
@@ -491,7 +518,7 @@ codeunit 8062 "Billing Proposal"
         if ServiceCommitment.IsPartnerCustomer() then begin
             CustomerContract.Get(ServiceCommitment."Subscription Contract No.");
             if CustomerContract.IsContractTypeSetAsHarmonizedBilling() then
-                HarmonizeNextBillingTo(CustomerContract."Next Billing To", NextBillingToDate);
+                HarmonizeNextBillingTo(CustomerContract."Next Billing To", NextBillingToDate, BillingFromDate);
         end;
 
         OnAfterCalculateNextBillingToDateForSubscriptionLine(NextBillingToDate, ServiceCommitment, BillingFromDate);
@@ -557,13 +584,14 @@ codeunit 8062 "Billing Proposal"
             until BillingLine2.Next() = 0;
     end;
 
-    local procedure HarmonizeNextBillingTo(CustomerContractNextBillingTo: Date; var NextBillingToDate: Date)
+    local procedure HarmonizeNextBillingTo(CustomerContractNextBillingTo: Date; var NextBillingToDate: Date; BillingFromDate: Date)
     begin
         if CustomerContractNextBillingTo = 0D then
             exit;
         if NextBillingToDate < CustomerContractNextBillingTo then
             exit;
-        NextBillingToDate := CustomerContractNextBillingTo
+        if ((CustomerContractNextBillingTo >= BillingFromDate) and (CustomerContractNextBillingTo <= NextBillingToDate)) then
+            NextBillingToDate := CustomerContractNextBillingTo
     end;
 
     local procedure BillingLinesForCustomerContractCreated(var BillingLine: Record "Billing Line"; CustomerContractNo: Code[20]): Boolean
@@ -589,8 +617,6 @@ codeunit 8062 "Billing Proposal"
     var
         ServiceCommitment: Record "Subscription Line";
         BillingTemplate: Record "Billing Template";
-        BillingPeriodStart: Date;
-        BillingPeriodEnd: Date;
     begin
         if BillingLine.FindSet() then
             repeat
@@ -601,8 +627,8 @@ codeunit 8062 "Billing Proposal"
                 if CalcDate('<+1D>', BillingLine."Billing to") = ServiceCommitment."Next Billing Date" then begin
                     BillingTemplate.Get(BillingLine."Billing Template Code");
                     ServiceCommitment.UpdateNextBillingDate(BillingLine."Billing from" - 1);
-                    CalculateBillingPeriod(ServiceCommitment, 0D, NewBillingToDate, BillingPeriodStart, BillingPeriodEnd);
-                    UpdateBillingLine(BillingLine, ServiceCommitment, BillingTemplate, BillingPeriodStart, BillingPeriodEnd);
+                    CalculateBillingPeriod(ServiceCommitment, 0D, NewBillingToDate);
+                    UpdateBillingLine(BillingLine, ServiceCommitment, BillingTemplate, BillingPeriodStart);
                 end else
                     Error(BillingToChangeNotAllowedErr, Format(BillingLine."Billing to"), Format(NewBillingToDate), BillingLine."Subscription Contract No.", BillingLine."Subscription Header No.", Format(CalcDate('<-1D>', ServiceCommitment."Next Billing Date")));
             until BillingLine.Next() = 0;
@@ -610,7 +636,6 @@ codeunit 8062 "Billing Proposal"
 
     internal procedure CreateBillingProposalFromContract(ContractNo: Code[20]; BillingRhytmFilter: Text; ServicePartner: Enum "Service Partner")
     var
-        CreateBillingDocumentPage: Page "Create Billing Document";
         IsHandled: Boolean;
     begin
         OnBeforeCreateBillingProposalFromContract(ContractNo, BillingRhytmFilter, ServicePartner, IsHandled);
@@ -684,7 +709,6 @@ codeunit 8062 "Billing Proposal"
     internal procedure CreatePurchaseLines(PurchaseHeader: Record "Purchase Header")
     var
         BillingLine: Record "Billing Line";
-        CreateBillingDocuments: Codeunit "Create Billing Documents";
     begin
         BillingLine.SetRange("Billing Template Code", '');
         if BillingLine.IsEmpty() then
@@ -713,8 +737,8 @@ codeunit 8062 "Billing Proposal"
     begin
         if DocumentNo = '' then
             exit;
-        PurchaseHeaderGlobal.Get(DocumentType, DocumentNo);
-        PurchaseHeaderGlobal.SetRecurringBilling();
+        PurchaseHeader.Get(DocumentType, DocumentNo);
+        PurchaseHeader.SetRecurringBilling();
     end;
 
     local procedure BillingProposalCanBeCreatedForContract(ContractNo: Code[20]; ServicePartner: Enum "Service Partner"): Boolean
@@ -753,7 +777,6 @@ codeunit 8062 "Billing Proposal"
     procedure CreateBillingDocument(ServicePartner: Enum "Service Partner"; ContractNo: Code[20]; DocumentDate: Date; PostingDate: Date; PostDocument: Boolean; OpenDocument: Boolean): Boolean
     var
         BillingLine: Record "Billing Line";
-        CreateBillingDocuments: Codeunit "Create Billing Documents";
     begin
         BillingLine.SetRange("Billing Template Code", '');
         if BillingLine.IsEmpty() then
@@ -865,33 +888,33 @@ codeunit 8062 "Billing Proposal"
 
     local procedure DeleteSalesBillingDocuments(DeleteSalesInvoices: Boolean; DeleteSalesCreditMemos: Boolean)
     begin
-        SalesHeaderGlobal.Reset();
-        SalesHeaderGlobal.SetRange("Recurring Billing", true);
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Recurring Billing", true);
         if DeleteSalesCreditMemos then begin
-            SalesHeaderGlobal.SetRange("Document Type", SalesHeaderGlobal."Document Type"::"Credit Memo");
-            if not SalesHeaderGlobal.IsEmpty() then
-                SalesHeaderGlobal.DeleteAll(true);
+            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+            if not SalesHeader.IsEmpty() then
+                SalesHeader.DeleteAll(true);
         end;
         if DeleteSalesInvoices then begin
-            SalesHeaderGlobal.SetRange("Document Type", SalesHeaderGlobal."Document Type"::Invoice);
-            if not SalesHeaderGlobal.IsEmpty() then
-                SalesHeaderGlobal.DeleteAll(true);
+            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+            if not SalesHeader.IsEmpty() then
+                SalesHeader.DeleteAll(true);
         end;
     end;
 
     local procedure DeletePurchaseBillingDocuments(DeletePurchaseInvoices: Boolean; DeletePurchaseCreditMemos: Boolean)
     begin
-        PurchaseHeaderGlobal.Reset();
-        PurchaseHeaderGlobal.SetRange("Recurring Billing", true);
+        PurchaseHeader.Reset();
+        PurchaseHeader.SetRange("Recurring Billing", true);
         if DeletePurchaseCreditMemos then begin
-            PurchaseHeaderGlobal.SetRange("Document Type", PurchaseHeaderGlobal."Document Type"::"Credit Memo");
-            if not PurchaseHeaderGlobal.IsEmpty() then
-                PurchaseHeaderGlobal.DeleteAll(true);
+            PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+            if not PurchaseHeader.IsEmpty() then
+                PurchaseHeader.DeleteAll(true);
         end;
         if DeletePurchaseInvoices then begin
-            PurchaseHeaderGlobal.SetRange("Document Type", PurchaseHeaderGlobal."Document Type"::Invoice);
-            if not PurchaseHeaderGlobal.IsEmpty() then
-                PurchaseHeaderGlobal.DeleteAll(true);
+            PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+            if not PurchaseHeader.IsEmpty() then
+                PurchaseHeader.DeleteAll(true);
         end;
     end;
 
