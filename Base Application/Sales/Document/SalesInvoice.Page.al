@@ -2169,8 +2169,6 @@ page 43 "Sales Invoice"
                         SalesHeader.Insert(true);
                         PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
                     end;
-                else
-                    OnPostDocumentOnElseCaseNavigateAfterPosting(SalesHeader, PostingCodeunitID, Navigate);
             end;
     end;
 
@@ -2352,11 +2350,6 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToName(var Customer: Record Customer; SalesHeader: Record "Sales Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnPostDocumentOnElseCaseNavigateAfterPosting(var SalesHeader: Record "Sales Header"; PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     begin
     end;
 }
