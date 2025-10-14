@@ -24,11 +24,6 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
         if IsHandled then
             exit;
 
-        if Rec.CheckVendorCreated(true) then
-            Rec.Get(Rec."Document Type"::Quote, Rec."No.")
-        else
-            exit;
-
         PurchQuoteToOrder.Run(Rec);
         PurchQuoteToOrder.GetPurchOrderHeader(PurchOrderHeader);
 
