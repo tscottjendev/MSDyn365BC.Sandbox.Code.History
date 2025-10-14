@@ -34,7 +34,10 @@ codeunit 5760 "Whse.-Post Receipt"
     TableNo = "Warehouse Receipt Line";
 
     trigger OnRun()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.SetPreviewMode(PreviewMode);
         OnBeforeRun(Rec, SuppressCommit, PreviewMode);
 
         WhseRcptLine.Copy(Rec);
@@ -557,9 +560,11 @@ codeunit 5760 "Whse.-Post Receipt"
         end;
 
         if PurchaseLine."Document Type" = PurchaseLine."Document Type"::Order then begin
-            ModifyLine := PurchaseLine."Qty. to Receive" <> QtyToHandle;
-            if ModifyLine then
-                PurchaseLine.Validate("Qty. to Receive", QtyToHandle);
+            if PurchaseLine."Quantity Received" <> QtyToHandle then begin
+                ModifyLine := PurchaseLine."Qty. to Receive" <> QtyToHandle;
+                if ModifyLine then
+                    PurchaseLine.Validate("Qty. to Receive", QtyToHandle);
+            end;
         end else begin
             ModifyLine := PurchaseLine."Return Qty. to Ship" <> QtyToHandle;
             if ModifyLine then
