@@ -146,8 +146,8 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
                 until EDocumentPurchaseLine.Next() = 0;
 
         TelemetryCustomDimensions.Add('Category', FeatureName());
-        TelemetryCustomDimensions.Add('LinesConsidered', Format(EDocumentPurchaseLine.Count()));
-        TelemetryCustomDimensions.Add('LInesMatched', Format(LinesMatched));
+        TelemetryCustomDimensions.Add('LinesConsidered', Format(LinesConsidered));
+        TelemetryCustomDimensions.Add('LinesMatched', Format(LinesMatched));
         Session.LogMessage('0000PCN', MatchStatisticsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryCustomDimensions);
 
         exit(Result);
