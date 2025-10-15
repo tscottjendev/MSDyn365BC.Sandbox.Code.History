@@ -5,7 +5,9 @@
 
 namespace System.Agents;
 
+#pragma warning disable AS0130, PTE0025 // The object conflicts with a platform codeunit which will be renamed.
 codeunit 4303 "Agent Task"
+#pragma warning restore AS0130, PTE0025
 {
     InherentEntitlements = X;
     InherentPermissions = X;
@@ -29,7 +31,9 @@ codeunit 4303 "Agent Task"
     /// The agent task will be be picked up for processing shortly after updating the status.
     /// </summary>
     /// <param name="AgentTask">The agent task to set to ready.</param>
-    /// <returns>The agent task with the status set to ready.</returns>
+    /// <returns>
+    /// The agent task with the status set to ready.
+    /// </returns>
     [Scope('OnPrem')]
     procedure SetStatusToReady(AgentTask: Record "Agent Task")
     var
@@ -41,9 +45,14 @@ codeunit 4303 "Agent Task"
     /// <summary>
     /// Checks if the task can be set to ready and started again.
     /// </summary>
-    /// <param name="AgentTask">The agent task to check.</param>
+    /// <param name="AgentTask">
+    /// The agent task to check.
+    /// </param>
     /// <returns>True if agent task can be set to ready, false otherwise</returns>
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
     procedure CanSetStatusToReady(AgentTask: Record "Agent Task"): Boolean
+#pragma warning restore AS0022
     var
         AgentTaskImpl: Codeunit "Agent Task Impl.";
     begin
