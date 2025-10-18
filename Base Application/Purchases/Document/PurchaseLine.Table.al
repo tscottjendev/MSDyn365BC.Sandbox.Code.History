@@ -9798,7 +9798,7 @@ table 39 "Purchase Line"
         OnAfterClearVATDifference(Rec);
     end;
 
-    procedure GetVATPct() VATPct: Decimal
+    internal procedure GetVATPct() VATPct: Decimal
     begin
         VATPct := "VAT %";
         OnAfterGetVATPct(Rec, VATPct);
