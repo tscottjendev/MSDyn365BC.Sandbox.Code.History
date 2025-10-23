@@ -1,4 +1,3 @@
-
 namespace Microsoft.SubscriptionBilling;
 
 using System.Utilities;

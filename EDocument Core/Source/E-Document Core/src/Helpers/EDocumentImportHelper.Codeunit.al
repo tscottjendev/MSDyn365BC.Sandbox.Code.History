@@ -474,7 +474,6 @@ codeunit 6109 "E-Document Import Helper"
     begin
         if VATRegistrationNo = '' then
             exit('');
-
         VendorNo := Vendor.FindVendorByVATRegistrationNo(VATRegistrationNo);
         exit(VendorNo);
     end;

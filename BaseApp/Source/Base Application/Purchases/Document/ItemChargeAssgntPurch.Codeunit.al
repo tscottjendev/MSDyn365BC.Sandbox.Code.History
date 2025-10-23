@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.UOM;
@@ -49,7 +53,14 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Enum "Purchase Applies-to Document Type";
         FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100];
         QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntPurch, ItemChargeAssgntPurch, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription, NextLineNo, QtyToAssign, AmountToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         NextLineNo := NextLineNo + 10000;
 
         ItemChargeAssgntPurch."Document No." := FromItemChargeAssgntPurch."Document No.";
@@ -121,7 +132,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 repeat
                     if (FromPurchLine.Quantity <> 0) and
                        (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
-                       (FromPurchLine."Work Center No." = '') and
+                       (not FromPurchLine.IsWorkCenter()) and
                        ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
                        FromPurchLine."Allow Item Charge Assignment"
                     then begin
@@ -177,7 +188,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if IsHandled then
             exit;
 
-        FromPurchRcptLine.TestField("Work Center No.", '');
+        FromPurchRcptLine.TestWorkCenterNo();
     end;
 
     procedure CreateTransferRcptChargeAssgnt(var FromTransRcptLine: Record "Transfer Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -394,6 +405,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
             ItemChargeAssgntPurch.ModifyAll("Amount to Handle", 0);
             ItemChargeAssgntPurch.ModifyAll("Qty. to Handle", 0);
+            OnAssignItemChargesFromLineOnAfterItemChargeAssignmentModifyAll(PurchLine, ItemChargeAssgntPurch);
             ItemChargeAssgntPurch.FindSet();
 
             case SelectionTxt of
@@ -725,6 +737,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
           Round(ItemChargeAssgntPurch."Amount to Assign", Currency."Amount Rounding Precision");
         ItemChargeAssgntPurch."Qty. to Handle" := ItemChargeAssgntPurch."Qty. to Assign";
         ItemChargeAssgntPurch."Amount to Handle" := ItemChargeAssgntPurch."Amount to Assign";
+        OnAssignPurchItemChargeOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
         ItemChargeAssgntPurch.Modify();
     end;
 
@@ -830,6 +843,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssignmentPurch."Amount to Assign" := FromItemChargeAssignmentPurch."Amount to Assign";
         ItemChargeAssignmentPurch."Qty. to Handle" := FromItemChargeAssignmentPurch."Qty. to Handle";
         ItemChargeAssignmentPurch."Amount to Handle" := FromItemChargeAssignmentPurch."Amount to Handle";
+        OnSuggestAssgntFromLineOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssignmentPurch);
         ItemChargeAssignmentPurch.Modify();
 
         ItemChargeAssignmentPurch.SetRange("Document Type", FromItemChargeAssignmentPurch."Document Type");
@@ -1100,6 +1114,26 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSuggestAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal; var Selection: Integer; var SelectionTxt: Text; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemChargeAssignmentWithValuesTo(var FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var ApplToDocType: Enum "Purchase Applies-to Document Type"; var FromApplToDocNo: Code[20]; var FromApplToDocLineNo: Integer; var FromItemNo: Code[20]; var FromDescription: Text[100]; var NextLineNo: Integer; var QtyToAssign: Decimal; var AmountToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignPurchItemChargeOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssgntFromLineOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignItemChargesFromLineOnAfterItemChargeAssignmentModifyAll(PurchLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 }
