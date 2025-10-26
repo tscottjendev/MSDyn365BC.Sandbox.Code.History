@@ -230,8 +230,6 @@ table 1502 "Workflow Step"
         WorkflowStepArgument: Record "Workflow Step Argument";
         WorkflowStepInstance: Record "Workflow Step Instance";
     begin
-        OnBeforeCreateInstance(WorkflowCode);
-
         Rec.TestField(Rec.ID);
         WorkflowStepInstance.ID := WorkflowInstanceID;
         WorkflowStepInstance."Workflow Code" := WorkflowCode;
@@ -652,11 +650,6 @@ table 1502 "Workflow Step"
                 Error(CancelledErr);
             ReferredWorkflowStep.ModifyAll("Next Workflow Step ID", 0);
         end;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateInstance(WorkflowCode: Code[20])
-    begin
     end;
 }
 
