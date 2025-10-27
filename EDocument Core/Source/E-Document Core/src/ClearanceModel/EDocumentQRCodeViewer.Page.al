@@ -1,4 +1,3 @@
-#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,9 +16,6 @@ page 6169 "E-Document QR Code Viewer"
     UsageCategory = None;
     Caption = 'QR Code Viewer';
     SourceTable = "Sales Invoice Header";
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This page is replaced by a new page "E-Document QR Viewer" that supports different types of documents.';
-    ObsoleteTag = '28.0';
 
     layout
     {
@@ -30,7 +26,6 @@ page 6169 "E-Document QR Code Viewer"
                 ApplicationArea = All;
                 Caption = 'QR Code (preview)';
                 Editable = false;
-                ToolTip = 'Specifies the Base64 representation of the QR code. Drill down to export the QR code image to a file.';
 
                 trigger OnDrillDown()
                 begin
@@ -41,7 +36,7 @@ page 6169 "E-Document QR Code Viewer"
             {
                 ApplicationArea = All;
                 Caption = 'QR Code Image';
-                ToolTip = 'Specifies the image about the QR code';
+                ToolTip = 'Image about the QR code';
                 Editable = false;
             }
         }
@@ -69,7 +64,6 @@ page 6169 "E-Document QR Code Viewer"
                 ApplicationArea = All;
                 Caption = 'Generate QR Image';
                 ToolTip = 'Generate image from Base64';
-                Image = Create;
 
                 trigger OnAction()
                 begin
@@ -85,12 +79,11 @@ page 6169 "E-Document QR Code Viewer"
     begin
         Clear(QRCodePreviewTxt);
         Rec.CalcFields("QR Code Base64");
-        if Rec."QR Code Base64".HasValue then begin
-            Rec."QR Code Base64".CreateInStream(InStr, TextEncoding::UTF8);
-            InStr.ReadText(QRCodePreviewTxt, 1024);
-            if StrLen(QRCodePreviewTxt) > MaxStrLen(QRCodePreviewTxt) then
-                QRCodePreviewTxt := CopyStr(QRCodePreviewTxt, 1, MaxStrLen(QRCodePreviewTxt) - StrLen('...')) + '...';
-        end;
+        if not Rec."QR Code Base64".HasValue then
+            exit;
+
+        Rec."QR Code Base64".CreateInStream(InStr, TextEncoding::UTF8);
+        InStr.ReadText(QRCodePreviewTxt);
 
         SetQRCodeImageFromBase64();
     end;
@@ -148,6 +141,5 @@ page 6169 "E-Document QR Code Viewer"
     end;
 
     var
-        QRCodePreviewTxt: Text;
+        QRCodePreviewTxt: Text[250];
 }
-#endif
