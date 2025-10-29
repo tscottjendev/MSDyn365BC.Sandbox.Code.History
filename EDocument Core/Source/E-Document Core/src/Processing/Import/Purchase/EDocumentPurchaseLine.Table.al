@@ -66,7 +66,6 @@ table 6101 "E-Document Purchase Line"
             Caption = 'Quantity';
             ToolTip = 'Specifies the quantity.';
             Editable = false;
-            DecimalPlaces = 0 : 5;
         }
         field(7; "Unit of Measure"; Text[50])
         {
@@ -166,9 +165,7 @@ table 6101 "E-Document Purchase Line"
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
         }
-#pragma warning disable AS0086
-        field(107; "[BC] Item Reference No."; Code[50])
-#pragma warning restore AS0086
+        field(107; "[BC] Item Reference No."; Code[20])
         {
             Caption = 'Item Reference No.';
             ToolTip = 'Specifies the item reference number.';
