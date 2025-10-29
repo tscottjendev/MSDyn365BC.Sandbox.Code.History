@@ -320,7 +320,6 @@ codeunit 99000875 "Prod. Order Availability Mgt."
                 begin
                     RecRef.SetTable(ProductionOrder);
                     RunProductionOrderPage(ProductionOrder);
-                    IsHandled := true;
                 end;
         end;
     end;
