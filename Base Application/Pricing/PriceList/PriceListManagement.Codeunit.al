@@ -675,6 +675,8 @@ codeunit 7017 "Price List Management"
     var
         PriceAsset: Record "Price Asset";
     begin
+        PriceListLine.SetLoadFields("Price List Code");
+
         MarkingIsUsed := true;
         if not SearchIfPriceExists then
             MarkingIsUsed := CheckIfPriceListLineMarkingIsNeeded(PriceListLine, PriceAssetList);
@@ -694,20 +696,23 @@ codeunit 7017 "Price List Management"
                 if not PriceListLine.IsEmpty() then begin
                     if SearchIfPriceExists then begin
                         ClearAssetFilters(PriceListLine);
+                        PriceListLine.SetLoadFields();
                         PriceIsFound := true;
                         exit;
                     end;
 
                     PriceListLine.FindSet();
-                    if not MarkingIsUsed then
+                    if not MarkingIsUsed then begin
+                        PriceListLine.SetLoadFields();
                         exit;
-
+                    end;
                     repeat
                         PriceListLine.Mark(true);
                     until PriceListLine.Next() = 0;
                 end;
             until not PriceAssetList.Next(PriceAsset);
         ClearAssetFilters(PriceListLine);
+        PriceListLine.SetLoadFields();
     end;
 
     local procedure CheckIfPriceListLineMarkingIsNeeded(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"): Boolean;
