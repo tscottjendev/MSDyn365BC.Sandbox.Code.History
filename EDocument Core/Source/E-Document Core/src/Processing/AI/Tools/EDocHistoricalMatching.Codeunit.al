@@ -29,6 +29,8 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         EDocumentNo: Integer;
         HistoricalDataLoadFailedErr: Label 'Failed to load historical data for e-document line %1. Error: %2', Comment = '%1 = E-Document System Id, %2 = Error message', Locked = true;
         AIHistoricalDataLoadEventTok: Label 'Historical Data Load', Locked = true;
+        ProductCodeTok: Label 'Product Code', Locked = true;
+        DescriptionTok: Label 'Description', Locked = true;
 
     trigger OnRun()
     var
@@ -72,7 +74,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
 
                 // Update the purchase line with historical data
                 PurchInvLine.GetBySystemId(TempEDocLineMatchBuffer."Matched PurchInvLine SystemId");
-                EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(PurchInvLine, Rec, TempEDocLineMatchBuffer."Historical Matching Reasoning");
+                EDocPurchaseHistMapping.UpdateMissingLineValuesFromHistory(PurchInvLine, Rec, TempEDocLineMatchBuffer."Historical Matching Reasoning", GetConfidenceScore(HistoricalMatchingConfig));
                 Rec.Modify(true);
 
                 EDocImpSessionTelemetry.SetLineBool(Rec.SystemId, AIHistoricalMatchEventTok, true);
@@ -85,6 +87,40 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         TelemetryDimensions.Add('Processing mistakes', Format(MistakesCount));
         FeatureTelemetry.LogUsage('0000PUP', EDocumentAIProcessor.GetEDocumentMatchingAssistanceName(), GetFeatureName(), TelemetryDimensions);
     end;
+
+    local procedure GetConfidenceScore(ExperimentConfig: Text): Text
+    begin
+        // When in control group we match exact vendor, hence score baseline is high confidence, else medium confidence
+
+        if TempHistoricalMatchBuffer.Count() > 1 then
+            // Lower confidence when multiple matches exist
+            case ExperimentConfig of
+                'control', '':
+                    exit('Medium');
+                else
+                    exit('Low');
+            end;
+
+        TempHistoricalMatchBuffer.Reset();
+        if TempHistoricalMatchBuffer.FindFirst() then
+            case TempHistoricalMatchBuffer."Match Type" of
+                ProductCodeTok, DescriptionTok:
+                    case ExperimentConfig of
+                        'control', '':
+                            exit('High');
+                        else
+                            exit('Medium');
+                    end;
+                else
+                    case ExperimentConfig of
+                        'control', '':
+                            exit('Medium');
+                        else
+                            exit('Low');
+                    end;
+            end;
+    end;
+
 
     local procedure PrepareHistoricalData(var EDocumentPurchaseLine: Record "E-Document Purchase Line"; HistoricalMatchingConfig: Text): Boolean
     var
@@ -179,11 +215,11 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
             repeat
                 // Search for exact Product Code matches
                 if EDocumentPurchaseLine."Product Code" <> '' then
-                    SearchAndAddMatches(EDocumentPurchaseLine, TempPurchInvLine, 'Product Code', EDocumentPurchaseLine."Product Code", 1.0, VendorNo);
+                    SearchAndAddMatches(EDocumentPurchaseLine, TempPurchInvLine, ProductCodeTok, EDocumentPurchaseLine."Product Code", 1.0, VendorNo);
 
                 // Search for exact Description matches
                 if EDocumentPurchaseLine.Description <> '' then
-                    SearchAndAddMatches(EDocumentPurchaseLine, TempPurchInvLine, 'Description', EDocumentPurchaseLine.Description, 0.9, VendorNo);
+                    SearchAndAddMatches(EDocumentPurchaseLine, TempPurchInvLine, DescriptionTok, EDocumentPurchaseLine.Description, 0.9, VendorNo);
 
                 // Search for similar descriptions
                 if EDocumentPurchaseLine.Description <> '' then
@@ -225,9 +261,9 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         MatchCount := 0;
         TempPurchInvLine.Reset();
         case MatchType of
-            'Product Code':
+            ProductCodeTok:
                 TempPurchInvLine.SetRange("No.", SearchValue);
-            'Description':
+            DescriptionTok:
                 TempPurchInvLine.SetRange(Description, SearchValue);
             'Similar Description':
                 TempPurchInvLine.SetFilter(Description, '%1', '@*' + SearchValue + '*');
@@ -246,7 +282,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
                             Confidence := BaseConfidence * 0.8;
 
                         MatchReason := StrSubstNo(MatchReasonLbl, MatchType, SearchValue);
-                        AddHistoricalMatchFromPurchInvLine(EDocumentPurchaseLine."Line No.", TempPurchInvLine, MatchReason, Confidence);
+                        AddHistoricalMatchFromPurchInvLine(EDocumentPurchaseLine."Line No.", TempPurchInvLine, MatchReason, Confidence, MatchType);
                         MatchCount += 1;
                     end;
             until (TempPurchInvLine.Next() = 0) or (MatchCount >= 5);
@@ -284,7 +320,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         exit(SimilarRecordCount >= 5);
     end;
 
-    local procedure AddHistoricalMatchFromPurchInvLine(LineNo: Integer; var PurchInvLine: Record "Purch. Inv. Line"; MatchReason: Text; Confidence: Decimal)
+    local procedure AddHistoricalMatchFromPurchInvLine(LineNo: Integer; var PurchInvLine: Record "Purch. Inv. Line"; MatchReason: Text; Confidence: Decimal; MatchType: Text)
     begin
         TempHistoricalMatchBuffer.Init();
         TempHistoricalMatchBuffer."Line No." := LineNo;
@@ -296,6 +332,7 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         TempHistoricalMatchBuffer."Product Code" := CopyStr(PurchInvLine."No.", 1, MaxStrLen(TempHistoricalMatchBuffer."Product Code"));
         TempHistoricalMatchBuffer.Description := CopyStr(PurchInvLine.Description, 1, MaxStrLen(TempHistoricalMatchBuffer.Description));
         TempHistoricalMatchBuffer."Match Reason" := CopyStr(MatchReason, 1, MaxStrLen(TempHistoricalMatchBuffer."Match Reason"));
+        TempHistoricalMatchBuffer."Match Type" := CopyStr(MatchType, 1, MaxStrLen(TempHistoricalMatchBuffer."Match Type"));
         TempHistoricalMatchBuffer."Confidence Score" := Confidence;
         TempHistoricalMatchBuffer."Is E-Document History" := false;
         TempHistoricalMatchBuffer.Quantity := PurchInvLine.Quantity;
