@@ -89,9 +89,18 @@ page 4303 "Agent Task Log Entry List"
         AgentTaskImpl: Codeunit "Agent Task Impl.";
     begin
         DetailsTxt := AgentTaskImpl.GetDetailsForAgentTaskLogEntry(Rec);
+        case Rec.Level of
+            Rec.Level::Error:
+                TypeStyle := 'Unfavorable';
+            Rec.Level::Warning:
+                TypeStyle := 'Ambiguous';
+            else
+                TypeStyle := 'Standard';
+        end;
     end;
 
     var
         DetailsTxt: Text;
+        TypeStyle: Text;
 }
 #pragma warning restore AS0125
