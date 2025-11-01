@@ -133,7 +133,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         if not PurchInvLine.GetBySystemId(EDocPurchaseLineHistory."Purch. Inv. Line SystemId") then
             exit;
 
-        UpdateMissingLineValuesFromHistory(PurchInvLine, EDocumentPurchaseLine, CustomExplanationTxt);
+        UpdateMissingLineValuesFromHistory(PurchInvLine, EDocumentPurchaseLine, CustomExplanationTxt, 'High');
 
         // We mark this draft with the historic match for future application of the additional fields
         EDocumentPurchaseLine."E-Doc. Purch. Line History Id" := EDocPurchaseLineHistory."Entry No.";
@@ -146,7 +146,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
     /// </summary>
     /// <param name="PurchInvLine"></param>
     /// <param name="EDocumentPurchaseLine"></param>
-    procedure UpdateMissingLineValuesFromHistory(PurchInvLine: Record "Purch. Inv. Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line"; CustomExplanationTxt: Text[250])
+    procedure UpdateMissingLineValuesFromHistory(PurchInvLine: Record "Purch. Inv. Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line"; MatchExplanation: Text[250]; MatchConfidence: Text)
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         DeferralTemplate: Record "Deferral Template";
@@ -154,14 +154,16 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session";
         DeferralActivityLog, AccountNumberActivityLog : Codeunit "Activity Log Builder";
         ExplanationTxt: Label 'Line value was retrieved from posted purchase invoice history. See source for details.';
-        CurrentExplanationTxt: Text[250];
+        CurrentExplanation: Text[250];
     begin
-        if CustomExplanationTxt <> '' then
-            CurrentExplanationTxt := CopyStr(CustomExplanationTxt, 1, MaxStrLen(CurrentExplanationTxt))
+        if MatchExplanation <> '' then
+            CurrentExplanation := CopyStr(MatchExplanation, 1, MaxStrLen(CurrentExplanation))
         else
-            CurrentExplanationTxt := ExplanationTxt;
+            CurrentExplanation := ExplanationTxt;
 
         PurchInvHeader.SetRange("No.", PurchInvLine."Document No.");
+        if not PurchInvHeader.FindFirst() then
+            exit;
 
         // We only apply the values from history to the draft if they had not been suggested before.
         // Hence all assignments to the draft line are guarded by `if <<property>> = ''`
@@ -169,7 +171,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         if EDocumentPurchaseLine."[BC] Deferral Code" = '' then
             if DeferralTemplate.Get(PurchInvLine."Deferral Code") then begin // we only assign if it's a valid deferral template
                 EDocumentPurchaseLine."[BC] Deferral Code" := PurchInvLine."Deferral Code";
-                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), PurchInvHeader, CurrentExplanationTxt, DeferralActivityLog, EDocActivityLogSession.DeferralTok());
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Deferral Code"), PurchInvHeader, CurrentExplanation, DeferralActivityLog, EDocActivityLogSession.DeferralTok(), MatchConfidence);
             end;
         if EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" = '' then
             EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
@@ -185,13 +187,13 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
             if not IsNullGuid(PurchInvLine."Alloc. Purch. Line SystemId") then begin
                 EDocumentPurchaseLine."[BC] Purchase Line Type" := "Purchase Line Type"::"Allocation Account";
                 EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."Allocation Account No.";
+            end else begin // Else we set whatever is on the invoice line
+                EDocumentPurchaseLine."[BC] Purchase Line Type" := PurchInvLine.Type;
+                EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."No.";
             end;
-            // Else we set whatever is on the invoice line
-            EDocumentPurchaseLine."[BC] Purchase Line Type" := PurchInvLine.Type;
-            EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."No.";
             // If we assigned something in this if-branch, we set the activity log
             if (EDocumentPurchaseLine."[BC] Purchase Line Type" <> "Purchase Line Type"::" ") or (EDocumentPurchaseLine."[BC] Purchase Type No." <> '') then
-                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), PurchInvHeader, CurrentExplanationTxt, AccountNumberActivityLog, EDocActivityLogSession.AccountNumberTok());
+                SetActivityLog(EDocumentPurchaseLine.SystemId, EDocumentPurchaseLine.FieldNo("[BC] Purchase Type No."), PurchInvHeader, CurrentExplanation, AccountNumberActivityLog, EDocActivityLogSession.AccountNumberTok(), MatchConfidence);
         end;
     end;
 
@@ -205,7 +207,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
     /// <param name="ActivityLog"></param>
     /// <param name="ActivityLogSessionToken"></param>
     /// <returns></returns>
-    local procedure SetActivityLog(SystemId: Guid; FieldNo: Integer; var PurchInvHeader: Record "Purch. Inv. Header"; Reasoning: Text[250]; var ActivityLog: Codeunit "Activity Log Builder"; ActivityLogSessionToken: Text): Boolean
+    local procedure SetActivityLog(SystemId: Guid; FieldNo: Integer; var PurchInvHeader: Record "Purch. Inv. Header"; Reasoning: Text[250]; var ActivityLog: Codeunit "Activity Log Builder"; ActivityLogSessionToken: Text; MatchConfidence: Text): Boolean
     var
         EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session";
         RecordRef: RecordRef;
@@ -216,6 +218,7 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         ActivityLog
             .Init(Database::"E-Document Purchase Line", FieldNo, SystemId)
             .SetExplanation(Reasoning)
+            .SetConfidence(MatchConfidence)
             .SetReferenceSource(Page::"Posted Purchase Invoice", RecordRef)
             .SetReferenceTitle(StrSubstNo(HistoricalExplanationTxt, PurchInvHeader.GetFilter("No.")));
         EDocActivityLogSession.Set(ActivityLogSessionToken, ActivityLog);
