@@ -12,7 +12,7 @@ using System.AI;
 using Microsoft.Purchases.Vendor;
 using System.Azure.KeyVault;
 using System.Telemetry;
-//using System.Config;
+using System.Config;
 
 codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISystem
 {
@@ -41,16 +41,16 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
         FeatureTelemetry: Codeunit "Feature Telemetry";
         EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
-        //FeatureConfiguration: Codeunit "Feature Configuration";
+        FeatureConfiguration: Codeunit "Feature Configuration";
         MistakesCount: Integer;
         MatchedCount: Integer;
         TelemetryDimensions: Dictionary of [Text, Text];
         AIHistoricalMatchEventTok: Label 'Historical Matching AI Match', Locked = true;
-        //HistoricalMatchingExperimentTok: Label 'EDocHistoricalMatchingExperiment', Locked = true;
+        HistoricalMatchingExperimentTok: Label 'EDocHistoricalMatchingExperiment', Locked = true;
         HistoricalMatchingConfig: Text;
     begin
         // Get experiment configuration
-        //HistoricalMatchingConfig := FeatureConfiguration.GetConfiguration(HistoricalMatchingExperimentTok);
+        HistoricalMatchingConfig := FeatureConfiguration.GetConfiguration(HistoricalMatchingExperimentTok);
 
         if not PrepareHistoricalData(Rec, HistoricalMatchingConfig) then
             exit;
