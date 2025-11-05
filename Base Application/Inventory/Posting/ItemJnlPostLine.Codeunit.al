@@ -1163,6 +1163,9 @@ codeunit 22 "Item Jnl.-Post Line"
         CapLedgEntry."Global Dimension 2 Code" := ItemJnlLine."Shortcut Dimension 2 Code";
         CapLedgEntry."Dimension Set ID" := ItemJnlLine."Dimension Set ID";
 
+        if ItemJnlLine."Rev. Capacity Ledger Entry No." <> 0 then
+            UpdateReversedCapacityLedgerEntry(ItemJnlLine, CapLedgEntry);
+
         OnBeforeInsertCapLedgEntry(CapLedgEntry, ItemJnlLine);
 
         InsertItemReg(0, 0, 0, CapLedgEntry."Entry No.");
@@ -8026,6 +8029,20 @@ codeunit 22 "Item Jnl.-Post Line"
             if (ExistingExpirationDate = 0D) and (SumOfEntries > 0) then
                 SumOfEntries := 0;
         end;
+    end;
+
+    local procedure UpdateReversedCapacityLedgerEntry(var ItemJnlLine: Record "Item Journal Line"; var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
+    var
+        ReversedCapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
+    begin
+        ReversedCapacityLedgerEntry.Get(ItemJnlLine."Rev. Capacity Ledger Entry No.");
+        CapLedgEntry.Reversed := true;
+        CapLedgEntry."Reversed Entry No." := ReversedCapacityLedgerEntry."Entry No.";
+        CapLedgEntry.Description := ReversedCapacityLedgerEntry.Description;
+
+        ReversedCapacityLedgerEntry.Reversed := true;
+        ReversedCapacityLedgerEntry."Reversed by Entry No." := CapLedgEntry."Entry No.";
+        ReversedCapacityLedgerEntry.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
