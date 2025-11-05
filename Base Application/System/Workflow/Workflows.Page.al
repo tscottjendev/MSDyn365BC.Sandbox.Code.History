@@ -10,8 +10,6 @@ page 1500 Workflows
     Caption = 'Workflows';
     Editable = false;
     PageType = List;
-    AboutTitle = 'About Workflows';
-    AboutText = 'Automate and manage business processes by designing workflows that connect tasks through triggers, conditions, and responses, enabling approvals, notifications, and system actions across your organization.';
     RefreshOnActivate = true;
     SourceTable = "Workflow Buffer";
     SourceTableTemporary = true;
