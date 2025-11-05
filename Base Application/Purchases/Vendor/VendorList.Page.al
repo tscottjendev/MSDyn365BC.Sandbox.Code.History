@@ -71,18 +71,6 @@ page 27 "Vendor List"
                     ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
-                field(Address; Rec.Address)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor street address.';
-                    Visible = false;
-                }
-                field(City; Rec.City)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s city.';
-                    Visible = false;
-                }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
@@ -963,7 +951,7 @@ page 27 "Vendor List"
                 Caption = 'Purchase Invoice';
                 Image = NewPurchaseInvoice;
                 RunObject = Page "Purchase Invoice";
-                RunPageLink = "Buy-from Vendor No." = field("No."), "Document Type" = const(Invoice);
+                RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase invoice for items or services.';
             }
