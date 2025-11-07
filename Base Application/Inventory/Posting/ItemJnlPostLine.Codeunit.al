@@ -3872,6 +3872,7 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemJnlLine2 := TempSplitItemJnlLine;
             ItemJnlLine2."Line No." := JnlLineNo;
             TempSplitItemJnlLine.Delete();
+            OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJnlLine2, CalledFromAdjustment);
             exit(true);
         end;
         if ItemJnlLine."Phys. Inventory" then
@@ -7828,6 +7829,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitItemJnlLineOnBeforePostItemJnlLine(var TempTrackingSpecification: Record "Tracking Specification"; var GlobalItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
     begin
     end;
 
