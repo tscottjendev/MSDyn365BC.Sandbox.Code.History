@@ -54,7 +54,6 @@ table 224 "Order Address"
 
             trigger OnLookup()
             begin
-                OnBeforeLookupCity(Rec, PostCode);
                 LookupPostCode(Rec.FieldNo(City));
             end;
 
@@ -66,7 +65,6 @@ table 224 "Order Address"
                 OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-                OnAfterValidateCity(Rec, PostCode);
             end;
         }
         field(8; Contact; Text[100])
@@ -115,7 +113,6 @@ table 224 "Order Address"
 
             trigger OnLookup()
             begin
-                OnBeforeLookupPostCode(Rec, PostCode);
                 LookupPostCode(Rec.FieldNo("Post Code"));
             end;
 
@@ -127,7 +124,6 @@ table 224 "Order Address"
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
-                OnAfterValidatePostCode(Rec, PostCode);
             end;
         }
         field(92; County; Text[30])
@@ -231,26 +227,6 @@ table 224 "Order Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupCity(var OrderAddress: Record "Order Address"; var PostCodeRec: Record "Post Code");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateCity(var OrderAddress: Record "Order Address"; var PostCodeRec: Record "Post Code");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupPostCode(var OrderAddress: Record "Order Address"; var PostCodeRec: Record "Post Code");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidatePostCode(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code");
     begin
     end;
 }
