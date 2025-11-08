@@ -115,7 +115,6 @@ codeunit 12179 "Export FatturaPA Document"
     [TryFunction]
     local procedure TryCreateFatturaElettronicaHeader(TempFatturaHeader: Record "Fattura Header" temporary)
     var
-        CompanyAsCustomer: Record Customer;
         Customer: Record Customer;
     begin
         CreateXMLDefinition(TempFatturaHeader);
@@ -127,12 +126,10 @@ codeunit 12179 "Export FatturaPA Document"
         if TempFatturaHeader."Fattura Vendor No." = '' then
             PopulateCompanyInformation(Customer)
         else begin
-            GetCustomerAsCurrentCompany(CompanyAsCustomer);
             TempXMLBuffer.AddGroupElement('CedentePrestatore');
             CopyVendorToCustomerBuffer(Customer, TempFatturaHeader."Fattura Vendor No.");
             PopulateCustomerData(Customer);
             TempXMLBuffer.GetParent();
-            Customer := CompanyAsCustomer;
         end;
 
         PopulateTaxRepresentative(TempFatturaHeader);
