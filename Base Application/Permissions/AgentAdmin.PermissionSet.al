@@ -10,7 +10,5 @@ permissionset 4305 "Agent - Admin"
     Assignable = true;
     Caption = 'Agent administrator';
     IncludedPermissionSets = "D365 Agent";
-    Permissions =
-        system "Configure All Agents" = X,
-        system "Create Custom Agent" = X;
+    Permissions = system "Configure All Agents" = X;
 }
