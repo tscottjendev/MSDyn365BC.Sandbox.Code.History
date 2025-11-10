@@ -2845,7 +2845,7 @@ table 38 "Purchase Header"
 #pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
 #pragma warning restore AA0470
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.', Comment = '%1: OrderDate';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase header, which might affect the prices and discounts on the purchase lines.', Comment = '%1: OrderDate';
 #pragma warning disable AA0074
         Text020: Label 'You must update the existing purchase lines manually.';
 #pragma warning restore AA0074
@@ -3498,6 +3498,7 @@ table 38 "Purchase Header"
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
+        ShouldCreatePurchLines: Boolean;
     begin
         IsHandled := false;
         OnRecreatePurchLinesOnBeforePurchLinesExists(Rec, xRec, ChangedFieldName, IsHandled);
@@ -3550,7 +3551,9 @@ table 38 "Purchase Header"
                 TempPurchLine.FindSet();
                 ExtendedTextAdded := false;
                 repeat
-                    if not TempPurchLine.IsExtendedText() then begin
+                    ShouldCreatePurchLines := not TempPurchLine.IsExtendedText();
+                    OnRecreatePurchLinesOnAfterCalcShouldCreatePurchLines(TempPurchLine, ShouldCreatePurchLines, PurchLine);
+                    if ShouldCreatePurchLines then begin
                         PurchLine.Init();
                         PurchLine."Line No." := PurchLine."Line No." + 10000;
                         PurchLine."Price Calculation Method" := "Price Calculation Method";
@@ -8367,6 +8370,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnAfterProcessTempPurchLines(var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLinesOnAfterCalcShouldCreatePurchLines(var TempPurchaseLine: Record "Purchase Line" temporary; var ShouldCreatePurchLines: Boolean; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
