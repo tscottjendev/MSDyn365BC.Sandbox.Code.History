@@ -143,10 +143,9 @@ codeunit 4700 "VAT Group Communication"
             Error(NoVATSetupErr);
 
         if EnvironmentInformation.IsSaaSInfrastructure() and VATReportSetup."Group Representative On SaaS" then begin
+            GetClientIDAndSecretFromAKV(ClientId, ClientSecret);
             FirstPartyAppId := GetFirstPartyAppId();
             FirstPartyAppCertificate := GetFirstPartyAppCertificate();
-            if (FirstPartyAppId = '') or FirstPartyAppCertificate.IsEmpty() then
-                GetClientIDAndSecretFromAKV(ClientId, ClientSecret);
             AuthorityURL := GetOAuthAuthorityURL();
             RedirectURL := GetRedirectURL();
             ResourceURL := GetResourceURL();
@@ -193,10 +192,9 @@ codeunit 4700 "VAT Group Communication"
             Error(NoVATSetupErr);
 
         if EnvironmentInformation.IsSaaSInfrastructure() and VATReportSetup."Group Representative On SaaS" then begin
+            GetClientIDAndSecretFromAKV(AKVClientId, AKVClientSecret);
             FirstPartyAppId := GetFirstPartyAppId();
             FirstPartyAppCertificate := GetFirstPartyAppCertificate();
-            if (FirstPartyAppId = '') or FirstPartyAppCertificate.IsEmpty() then
-                GetClientIDAndSecretFromAKV(AKVClientId, AKVClientSecret);
             ResourceURL := GetResourceURL();
             if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
                 Session.LogMessage('0000MXS', AttemptingAuthCodeTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATGroupTok);
