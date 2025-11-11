@@ -1168,7 +1168,13 @@ codeunit 80 "Sales-Post"
     local procedure SetInvoiceOrderNo(SalesLine: Record "Sales Line"; var SalesInvLine: Record "Sales Invoice Line")
     var
         SalesShptLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetInvoiceOrderNo(SalesLine, SalesInvLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then begin
             SalesInvLine."Order No." := SalesLine."Document No.";
             SalesInvLine."Order Line No." := SalesLine."Line No.";
@@ -8399,7 +8405,13 @@ codeunit 80 "Sales-Post"
     local procedure PostUpdateOrderNo(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostUpdateOrderNo(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesInvoiceHeader."No." = '' then
             exit;
 
@@ -8779,7 +8791,13 @@ codeunit 80 "Sales-Post"
         Job: Record Job;
         SalesLine: Record "Sales Line";
         JobArchiveManagement: Codeunit "Job Archive Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchiveRelatedJob(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Job No.", '<>%1', '');
@@ -9665,7 +9683,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostingAndDocumentDate(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeValidatePostingAndDocumentDate(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -9864,8 +9882,12 @@ codeunit 80 "Sales-Post"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         ReplaceVATDate: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeValidatePostingAndDocumentDate(SalesHeader, SuppressCommit);
+        IsHandled := false;
+        OnBeforeValidatePostingAndDocumentDate(SalesHeader, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
 
         PostingDateExists :=
           BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
@@ -9941,7 +9963,13 @@ codeunit 80 "Sales-Post"
     var
         FindEmailParameter: Record "Email Parameter";
         RenameEmailParameter: Record "Email Parameter";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEmailParameters(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesHeader."Last Posting No." = '' then
             exit;
         FindEmailParameter.SetRange("Document No", SalesHeader."No.");
@@ -11838,6 +11866,26 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePrepaymentLineForCreditMemoOnBeforeGetSalesPrepmtAccount(var GLAccount: Record "G/L Account"; var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEmailParameters(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostUpdateOrderNo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetInvoiceOrderNo(SalesLine: Record "Sales Line"; var SalesInvLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchiveRelatedJob(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
