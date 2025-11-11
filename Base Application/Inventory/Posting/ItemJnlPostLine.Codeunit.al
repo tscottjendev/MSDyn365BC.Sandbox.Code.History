@@ -3872,7 +3872,6 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemJnlLine2 := TempSplitItemJnlLine;
             ItemJnlLine2."Line No." := JnlLineNo;
             TempSplitItemJnlLine.Delete();
-            OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJnlLine2, CalledFromAdjustment);
             exit(true);
         end;
         if ItemJnlLine."Phys. Inventory" then
@@ -5646,7 +5645,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if (ItemLedgerEntry."Remaining Quantity" + OldItemLedgerEntry."Remaining Quantity") > 0 then
             exit(0);
 
-        exit(GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry, ItemLedgerEntry));
+        exit(GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry));
     end;
 
     procedure RunOnPublishPostingInventoryToGL()
@@ -5667,7 +5666,7 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(JobPlanningLineReserve.FindReservEntry(JobPlanningLine, ReservationEntry));
     end;
 
-    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry") AppliedQty: Decimal
+    local procedure GetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     var
         ReservationEntry: Record "Reservation Entry";
         ReservationEntry2: Record "Reservation Entry";
@@ -5685,12 +5684,10 @@ codeunit 22 "Item Jnl.-Post Line"
 
         case SourceType of
             Database::"Sales Line":
-                AppliedQty := -Abs(OldItemLedgerEntry."Remaining Quantity" - OldItemLedgerEntry."Reserved Quantity");
+                exit(-Abs(OldItemLedgerEntry."Remaining Quantity" - OldItemLedgerEntry."Reserved Quantity"));
             else
-                AppliedQty := -Abs(OldItemLedgerEntry."Reserved Quantity");
+                exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
         end;
-
-        OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry, ItemLedgerEntry, ReservationEntry2, SourceType, AppliedQty);
     end;
 
     procedure PostDeferredValueEntriesToGL(PostponedValueEntries: List of [Integer])
@@ -7833,11 +7830,6 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSplitItemJnlLineOnAfterDeleteTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnInsertValueEntryOnAfterTempValueEntryRelationInsert(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line"; var TempValueEntryRelation: Record "Value Entry Relation");
     begin
     end;
@@ -8451,11 +8443,6 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [InternalEvent(true)]
     local procedure OnCorrectOutputValuationDateOnCheckProduction(ItemLedgerEntry: Record "Item Ledger Entry"; var TempValueEntry: Record "Value Entry" temporary; var ValuationDate: Date; var ShouldExit: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry2: Record "Reservation Entry"; SourceType: Integer; var AppliedQty: Decimal)
     begin
     end;
 }
