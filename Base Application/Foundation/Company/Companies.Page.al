@@ -15,8 +15,6 @@ page 357 Companies
     ApplicationArea = Basic, Suite;
     Caption = 'Companies';
     PageType = List;
-    AboutTitle = 'About Companies';
-    AboutText = 'View and manage all companies in your Business Central environment, including their display names, setup status, and evaluation status for trial companies.';
     RefreshOnActivate = true;
     SourceTable = Company;
     UsageCategory = Lists;
