@@ -2274,19 +2274,16 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure AssemblyReservationEntryMismatchWithItemJnlLine(var ReservEntry: Record "Reservation Entry"): Boolean
-   var
+    var
         ReservEntry2: Record "Reservation Entry";
-        ItemRec: Record Item;
     begin
         ReservEntry2.SetLoadFields("Source Type", "Source Subtype");
         ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-        if ItemRec.Get(ReservEntry2."Item No.") then
-            if not (ItemRec."Assembly Policy" = ItemRec."Assembly Policy"::"Assemble-to-Stock") then
-                if (ReservEntry2."Source Type" = Database::"Assembly Header") and (ReservEntry2."Source Subtype" = 1)
-                      and (not ItemJnlLine."Assemble to Order") then
-                    exit(true);
+        if (ReservEntry2."Source Type" = Database::"Assembly Header") and (ReservEntry2."Source Subtype" = 1)
+             and (not ItemJnlLine."Assemble to Order") then
+            exit(true);
     end;
-    
+
     local procedure UpdateReservationEntryForNonInventoriableItem()
     var
         ReservationEntry: Record "Reservation Entry";
@@ -3305,7 +3302,6 @@ codeunit 22 "Item Jnl.-Post Line"
                     (ValueEntry."Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost")
                 then begin
                     CalcPurchCorrShares(OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
-                    SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJnlLine, CostAmt, CostAmtACY);
                     OnAfterCalcPurchCorrShares(
                         ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
                 end;
@@ -8067,37 +8063,6 @@ codeunit 22 "Item Jnl.-Post Line"
         ReversedCapacityLedgerEntry.Reversed := true;
         ReversedCapacityLedgerEntry."Reversed by Entry No." := CapLedgEntry."Entry No.";
         ReversedCapacityLedgerEntry.Modify();
-    end;
-
-    local procedure CheckCostPerUnitInValueEntry(ItemJournalLine: Record "Item Journal Line"): Boolean
-    var
-        OldValueEntry: Record "Value Entry";
-    begin
-        if ItemJournalLine."Source Currency Code" = '' then
-            exit;
-
-        if not (ItemJournalLine."Document Type" in [ItemJournalLine."Document Type"::"Purchase Credit Memo", ItemJournalLine."Document Type"::"Purchase Return Shipment"]) then
-            exit;
-
-        OldValueEntry.SetLoadFields("Cost per Unit", "Valued Quantity", "Discount Amount");
-        OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Item Ledger Entry Type");
-        OldValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
-        OldValueEntry.SetRange("Item Ledger Entry No.", ItemJournalLine."Applies-to Entry");
-        OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::"Direct Cost");
-        OldValueEntry.SetRange("Item Ledger Entry Type", OldValueEntry."Item Ledger Entry Type"::Purchase);
-        if OldValueEntry.FindFirst() then
-            exit(OldValueEntry."Cost per Unit" = ItemJournalLine."Unit Cost");
-
-        exit(false);
-    end;
-
-    local procedure SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJournalLine: Record "Item Journal Line"; var CostAmt: Decimal; var CostAmtACY: Decimal)
-    begin
-        if not CheckCostPerUnitInValueEntry(ItemJournalLine) then
-            exit;
-
-        CostAmt := ItemJnlLine.Amount;
-        CostAmtACY := ItemJnlLine."Amount (ACY)";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
