@@ -3282,7 +3282,6 @@ codeunit 22 "Item Jnl.-Post Line"
                     (ValueEntry."Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost")
                 then begin
                     CalcPurchCorrShares(OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
-                    SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJnlLine, CostAmt, CostAmtACY);
                     OnAfterCalcPurchCorrShares(
                         ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
                 end;
@@ -8044,37 +8043,6 @@ codeunit 22 "Item Jnl.-Post Line"
         ReversedCapacityLedgerEntry.Reversed := true;
         ReversedCapacityLedgerEntry."Reversed by Entry No." := CapLedgEntry."Entry No.";
         ReversedCapacityLedgerEntry.Modify();
-    end;
-
-    local procedure CheckCostPerUnitInValueEntry(ItemJournalLine: Record "Item Journal Line"): Boolean
-    var
-        OldValueEntry: Record "Value Entry";
-    begin
-        if ItemJournalLine."Source Currency Code" = '' then
-            exit;
-
-        if not (ItemJournalLine."Document Type" in [ItemJournalLine."Document Type"::"Purchase Credit Memo", ItemJournalLine."Document Type"::"Purchase Return Shipment"]) then
-            exit;
-
-        OldValueEntry.SetLoadFields("Cost per Unit", "Valued Quantity", "Discount Amount");
-        OldValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type", "Item Ledger Entry Type");
-        OldValueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
-        OldValueEntry.SetRange("Item Ledger Entry No.", ItemJournalLine."Applies-to Entry");
-        OldValueEntry.SetRange("Entry Type", OldValueEntry."Entry Type"::"Direct Cost");
-        OldValueEntry.SetRange("Item Ledger Entry Type", OldValueEntry."Item Ledger Entry Type"::Purchase);
-        if OldValueEntry.FindFirst() then
-            exit(OldValueEntry."Cost per Unit" = ItemJournalLine."Unit Cost");
-
-        exit(false);
-    end;
-
-    local procedure SetCostAmountAndCostAmountFCYOnSameCostPerUnit(ItemJournalLine: Record "Item Journal Line"; var CostAmt: Decimal; var CostAmtACY: Decimal)
-    begin
-        if not CheckCostPerUnitInValueEntry(ItemJournalLine) then
-            exit;
-
-        CostAmt := ItemJnlLine.Amount;
-        CostAmtACY := ItemJnlLine."Amount (ACY)";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
