@@ -93,14 +93,10 @@ table 246 "Requisition Line"
             trigger OnValidate()
             var
                 ShouldValidateUnitofMeasureCode: Boolean;
-                IsHandled: Boolean;
             begin
                 CheckActionMessageNew();
                 ReqLineReserve.VerifyChange(Rec, xRec);
-                IsHandled := false;
-                OnValidateNoOnBeforeDeleteRelations(Rec, xRec, IsHandled);
-                if not IsHandled then
-                    DeleteRelations();
+                DeleteRelations();
 
                 if "No." = '' then begin
                     CreateDimFromDefaultDim();
@@ -233,10 +229,7 @@ table 246 "Requisition Line"
                         if "Order Date" = 0D then
                             Validate("Order Date", WorkDate());
 
-                        IsHandled := false;
-                        OnValidateVendorNoOnBeforeValidateCurrencyCode(Rec, Vend, IsHandled);
-                        if not IsHandled then
-                            Validate("Currency Code", Vend."Currency Code");
+                        Validate("Currency Code", Vend."Currency Code");
                         if ("Planning Line Origin" <> "Planning Line Origin"::Planning) or ("Price Calculation Method" = "Price Calculation Method"::" ") then
                             "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
@@ -1779,11 +1772,7 @@ table 246 "Requisition Line"
         ItemReference: Record "Item Reference";
         ItemTranslation: Record "Item Translation";
         Vendor: Record Vendor;
-        IsHandled: Boolean;
     begin
-        OnBeforeUpdateItemReferenceDescription(Rec, IsHandled);
-        if IsHandled then
-            exit;
         if not ItemReference.FindItemDescription(
                 Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
                 Rec."Order Date", Enum::"Item Reference Type"::Vendor, "Vendor No.")
@@ -4006,19 +3995,4 @@ table 246 "Requisition Line"
     local procedure OnBeforeCreateDim(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemReferenceDescription(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnBeforeDeleteRelations(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateVendorNoOnBeforeValidateCurrencyCode(var RequisitionLine: Record "Requisition Line"; Vendor: Record Vendor; var IsHandled: Boolean)
-    begin
-    end;    
 }
