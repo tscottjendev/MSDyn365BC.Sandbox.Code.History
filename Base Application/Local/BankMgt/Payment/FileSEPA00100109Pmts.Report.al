@@ -76,8 +76,6 @@ report 2000007 "File SEPA 001.001.09 Pmts"
                 if CheckNewGroup(SeparatePmtJnlLine) then
                     ExportPaymentInformation(CstmrCdtTrfInitnNode, SeparatePmtJnlLine);
                 ExportTransactionInformation(PmtInfNode, SeparatePmtJnlLine, "Payment Message");
-                if EmptyConsolidatedPayment() then
-                    InitConsolidatedPayment(SeparatePmtJnlLine);
             end;
 
             trigger OnPostDataItem()
@@ -460,6 +458,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
 
     local procedure ExportTransactionInformation(XMLNodeCurr: DotNet XmlNode; PmtJnlLine: Record "Payment Journal Line"; PaymentMessage: Text[140])
     var
+        PmtJnlManagement: Codeunit PmtJrnlManagement;
         XMLNewChild: DotNet XmlNode;
         RootNode: DotNet XmlNode;
         AddressLine1: Text[110];
@@ -602,7 +601,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
         AddElement(XMLNodeCurr, 'RmtInf', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        if not CheckValidStandardFormatMessage(PmtJnlLine."Payment Message") then
+        if not PmtJnlManagement.Mod97Test(PmtJnlLine."Payment Message") then
             AddElement(XMLNodeCurr, 'Ustrd', PaymentMessage, '', XMLNewChild)
         else begin
             AddElement(XMLNodeCurr, 'Strd', '', '', XMLNewChild);
@@ -620,7 +619,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
             AddElement(XMLNodeCurr, 'Cd', 'SCOR', '', XMLNewChild);
             XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-            AddElement(XMLNodeCurr, 'Issr', GetIssuer(PmtJnlLine."Payment Message"), '', XMLNewChild);
+            AddElement(XMLNodeCurr, 'Issr', 'BBA', '', XMLNewChild);
             XMLNodeCurr := XMLNodeCurr.ParentNode;
 
             AddElement(XMLNodeCurr, 'Ref', PmtJnlLine."Payment Message", '', XMLNewChild);
@@ -870,29 +869,6 @@ report 2000007 "File SEPA 001.001.09 Pmts"
         end;
     end;
 
-    local procedure CheckValidStandardFormatMessage(PmtMessage: text[250]) IsValid: boolean;
-    var
-        PmtJnlManagement: Codeunit PmtJrnlManagement;
-        IsHandled: boolean;
-    begin
-        OnBeforeCheckValidStandardFormatMessage(PmtMessage, IsValid, IsHandled);
-        if Ishandled then
-            exit;
-
-        exit(PmtJnlManagement.Mod97Test(PmtMessage));
-    end;
-
-    local procedure GetIssuer(PmtMessage: text[250]) Issuer: text
-    var
-        IsHandled: boolean;
-    begin
-        OnBeforeGetIssuer(PmtMessage, Issuer, IsHandled);
-        if Ishandled then
-            exit;
-
-        exit('BBA');
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckNewGroup(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
     begin
@@ -945,16 +921,6 @@ report 2000007 "File SEPA 001.001.09 Pmts"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddBICFITag(SwiftCode: Code[20]; var AddTag: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckValidStandardFormatMessage(PmtMessage: text[250]; var IsValid: boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetIssuer(PmtMessage: text[250]; var Issuer: text; var IsHandled: Boolean)
     begin
     end;
 }
