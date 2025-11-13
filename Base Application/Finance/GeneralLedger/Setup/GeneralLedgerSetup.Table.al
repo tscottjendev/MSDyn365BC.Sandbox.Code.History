@@ -1228,8 +1228,6 @@ table 98 "General Ledger Setup"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if DateToCheck = 0D then
-            exit;
         if AccountingPeriod.IsEmpty() then
             exit;
         CalcFields("Posting Allowed From", "Posting Allowed To");
