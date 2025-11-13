@@ -162,8 +162,6 @@ codeunit 333 "Req. Wksh.-Make Order"
             ReqLine.SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
         end;
 
-        OnCodeOnAfterFilterReqLine(ReqLine, PlanningResiliency, SuppressCommit, PrintPurchOrders);
-
         if not ReqLine.Find('=><') then begin
             ReqLine."Line No." := 0;
             if not SuppressCommit then
@@ -1884,11 +1882,6 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [InternalEvent(false)]
     local procedure OnTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterFilterReqLine(var RequisitionLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
     end;
 }
