@@ -50,8 +50,6 @@ page 39 "General Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
-    AboutTitle = 'About General Journals';
-    AboutText = 'Post and manage financial transactions such as purchases, payments, accruals, and expense reimbursements across general ledger, bank, customer, vendor, and employee accounts, with flexible editing and document numbering until entries are finalized.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -72,8 +70,7 @@ page 39 "General Journal"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if (Rec."Journal Batch Name" = CurrentJnlBatchName) and not Rec.EmptyLine() then
-                            CurrPage.SaveRecord();
+                        CurrPage.SaveRecord();
                         GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                         SetControlAppearanceFromBatch();
                         // Set simple view when batch is changed
