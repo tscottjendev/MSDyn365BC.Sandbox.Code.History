@@ -648,8 +648,7 @@ table 36 "Sales Header"
                     if ("Document Date" < "Posting Date") and
                        ("Incoming Document Entry No." = 0) and
                        (Rec."Posting Date" <> xRec."Posting Date") and
-                       SalesReceivablesSetup."Link Doc. Date To Posting Date" and
-                       not GetCalledFromWhseDoc()
+                       (SalesReceivablesSetup."Link Doc. Date To Posting Date")
                     then
                         Validate("Document Date", "Posting Date");
 
@@ -718,7 +717,7 @@ table 36 "Sales Header"
                     exit;
 
                 PaymentLines.CreatePaymentLinesSales(Rec);
-                CalcFields("Payment %"); 
+                CalcFields("Payment %");
             end;
         }
         field(24; "Due Date"; Date)
@@ -4908,6 +4907,7 @@ table 36 "Sales Header"
                 if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                    OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(Rec, xRec, CurrFieldNo, OldDimSetID);
                 end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
@@ -10931,6 +10931,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeModify(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
     begin
     end;
 
