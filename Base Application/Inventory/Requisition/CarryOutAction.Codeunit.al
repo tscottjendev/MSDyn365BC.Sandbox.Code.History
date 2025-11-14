@@ -585,6 +585,8 @@ codeunit 99000813 "Carry Out Action"
         ManufacturingSetup: Record "Manufacturing Setup";
         Item: Record Item;
         ProductionOrder: Record "Production Order";
+        CreateProdOrderLines: Codeunit "Create Prod. Order Lines";
+        Direction: Option Forward,Backward;
         HeaderExist: Boolean;
         IsHandled: Boolean;
     begin
@@ -654,6 +656,9 @@ codeunit 99000813 "Carry Out Action"
             InsertTempProdOrder(RequisitionLine, ProductionOrder);
         end;
         InsertProdOrderLine(RequisitionLine, ProductionOrder, Item);
+
+        if CheckProductionOrderForStructure(ProductionOrder) then
+            CreateProdOrderLines.CheckStructure(ProductionOrder.Status.AsInteger(), ProductionOrder."No.", Direction::Backward, true, false);
 
         OnAfterInsertProdOrder(ProductionOrder, ProdOrderChoice.AsInteger(), RequisitionLine);
     end;
@@ -1554,6 +1559,22 @@ codeunit 99000813 "Carry Out Action"
                             ProdOrderCompCmtLine.Modify();
                     until ProductionBOMCommentLine.Next() = 0;
             until ProductionBOMLine.Next() = 0;
+    end;
+
+    local procedure CheckProductionOrderForStructure(ProductionOrder: Record "Production Order"): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ProductionOrder."Source No.") then
+            exit(false);
+
+        if ProductionOrder."Variant Code" = '' then
+            exit(false);
+
+        if (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
+            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order") and
+            (Item."Reordering Policy" = Item."Reordering Policy"::Order) then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]
