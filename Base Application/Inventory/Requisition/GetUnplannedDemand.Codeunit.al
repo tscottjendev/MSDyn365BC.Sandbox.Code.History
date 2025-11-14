@@ -196,7 +196,6 @@ codeunit 5520 "Get Unplanned Demand"
                             OnGetUnplannedSalesLineOnAfterInsertUnplannedDemand(SalesLine, UnplannedDemand);
                         end;
                         InsertSalesLine(UnplannedDemand);
-                        OnGetUnplannedDemandOnAfterInsertSalesLine(UnplannedDemand, SalesLine);
                     end;
             until SalesLine.Next() = 0;
     end;
@@ -767,11 +766,6 @@ codeunit 5520 "Get Unplanned Demand"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcNeededDemandsOnBeforeCalcNeededQtyBase(var UnplannedDemand: Record "Unplanned Demand"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnGetUnplannedDemandOnAfterInsertSalesLine(var UnplannedDemand: Record "Unplanned Demand"; var SalesLine: Record "Sales Line")
     begin
     end;
 }
