@@ -1,5 +1,6 @@
 ﻿namespace System.Environment.Configuration;
 
+using System.Agents;
 using System.Environment;
 using System.Reflection;
 using System.Security.User;
@@ -12,6 +13,8 @@ page 9171 "Profile List"
     CardPageID = "Profile Card";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Profiles (Roles)';
+    AboutText = 'Create and manage user profiles that define business roles, control user access, and customize page layouts to ensure users have a tailored and efficient experience in Business Central.';
     RefreshOnActivate = true;
     SourceTable = "All Profile";
     UsageCategory = Lists;
@@ -246,6 +249,13 @@ page 9171 "Profile List"
     trigger OnInit()
     begin
         IsWebClient := ClientTypeManagement.GetCurrentClientType() = ClientType::Web;
+    end;
+
+    trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
+    begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
     end;
 
     var
