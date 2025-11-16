@@ -31,16 +31,6 @@ table 30138 "Shpfy Registered Store New"
             Caption = 'Actual Scope';
             DataClassification = SystemMetadata;
         }
-        field(4; "Review Prompt Date"; Date)
-        {
-            Caption = 'Review Prompt Date';
-            DataClassification = SystemMetadata;
-        }
-        field(5; "Review Completed"; Boolean)
-        {
-            Caption = 'Review Completed';
-            DataClassification = SystemMetadata;
-        }
     }
     keys
     {
