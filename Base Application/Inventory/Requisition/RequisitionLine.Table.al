@@ -258,6 +258,7 @@ table 246 "Requisition Line"
                 GetLocationCode();
                 OnValidateVendorNoOnAfterGetLocationCode(Rec);
                 GetDefaultBinCode();
+                OnValidateVendorNoOnAfterGetDefaultBinCode(Rec);
 
                 "Order Address Code" := '';
 
@@ -4020,5 +4021,10 @@ table 246 "Requisition Line"
     [IntegrationEvent(false, false)]
     local procedure OnValidateVendorNoOnBeforeValidateCurrencyCode(var RequisitionLine: Record "Requisition Line"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVendorNoOnAfterGetDefaultBinCode(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
 }
