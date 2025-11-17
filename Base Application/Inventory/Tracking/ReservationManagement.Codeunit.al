@@ -673,8 +673,6 @@ codeunit 99000845 "Reservation Management"
                         QtyThisLine := 0;
                     end;
 
-                    OnAutoReserveItemLedgEntryOnAfterCalcReservQty(CalcItemLedgEntry, QtyThisLine, QtyThisLineBase);
-
                     if (Location."Bin Mandatory" or Location."Require Pick") and
                        (TotalAvailQty + QtyOnOutBound < QtyThisLineBase)
                     then
@@ -2996,11 +2994,6 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultDampenerPeriod(var DampenerPeriod: DateFormula)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAutoReserveItemLedgEntryOnAfterCalcReservQty(CalcItemLedgerEntry: Record "Item Ledger Entry"; QtyThisLine: Decimal; QtyThisLineBase: Decimal)
     begin
     end;
 }
