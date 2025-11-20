@@ -2,6 +2,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -31,8 +32,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryXMLRead: Codeunit "Library - XML Read";
-        SEPACTCode: Code[20];
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -54,6 +53,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RecipientRef1Txt: Label 'Random Text 1', Locked = true;
         RecipientRef2Txt: Label 'Random Text 2', Locked = true;
         ErrorTextsExistErr: Label 'Error texts entries has to be deleted, from %1 table.', Comment = '%1 = Payment Jnl. Export Error Text';
+        NodeErr: Label 'Wrong number of PmtInf nodes.';
+        GenJnlLineRestrCheckCount: Integer;
+        GenJnlBatchRestrCheckCount: Integer;
 
     [Test]
     [Scope('OnPrem')]
@@ -1671,33 +1673,133 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     procedure RemovedPstlAdrPartFromInitgPtyTag()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        TempBlob: Codeunit "Temp Blob";
         BlobOutStream: OutStream;
-        ExportedFilePath: Text;
-        File: File;
     begin
         // [SCENARIO 572911] Verify Removal of 'PstlAdr' tag From SEPA Payment pain.001.001.09 Format Export ,since the scheme has been changed.
-        InitializeSEPA09();
+        Init();
 
         // [GIVEN] Company Information with VAT Registartion No.
         LibraryERMCountryData.CompanyInfoSetVATRegistrationNo();
 
         // [GIVEN] Created General Journal Line.
-        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        EURCode := LibraryERM.GetCurrencyCode('EUR');
         CreateGenJnlLine(GenJournalLine);
-        ModifyGenJournalLine(GenJournalLine);
 
         // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.09".
-        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
-        File.Create(ExportedFilePath);
-        File.CreateOutStream(BlobOutStream);
-        Xmlport.Export(XMLPORT::"SEPA CT pain.001.001.09", BlobOutStream, GenJournalLine);
-        File.Close();
+        TempBlob.CreateOutStream(BlobOutStream);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
 
         // [THEN] Verify Removal of 'PstlAdr' tag since the scheme has been changed.
-        LibraryXMLRead.Initialize(ExportedFilePath);
-        LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty', 'PstlAdr');
+        LibraryXPathXMLReader.InitializeXml(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.VerifyNodeAbsenceInSubtree('//InitgPty', 'PstlAdr');
+    end;
+
+    [Test]
+    procedure TestXMLDocGroupingForNonEuroPaymentTransaction()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TempBlob: Codeunit "Temp Blob";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XMLDoc: DotNet XmlDocument;
+        XMLDocNode: DotNet XmlNode;
+        XMLNodes: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
+        OutStr: OutStream;
+        InStr: InStream;
+        TransferDate: Date;
+        ExpectedNoOfGroups: Integer;
+        NoOfPmtsPerGroup: Integer;
+        NoOfPmtInf: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 596199] Verify Export Non-Euro payment Transaction in SEPA Format should use 'SHAR' default for 'ChrgBr' tag and 
+        // Grouping of payments in XML document.  
+        Init();
+
+        // [GIVEN] "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("SEPA Non-Euro Export", true);
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Create Gen. Journal Lines with Non-Euro Currency.
+        ExpectedNoOfGroups := 4;
+        NoOfPmtsPerGroup := 5;
+        CreateGenJnlLinesDiffDateNonEuro(GenJnlLine, ExpectedNoOfGroups, NoOfPmtsPerGroup);
+        GenJnlLine.FindFirst();
+        TransferDate := GenJnlLine."Posting Date";
+
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.09".
+        TempBlob.CreateOutStream(OutStr);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
+        TempBlob.CreateInStream(InStr);
+        XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, XMLDoc);
+        XMLDocNode := XMLDoc.DocumentElement;
+        if not XMLDocNode.HasChildNodes then
+            Error(XMLNoChildrenErr);
+
+        // [THEN] Verify Grouping of payments in XML document.
+        XMLNode := XMLDocNode.FirstChild;
+        Assert.AreEqual('CstmrCdtTrfInitn', XMLNode.Name, 'CstmrCdtTrfInitn');
+        XMLNodes := XMLNode.ChildNodes;
+        for i := 0 to XMLNodes.Count - 1 do begin
+            XMLNode := XMLNodes.ItemOf(i);
+            case XMLNode.Name of
+                'GrpHdr':
+                    ValidateGrpHdr(XMLNode, GenJnlLine);
+                'PmtInf':
+                    begin
+                        NoOfPmtInf += 1;
+                        ValidatePmtInfForNonEuroPayment(XMLNode, NoOfPmtsPerGroup, NoOfPmtsPerGroup * DefaultLineAmount, TransferDate);
+                        TransferDate += 1;
+                    end;
+                else
+                    Error(XMLUnknownElementErr, XMLNode.Name);
+            end;
+        end;
+
+        // [THEN] Verify number of 'PmtInf' nodes are as expected.
+        Assert.AreEqual(ExpectedNoOfGroups, NoOfPmtInf, NodeErr);
+    end;
+
+    [Test]
+    procedure CheckRecordRestrictionsWhenExportGenJournalLines()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+        ERMTestSEPACreditTransfers: Codeunit "ERM Test SEPA Credit Transfers";
+    begin
+        // [SCENARIO 611940] Export 3 vendor payment journal lines to SEPA CT format and verify record restrictions is checked 3 times for lines and 3 times for batch.
+        Init();
+
+        // [GIVEN] Journal batch with "Allow Payment Export" set.
+        GenJournalBatch.Validate("Allow Payment Export", true);
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Non-empty Restricted Record table.
+        LibrarySales.CreateCustomer(Customer);
+        RecordRestrictionMgt.RestrictRecordUsage(Customer, '');
+
+        // [GIVEN] Three general journal lines "L1", "L2" and "L3" for vendor payments with SEPA export setup.
+        CreateGenJnlLine(GenJournalLine);
+        CreateGenJnlLine(GenJournalLine);
+        CreateGenJnlLine(GenJournalLine);
+
+        // [GIVEN] Subscribe to the event that is raised from CheckRecordHasUsageRestrictions() of Record Restriction Mgt codeunit.
+        BindSubscription(ERMTestSEPACreditTransfers);
+
+        // [WHEN] Export journal lines to SEPA CT format
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
+
+        // [THEN] CheckRecordHasUsageRestrictions() is run 6 times: 3 times for batch and 1 time for each line
+        ERMTestSEPACreditTransfers.GetRecRestrCheckCount(GenJnlLineRestrCheckCount, GenJnlBatchRestrCheckCount);
+        Assert.AreEqual(3, GenJnlLineRestrCheckCount, 'Record restrictions check should be done 3 times for journal lines');
+        Assert.AreEqual(3, GenJnlBatchRestrCheckCount, 'Record restrictions check should be done 3 times for journal batch');
+        UnbindSubscription(ERMTestSEPACreditTransfers);
     end;
 
     local procedure Init()
@@ -2275,51 +2377,79 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
     end;
 
-    local procedure ModifyGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure ValidatePmtInfForNonEuroPayment(var XMLParentNode: DotNet XmlNode; ExpectedNoOfCdtTrfTxInf: Integer; ExpectedCtrlSum: Decimal; ExpectedDate: Date)
     var
-        BankAccount2: Record "Bank Account";
-        NoSeries: Record "No. Series";
-        PaymentMethod: Record "Payment Method";
-        VendorNo: Code[20];
+        XMLNodes: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
+        ReqdExctnDtXMLNodes: DotNet XmlNodeList;
+        DtXMLNode: DotNet XMLNode;
+        ActualDate: Date;
+        NoOfCdtTrfTxInf: Integer;
+        i: Integer;
+        CtrlSum: Decimal;
+        NbOfTxs: Integer;
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        LibraryERM.FindPaymentMethod(PaymentMethod);
-        GenJnlLine.Validate("Account No.", VendorNo);
-        GenJnlLine.Validate("Payment Method Code", PaymentMethod.Code);
-        GenJnlLine.Validate(Amount, LibraryRandom.RandDec(500, 0));
-        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
-        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
-        GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
-        GenJnlLine.Validate("Currency Code", EURCode);
-        GenJnlLine.Modify(true);
-        NoSeries.FindFirst();
-        CreateBankExpSetup();
-        BankAccount2.get(GenJnlLine."Bal. Account No.");
-        BankAccount2.IBAN := LibraryUtility.GenerateGUID();
-        BankAccount2."Credit Transfer Msg. Nos." := NoSeries.Code;
-        BankAccount2."Payment Export Format" := BankExportImportSetup.Code;
-        BankAccount2."SWIFT Code" := LibraryUtility.GenerateGUID();
-        BankAccount2.Modify(true);
-        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
-        VendorBankAccount.Modify(true);
+        XMLNodes := XMLParentNode.ChildNodes;
+        for i := 0 to XMLNodes.Count - 1 do begin
+            XMLNode := XMLNodes.ItemOf(i);
+            case XMLNode.Name of
+                'PmtInfId', 'BtchBookg', 'PmtTpInf', 'Dbtr', 'DbtrAcct', 'DbtrAgt', 'CdtrAgt', 'FinInstnId', 'BICFI', 'AnyBIC':
+                    ;
+                'PmtMtd':
+                    Assert.AreEqual('TRF', XMLNode.InnerXml, 'PmtMtd');
+                'ChrgBr':
+                    Assert.AreEqual('SHAR', XMLNode.InnerXml, 'ChrgBr');
+                'CtrlSum':
+                    begin
+                        Evaluate(CtrlSum, XMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedCtrlSum, CtrlSum, 'CtrlSum');
+                    end;
+                'NbOfTxs':
+                    begin
+                        Evaluate(NbOfTxs, XMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedNoOfCdtTrfTxInf, NbOfTxs, 'NbOfTxs');
+                    end;
+                'ReqdExctnDt':
+                    begin
+                        ReqdExctnDtXMLNodes := XmlNode.ChildNodes;
+                        DtXMLNode := ReqdExctnDtXMLNodes.ItemOf(0);
+                        Evaluate(ActualDate, DtXMLNode.InnerXml, 9);
+                        Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt/Dt');
+                    end;
+                'CdtTrfTxInf':
+                    NoOfCdtTrfTxInf += 1;
+                else
+                    Error(XMLUnknownElementErr, XMLNode.Name);
+            end;
+        end;
+        Assert.AreEqual(ExpectedNoOfCdtTrfTxInf, NoOfCdtTrfTxInf, 'Wrong number of DrctDbtTxInf nodes.');
     end;
 
-    local procedure InitializeSEPA09()
+    local procedure CreateGenJnlLinesDiffDateNonEuro(var GenJnlLine: Record "Gen. Journal Line"; NoOfGroups: Integer; NoOfPmtsPerGroup: Integer)
+    var
+        VendorBankAcc: Record "Vendor Bank Account";
+        i: Integer;
+        PostingDate: Date;
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
-        SEPACTCode := FindSEPACTPaymentFormat();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
+        VendorBankAcc.SetRange("Vendor No.", Vendor."No.");
+        if VendorBankAcc.FindFirst() then;
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJnlLineForAccType(
+            GenJnlLine, GenJournalBatch, GenJnlLine."Account Type"::Vendor, Vendor."No.", VendorBankAcc.Code, EURCode);
+        PostingDate := GenJnlLine."Posting Date";
+        for i := 1 to NoOfGroups * NoOfPmtsPerGroup - 1 do begin
+            GenJnlLine."Line No." += 10000;
+            GenJnlLine.Validate("Posting Date", PostingDate + i div NoOfPmtsPerGroup);
+            GenJnlLine.Insert();
+        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
     end;
 
-    local procedure FindSEPACTPaymentFormat(): Code[20]
-    var
-        BankExportImportSetupRec: Record "Bank Export/Import Setup";
+    procedure GetRecRestrCheckCount(var NewGenJnlLineRestrCheckCount: Integer; var NewGenJnlBatchRestrCheckCount: Integer)
     begin
-        BankExportImportSetupRec.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.09");
-        BankExportImportSetupRec.FindFirst();
-        exit(BankExportImportSetupRec.Code);
+        NewGenJnlLineRestrCheckCount := GenJnlLineRestrCheckCount;
+        NewGenJnlBatchRestrCheckCount := GenJnlBatchRestrCheckCount;
     end;
 
     [RequestPageHandler]
@@ -2332,6 +2462,17 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Record Restriction Mgt.", 'OnCheckRecordHasUsageRestrictionsOnBeforeSetFilter', '', false, false)]
+    local procedure CountEventOnCheckRecordHasUsageRestrictionsOnBeforeSetFilter(var RestrictedRecord: Record "Restricted Record"; RecordReference: RecordRef)
+    begin
+        case RecordReference.Number of
+            Database::"Gen. Journal Line":
+                GenJnlLineRestrCheckCount += 1;
+            Database::"Gen. Journal Batch":
+                GenJnlBatchRestrCheckCount += 1;
+        end;
     end;
 }
 
