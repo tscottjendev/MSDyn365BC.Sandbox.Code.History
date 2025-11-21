@@ -161,8 +161,6 @@ codeunit 333 "Req. Wksh.-Make Order"
             ReqLine.SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
         end;
 
-        OnCodeOnAfterFilterReqLine(ReqLine, PlanningResiliency, SuppressCommit, PrintPurchOrders);
-
         if not ReqLine.Find('=><') then begin
             ReqLine."Line No." := 0;
             if not SuppressCommit then
@@ -699,7 +697,7 @@ codeunit 333 "Req. Wksh.-Make Order"
 #endif
         UpdateJobLink(PurchOrderLine, ReqLine2);
 
-        OnInsertPurchOrderLineOnBeforeTransferReqLine(PurchOrderHeader, PurchOrderLine, ReqLine2);
+        OnInsertPurchOrderLineOnBeforeTransferReqLine(PurchOrderHeader, PurchOrderLine);
         ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, ReqLine2."Quantity (Base)", false);
 
         DimensionSetIDArr[1] := PurchOrderLine."Dimension Set ID";
@@ -1777,7 +1775,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertPurchOrderLineOnBeforeTransferReqLine(var PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
+    local procedure OnInsertPurchOrderLineOnBeforeTransferReqLine(var PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line")
     begin
     end;
 
@@ -1843,11 +1841,6 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [InternalEvent(false)]
     local procedure OnTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterFilterReqLine(var RequisitionLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
     end;
 }
