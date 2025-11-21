@@ -513,8 +513,6 @@ codeunit 5746 "Sales Whse. Post Shipment"
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        OnBeforePrintDocuments(DocumentEntryToPrint);
-
         DocumentEntryToPrint.SetRange("Table ID", Database::"Sales Invoice Header");
         if not DocumentEntryToPrint.IsEmpty() then begin
             if DocumentEntryToPrint.FindSet() then
@@ -681,11 +679,6 @@ codeunit 5746 "Sales Whse. Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleSalesLineOnFilterWhseShptLine(var SalesLine: Record "Sales Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintDocuments(var DocumentEntryToPrint: Record "Document Entry")
     begin
     end;
 }
