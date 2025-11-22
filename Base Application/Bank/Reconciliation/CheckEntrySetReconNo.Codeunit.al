@@ -7,10 +7,6 @@ namespace Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Ledger;
 
-/// <summary>
-/// Manages reconciliation number assignment for check ledger entries.
-/// Links check entries to bank reconciliation statements during processing.
-/// </summary>
 codeunit 376 "Check Entry Set Recon.-No."
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
@@ -27,13 +23,6 @@ codeunit 376 "Check Entry Set Recon.-No."
         CannotBeErr: Label 'cannot be %1';
 #pragma warning restore AA0470
 
-    /// <summary>
-    /// Toggles reconciliation number assignment for a check ledger entry.
-    /// Links or unlinks the check entry from the bank reconciliation line.
-    /// </summary>
-    /// <param name="CheckLedgEntry">The check ledger entry to process.</param>
-    /// <param name="BankAccReconLine">The bank reconciliation line to link to.</param>
-    /// <param name="ChangeAmount">Whether to adjust the statement amount based on the applied amount.</param>
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
     var
         IsHandled: Boolean;
@@ -67,12 +56,6 @@ codeunit 376 "Check Entry Set Recon.-No."
         BankAccReconLine.Modify();
     end;
 
-    /// <summary>
-    /// Assigns a reconciliation number to a check ledger entry.
-    /// Creates the connection between the check and bank reconciliation line.
-    /// </summary>
-    /// <param name="CheckLedgEntry">The check ledger entry to set reconciliation number for.</param>
-    /// <param name="BankAccReconLine">The bank reconciliation line providing the reconciliation details.</param>
     procedure SetReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         CheckLedgEntry.TestField(Open, true);
@@ -112,13 +95,6 @@ codeunit 376 "Check Entry Set Recon.-No."
         BankAccLedgEntry.Modify();
     end;
 
-    /// <summary>
-    /// Removes reconciliation number from a check ledger entry.
-    /// Disconnects the check entry from the bank reconciliation line.
-    /// </summary>
-    /// <param name="CheckLedgEntry">The check ledger entry to remove reconciliation number from.</param>
-    /// <param name="BankAccReconLine">The bank reconciliation line to disconnect from.</param>
-    /// <param name="Test">Whether to validate removal conditions.</param>
     procedure RemoveReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; Test: Boolean)
     var
         CheckLedgEntry2: Record "Check Ledger Entry";
@@ -163,11 +139,6 @@ codeunit 376 "Check Entry Set Recon.-No."
         end;
     end;
 
-    /// <summary>
-    /// Removes application from a check ledger entry.
-    /// Clears reconciliation references and updates related bank reconciliation line.
-    /// </summary>
-    /// <param name="CheckLedgerEntry">The check ledger entry to remove application from.</param>
     procedure RemoveApplication(var CheckLedgerEntry: Record "Check Ledger Entry")
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";

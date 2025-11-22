@@ -7,10 +7,6 @@ namespace Microsoft.Bank.Reconciliation;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
-/// <summary>
-/// Subform page for posted payment reconciliation lines.
-/// Displays reconciliation line details within the posted reconciliation document.
-/// </summary>
 page 1296 "Pstd. Pmt. Recon. Subform"
 {
     AutoSplitKey = true;

@@ -6,10 +6,6 @@ namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Foundation.Reporting;
 
-/// <summary>
-/// List page for posted payment reconciliations.
-/// Displays all completed reconciliations with access to detailed views.
-/// </summary>
 page 1299 "Posted Payment Reconciliations"
 {
     ApplicationArea = Basic, Suite;
