@@ -19,7 +19,7 @@ page 2123 "O365 Incoming Doc. Att. Pict."
         {
             field(AttachmentContent; Rec.Content)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 ShowCaption = false;
                 ToolTip = 'Specifies the content of the attachment. ';
             }
@@ -32,7 +32,7 @@ page 2123 "O365 Incoming Doc. Att. Pict."
         {
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Remove attachment';
                 Image = Delete;
 

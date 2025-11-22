@@ -185,7 +185,6 @@ codeunit 134883 "ERM Exch. Rate Adjustment"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Exch. Rate Adjustment");
 
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
         Commit();

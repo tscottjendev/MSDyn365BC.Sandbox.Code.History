@@ -24,12 +24,12 @@ page 1340 "Config Templates"
             {
                 field("Template Name"; Rec.Description)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the template.';
                 }
                 field(Enabled; Rec.Enabled)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the template is ready to be used';
                     Visible = not NewMode;
                 }
@@ -55,7 +55,7 @@ page 1340 "Config Templates"
         {
             action(Delete)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
                 Image = Delete;
                 ToolTip = 'Delete the record.';
@@ -208,3 +208,4 @@ page 1340 "Config Templates"
         NewMode := true;
     end;
 }
+

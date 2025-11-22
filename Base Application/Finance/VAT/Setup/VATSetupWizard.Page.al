@@ -199,7 +199,7 @@ page 1877 "VAT Setup Wizard"
         {
             action(ActionBack)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Back';
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
@@ -212,7 +212,7 @@ page 1877 "VAT Setup Wizard"
             }
             action(ActionNext)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next';
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
@@ -225,7 +225,7 @@ page 1877 "VAT Setup Wizard"
             }
             action(ActionFinish)
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Finish';
                 Enabled = FinishActionEnabled;
                 Image = Approve;
@@ -760,3 +760,4 @@ page 1877 "VAT Setup Wizard"
     begin
     end;
 }
+

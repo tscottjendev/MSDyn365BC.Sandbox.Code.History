@@ -22,7 +22,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
-using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
@@ -647,7 +646,6 @@ table 5900 "Service Header"
         }
         field(25; "Payment Discount %"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'Payment Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -758,7 +756,6 @@ table 5900 "Service Header"
         }
         field(33; "Currency Factor"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
@@ -1522,7 +1519,6 @@ table 5900 "Service Header"
         }
         field(119; "VAT Base Discount %"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'VAT Base Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
@@ -1675,7 +1671,6 @@ table 5900 "Service Header"
         }
         field(122; "Invoice Discount Value"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Invoice Discount Value';
             Editable = false;
@@ -1718,11 +1713,6 @@ table 5900 "Service Header"
                 else
                     ServDocExchangeMgt.SetServiceDoc(Rec, IncomingDocument);
             end;
-        }
-        field(176; "Tax System Type"; Enum "Tax System Type")
-        {
-            Caption = 'Tax System Type';
-            Editable = false;
         }
         field(178; "Journal Templ. Name"; Code[10])
         {
@@ -2071,7 +2061,6 @@ table 5900 "Service Header"
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            AutoFormatType = 0;
             CalcFormula = sum("Service Order Allocation"."Allocated Hours" where("Document Type" = field("Document Type"),
                                                                                   "Document No." = field("No."),
                                                                                   "Allocation Date" = field("Date Filter"),
@@ -2157,14 +2146,12 @@ table 5900 "Service Header"
         }
         field(5924; "Default Response Time (Hours)"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'Default Response Time (Hours)';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(5925; "Actual Response Time (Hours)"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'Actual Response Time (Hours)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2172,7 +2159,6 @@ table 5900 "Service Header"
         }
         field(5926; "Service Time (Hours)"; Decimal)
         {
-            AutoFormatType = 0;
             Caption = 'Service Time (Hours)';
             DecimalPlaces = 0 : 5;
             Editable = false;

@@ -71,7 +71,7 @@ page 710 "Activity Log"
         {
             action(ViewDetails)
             {
-                ApplicationArea = Suite;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'View Details';
                 Ellipsis = true;
                 Image = GetSourceDoc;
@@ -84,7 +84,7 @@ page 710 "Activity Log"
             }
             action(Delete7days)
             {
-                ApplicationArea = Suite;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'Delete Entries Older than 7 Days';
                 Image = ClearLog;
                 ToolTip = 'Removes entries that are older than 7 days from the log.';
@@ -96,7 +96,7 @@ page 710 "Activity Log"
             }
             action(Delete0days)
             {
-                ApplicationArea = Suite;
+                ApplicationArea = Invoicing, Suite;
                 Caption = 'Delete All Entries';
                 Image = Delete;
                 ToolTip = 'Empties the log. All entries will be deleted.';
@@ -134,3 +134,4 @@ page 710 "Activity Log"
     var
         HasDetailedInfo: Boolean;
 }
+

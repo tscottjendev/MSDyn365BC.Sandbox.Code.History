@@ -23,12 +23,12 @@ page 10 "Countries/Regions"
                 ShowCaption = false;
                 field("Code"; Rec.Code)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field(Name; Rec.Name)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field("ISO Code"; Rec."ISO Code")
@@ -174,3 +174,4 @@ page 10 "Countries/Regions"
         }
     }
 }
+
