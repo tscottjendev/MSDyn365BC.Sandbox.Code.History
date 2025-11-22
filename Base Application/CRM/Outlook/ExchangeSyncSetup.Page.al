@@ -98,7 +98,6 @@ page 6700 "Exchange Sync. Setup"
                     Caption = 'Bookings Sync. Setup';
                     Image = BookingsLogo;
                     ToolTip = 'Open the Bookings Sync. Setup page.';
-                    Visible = false;
 
                     trigger OnAction()
                     begin
