@@ -1704,13 +1704,8 @@ table 5050 Contact
     var
         VendorTempl: Record "Vendor Templ.";
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
-        IsHandled: Boolean;
     begin
         if not CheckIfVendorTempleExist() then begin
-            IsHandled := false;
-            OnCreateVendorOnVendorTemplateNotExist(Rec, VendorNo, IsHandled);
-            if IsHandled then
-                exit(VendorNo);
             if GuiAllowed() then
                 Message(StrSubstNo(VendorTemplNotFoundMsg, Rec.Type));
             exit;
@@ -4017,11 +4012,6 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnShowBusinessRelationOnAfterFilterBusinessRelations(var Rec: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; ContactBusinessRelationLinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateVendorOnVendorTemplateNotExist(var Contact: Record Contact; var VendorNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }
