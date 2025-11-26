@@ -53,6 +53,7 @@ codeunit 3109 "PDF Document Impl."
 
     procedure ConvertToImage(var ImageStream: InStream; ImageFormat: Enum "Image Format"; PageNumber: Integer): Boolean
     var
+        PdfConverterInstance: DotNet PdfConverter;
         PdfTargetDevice: DotNet PdfTargetDevice;
         MemoryStream: DotNet MemoryStream;
         ImageMemoryStream: DotNet MemoryStream;
@@ -71,22 +72,12 @@ codeunit 3109 "PDF Document Impl."
         CopyStream(MemoryStream, SharedDocumentStream);
 
         ConvertImageFormatToPdfTargetDevice(ImageFormat, PdfTargetDevice);
-        if not TryToConvertPage(PdfTargetDevice, MemoryStream, PageNumber, ImageMemoryStream) then
-            exit(false);
-
+        ImageMemoryStream := PdfConverterInstance.ConvertPage(PdfTargetDevice, MemoryStream, PageNumber, 0, 0, 0); // apply default height, width and resolution
         // Copy data to the outgoing stream and make sure it is reset to the beginning of the stream.
         ImageMemoryStream.Seek(0, 0);
         ImageMemoryStream.CopyTo(ImageStream);
         ImageStream.Position(1);
         exit(true)
-    end;
-
-    [TryFunction]
-    local procedure TryToConvertPage(var PdfTargetDevice: DotNet PdfTargetDevice; var MemoryStream: DotNet MemoryStream; PageNumber: Integer; var ImageMemoryStream: DotNet MemoryStream)
-    var
-        PdfConverterInstance: DotNet PdfConverter;
-    begin
-        ImageMemoryStream := PdfConverterInstance.ConvertPage(PdfTargetDevice, MemoryStream, PageNumber, 0, 0, 0); // apply default height, width and resolution
     end;
 
     local procedure ConvertImageFormatToPdfTargetDevice(ImageFormat: Enum "Image Format"; var PdfTargetDevice: DotNet PdfTargetDevice)
