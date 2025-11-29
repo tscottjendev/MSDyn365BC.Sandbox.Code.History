@@ -484,7 +484,13 @@ page 5771 "Whse. Put-away Subform"
     var
         WhseActivityHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRegisterPutAwayYesNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseActivityHeader.Get(Rec."Activity Type", Rec."No.");
         if (Rec."Activity Type"::"Put-away" = Rec."Activity Type"::"Put-away") and WhseActivityHeader."Breakbulk Filter" then begin
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Put-away");
@@ -493,6 +499,7 @@ page 5771 "Whse. Put-away Subform"
         end
         else
             WhseActivLine.Copy(Rec);
+        WhseActivLine.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
         WhseActivLine.FilterGroup(3);
         WhseActivLine.SetRange(Breakbulk);
         WhseActivLine.FilterGroup(0);
@@ -562,6 +569,11 @@ page 5771 "Whse. Put-away Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterPutAwayYesNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 }
