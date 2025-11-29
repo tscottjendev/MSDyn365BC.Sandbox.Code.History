@@ -1,6 +1,5 @@
 namespace System.Security.AccessControl;
 
-using System.Agents;
 using System.Environment;
 using System.IO;
 using System.Reflection;
@@ -496,12 +495,9 @@ page 9802 "Permission Sets"
 
     trigger OnOpenPage()
     var
-        AgentUtilities: Codeunit "Agent Utilities";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
-
         IsSaas := EnvironmentInfo.IsSaaS();
 
         PermissionPagesMgt.CheckAndRaiseNotificationIfAppDBPermissionSetsChanged();
