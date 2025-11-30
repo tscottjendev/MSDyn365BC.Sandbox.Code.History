@@ -20,11 +20,8 @@ interface IEDocAISystem
     /// Gets the system prompt used to configure the AI model for this specific processing scenario.
     /// The system prompt provides context and instructions to the AI model about its role and expected behavior.
     /// </summary>
-    /// <param name="UserLanguage">The language code representing the user's preferred language for localization. Prompts should output in the specified language.</param>
     /// <returns>The system prompt as SecretText, typically retrieved from Azure Key Vault or resource files.</returns>
-#pragma warning disable AS0066, AS0024
-    procedure GetSystemPrompt(UserLanguage: Text): SecretText
-#pragma warning restore AS0066,AS0024
+    procedure GetSystemPrompt(): SecretText
 
     /// <summary>
     /// Gets the list of AOAI Function tools that define what functions the AI model can call during processing.
