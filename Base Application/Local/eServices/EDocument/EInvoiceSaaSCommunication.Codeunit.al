@@ -28,14 +28,14 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
         SecretsMissingMsg: label 'CFDI Az Function secrets are  missing', Locked = true;
         ElectronicInvoicingCertificateNameLbl: Label 'ElectronicInvoicingCertificateName', Locked = true;
         MissingCertificateErr: Label 'The certificate can not be retrieved.', Locked = true;
-        PlaceholderTok: Label 'Placeholder', Locked = true;
 
+
+    [NonDebuggable]
     procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: SecretText): Text
     var
         JsonObj: JsonObject;
         JValue: JsonValue;
-        Body: SecretText;
-        Response: Text;
+        SerializedText, Token : Text;
     begin
         JsonObj.Add('url', Uri);
         JsonObj.Add('methodName', MethodName);
@@ -43,33 +43,33 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
         CheckToDownloadSaaSRequest(JsonObj);
 
         JsonObj.Add('certificateString', CertBase64);
-        JsonObj.Add('certificatePassword', PlaceholderTok);
-        JsonObj.WriteWithSecretsTo('$.certificatePassword', CertPassword, Body);
+        JsonObj.Add('certificatePassword', CertPassword.Unwrap());
+        JsonObj.WriteTo(SerializedText);
 
-        Response := CommunicateWithAzureFunction('api/InvokeMethodWithCertificate', Body);
-        JValue.ReadFrom(Response);
+        Token := CommunicateWithAzureFunction('api/InvokeMethodWithCertificate', SerializedText);
+        JValue.ReadFrom(Token);
         exit(JValue.AsText());
     end;
 
+    [NonDebuggable]
     procedure SignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: SecretText): Text
     var
+        SerializedText, Token : Text;
         JValue: JsonValue;
         JsonObj: JsonObject;
-        Body: SecretText;
-        Response: Text;
     begin
         ExportCertAsPFX(Cert, CertPassword);
 
         JsonObj.Add('data', OriginalString);
         JsonObj.Add('certificateString', Cert);
-        JsonObj.Add('certificatePassword', PlaceholderTok);
-        JsonObj.WriteWithSecretsTo('$.certificatePassword', CertPassword, Body);
+        JsonObj.Add('certificatePassword', CertPassword.Unwrap());
+        JsonObj.WriteTo(SerializedText);
 
-        Response := CommunicateWithAzureFunction('api/SignDataWithCertificate', Body);
-        if JValue.ReadFrom(Response) then
+        Token := CommunicateWithAzureFunction('api/SignDataWithCertificate', SerializedText);
+        if JValue.ReadFrom(Token) then
             exit(JValue.AsText())
         else
-            exit(Response);
+            exit(Token);
     end;
 
     procedure AddParameters(Parameter: Variant)
@@ -84,7 +84,7 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
     end;
 
     [NonDebuggable]
-    local procedure CommunicateWithAzureFunction(Path: Text; Body: SecretText): Text
+    local procedure CommunicateWithAzureFunction(Path: Text; Body: Text): Text
     var
         AzureFunctions: Codeunit "Azure Functions";
         AzureFunctionsAuthentication: Codeunit "Azure Functions Authentication";
@@ -97,7 +97,7 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
         GetAzFunctionSecrets(ClientID, Certificate, Scope, Endpoint, AuthUrl);
         IAzurefunctionsAuthentication := AzureFunctionsAuthentication.CreateOAuth2WithCert(GetEndpoint(Endpoint, Path), '', ClientID, Certificate, AuthUrl, '', Scope);
 
-        AzureFunctionsResponse := AzureFunctions.SendPostRequest(IAzurefunctionsAuthentication, Body.Unwrap(), 'application/json');
+        AzureFunctionsResponse := AzureFunctions.SendPostRequest(IAzurefunctionsAuthentication, Body, 'application/json');
 
         if AzureFunctionsResponse.IsSuccessful() then begin
             AzureFunctionsResponse.GetResultAsText(Response);
