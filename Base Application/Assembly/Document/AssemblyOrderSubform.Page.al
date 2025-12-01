@@ -570,7 +570,6 @@ page 901 "Assembly Order Subform"
     var
         Item: Record "Item";
     begin
-        Rec.UpdateAvailWarning();
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         ReservationStatusField := Rec.ReservationStatus();
         if Rec."Variant Code" = '' then
