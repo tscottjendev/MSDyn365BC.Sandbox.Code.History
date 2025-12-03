@@ -5,6 +5,8 @@
 
 namespace System.Agents;
 
+using System;
+
 codeunit 4311 "Agent Task Msg. Builder Impl."
 {
     Access = Internal;
@@ -15,10 +17,13 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
         TempAgentTaskFileToAttach: Record "Agent Task File" temporary;
         GlobalAgentTask: Record "Agent Task";
         GlobalAgentTaskMessage: Record "Agent Task Message";
+        GlobalIgnoreAttachmentsList: Dictionary of [BigInteger, Boolean];
         GlobalFrom: Text[250];
         GlobalMessageExternalID: Text[2048];
         GlobalMessageText: Text;
         GlobalRequiresReview: Boolean;
+        GlobalIgnoreAttachment: Boolean;
+        GlobalSkipSanitizeMessage: Boolean;
 
     [Scope('OnPrem')]
     procedure Initialize(MessageText: Text): codeunit "Agent Task Msg. Builder Impl."
@@ -32,9 +37,10 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
     [Scope('OnPrem')]
     procedure Initialize(From: Text[250]; MessageText: Text): codeunit "Agent Task Msg. Builder Impl."
     begin
+        GlobalRequiresReview := true;
+        GlobalIgnoreAttachment := false;
         GlobalFrom := From;
         GlobalMessageText := MessageText;
-        GlobalRequiresReview := true;
         exit(this);
     end;
 
@@ -42,6 +48,20 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
     procedure SetRequiresReview(RequiresReview: Boolean): codeunit "Agent Task Msg. Builder Impl."
     begin
         GlobalRequiresReview := RequiresReview;
+        exit(this);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetIgnoreAttachment(IgnoreAttachment: Boolean): codeunit "Agent Task Msg. Builder Impl."
+    begin
+        GlobalIgnoreAttachment := IgnoreAttachment;
+        exit(this);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetSkipMessageSanitization(SkipSanitizeMessage: Boolean): codeunit "Agent Task Msg. Builder Impl."
+    begin
+        GlobalSkipSanitizeMessage := SkipSanitizeMessage;
         exit(this);
     end;
 
@@ -74,13 +94,21 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
     var
         AgentTaskImpl: Codeunit "Agent Task Impl.";
         AgentMessageImpl: Codeunit "Agent Message Impl.";
+        IgnoreAttachment: Boolean;
+        MessageText: Text;
     begin
         VerifyMandatoryFieldsSet();
-        GlobalAgentTaskMessage := AgentTaskImpl.AddMessage(GlobalFrom, GlobalMessageText, GlobalMessageExternalID, GlobalAgentTask, GlobalRequiresReview);
+
+        MessageText := GlobalSkipSanitizeMessage ? GlobalMessageText : SanitizeMessage(GlobalMessageText);
+        GlobalAgentTaskMessage := AgentTaskImpl.AddMessage(GlobalFrom, MessageText, GlobalMessageExternalID, GlobalAgentTask, GlobalRequiresReview);
         TempAgentTaskFileToAttach.Reset();
         TempAgentTaskFileToAttach.SetAutoCalcFields(Content);
         if TempAgentTaskFileToAttach.FindSet() then
             repeat
+                IgnoreAttachment := false;
+                if GlobalIgnoreAttachmentsList.ContainsKey(TempAgentTaskFileToAttach.ID) then
+                    IgnoreAttachment := GlobalIgnoreAttachmentsList.Get(TempAgentTaskFileToAttach.ID);
+                AgentMessageImpl.SetIgnoreAttachment(GlobalIgnoreAttachment or IgnoreAttachment);
                 AgentMessageImpl.AddAttachment(GlobalAgentTaskMessage, TempAgentTaskFileToAttach);
             until TempAgentTaskFileToAttach.Next() = 0;
 
@@ -98,6 +126,13 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
 
     [Scope('OnPrem')]
     procedure AddAttachment(FileName: Text[250]; FileMIMEType: Text[100]; InStream: InStream): codeunit "Agent Task Msg. Builder Impl."
+    begin
+        AddAttachment(FileName, FileMIMEType, InStream, false);
+        exit(this);
+    end;
+
+    [Scope('OnPrem')]
+    procedure AddAttachment(FileName: Text[250]; FileMIMEType: Text[100]; InStream: InStream; Ignored: Boolean): codeunit "Agent Task Msg. Builder Impl."
     var
         FileOutStream: OutStream;
     begin
@@ -109,6 +144,8 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
         TempAgentTaskFileToAttach.Content.CreateOutStream(FileOutStream);
         CopyStream(FileOutStream, InStream);
         TempAgentTaskFileToAttach.Modify();
+
+        GlobalIgnoreAttachmentsList.Add(TempAgentTaskFileToAttach.ID, Ignored);
         exit(this);
     end;
 
@@ -144,6 +181,16 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
         if TempAgentTaskFileToAttach.Count() = 0 then
             Error(NoAttachmentsWereAddedErr);
         exit(TempAgentTaskFileToAttach);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetAttachments(var TempAttachments: record "Agent Task File" temporary)
+    begin
+        TempAgentTaskFileToAttach.FindSet();
+        repeat
+            TempAgentTaskFileToAttach.Copy(TempAttachments);
+            TempAttachments.Insert();
+        until TempAgentTaskFileToAttach.Next() = 0;
     end;
 
     local procedure VerifyMandatoryFieldsSet()
@@ -224,5 +271,13 @@ codeunit 4311 "Agent Task Msg. Builder Impl."
         if FileName.EndsWith('.txt') then
             exit('text/plain');
         exit('');
+    end;
+
+    internal procedure SanitizeMessage(MessageBody: Text): Text
+    var
+        AppHTMLSanitizer: DotNet AppHtmlSanitizer;
+    begin
+        AppHTMLSanitizer := AppHTMLSanitizer.AppHtmlSanitizer();
+        exit(AppHTMLSanitizer.SanitizeEmail(MessageBody));
     end;
 }
