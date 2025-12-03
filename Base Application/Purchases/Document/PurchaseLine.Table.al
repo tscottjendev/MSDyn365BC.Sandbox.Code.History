@@ -1702,7 +1702,7 @@ table 39 "Purchase Line"
                 GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount);
+                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount, Currency);
 
                 CheckLineAmount(MaxLineAmount);
 
@@ -5914,7 +5914,7 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         ResultDate := 0D;
-        OnBeforeGetDate(ResultDate, IsHandled);
+        OnBeforeGetDate(Rec, ResultDate, IsHandled);
         if IsHandled then
             exit(ResultDate);
 
@@ -10929,7 +10929,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal)
+    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal; var Currency: Record Currency)
     begin
     end;
 
@@ -11622,7 +11622,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDate(var ResultDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeGetDate(var PurchaseLine: Record "Purchase Line"; var ResultDate: Date; var IsHandled: Boolean)
     begin
     end;
 
