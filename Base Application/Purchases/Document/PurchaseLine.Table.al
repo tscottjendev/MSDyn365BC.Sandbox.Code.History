@@ -1789,7 +1789,7 @@ table 39 "Purchase Line"
                 GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount);
+                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount, Currency);
 
                 CheckLineAmount(MaxLineAmount);
 
@@ -3786,7 +3786,7 @@ table 39 "Purchase Line"
             begin
                 if "No. of Fixed Asset Cards" <> 0 then begin
                     TestField(Type, Type::"Fixed Asset");
-                    TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                    CheckAcquisitionCost();
                     if not ("Document Type" in ["Purchase Document Type"::Invoice, "Purchase Document Type"::Order]) then
                         Error(InvoiceOrOrderDocTypeErr, FieldCaption("Document Type"), "Purchase Document Type"::Invoice, "Purchase Document Type"::Order);
                 end;
@@ -6114,7 +6114,7 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         ResultDate := 0D;
-        OnBeforeGetDate(ResultDate, IsHandled);
+        OnBeforeGetDate(Rec, ResultDate, IsHandled);
         if IsHandled then
             exit(ResultDate);
 
@@ -10158,6 +10158,17 @@ table 39 "Purchase Line"
         Rec.TestField("Job Task No.");
     end;
 
+    local procedure CheckAcquisitionCost()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAcquisitionCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -11249,7 +11260,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal)
+    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal; var Currency: Record Currency)
     begin
     end;
 
@@ -11942,7 +11953,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDate(var ResultDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeGetDate(var PurchaseLine: Record "Purchase Line"; var ResultDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -12225,6 +12236,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAcquisitionCost(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }
