@@ -298,7 +298,7 @@ page 176 "Standard Purchase Code Subform"
         Clear(ShortcutDimCode);
     end;
 
-    procedure UpdateTypeText()
+    local procedure UpdateTypeText()
     var
         RecRef: RecordRef;
     begin
