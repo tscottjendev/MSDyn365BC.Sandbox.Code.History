@@ -79,10 +79,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
         until TempGenJnlLine.Next() = 0;
 
-        if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
-            Commit();
-            Error(HasErrorsErr);
-        end;
+        TempGenJnlLine.Reset();
+        TempGenJnlLine.FindSet();
+        repeat
+            if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
+                Commit();
+                Error(HasErrorsErr);
+            end;
+        until TempGenJnlLine.Next() = 0;
 
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");
@@ -150,6 +154,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
             PaymentExportData.Validate(PaymentExportData."SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::NORMAL);
             PaymentExportData.Validate(PaymentExportData."SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRF);
             ValidateSEPAChargeBearer(PaymentExportData, TempGenJnlLine, SwissExport);
+            if GeneralLedgerSetup."SEPA Non-Euro Export" then
+                PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SHAR);
             PaymentExportData."SEPA Batch Booking" := BatchBooking;
             PaymentExportData.SetCreditTransferIDs(MessageID);
 
