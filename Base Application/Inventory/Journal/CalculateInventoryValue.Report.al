@@ -366,8 +366,15 @@ report 5899 "Calculate Inventory Value"
         ByVariant2: Boolean;
         PostingDate: Date;
 
-    local procedure IncludeEntryInCalc(ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean): Boolean
+    local procedure IncludeEntryInCalc(ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean)Result: Boolean
+    var
+        IsHandled: Boolean;        
     begin
+        IsHandled := false;
+        OnBeforeIncludeEntryInCalc(ItemLedgerEntry, PostingDate, IncludeExpectedCost, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if IncludeExpectedCost then
             exit(ItemLedgerEntry."Posting Date" in [0D .. PostingDate]);
         exit(ItemLedgerEntry."Completely Invoiced" and (ItemLedgerEntry."Last Invoice Date" in [0D .. PostingDate]));
@@ -601,7 +608,7 @@ report 5899 "Calculate Inventory Value"
         ItemJournalLine.Validate("Item No.", ItemNo2);
         ItemJournalLine."Reason Code" := ItemJnlBatch."Reason Code";
         ItemJournalLine."Variant Code" := VariantCode2;
-        ItemJournalLine."Location Code" := LocationCode2;
+        ItemJournalLine.Validate("Location Code", LocationCode2);
         ItemJournalLine."Source Code" := SourceCodeSetup."Revaluation Journal";
 
         OnAfterInitItemJnlLine(ItemJournalLine, ItemJnlBatch);
@@ -753,6 +760,11 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAverageUnitCostOnBeforeCheckNegCost(var Item: Record Item; var AverageUnitCostLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncludeEntryInCalc(var ItemLedgerEntry: Record "Item Ledger Entry"; var PostingDate: Date; var IncludeExpectedCost: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
