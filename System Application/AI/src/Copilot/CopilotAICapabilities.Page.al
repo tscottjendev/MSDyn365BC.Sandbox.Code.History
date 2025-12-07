@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace System.AI;
 
-using System.Agents;
 using System.Environment;
 using System.Privacy;
 
@@ -311,14 +310,12 @@ page 7775 "Copilot AI Capabilities"
 
     trigger OnOpenPage()
     var
-        AgentUtilities: Codeunit "Agent Utilities";
         EnvironmentInformation: Codeunit "Environment Information";
         SystemPrivacyNoticeReg: Codeunit "System Privacy Notice Reg.";
         WithinGeo: Boolean;
         WithinEUDB: Boolean;
         TaskId: Integer;
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
         OnRegisterCopilotCapability();
 
         CopilotCapabilityImpl.CheckGeoAndEUDB(WithinGeo, WithinEUDB);
