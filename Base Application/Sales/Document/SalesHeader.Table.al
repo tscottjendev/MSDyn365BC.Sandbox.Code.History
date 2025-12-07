@@ -199,7 +199,7 @@ table 36 "Sales Header"
 
                 UpdateShipToCodeFromCust();
                 IsHandled := false;
-                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec, LocationCode);
+                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec);
                 if not IsHandled then
                     LocationCode := "Location Code";
 
@@ -648,7 +648,8 @@ table 36 "Sales Header"
                     if ("Document Date" < "Posting Date") and
                        ("Incoming Document Entry No." = 0) and
                        (Rec."Posting Date" <> xRec."Posting Date") and
-                       (SalesReceivablesSetup."Link Doc. Date To Posting Date")
+                       SalesReceivablesSetup."Link Doc. Date To Posting Date" and
+                       not GetCalledFromWhseDoc()
                     then
                         Validate("Document Date", "Posting Date");
 
@@ -717,7 +718,7 @@ table 36 "Sales Header"
                     exit;
 
                 PaymentLines.CreatePaymentLinesSales(Rec);
-                CalcFields("Payment %");
+                CalcFields("Payment %"); 
             end;
         }
         field(24; "Due Date"; Date)
@@ -4907,7 +4908,6 @@ table 36 "Sales Header"
                 if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
-                    OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(Rec, xRec, CurrFieldNo, OldDimSetID);
                 end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
@@ -10935,11 +10935,6 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnAfterAssignType(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -11623,7 +11618,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var LocationCode: Code[10])
+    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
