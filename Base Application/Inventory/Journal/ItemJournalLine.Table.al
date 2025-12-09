@@ -2464,7 +2464,7 @@ table 83 "Item Journal Line"
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
+        DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
 
     /// <summary>
@@ -2483,11 +2483,7 @@ table 83 "Item Journal Line"
     /// <param name="NewShortcutDimCode">Value of the new shortcut dimension.</param>
     procedure ValidateNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
-        OnBeforeValidateNewShortcutDimCode(Rec, xRec, FieldNumber, NewShortcutDimCode);
-
         DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
-
-        OnAfterValidateNewShortcutDimCode(Rec, xRec, FieldNumber, NewShortcutDimCode);
     end;
 
     /// <summary>
@@ -2499,7 +2495,7 @@ table 83 "Item Journal Line"
     procedure LookupNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, NewShortcutDimCode);
-        ValidateNewShortcutDimCode(FieldNumber, NewShortcutDimCode);
+        DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
     end;
 
     /// <summary>
@@ -5242,16 +5238,6 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateEntryTypeBeforeValidateLocationCode(var ItemJnlLine: Record "Item Journal Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
     end;
 }
