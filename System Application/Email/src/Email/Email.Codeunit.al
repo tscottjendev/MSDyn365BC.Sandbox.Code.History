@@ -331,11 +331,6 @@ codeunit 8901 Email
         EmailImpl.RetrieveEmails(EmailAccountId, EmailConnector, EmailInbox, Filters);
     end;
 
-    procedure GetMailFolders(EmailAccountId: Guid; EmailConnector: Enum "Email Connector"; var EmailFolders: Record "Email Folders" temporary)
-    begin
-        EmailImpl.GetMailFolders(EmailAccountId, EmailConnector, EmailFolders);
-    end;
-
     #endregion
 
     #region MarkAsRead
