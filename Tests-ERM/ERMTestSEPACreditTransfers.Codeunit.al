@@ -1860,6 +1860,46 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.AreEqual(ExpectedNoOfGroups, NoOfPmtInf, NodeErr);
     end;
 
+    [Test]
+    procedure CheckRecordRestrictionsWhenExportGenJournalLines()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
+        RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
+        ERMTestSEPACreditTransfers: Codeunit "ERM Test SEPA Credit Transfers";
+    begin
+        // [SCENARIO 611940] Export 3 vendor payment journal lines to SEPA CT format and verify record restrictions is checked 3 times for lines and 3 times for batch.
+        Init();
+
+        // [GIVEN] Journal batch with "Allow Payment Export" set.
+        GenJournalBatch.Validate("Allow Payment Export", true);
+        GenJournalBatch.Modify(true);
+
+        // [GIVEN] Non-empty Restricted Record table.
+        LibrarySales.CreateCustomer(Customer);
+        RecordRestrictionMgt.RestrictRecordUsage(Customer, '');
+
+        // [GIVEN] Three general journal lines "L1", "L2" and "L3" for vendor payments with SEPA export setup.
+        CreateGenJnlLine(GenJournalLine);
+        CreateGenJnlLine(GenJournalLine);
+        CreateGenJnlLine(GenJournalLine);
+
+        // [GIVEN] Subscribe to the event that is raised from CheckRecordHasUsageRestrictions() of Record Restriction Mgt codeunit.
+        BindSubscription(ERMTestSEPACreditTransfers);
+
+        // [WHEN] Export journal lines to SEPA CT format
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
+
+        // [THEN] CheckRecordHasUsageRestrictions() is run 6 times: 3 times for batch and 1 time for each line
+        ERMTestSEPACreditTransfers.GetRecRestrCheckCount(GenJnlLineRestrCheckCount, GenJnlBatchRestrCheckCount);
+        Assert.AreEqual(3, GenJnlLineRestrCheckCount, 'Record restrictions check should be done 3 times for journal lines');
+        Assert.AreEqual(3, GenJnlBatchRestrCheckCount, 'Record restrictions check should be done 3 times for journal batch');
+        UnbindSubscription(ERMTestSEPACreditTransfers);
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -2486,6 +2526,12 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         end;
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+    end;
+
+    procedure GetRecRestrCheckCount(var NewGenJnlLineRestrCheckCount: Integer; var NewGenJnlBatchRestrCheckCount: Integer)
+    begin
+        NewGenJnlLineRestrCheckCount := GenJnlLineRestrCheckCount;
+        NewGenJnlBatchRestrCheckCount := GenJnlBatchRestrCheckCount;
     end;
 
     [RequestPageHandler]
