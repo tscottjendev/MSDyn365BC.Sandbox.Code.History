@@ -1194,7 +1194,6 @@ table 7302 "Bin Content"
                 GetPageCaption(FormCaption, FieldNo("Item No."), Filter, DATABASE::Item, '');
         end;
 
-        OnAfterGetCaption(Rec, FormCaption);
         exit(FormCaption);
     end;
 
@@ -1684,11 +1683,6 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcTotalNegativeAdjmtQtyBase(var BinContent: Record "Bin Content"; var WarehouseJournalLine: Record "Warehouse Journal Line"; var TotalNegativeAdjmtQtyBase: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetCaption(var BinContent: Record "Bin Content"; var FormCaption: Text)
     begin
     end;
 }
