@@ -5720,7 +5720,7 @@ table 36 "Sales Header"
             "VAT Country/Region Code" := "Sell-to Country/Region Code";
         end;
 
-        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
+        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo, Location, CompanyInfo);
     end;
 
     local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
@@ -9720,7 +9720,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; Location: Record Location; CompanyInformation: Record "Company Information")
     begin
     end;
 
