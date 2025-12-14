@@ -621,7 +621,11 @@ page 99000850 "Recurring Consumption Journal"
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
     end;
 
-    protected var
+    var
+        ItemJnlMgt: Codeunit ItemJnlManagement;
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
+        ReportPrint: Codeunit "Test Report-Print";
+        ProdOrderDescription: Text[100];
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
@@ -632,12 +636,6 @@ page 99000850 "Recurring Consumption Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-
-    var
-        ItemJnlMgt: Codeunit ItemJnlManagement;
-        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
-        ReportPrint: Codeunit "Test Report-Print";
-        ProdOrderDescription: Text[100];
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
