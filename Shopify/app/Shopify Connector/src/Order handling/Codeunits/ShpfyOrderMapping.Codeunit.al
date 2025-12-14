@@ -177,7 +177,6 @@ codeunit 30163 "Shpfy Order Mapping"
         MapShippingMethodCode(OrderHeader);
         MapShippingAgent(OrderHeader);
         MapPaymentMethodCode(OrderHeader);
-        MapLocationCode(OrderHeader);
         OrderHeader.Modify();
         exit((OrderHeader."Bill-to Customer No." <> '') and (OrderHeader."Sell-to Customer No." <> ''));
     end;
@@ -293,7 +292,7 @@ codeunit 30163 "Shpfy Order Mapping"
                 OrderTransaction.SetAutoCalcFields("Payment Method");
                 OrderTransaction.SetRange("Shopify Order Id", OrderHeader."Shopify Order Id");
                 OrderTransaction.SetRange(Status, "Shpfy Transaction Status"::Success);
-                OrderTransaction.SetFilter(Type, '%1|%2|%3', "Shpfy Transaction Type"::Sale, "Shpfy Transaction Type"::Capture, "Shpfy Transaction Type"::Authorization);
+                OrderTransaction.SetFilter(Type, '%1|%2', "Shpfy Transaction Type"::Sale, "Shpfy Transaction Type"::Capture);
                 if OrderTransaction.FindSet() then begin
                     repeat
                         if not PaymentMethods.Contains(OrderTransaction."Payment Method") then
@@ -309,27 +308,6 @@ codeunit 30163 "Shpfy Order Mapping"
             end;
             OrderEvents.OnAfterMapPaymentMethod(OrderHeader);
         end;
-    end;
-
-    local procedure MapLocationCode(OrderHeader: Record "Shpfy Order Header")
-    var
-        ShopifyCompany: Record "Shpfy Company";
-        CompanyLocation: Record "Shpfy Company Location";
-        CompanyAPI: Codeunit "Shpfy Company API";
-    begin
-        if OrderHeader."Company Location Id" = 0 then
-            exit;
-
-        if not ShopifyCompany.Get(OrderHeader."Company Id") then
-            exit;
-
-        CompanyLocation.ReadIsolation := IsolationLevel::ReadUncommitted;
-        CompanyLocation.SetRange(Id, OrderHeader."Company Location Id");
-        if not CompanyLocation.IsEmpty() then
-            exit;
-
-        CompanyAPI.SetShop(OrderHeader."Shop Code");
-        CompanyAPI.UpdateShopifyCompanyLocation(ShopifyCompany, OrderHeader."Company Location Id");
     end;
 
     local procedure MapSellToBillToCustomersFromCompanyLocation(var OrderHeader: Record "Shpfy Order Header"): Boolean
