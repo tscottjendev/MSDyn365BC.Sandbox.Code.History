@@ -29,8 +29,6 @@ page 201 "Job Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    AboutTitle = 'About Project Journals';
-    AboutText = 'Record and post project usage, costs, and sales by entering journal lines for resources, items, or accounts, with options to manage document numbering, apply discounts, and estimate remaining project quantities.';
     SaveValues = true;
     SourceTable = "Job Journal Line";
     UsageCategory = Tasks;
@@ -1028,13 +1026,13 @@ page 201 "Job Journal"
         JobDescription: Text[100];
         AccName: Text[100];
         NumberOfRecords: Integer;
+        CurrentJnlBatchName: Code[10];
         ExtendedPriceEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
 
     protected var
-        CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
