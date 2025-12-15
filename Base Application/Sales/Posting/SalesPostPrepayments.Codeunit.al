@@ -197,6 +197,7 @@ codeunit 442 "Sales-Post Prepayments"
 
         SourceCodeSetup.Get();
         SrcCode := SourceCodeSetup.Sales;
+        OnCodeOnAfterSetSourceCode(SalesHeader, SourceCodeSetup, SrcCode);
         if SalesHeader."Prepmt. Posting Description" <> '' then
             PostingDescription := SalesHeader."Prepmt. Posting Description"
         else
@@ -1331,6 +1332,7 @@ codeunit 442 "Sales-Post Prepayments"
                 SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
                 SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
                 SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
+            GenJnlLine.Validate("Your Reference", SalesHeader."Your Reference");
 
             GenJnlLine.CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
@@ -2174,6 +2176,11 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCorrBalAccNo(SalesHeader: Record "Sales Header"; PositiveAmount: Boolean; var BalAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSetSourceCode(var SalesHeader: Record "Sales Header"; SourceCodeSetup: Record "Source Code Setup"; var SrcCode: Code[10])
     begin
     end;
 }
