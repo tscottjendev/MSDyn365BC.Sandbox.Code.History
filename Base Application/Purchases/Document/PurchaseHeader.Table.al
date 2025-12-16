@@ -683,8 +683,7 @@ table 38 "Purchase Header"
             begin
                 if PaymentTerms.Get("Payment Terms Code") then
                     PaymentTerms.VerifyMaxNoDaysTillDueDate("Due Date", "Document Date", FieldCaption("Due Date"));
-
-                CompareDueDateToUpdateDueDateModified();
+                "Due Date Modified" := true;
             end;
         }
         field(25; "Payment Discount %"; Decimal)
@@ -2984,7 +2983,7 @@ table 38 "Purchase Header"
 #pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
 #pragma warning restore AA0470
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase header, which might affect the prices and discounts on the purchase lines.', Comment = '%1: OrderDate';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.', Comment = '%1: OrderDate';
 #pragma warning disable AA0074
         Text020: Label 'You must update the existing purchase lines manually.';
 #pragma warning restore AA0074
@@ -3639,7 +3638,6 @@ table 38 "Purchase Header"
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
-        ShouldCreatePurchLines: Boolean;
     begin
         IsHandled := false;
         OnRecreatePurchLinesOnBeforePurchLinesExists(Rec, xRec, ChangedFieldName, IsHandled);
@@ -3692,9 +3690,7 @@ table 38 "Purchase Header"
                 TempPurchLine.FindSet();
                 ExtendedTextAdded := false;
                 repeat
-                    ShouldCreatePurchLines := not TempPurchLine.IsExtendedText();
-                    OnRecreatePurchLinesOnAfterCalcShouldCreatePurchLines(TempPurchLine, ShouldCreatePurchLines, PurchLine);
-                    if ShouldCreatePurchLines then begin
+                    if not TempPurchLine.IsExtendedText() then begin
                         PurchLine.Init();
                         PurchLine."Line No." := PurchLine."Line No." + 10000;
                         PurchLine."Price Calculation Method" := "Price Calculation Method";
@@ -7780,10 +7776,15 @@ table 38 "Purchase Header"
 
     procedure UpdatePurchaseOrderLineIfExist()
     var
+        PurchaseInvHeader: Record "Purch. Inv. Header";
         PurchaseCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         IsHandled: Boolean;
     begin
+        PurchaseInvHeader.SetLoadFields("No.");
+        if (not PurchaseInvHeader.Get(Rec."Applies-to Doc. No.")) and (Rec."Applies-to ID" = '') then
+            exit;
+
         PurchaseCrMemoHeader.SetLoadFields("Pre-Assigned No.");
         PurchaseCrMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
         if not PurchaseCrMemoHeader.FindFirst() then
@@ -7795,28 +7796,6 @@ table 38 "Purchase Header"
             exit;
 
         CorrectPostedPurchInvoice.UpdatePurchaseOrderLineIfExist(PurchaseCrMemoHeader."No.");
-    end;
-
-    local procedure CompareDueDateToUpdateDueDateModified()
-    var
-        PaymentTerm: Record "Payment Terms";
-        DueDateCalc: Date;
-    begin
-        "Due Date Modified" := true;
-
-        if ("Payment Terms Code" = '') or ("Document Date" = 0D) then
-            exit;
-
-        if IsCreditDocType() then
-            exit;
-
-        if not PaymentTerm.Get("Payment Terms Code") then
-            exit;
-
-        DueDateCalc := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-        AdjustDueDate.PurchAdjustDueDate(DueDateCalc, "Document Date", PaymentTerms.CalculateMaxDueDate("Document Date"), "Pay-to Vendor No.");
-        if DueDateCalc = "Due Date" then
-            "Due Date Modified" := false;
     end;
 
     [IntegrationEvent(false, false)]
@@ -8529,11 +8508,6 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnAfterProcessTempPurchLines(var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100])
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnRecreatePurchLinesOnAfterCalcShouldCreatePurchLines(var TempPurchaseLine: Record "Purchase Line" temporary; var ShouldCreatePurchLines: Boolean; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
