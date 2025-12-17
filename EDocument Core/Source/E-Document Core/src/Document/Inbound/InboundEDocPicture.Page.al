@@ -23,7 +23,6 @@ page 6111 "Inbound E-Doc. Picture"
             {
                 ApplicationArea = All;
                 ShowCaption = false;
-                ExtendedDatatype = Document;
                 ToolTip = 'Picture associated to the e-document like the preview of the PDF.';
             }
         }
@@ -41,7 +40,6 @@ page 6111 "Inbound E-Doc. Picture"
         PdfStream, ImageStream : InStream;
         EDocDataStorageImageDescriptionLbl: Label 'Pdf Preview';
     begin
-        Clear(TempMediaRepository);
         if Rec."Entry No." <> xRec."Entry No." then
             PdfLoaded := false;
 
@@ -56,8 +54,8 @@ page 6111 "Inbound E-Doc. Picture"
         Rec."Data Storage".CreateInStream(PdfStream, TextEncoding::UTF8);
         if PdfDocument.Load(PdfStream) then begin
             TempBlob.CreateInStream(ImageStream, TextEncoding::UTF8);
-            if PdfDocument.ConvertPdfToImage(ImageStream, "Image Format"::Png, 1) then
-                TempMediaRepository.Image.ImportStream(ImageStream, EDocDataStorageImageDescriptionLbl, 'image/png');
+            PdfDocument.ConvertToImage(ImageStream, "Image Format"::Png, 1);
+            TempMediaRepository.Image.ImportStream(ImageStream, EDocDataStorageImageDescriptionLbl, 'image/png');
         end;
     end;
 
