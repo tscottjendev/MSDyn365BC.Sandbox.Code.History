@@ -1138,7 +1138,7 @@ codeunit 139881 "E2E PowerBI Sales Test"
     begin
         NewInvoice := true;
         Done := true;
-        PostingDate := WorkDate();
+        PostingDate := Today();
         IsHandled := true;
     end;
 
