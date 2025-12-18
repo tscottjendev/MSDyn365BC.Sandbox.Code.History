@@ -1,6 +1,5 @@
 namespace System.Security.AccessControl;
 
-using System.Agents;
 using System.Security.User;
 
 page 9875 "Permission Set Assignments"
@@ -81,11 +80,7 @@ page 9875 "Permission Set Assignments"
     }
 
     trigger OnOpenPage()
-    var
-        AgentUtilities: Codeunit "Agent Utilities";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
-
         CurrPage.Caption := RoleIdFilter;
     end;
 
