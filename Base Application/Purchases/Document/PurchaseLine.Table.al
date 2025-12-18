@@ -1698,7 +1698,7 @@ table 39 "Purchase Line"
                 GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount);
+                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount, Currency);
 
                 CheckLineAmount(MaxLineAmount);
 
@@ -3656,7 +3656,7 @@ table 39 "Purchase Line"
             begin
                 if "No. of Fixed Asset Cards" <> 0 then begin
                     TestField(Type, Type::"Fixed Asset");
-                    TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                    CheckAcquisitionCost();
                     if not ("Document Type" in ["Purchase Document Type"::Invoice, "Purchase Document Type"::Order]) then
                         Error(InvoiceOrOrderDocTypeErr, FieldCaption("Document Type"), "Purchase Document Type"::Invoice, "Purchase Document Type"::Order);
                 end;
@@ -4972,6 +4972,7 @@ table 39 "Purchase Line"
             UpdateAmounts();
 
         ShouldExit := ((CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0)) or IsProdOrder();
+        OverturnExitConditionForDefaultGLAccountQuantityValidation(ShouldExit);
         OnUpdateDirectUnitCostByFieldOnAfterCalcShouldExit(Rec, xRec, CalledByFieldNo, CurrFieldNo, ShouldExit);
         if ShouldExit then
             exit;
@@ -5904,7 +5905,7 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         ResultDate := 0D;
-        OnBeforeGetDate(ResultDate, IsHandled);
+        OnBeforeGetDate(Rec, ResultDate, IsHandled);
         if IsHandled then
             exit(ResultDate);
 
@@ -8888,9 +8889,10 @@ table 39 "Purchase Line"
     /// Determines if the document type of the line is order or invoice.
     /// </summary>
     /// <returns>True if the document type is order or invoice, otherwise false.</returns>
-    procedure IsInvoiceDocType(): Boolean
+    procedure IsInvoiceDocType() Result: Boolean
     begin
-        exit("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]);
+        Result := "Document Type" in ["Document Type"::Order, "Document Type"::Invoice];
+        OnAfterIsInvoiceDocType(Rec, Result);
     end;
 
     /// <summary>
@@ -9741,6 +9743,18 @@ table 39 "Purchase Line"
             StrSubstNo(QtyReceiveActionDescriptionLbl, Rec.FieldCaption("Qty. to Receive"), Rec.Quantity)));
     end;
 
+    local procedure OverturnExitConditionForDefaultGLAccountQuantityValidation(var ShouldExit: Boolean)
+    begin
+        if not ShouldExit then
+            exit;
+
+        if Quantity <> 1 then
+            exit;
+
+        if QuantityDefaultedFromGLAccount() then
+            ShouldExit := false;
+    end;
+
     procedure IsProdOrder() Result: Boolean
     begin
         OnIsProdOrder(Rec, Result);
@@ -9826,6 +9840,17 @@ table 39 "Purchase Line"
             exit;
 
         Rec.TestField("Job Task No.");
+    end;
+
+    local procedure CheckAcquisitionCost()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAcquisitionCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
     end;
 
     [IntegrationEvent(false, false)]
@@ -10909,7 +10934,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal)
+    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal; var Currency: Record Currency)
     begin
     end;
 
@@ -11173,6 +11198,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsCreditDocType(PurchaseLine: Record "Purchase Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsInvoiceDocType(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
     begin
     end;
 
@@ -11602,7 +11632,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDate(var ResultDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeGetDate(var PurchaseLine: Record "Purchase Line"; var ResultDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -11885,6 +11915,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAcquisitionCost(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }
