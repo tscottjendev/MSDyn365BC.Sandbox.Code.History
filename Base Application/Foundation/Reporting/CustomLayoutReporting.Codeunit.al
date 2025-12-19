@@ -266,12 +266,10 @@ codeunit 8800 "Custom Layout Reporting"
         if not (SupressOutput or AnyOutputExists) then
             LogSimpleError(NoOutputErr);
 
-        if ErrorMessageHandler.HasErrors() then begin
-            OnBeforeThrowProcessReportError(ErrorMessageHandler, ReportDataRecordRef, OutputType);
+        if ErrorMessageHandler.HasErrors() then
             if not IsBackground() then
                 if ErrorMessageHandler.ShowErrors() then
                     Error('');
-        end;
     end;
 
     procedure ProcessReportData(ReportUsage: Enum "Report Selection Usage"; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
@@ -1799,11 +1797,6 @@ codeunit 8800 "Custom Layout Reporting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenerateFileNameForReport(IteratorRecordRef: RecordRef; var NameFieldRef: FieldRef; ReportDataRecordRef: RecordRef; var ObjectName: Text; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeThrowProcessReportError(var ErrorMessageHandler: Codeunit "Error Message Handler"; var ReportDataRecordRef: RecordRef; var OutputType: Option)
     begin
     end;
 }
