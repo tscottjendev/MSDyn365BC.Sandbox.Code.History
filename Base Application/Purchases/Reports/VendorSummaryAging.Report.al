@@ -20,7 +20,7 @@ report 305 "Vendor - Summary Aging"
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+    ObsoleteReason = 'This report is obsolete and will be removed in a future release.';
     ObsoleteTag = '28.0';
 
     dataset
