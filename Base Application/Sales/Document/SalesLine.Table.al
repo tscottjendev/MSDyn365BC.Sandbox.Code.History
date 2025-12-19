@@ -3560,6 +3560,9 @@ table 37 "Sales Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+
+        EnsurePositiveLineNo();
+
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             SalesLineReserve.VerifyQuantity(Rec, xRec);
@@ -3599,6 +3602,20 @@ table 37 "Sales Line"
     trigger OnRename()
     begin
         Error(Text001, TableCaption);
+    end;
+
+    local procedure EnsurePositiveLineNo()
+    var
+        SalesLine: Record "Sales Line";
+        MaxLineNo: Integer;
+    begin
+        if "Line No." < 0 then begin
+            SalesLine.SetRange("Document Type", "Document Type");
+            SalesLine.SetRange("Document No.", "Document No.");
+            if SalesLine.FindLast() then
+                MaxLineNo := SalesLine."Line No.";
+            "Line No." := MaxLineNo + 10000;
+        end;
     end;
 
     var
