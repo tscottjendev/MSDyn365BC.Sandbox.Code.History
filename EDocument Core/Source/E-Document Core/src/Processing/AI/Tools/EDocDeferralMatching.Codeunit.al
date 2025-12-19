@@ -66,7 +66,6 @@ codeunit 6129 "E-Doc. Deferral Matching" implements "AOAI Function", IEDocAISyst
                 EDocActivityLogBuilder
                     .Init(Database::"E-Document Purchase Line", Rec.FieldNo("[BC] Deferral Code"), Rec.SystemId)
                     .SetExplanation(Reasoning)
-                    .SetConfidence('Medium') // Medium confidence for validated deferral code
                     .SetType(Enum::"Activity Log Type"::"AI")
                     .SetReferenceSource(Page::"Deferral Template Card", RecordRef)
                     .SetReferenceTitle(StrSubstNo(ActivityLogTitleTxt, Rec."[BC] Deferral Code"))
@@ -174,22 +173,15 @@ codeunit 6129 "E-Doc. Deferral Matching" implements "AOAI Function", IEDocAISyst
     #endregion "AOAI Function" interface implementation
 
     #region "E-Document AI System" interface implementation
-    procedure GetSystemPrompt(UserLanguage: Text): SecretText
+    procedure GetSystemPrompt(): SecretText
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
-        SecurityPromptSecretText, CompletePromptSecretText : SecretText;
-        DeferralMatchingPromptText: Text;
-        DeferralMatchingPromptTok: Label 'Prompts/DeferralMatching-SystemPrompt.md', Locked = true;
-        SecurityPromptTok: Label 'DeferralMatching-SecurityPrompt', Locked = true;
+        PromptSecretText: SecretText;
+        PromptSecretNameTok: Label 'DeferralMatching-SystemPrompt270', Locked = true;
     begin
-        DeferralMatchingPromptText := NavApp.GetResourceAsText(DeferralMatchingPromptTok, TextEncoding::UTF8);
-        if AzureKeyVault.GetAzureKeyVaultSecret(SecurityPromptTok, SecurityPromptSecretText) then
-            CompletePromptSecretText := SecretText.SecretStrSubstNo(DeferralMatchingPromptText, SecurityPromptSecretText, UserLanguage)
-        else begin
-            Session.LogMessage('0000QPY', 'Failed to retrieve security prompt', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', GetFeatureName());
-            CompletePromptSecretText := SecretStrSubstNo('');
-        end;
-        exit(CompletePromptSecretText);
+        if not AzureKeyVault.GetAzureKeyVaultSecret(PromptSecretNameTok, PromptSecretText) then
+            PromptSecretText := SecretStrSubstNo('');
+        exit(PromptSecretText);
     end;
 
     procedure GetTools(): List of [Interface "AOAI Function"]
