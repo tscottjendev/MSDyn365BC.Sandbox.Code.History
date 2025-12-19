@@ -79,7 +79,6 @@ page 9810 "Password Dialog"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = Action::OK then begin
-            PasswordDialogImpl.ValidateOldPasswordMatch(CurrentPasswordToCompare, OldPasswordValue);
             ValidPassword := PasswordDialogImpl.ValidatePassword(
                 RequiresPasswordConfirmation,
                 RequiresPasswordValidation,

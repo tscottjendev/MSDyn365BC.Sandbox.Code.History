@@ -115,22 +115,10 @@ codeunit 130458 "Test Inputs Management"
     var
         EmptyGuid: Guid;
     begin
-        UploadAndImportDataInputs(FileName, TestInputInStream, EmptyGuid, 0);
+        UploadAndImportDataInputs(FileName, TestInputInStream, EmptyGuid);
     end;
 
     procedure UploadAndImportDataInputs(FileName: Text; TestInputInStream: InStream; ImportedByAppId: Guid)
-    begin
-        UploadAndImportDataInputs(FileName, TestInputInStream, ImportedByAppId, 0);
-    end;
-
-    procedure UploadAndImportDataInputs(FileName: Text; TestInputInStream: InStream; ImportedByAppId: Guid; LanguageID: Integer)
-    var
-        EmptyName: Text;
-    begin
-        UploadAndImportDataInputs(FileName, TestInputInStream, ImportedByAppId, LanguageID, EmptyName);
-    end;
-
-    procedure UploadAndImportDataInputs(FileName: Text; TestInputInStream: InStream; ImportedByAppId: Guid; LanguageID: Integer; GroupName: Text)
     var
         TestInputGroup: Record "Test Input Group";
         TestInput: Record "Test Input";
@@ -139,7 +127,7 @@ codeunit 130458 "Test Inputs Management"
         TelemetryCD: Dictionary of [Text, Text];
     begin
         if not TestInputGroup.Find() then
-            CreateTestInputGroup(TestInputGroup, FileName, ImportedByAppId, LanguageID, GroupName);
+            CreateTestInputGroup(TestInputGroup, FileName, ImportedByAppId);
 
         if FileName.EndsWith(JsonFileExtensionTxt) then begin
             FileType := JsonFileExtensionTxt;
@@ -204,7 +192,7 @@ codeunit 130458 "Test Inputs Management"
             TestInputGroupCode := CopyStr(FileName, 1, MaxStrLen(TestInputGroupCode));
     end;
 
-    local procedure CreateTestInputGroup(var TestInputGroup: Record "Test Input Group"; FileName: Text; ImportedByAppId: Guid; LanguageID: Integer; GroupName: Text)
+    local procedure CreateTestInputGroup(var TestInputGroup: Record "Test Input Group"; FileName: Text; ImportedByAppId: Guid)
     var
         EmptyGuid: Guid;
     begin
@@ -212,18 +200,10 @@ codeunit 130458 "Test Inputs Management"
 
         TestInputGroup.Description := CopyStr(FileName, 1, MaxStrLen(TestInputGroup.Description));
 
-        if GroupName <> '' then
-            TestInputGroup."Group Name" := CopyStr(GroupName, 1, MaxStrLen(TestInputGroup."Group Name"))
-        else
-            TestInputGroup."Group Name" := CopyStr(FileName, 1, MaxStrLen(TestInputGroup."Group Name"));
-
-        if LanguageID <> 0 then
-            TestInputGroup."Language ID" := LanguageID;
-
         if ImportedByAppId <> EmptyGuid then
             TestInputGroup."Imported by AppId" := ImportedByAppId;
 
-        TestInputGroup.Insert(true);
+        TestInputGroup.Insert();
     end;
 
     local procedure ParseDataInputs(TestData: Text; var TestInputGroup: Record "Test Input Group")
@@ -297,7 +277,6 @@ codeunit 130458 "Test Inputs Management"
         TestInputText: Text;
     begin
         TestInput."Test Input Group Code" := TestInputGroup.Code;
-        TestInput."Language ID" := TestInputGroup."Language ID";
 
         if not DataOnlyTestInput.Get(TestInputTok, TestInputJsonToken) then
             TestInputJsonToken := DataOnlyTestInput.AsToken();

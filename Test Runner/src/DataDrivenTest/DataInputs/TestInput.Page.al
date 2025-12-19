@@ -20,25 +20,8 @@ page 130457 "Test Input"
             {
                 Caption = 'General';
 
-                field("Group Name"; Rec."Group Name")
-                {
-                }
                 field(Code; Rec.Code)
                 {
-                }
-                field("Parent Group Code"; Rec."Parent Group Code")
-                {
-                    Visible = false;
-                }
-                field("Language Name"; Rec."Language Name")
-                {
-                }
-                field("Language Tag"; Rec."Language Tag")
-                {
-                }
-                field("Language ID"; Rec."Language ID")
-                {
-                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
@@ -55,15 +38,6 @@ page 130457 "Test Input"
             {
                 ApplicationArea = All;
                 SubPageLink = "Test Input Group Code" = field(Code);
-            }
-        }
-        area(FactBoxes)
-        {
-            part(LanguageVersions; "Test Input Group Languages")
-            {
-                ApplicationArea = All;
-                Caption = 'Language Versions';
-                SubPageLink = "Group Name" = field("Group Name");
             }
         }
     }

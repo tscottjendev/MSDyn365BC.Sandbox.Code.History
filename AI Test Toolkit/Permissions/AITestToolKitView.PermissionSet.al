@@ -14,7 +14,6 @@ permissionset 149034 "AI Test Toolkit - View"
 
     Permissions = tabledata "AIT Run History" = IMD,
         tabledata "AIT Test Suite" = IMD,
-        tabledata "AIT Test Suite Language" = IMD,
         tabledata "AIT Test Method Line" = IMD,
         tabledata "AIT Log Entry" = IMD;
 }
