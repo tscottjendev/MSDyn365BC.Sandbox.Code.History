@@ -134,7 +134,7 @@ tableextension 4817 "Intrastat Report Purch. Head." extends "Purchase Header"
             Validate("Transaction Type", '');
         end;
 
-        OnAfterUpdateIntrastatFields(Rec, Vendor, IntrastatReportSetup, FieldNo, xRec);
+        OnAfterUpdateIntrastatFields(Rec, Vendor, IntrastatReportSetup, FieldNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -143,7 +143,7 @@ tableextension 4817 "Intrastat Report Purch. Head." extends "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateIntrastatFields(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; var IntrastatReportSetup: Record "Intrastat Report Setup"; FieldNo: Integer; xPurchaseHeader: Record "Purchase Header");
+    local procedure OnAfterUpdateIntrastatFields(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; var IntrastatReportSetup: Record "Intrastat Report Setup"; FieldNo: Integer);
     begin
     end;
 
