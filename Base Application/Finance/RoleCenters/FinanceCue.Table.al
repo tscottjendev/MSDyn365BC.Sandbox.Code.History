@@ -148,7 +148,7 @@ table 9054 "Finance Cue"
         }
         field(22; "New Incoming Documents"; Integer)
         {
-            CalcFormula = count("Incoming Document" where(Status = const(New), Processed = const(false)));
+            CalcFormula = count("Incoming Document" where(Status = const(New)));
             Caption = 'New Incoming Documents';
             FieldClass = FlowField;
         }
