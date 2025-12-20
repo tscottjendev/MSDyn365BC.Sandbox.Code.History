@@ -93,8 +93,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                           PhysInvtOrderLine."Qty. Expected (Base)" - PhysInvtOrderLine."Qty. Recorded (Base)";
                     end;
 
-                    OnCodeOnAfterSetEntryTypePhysInvtOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
-
                     if PhysInvtOrderLine."Use Item Tracking" and
                        not IsBinMandatoryNoWhseTracking(Item, PhysInvtOrderLine."Location Code")
                     then begin
@@ -162,7 +160,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                         TempInvtOrderTrackingBuffer."Qty. Recorded (Base)" - TempInvtOrderTrackingBuffer."Qty. Expected (Base)";
                                     TempInvtOrderTrackingBuffer."Outstanding Quantity" := TempInvtOrderTrackingBuffer."Qty. To Transfer";
                                     TempInvtOrderTrackingBuffer.Open := TempInvtOrderTrackingBuffer."Outstanding Quantity" <> 0;
-                                    OnCodeOnBeforeModifyInvtOrderTracking(TempInvtOrderTrackingBuffer);
                                     TempInvtOrderTrackingBuffer.Modify();
                                 until TempInvtOrderTrackingBuffer.Next() = 0;
                         if PhysInvtOrderLine2.Find('-') then
@@ -262,7 +259,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                   TempInvtOrderTrackingBuffer."Qty. Recorded (Base)" - TempInvtOrderTrackingBuffer."Qty. Expected (Base)";
                 TempInvtOrderTrackingBuffer."Outstanding Quantity" := TempInvtOrderTrackingBuffer."Qty. To Transfer";
                 TempInvtOrderTrackingBuffer.Open := TempInvtOrderTrackingBuffer."Outstanding Quantity" <> 0;
-                OnCreateOrderTrackingBufferLinesOnBeforeModifyTempInvtOrderTrackingBuffer(TempInvtOrderTrackingBuffer, DocNo, LineNo);
                 TempInvtOrderTrackingBuffer.Modify();
             until TempInvtOrderTrackingBuffer.Next() = 0;
     end;
@@ -317,7 +313,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 TempInvtOrderTrackingBuffer."Outstanding Quantity" -= QtyToTransfer;
                 TempInvtOrderTrackingBuffer.Open := TempInvtOrderTrackingBuffer."Outstanding Quantity" <> 0;
                 TempInvtOrderTrackingBuffer.Modify();
-                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer, TempInvtOrderTrackingBuffer);
+                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
             until TempInvtOrderTrackingBuffer.Next() = 0;
     end;
 
@@ -473,12 +469,12 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservEntriesOnBeforeInsert2(var ReservationEntry: Record "Reservation Entry"; InvtOrderTracking: Record "Invt. Order Tracking"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    local procedure OnCreateReservEntriesOnBeforeInsert2(var ReservationEntry: Record "Reservation Entry"; InvtOrderTracking: Record "Invt. Order Tracking"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines: Boolean; var MaxQtyToTransfer: Decimal; QtyToTransfer: Decimal; var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary)
+    local procedure OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines: Boolean; var MaxQtyToTransfer: Decimal; QtyToTransfer: Decimal)
     begin
     end;
 
@@ -519,21 +515,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeSetStatusToFinished(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeModifyInvtOrderTracking(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSetEntryTypePhysInvtOrderLine(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateOrderTrackingBufferLinesOnBeforeModifyTempInvtOrderTrackingBuffer(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; DocNo: Code[20]; LineNo: Integer)
     begin
     end;
 }
