@@ -1616,7 +1616,6 @@ codeunit 1173 "Document Attachment Mgmt"
                 DocumentAttachmentToCreate.Init();
                 DocumentAttachmentToCreate.TransferFields(DocumentAttachmentFound);
                 DocumentAttachmentToCreate.Validate("No.", MoveToRecNo);
-                OnMoveAttachmentsWithinSameRecordTypeOnBeforeInsert(DocumentAttachmentToCreate, MoveToRecRef, MoveToRecNo);
                 DocumentAttachmentToCreate.Insert(true);
             until DocumentAttachmentFound.Next() = 0;
 
@@ -1863,11 +1862,6 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsProductionDocumentFlow(TableNo: Integer; var IsDocumentFlow: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnMoveAttachmentsWithinSameRecordTypeOnBeforeInsert(var DocumentAttachmentToCreate: Record "Document Attachment"; MoveToRecRef: RecordRef; MoveToRecNo: Code[20])
     begin
     end;
 }
