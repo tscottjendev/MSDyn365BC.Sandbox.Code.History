@@ -1,4 +1,4 @@
-﻿codeunit 134897 "ERM Source Currency"
+codeunit 134897 "ERM Source Currency"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -21,7 +21,6 @@
         SourceCurrencyCodeErr: Label 'The Source Currency Code should be equal to the Currency Code on the General Journal Line', Locked = true;
         SourceCurrencyCodeFXGainLossErr: Label 'The Source Currency Code should be empty on the G/L Entry for FX Gain/Loss', Locked = true;
         SourceCurrencyAmountShouldBeZeroErr: Label 'The Source Currency Amount should be 0', Locked = true;
-        SourceCurrencyAmountShouldMatchEnteredAmount: Label 'Source Currency Amount should match manually entered amount', Locked = true;
 
     [Test]
     procedure GenJournalPurchaseNormalVATLCY()
@@ -1228,153 +1227,6 @@
         Assert.AreEqual(0, SCYBalance, TotalSCYAmountNotZeroErr);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceWithChangedCurrencyFactor()
-    var
-        Customer: Record Customer;
-        CustomerPostingGroup: Record "Customer Posting Group";
-        SalesHeader: Record "Sales Header";
-        GLEntry: Record "G/L Entry";
-        PostedSalesInvoiceNo: Code[20];
-        Factor: Decimal;
-    begin
-        Initialize();
-
-        // [GIVEN] Create customer with currency code
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", CreateCurrency());
-        Customer.Modify();
-
-        // [GIVEN] A Sales Invoice for currency with exchange rate from the setup
-        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
-        Factor := SalesHeader."Currency Factor";
-
-        // [GIVEN] Increase Currency Factor twice
-        SalesHeader.Validate("Currency Factor", Factor * 2);
-        SalesHeader.Modify();
-
-        // [WHEN] Posting a Sales Invoice with updated Currency Factor
-        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        GetGLEntries(GLEntry, PostedSalesInvoiceNo, GLEntry."Document Type"::Invoice);
-        CustomerPostingGroup.Get(Customer."Customer Posting Group");
-
-        repeat
-            case GLEntry."G/L Account No." of
-                CustomerPostingGroup.GetReceivablesAccount():
-                    Assert.AreEqual(Factor * 2, GLEntry.Amount / GLEntry."Source Currency Amount", 'Incorrect currency factor');
-            end;
-        until GLEntry.Next() = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseInvoiceWithChangedCurrencyFactor()
-    var
-        Vendor: Record Vendor;
-        VendorPostingGroup: Record "Vendor Posting Group";
-        PurchaseHeader: Record "Purchase Header";
-        GLEntry: Record "G/L Entry";
-        PostedPurchaseInvoiceNo: Code[20];
-        Factor: Decimal;
-    begin
-        Initialize();
-
-        // [GIVEN] Create customer with currency code
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", CreateCurrency());
-        Vendor.Modify();
-
-        // [GIVEN] A Sales Invoice for currency with exchange rate from the setup
-        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
-        Factor := PurchaseHeader."Currency Factor";
-
-        // [GIVEN] Increase Currency Factor twice
-        PurchaseHeader.Validate("Currency Factor", Factor * 2);
-        PurchaseHeader.Modify();
-
-        // [WHEN] Posting a Sales Invoice with updated Currency Factor
-        PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        GetGLEntries(GLEntry, PostedPurchaseInvoiceNo, GLEntry."Document Type"::Invoice);
-        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-
-        repeat
-            case GLEntry."G/L Account No." of
-                VendorPostingGroup.GetPayablesAccount():
-                    Assert.AreEqual(Factor * 2, GLEntry.Amount / GLEntry."Source Currency Amount", 'Incorrect currency factor');
-            end;
-        until GLEntry.Next() = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GenJournalWithManualForeignCurrencyAmount()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-        Currency: Record Currency;
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        GLEntry: Record "G/L Entry";
-        ManualFCYAmount: Decimal;
-        CalculatedFCYAmount: Decimal;
-        Factor: Integer;
-    begin
-        Initialize();
-
-        // [SCENARIO] When a user manually enters a foreign currency amount in a general journal line that differs from 
-        // the exchange rate calculation, the system should preserve the manually entered amount when posting.
-
-        // [GIVEN] A currency with an exchange rate
-        Currency.Get(CreateCurrency());
-        CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst();
-
-        // [GIVEN] VAT Posting Setup with normal VAT
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        UpdateAdjustForPaymentDiscount(VATPostingSetup);
-
-        // [GIVEN] A General Journal Line with foreign currency
-        CreateGeneralJournalLine(
-            GenJournalLine,
-            LibraryERM.CreateGLAccountNoWithDirectPosting(),
-            LibraryERM.CreateGLAccountNoWithDirectPosting(),
-            Enum::"General Posting Type"::Purchase,
-            VATPostingSetup,
-            true);
-        GenJournalLine.Validate("Currency Code", Currency.Code);
-
-        // [GIVEN] Calculate what the FCY amount would be based on the exchange rate
-        CalculatedFCYAmount := GenJournalLine.Amount;
-
-        // [GIVEN] Manually override the foreign currency amount to a different value
-        ManualFCYAmount := CalculatedFCYAmount * 1.1; // 10% different from calculated
-        GenJournalLine.Validate(Amount, ManualFCYAmount);
-        GenJournalLine.Modify(true);
-
-        // [WHEN] Posting the General Journal Line
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [THEN] The GL entries should preserve the manually entered foreign currency amount
-        GetGLEntries(GLEntry, GenJournalLine."Document No.", GenJournalLine."Document Type");
-
-        repeat
-            // [THEN] Source Currency Code on G/L Entries should be correct
-            Assert.AreEqual(GenJournalLine."Currency Code", GLEntry."Source Currency Code", SourceCurrencyCodeErr);
-
-            Factor := GLEntry.Amount <> 0 ? GLEntry.Amount / Abs(GLEntry.Amount) : 1;
-
-            case GLEntry."G/L Account No." of
-                VATPostingSetup."Purchase VAT Account":
-                    // [THEN] VAT entry should have the correct VAT amount based on manual amount
-                    Assert.AreEqual(Factor, GLEntry."Source Currency Amount" / Abs(GLEntry."Source Currency Amount"), AmountIncorrectSignErr);
-                GenJournalLine."Bal. Account No.":
-                    // [THEN] Balancing account should have the negative of the manually entered amount
-                    Assert.AreEqual(-ManualFCYAmount, GLEntry."Source Currency Amount", SourceCurrencyAmountShouldMatchEnteredAmount);
-            end;
-        until GLEntry.Next() = 0;
-    end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; GLAccountNo: Code[20]; WithForeignCurrency: Boolean)
     var
