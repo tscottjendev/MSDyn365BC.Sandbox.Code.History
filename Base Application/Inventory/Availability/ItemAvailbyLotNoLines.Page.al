@@ -179,10 +179,10 @@ page 514 "Item Avail. by Lot No. Lines"
             Item.Copy(NewItem);
             GenerateLines();
             if Item.GetFilter("Location Filter") <> '' then
-                Rec.SetFilter("Location Code Filter", Item.GetFilter("Location Filter"));
+                Rec.SetRange("Location Code Filter", Item.GetFilter("Location Filter"));
 
             if Item.GetFilter("Variant Filter") <> '' then
-                Rec.SetFilter("Variant Code Filter", Item.GetFilter("Variant Filter"));
+                Rec.SetRange("Variant Code Filter", Item.GetFilter("Variant Filter"));
 
             if NewAmountType = NewAmountType::"Net Change" then
                 Rec.SetRange("Date Filter", Item.GetRangeMin("Date Filter"), Item.GetRangeMax("Date Filter"))

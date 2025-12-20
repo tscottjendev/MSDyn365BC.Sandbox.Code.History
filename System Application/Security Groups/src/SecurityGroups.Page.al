@@ -5,7 +5,6 @@
 
 namespace System.Security.AccessControl;
 
-using System.Agents;
 using System.Telemetry;
 using System.Utilities;
 using System.Security.User;
@@ -273,12 +272,9 @@ page 9871 "Security Groups"
 
     trigger OnOpenPage()
     var
-        AgentUtilities: Codeunit "Agent Utilities";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         UserPermissions: Codeunit "User Permissions";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
-
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
         FeatureTelemetry.LogUptake('0000JGR', 'Security Groups', Enum::"Feature Uptake Status"::Discovered);
         RefreshData();
