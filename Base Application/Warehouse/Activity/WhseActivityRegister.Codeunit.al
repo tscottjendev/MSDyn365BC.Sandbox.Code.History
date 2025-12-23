@@ -808,6 +808,7 @@ codeunit 7307 "Whse.-Activity-Register"
           TempBinContentBuffer."Qty. Outstanding (Base)" + Sign * WhseActivLine."Qty. Outstanding (Base)";
         TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage + Sign * WhseActivLine.Cubage;
         TempBinContentBuffer.Weight := TempBinContentBuffer.Weight + Sign * WhseActivLine.Weight;
+        OnUpdateTempBinContentBufferOnBeforeModifyTempBinContentBuffer(TempBinContentBuffer, WhseActivLine);
         TempBinContentBuffer.Modify();
     end;
 
@@ -1045,6 +1046,7 @@ codeunit 7307 "Whse.-Activity-Register"
                 repeat
                     // Per Lot/SN
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
+                    TempWhseActivLine.SetRange("Variant Code", TempWhseActivLine."Variant Code");
                     QtyAvailToInsertBase := CalcQtyAvailToInsertBase(TempWhseActivLine);
                     TempWhseActivLine.SetTrackingFilterFromWhseActivityLine(TempWhseActivLine);
                     OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(TempWhseActivLine, WhseActivLine, QtyAvailToInsertBase);
@@ -1073,6 +1075,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     // Clear filters, Lot/SN
                     TempWhseActivLine.ClearTrackingFilter();
                     TempWhseActivLine.SetRange("Item No.");
+                    TempWhseActivLine.SetRange("Variant Code");
                     OnCheckWhseItemTrkgLineOnAfterClearFilters(TempWhseActivLine, WhseActivLine);
                 until TempWhseActivLine.Next() = 0; // Per Lot/SN
                                                     // Clear filters, document
@@ -2753,6 +2756,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinContent(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTempBinContentBufferOnBeforeModifyTempBinContentBuffer(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }
