@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocumentConnector.Continia;
 
-using Microsoft.Foundation.Address;
 using System.Email;
+using Microsoft.Foundation.Address;
 
 page 6393 "Continia Onboarding Guide"
 {
