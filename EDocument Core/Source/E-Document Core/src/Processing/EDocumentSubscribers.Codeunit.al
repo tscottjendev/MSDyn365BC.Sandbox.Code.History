@@ -428,6 +428,8 @@ codeunit 6103 "E-Document Subscribers"
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Purchase Line History");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Document Line - Field");
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"ED Purchase Line Field Setup");
+        DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. PO Matching Setup");
+        DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc. Purchase Line PO Match");
 #if not CLEAN27
 #pragma warning disable AL0432
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"EDoc Historical Matching Setup");
