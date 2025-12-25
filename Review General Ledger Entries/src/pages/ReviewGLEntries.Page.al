@@ -408,7 +408,6 @@ page 22207 "Review G/L Entries"
     local procedure CalcBalance(var GLEntryRec: Record "G/L Entry")
     var
         GLEntry: Record "G/L Entry";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         Balance := 0;
         GLEntry.Copy(GLEntryRec);
