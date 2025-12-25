@@ -441,6 +441,7 @@ codeunit 6103 "E-Document Subscribers"
 #if not CLEAN26
         DataClassificationEvalData.SetTableFieldsToNormal(Database::"EDoc. Purch. Line Field Setup");
 #endif
+        DataClassificationEvalData.SetTableFieldsToNormal(Database::"E-Doc Sample Purch. Inv File");
     end;
 
 
