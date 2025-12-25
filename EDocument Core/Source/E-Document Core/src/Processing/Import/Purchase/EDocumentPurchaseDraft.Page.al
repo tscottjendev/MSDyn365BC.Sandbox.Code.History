@@ -10,6 +10,8 @@ using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
 using System.Telemetry;
+using System.Feedback;
+using System.Text;
 
 page 6181 "E-Document Purchase Draft"
 {
@@ -239,7 +241,7 @@ page 6181 "E-Document Purchase Draft"
             }
             part(InboundEDocPicture; "Inbound E-Doc. Picture")
             {
-                Caption = 'E-Document Pdf Preview';
+                Caption = 'Preview';
                 SubPageLink = "Entry No." = field("Unstructured Data Entry No."),
                             "File Format" = const("E-Doc. File Format"::PDF);
                 ShowFilter = false;
@@ -327,18 +329,47 @@ page 6181 "E-Document Purchase Draft"
                     EDocImport.ViewExtractedData(Rec);
                 end;
             }
+            action(GetFeedback)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Provide feedback';
+                ToolTip = 'Provide feedback on the Payables Agent experience.';
+                Image = Help;
+
+                trigger OnAction()
+                begin
+                    ProvideFeedback();
+                end;
+            }
         }
         area(Navigation)
         {
             group(Vendors)
             {
-                Visible = false;
+                action(HistoricalVendorMatches)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Historical Vendor Matches';
+                    ToolTip = 'Opens Vendor Assignment History to see names and addresses matched to vendors based on received e-documents.';
+                    Image = History;
+                    RunObject = page "E-Doc. Vendor Assignment Hist.";
+                    RunPageMode = View;
+                }
+                action(OpenVendorList)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor List';
+                    ToolTip = 'Opens the Vendor List.';
+                    Image = Vendor;
+                    RunObject = page "Vendor List";
+                    RunPageMode = View;
+                }
                 action(CreateVendorAction)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Vendor';
                     ToolTip = 'Creates a vendor based on the invoice details.';
-                    Image = Vendor;
+                    Image = AddContacts;
 
                     trigger OnAction()
                     var
@@ -368,6 +399,9 @@ page 6181 "E-Document Purchase Draft"
                 {
                 }
                 actionref(Promoted_ViewFile; ViewFile)
+                {
+                }
+                actionref(Promoted_GetFeedback; GetFeedback)
                 {
                 }
             }
@@ -591,6 +625,26 @@ page 6181 "E-Document Purchase Draft"
         Rec.Get(Rec."Entry No");
         if GuiAllowed() then
             Progress.Close();
+    end;
+
+    local procedure ProvideFeedback()
+    var
+        EDocumentDataStorage: Record "E-Doc. Data Storage";
+        MicrosoftUserFeedback: Codeunit "Microsoft User Feedback";
+        Base64Convert: Codeunit "Base64 Convert";
+        EDocDraftFeedback: Page "E-Doc. Draft Feedback";
+        Base64Data: Text;
+        InStream: InStream;
+        ContextFiles, ContextProperties : Dictionary of [Text, Text];
+    begin
+        if EDocDraftFeedback.RunModal() = Action::Yes then begin
+            if EDocumentDataStorage.Get(Rec."Unstructured Data Entry No.") then begin
+                EDocumentDataStorage.GetTempBlob().CreateInStream(InStream);
+                Base64Data := Base64Convert.ToBase64(InStream);
+                ContextFiles.Add(EDocumentDataStorage.Name, Base64Data);
+            end;
+            MicrosoftUserFeedback.SetIsAIFeedback(true).RequestFeedback('Payables Agent Draft', 'PayablesAgent', 'Payables Agent', ContextFiles, ContextProperties);
+        end;
     end;
 
     var
