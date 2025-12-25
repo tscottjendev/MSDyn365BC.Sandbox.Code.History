@@ -74,7 +74,7 @@ codeunit 4325 "Agent Setup Impl."
         Language: Codeunit Language;
         AgentMetadata: Interface IAgentMetadata;
     begin
-        AgentSetupBuffer.GetUserSettings(UserSettings);
+        UserSettings := AgentSetupBuffer.GetUserSettings();
         AgentSetupBuffer."Language Used" := CopyStr(Language.GetWindowsLanguageName(UserSettings."Language ID"), 1, MaxStrLen(AgentSetupBuffer."Language Used"));
 
         if not IsNullGuid(UserSecurityID) then
@@ -102,7 +102,7 @@ codeunit 4325 "Agent Setup Impl."
         Language: Codeunit Language;
         AgentUserSettings: Page "Agent User Settings";
     begin
-        AgentSetupBuffer.GetUserSettings(UserSettings);
+        UserSettings := AgentSetupBuffer.GetUserSettings();
         AgentUserSettings.InitializeTemp(UserSettings);
         if AgentUserSettings.RunModal() in [Action::LookupOK, Action::OK] then begin
             AgentUserSettings.GetRecord(UserSettings);
@@ -139,36 +139,6 @@ codeunit 4325 "Agent Setup Impl."
         exit(FullSummaryText.ToText());
     end;
 
-    internal procedure AppendAgentSummary(var AgentSetupBuffer: Record "Agent Setup Buffer"; SummaryText: Text): Text
-    var
-        UserSettings: Record "User Settings";
-        Language: Codeunit Language;
-        NewSummaryText: Text;
-    begin
-        NewSummaryText := SummaryText;
-        if not NewSummaryText.Contains(ReviewForAccuracyAgentUsesAILbl) then
-            NewSummaryText := StrSubstNo(AppendTextToEndTxt, NewSummaryText, ReviewForAccuracyAgentUsesAILbl);
-
-        if not SummaryText.Contains(LanguageUsedLbl) then begin
-            AgentSetupBuffer.GetUserSettings(UserSettings);
-            NewSummaryText := StrSubstNo(AppendTextToEndTxt, NewSummaryText, StrSubstNo(LanguageUsedLbl, Language.GetWindowsLanguageName(UserSettings."Language ID")));
-        end;
-
-        exit(NewSummaryText);
-    end;
-
-    internal procedure CopyAgentSetupBuffer(var Target: Record "Agent Setup Buffer"; var Source: Record "Agent Setup Buffer")
-    var
-        TempUserSettings: Record "User Settings" temporary;
-        TempAccessControl: Record "Agent Access Control" temporary;
-    begin
-        Target.Copy(Source, true);
-        Source.GetUserSettings(TempUserSettings);
-        Target.SetUserSettings(TempUserSettings);
-        Source.GetTempAgentAccessControl(TempAccessControl);
-        Target.SetTempAgentAccessControl(TempAccessControl);
-    end;
-
     local procedure CreateAgent(var AgentSetupBuffer: Record "Agent Setup Buffer"): Guid
     var
         AgentRecord: Record Agent;
@@ -179,7 +149,7 @@ codeunit 4325 "Agent Setup Impl."
         AgentSetupBuffer.GetTempAgentAccessControl(TemporaryAgentAccessControl);
         AgentSetupBuffer."User Security ID" := Agent.Create(AgentSetupBuffer."Agent Metadata Provider", AgentSetupBuffer."User Name", AgentSetupBuffer."Display Name", TemporaryAgentAccessControl);
         AgentRecord.Get(AgentSetupBuffer."User Security ID");
-        AgentSetupBuffer.GetUserSettings(NewUserSettings);
+        NewUserSettings := AgentSetupBuffer.GetUserSettings();
         Agent.UpdateLocalizationSettings(AgentRecord."User Security ID", NewUserSettings);
         UpdateAgentState(AgentSetupBuffer);
 
@@ -199,7 +169,7 @@ codeunit 4325 "Agent Setup Impl."
             Agent.SetDisplayName(AgentSetupBuffer."User Security ID", AgentSetupBuffer."Display Name");
 
         if AgentSetupBuffer."User Settings Updated" then begin
-            AgentSetupBuffer.GetUserSettings(NewUserSettings);
+            NewUserSettings := AgentSetupBuffer.GetUserSettings();
             Agent.UpdateLocalizationSettings(AgentSetupBuffer."User Security ID", NewUserSettings);
         end;
 
@@ -236,9 +206,4 @@ codeunit 4325 "Agent Setup Impl."
     begin
         exit(TextEncoding::UTF8);
     end;
-
-    var
-        LanguageUsedLbl: Label 'Language used: %1', Comment = '%1 is the language name, e.g. English (United States).';
-        ReviewForAccuracyAgentUsesAILbl: Label 'This agent uses AI - review its actions for accuracy.';
-        AppendTextToEndTxt: Label '%1\\%2', Comment = '%1 is the existing summary text, %2 is the text that we are appending to the end';
 }

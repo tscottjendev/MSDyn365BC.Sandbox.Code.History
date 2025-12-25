@@ -5,6 +5,8 @@
 
 namespace System.Agents;
 
+using System.Environment.Configuration;
+
 /// <summary>
 /// Setup part that is representing the first page of the configuration dialog
 /// </summary>
@@ -63,10 +65,8 @@ page 4310 "Agent Setup Part"
 
                     trigger OnDrillDown()
                     begin
-                        if AgentSetup.SetupLanguageAndRegion(Rec) then begin
-                            UpdateAgentSummaryDisplayText();
+                        if AgentSetup.SetupLanguageAndRegion(Rec) then
                             CurrPage.Update(false);
-                        end;
                     end;
                 }
                 field(UserAccessLink; ManageUserAccessLbl)
@@ -82,7 +82,7 @@ page 4310 "Agent Setup Part"
                     end;
                 }
             }
-            field(Summary; AgentSummaryDisplayText)
+            field(Summary; AgentSummary)
             {
                 Caption = 'Summary';
                 MultiLine = true;
@@ -110,7 +110,6 @@ page 4310 "Agent Setup Part"
     begin
         AgentSetup.GetSetupRecord(Rec, UserSecurityID, AgentMetadataProvider, DefaultUserName, DefaultDisplayName, NewAgentSummary);
         AgentSummary := NewAgentSummary;
-        UpdateAgentSummaryDisplayText();
     end;
 
     /// <summary>
@@ -119,38 +118,14 @@ page 4310 "Agent Setup Part"
     /// <param name="AgentSetupBuffer">The setup buffer that is used for configuring the agent.</param>
     procedure GetAgentSetupBuffer(var AgentSetupBuffer: Record "Agent Setup Buffer")
     var
-        AgentSetupImpl: Codeunit "Agent Setup Impl.";
+        TempUserSettings: Record "User Settings" temporary;
+        TempAccessControl: Record "Agent Access Control" temporary;
     begin
-        AgentSetupImpl.CopyAgentSetupBuffer(AgentSetupBuffer, Rec);
-    end;
-
-    /// <summary>
-    /// Sets the agent setup buffer as the new record.
-    /// You need to update the page manually after calling this method.
-    /// </summary>
-    /// <param name="AgentSetupBuffer">
-    /// The setup buffer that is used for configuring the agent that will be set as a new record.
-    /// </param>
-    procedure SetAgentSetupBuffer(var AgentSetupBuffer: Record "Agent Setup Buffer")
-    var
-        AgentSetupImpl: Codeunit "Agent Setup Impl.";
-    begin
-        AgentSetupImpl.CopyAgentSetupBuffer(Rec, AgentSetupBuffer);
-        AgentSummary := AgentSetupImpl.GetAgentSummary(AgentSetupBuffer);
-        UpdateAgentSummaryDisplayText();
-    end;
-
-    /// <summary>
-    /// Sets the agent summary to the page.
-    /// You need to update the page manually after calling this method.
-    /// </summary>
-    /// <param name="NewAgentSummary">
-    /// The new summary information about the agent.
-    /// </param>
-    procedure SetAgentSummary(NewAgentSummary: Text)
-    begin
-        AgentSummary := NewAgentSummary;
-        UpdateAgentSummaryDisplayText();
+        AgentSetupBuffer.Copy(Rec, true);
+        TempUserSettings := Rec.GetUserSettings();
+        AgentSetupBuffer.SetUserSettings(TempUserSettings);
+        Rec.GetTempAgentAccessControl(TempAccessControl);
+        AgentSetupBuffer.SetTempAgentAccessControl(TempAccessControl);
     end;
 
     /// <summary>
@@ -162,16 +137,8 @@ page 4310 "Agent Setup Part"
         exit(AgentSetup.GetChangesMade(Rec));
     end;
 
-    local procedure UpdateAgentSummaryDisplayText()
-    var
-        AgentSetupImpl: Codeunit "Agent Setup Impl.";
-    begin
-        AgentSummaryDisplayText := AgentSetupImpl.AppendAgentSummary(Rec, AgentSummary);
-    end;
-
     var
         AgentSetup: Codeunit "Agent Setup";
-        AgentSummaryDisplayText: Text;
         AgentSummary: Text;
         ManageUserAccessLbl: Label 'Manage user access';
         LanguageAndRegionLbl: Label 'Language and region';
