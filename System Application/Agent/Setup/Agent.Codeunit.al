@@ -206,13 +206,13 @@ codeunit 4321 Agent
     /// Assigns the permission set to the agent.
     /// </summary>
     /// <param name="AgentUserSecurityID">The user security ID of the agent.</param>
-    /// <param name="TempAccessControlBuffer">The access controls to assign</param>
+    /// <param name="AggregatePermissionSet">Permission sets to assign</param>
     [Scope('OnPrem')]
-    procedure AssignPermissionSet(AgentUserSecurityID: Guid; var TempAccessControlBuffer: Record "Access Control Buffer" temporary)
+    procedure AssignPermissionSet(AgentUserSecurityID: Guid; var AggregatePermissionSet: Record "Aggregate Permission Set")
     var
         AgentImpl: Codeunit "Agent Impl.";
     begin
-        AgentImpl.AssignPermissionSets(AgentUserSecurityID, TempAccessControlBuffer);
+        AgentImpl.AssignPermissionSets(AgentUserSecurityID, CompanyName(), AggregatePermissionSet);
     end;
 
     /// <summary>
