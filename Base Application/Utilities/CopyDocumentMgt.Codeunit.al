@@ -5108,7 +5108,7 @@ codeunit 6620 "Copy Document Mgt."
         TranslationHelper.RestoreGlobalLanguage();
 
         IsHandled := false;
-        OnBeforeInsertOldSalesDocNoLine(ToSalesHeader, ToSalesLine2, OldDocType, OldDocNo, IsHandled);
+        OnBeforeInsertOldSalesDocNoLine(ToSalesHeader, ToSalesLine2, OldDocType, OldDocNo, NextLineNo, IsHandled);
         if not IsHandled then
             ToSalesLine2.Insert();
     end;
@@ -5183,7 +5183,7 @@ codeunit 6620 "Copy Document Mgt."
         TranslationHelper.RestoreGlobalLanguage();
 
         IsHandled := false;
-        OnBeforeInsertOldPurchDocNoLine(ToPurchHeader, ToPurchLine2, OldDocType, OldDocNo, IsHandled);
+        OnBeforeInsertOldPurchDocNoLine(ToPurchHeader, ToPurchLine2, OldDocType, OldDocNo, NextLineNo, IsHandled);
         if not IsHandled then
             ToPurchLine2.Insert();
     end;
@@ -9905,7 +9905,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertOldSalesDocNoLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeInsertOldSalesDocNoLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -9955,7 +9955,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
