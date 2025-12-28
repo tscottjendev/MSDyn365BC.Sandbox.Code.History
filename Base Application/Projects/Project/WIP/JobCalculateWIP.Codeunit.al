@@ -676,9 +676,6 @@ codeunit 1000 "Job Calculate WIP"
                     if JobTask."Contract (Invoiced Price)" < JobTask."Recognized Sales Amount" then
                         JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
         end;
-
-        OnFindJobLedgerEntriesByJobTaskOnAfterFilterJobLedgerEntry(JobTask, JobWIPTotal, JobWIPBufferType, JobWIPMethod, JobLedgerEntry);
-
         if JobLedgerEntry.FindSet() then
             repeat
                 CreateWIPBufferEntryFromLedger(JobLedgerEntry, JobTask, JobWIPTotal, JobWIPBufferType)
@@ -1204,9 +1201,6 @@ codeunit 1000 "Job Calculate WIP"
         if Rec.IsTemporary then
             exit;
 
-        if not RunTrigger then
-            exit;
-
         if JobTaskWIPRelatedFieldsAreModified(Rec) then
             VerifyJobWIPEntryIsEmpty(Rec."Job No.");
     end;
@@ -1215,9 +1209,6 @@ codeunit 1000 "Job Calculate WIP"
     procedure VerifyJobWIPEntryOnBeforeRename(var Rec: Record "Job Task"; var xRec: Record "Job Task"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then
-            exit;
-
-        if not RunTrigger then
             exit;
 
         VerifyJobWIPEntryIsEmpty(Rec."Job No.");
@@ -1405,11 +1396,6 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobGLAcc(AccNo: Code[20]; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnFindJobLedgerEntriesByJobTaskOnAfterFilterJobLedgerEntry(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; JobWIPBufferType: Enum "Job WIP Buffer Type"; JobWIPMethod: Record "Job WIP Method"; var JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 }
