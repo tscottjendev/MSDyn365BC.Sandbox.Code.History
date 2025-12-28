@@ -599,6 +599,7 @@ table 7321 "Warehouse Shipment Line"
         if FindLast() then;
 
         Init();
+        OnInitNewLineOnAfterInit(Rec);
         SetIgnoreErrors();
         "Line No." := "Line No." + 10000;
     end;
@@ -620,11 +621,15 @@ table 7321 "Warehouse Shipment Line"
 
     local procedure GetLocation(LocationCode: Code[10])
     begin
+        OnBeforeGetLocation(Location, LocationCode);
+
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+
+        OnAfterGetLocation(Location, LocationCode);
     end;
 
     local procedure TestReleased()
@@ -1041,7 +1046,14 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     local procedure InitQtyToShip()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitQtyToShip(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Location."Require Pick" then begin
             if "Assemble to Order" then
                 Validate("Qty. to Ship", 0)
@@ -1391,6 +1403,26 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLockTable(var Rec: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitNewLineOnAfterInit(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(var Location: Record Location; var LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(var Location: Record Location; var LocationCode: Code[10])
     begin
     end;
 }
