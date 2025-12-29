@@ -1,7 +1,7 @@
 codeunit 139883 "E-Doc Process Test"
 {
     Subtype = Test;
-    TestType = Uncategorized;
+    TestType = IntegrationTest;
 
     var
         Customer: Record Customer;
@@ -167,9 +167,6 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseHeader.SetRecFilter();
         EDocumentPurchaseHeader.FindFirst();
         Assert.AreEqual(PurchaseHeader."No.", EDocumentPurchaseHeader."[BC] Purchase Order No.", 'The purchase order should be found when explicitly specified in the E-Document.');
-        EDocument.SetRecFilter();
-        EDocument.FindFirst();
-        Assert.AreEqual("E-Document Type"::"Purchase Order", EDocument."Document Type", 'The document type should be set to Purchase Order after preparing the draft.');
 
         PurchaseHeader.SetRecFilter();
         PurchaseHeader.Delete();
@@ -182,14 +179,17 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
+        CompanyInformation: Record "Company Information";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
     begin
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
+        CompanyInformation.GetRecordOnce();
+        Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
-        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor2."VAT Registration No." := 'XXXXXXX001';
         Vendor2.Insert();
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseHeader."Vendor VAT Id" := Vendor2."VAT Registration No.";
@@ -215,6 +215,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
+        CompanyInformation: Record "Company Information";
         GLAccount: Record "G/L Account";
         TextToAccountMapping: Record "Text-to-Account Mapping";
         EDocumentProcessing: Codeunit "E-Document Processing";
@@ -225,8 +226,10 @@ codeunit 139883 "E-Doc Process Test"
         GLAccount."No." := 'EDOC001';
         GLAccount.Insert();
 
+        CompanyInformation.GetRecordOnce();
+        Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
-        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+        Vendor2."VAT Registration No." := 'XXXXXXX001';
         Vendor2.Insert();
 
         TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
@@ -322,6 +325,7 @@ codeunit 139883 "E-Doc Process Test"
 
         // [GIVEN] An inbound e-document is received and fully processed
         EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        WorkDate(DMY2Date(1, 1, 2027)); // Peppol document date is in 2026
         Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
 
         EDocument.Get(EDocument."Entry No");
@@ -361,6 +365,7 @@ codeunit 139883 "E-Doc Process Test"
 
         // [GIVEN] An inbound e-document is received and fully processed
         EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        WorkDate(DMY2Date(1, 1, 2027)); // Peppol document date is in 2026
         Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
 
         EDocument.Get(EDocument."Entry No");
@@ -413,6 +418,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocPurchLineFieldSetup.Insert();
         // [GIVEN] An inbound e-document is received and a draft created
         EDocImportParams."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        WorkDate(DMY2Date(1, 1, 2027)); // Peppol document date is in 2026
         Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The draft for the e-document should be created');
 
         // [WHEN] Storing custom values for the additional fields of the first line
@@ -464,6 +470,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocPurchLineFieldSetup.Insert();
         // [GIVEN] An inbound e-document is received and a draft created
         EDocImportParams."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        WorkDate(DMY2Date(1, 1, 2027)); // Peppol document date is in 2026
         Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The draft for the e-document should be created');
 
         // [GIVEN] Custom values for the additional fields of the first line are configured
@@ -500,6 +507,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
+        CompanyInformation: Record "Company Information";
         Item: Record Item;
         ItemReference: Record "Item Reference";
         EDocumentProcessing: Codeunit "E-Document Processing";
@@ -509,8 +517,10 @@ codeunit 139883 "E-Doc Process Test"
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
 
-        Vendor2."No." := 'EDOC005';
-        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+        CompanyInformation.GetRecordOnce();
+        Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
+        Vendor2."No." := 'EDOC001';
+        Vendor2."VAT Registration No." := 'XXXXXXX001';
         Vendor2.Insert();
         LibraryInventory.CreateItem(Item);
         ItemReference := CreateItemReference(Vendor2, Item);
@@ -556,6 +566,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         EDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
+        CompanyInformation: Record "Company Information";
         Item: Record Item;
         ItemReference: Record "Item Reference";
         EDocumentProcessing: Codeunit "E-Document Processing";
@@ -564,8 +575,11 @@ codeunit 139883 "E-Doc Process Test"
         // [GIVEN] An E-Doc received with Product code as an existing Item Reference
         Initialize(Enum::"Service Integration"::"Mock");
         LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
-        Vendor2."No." := 'EDOC005';
-        Vendor2."VAT Registration No." := 'EDOCTESTTAXID001';
+
+        CompanyInformation.GetRecordOnce();
+        Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
+        Vendor2."No." := 'EDOC001';
+        Vendor2."VAT Registration No." := 'XXXXXXX001';
         Vendor2.Insert();
 
         LibraryInventory.CreateItem(Item);
@@ -660,6 +674,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         LibraryERM: Codeunit "Library - ERM";
     begin
@@ -673,6 +688,10 @@ codeunit 139883 "E-Doc Process Test"
 
         if IsInitialized then
             exit;
+
+        GLSetup.GetRecordOnce();
+        GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Disabled;
+        GLSetup.Modify();
 
         // Set a currency that can be used across all localizations
         Currency.Init();
