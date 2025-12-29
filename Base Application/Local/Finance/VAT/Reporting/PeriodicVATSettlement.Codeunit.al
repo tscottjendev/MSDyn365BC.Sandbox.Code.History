@@ -8,9 +8,9 @@ using Microsoft.Utilities;
 
 codeunit 12195 "Periodic VAT Settlement"
 {
-    Access = Public;
+    Access = Internal;
 
-    internal procedure CheckIfSplitIsNeeded(Period: Code[10]): Boolean
+    procedure CheckIfSplitIsNeeded(Period: Code[10]): Boolean
     var
         PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
     begin
@@ -20,7 +20,7 @@ codeunit 12195 "Periodic VAT Settlement"
 
     end;
 
-    internal procedure CreateSeparateEntries(Period: Code[10])
+    procedure CreateSeparateEntries(Period: Code[10])
     var
         ActivityCode: Record "Activity Code";
         PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
@@ -35,7 +35,7 @@ codeunit 12195 "Periodic VAT Settlement"
     end;
 
 
-    internal procedure ValidateSplit(VATPeriod: Code[10]) Valid: Boolean
+    procedure ValidateSplit(VATPeriod: Code[10]) Valid: Boolean
     var
         PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
         PeriodicVATSettlementEntry2: Record "Periodic VAT Settlement Entry";
@@ -62,12 +62,4 @@ codeunit 12195 "Periodic VAT Settlement"
                  (PeriodicVATSettlementEntry."Prior Year Input VAT" = PriorYearInputVAT) and
                  (PeriodicVATSettlementEntry."Prior Year Output VAT" = PriorYearOutputVAT);
     end;
-
-#if not CLEAN28
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event is used only during data upgrade of the VAT Settlement Account Code feature, which will become mandatory one major version earlier.', '28.0')]
-    internal procedure OnAfterTransferfieldsToPeriodicSettlVATEntry(PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry"; var PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry")
-    begin
-    end;
-#endif
 }
