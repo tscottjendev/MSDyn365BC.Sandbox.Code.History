@@ -6,7 +6,6 @@ namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Purchases.Document;
 
 codeunit 1035 "Job Planning Invt. Profile"
 {
@@ -92,8 +91,6 @@ codeunit 1035 "Job Planning Invt. Profile"
         if JobPlanningLine.FindLinesWithItemToPlan(Item) then
             repeat
                 ShouldProcess := JobPlanningLine."Planning Date" <> 0D;
-                if ShouldProcess then
-                    ShouldProcess := not ShouldReducePurchaseOrderReceiptQuantity(JobPlanningLine);
                 OnTransJobPlanningLineToProfileOnBeforeProcessLine(JobPlanningLine, ShouldProcess);
 #if not CLEAN25
                 InventoryProfileOffsetting.RunOnTransJobPlanningLineToProfileOnBeforeProcessLine(JobPlanningLine, ShouldProcess);
@@ -109,18 +106,6 @@ codeunit 1035 "Job Planning Invt. Profile"
                     InventoryProfile.Insert();
                 end;
             until JobPlanningLine.Next() = 0;
-    end;
-
-    local procedure ShouldReducePurchaseOrderReceiptQuantity(JobPlanningLine: Record "Job Planning Line"): Boolean
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        JobPlanningLine.SetPurchLineFilters(PurchaseLine);
-        PurchaseLine.SetRange("No.", JobPlanningLine."No.");
-        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.CalcSums("Qty. Rcd. Not Invoiced (Base)");
-
-        exit(PurchaseLine."Qty. Rcd. Not Invoiced (Base)" = JobPlanningLine."Remaining Qty. (Base)");
     end;
 
     [IntegrationEvent(false, false)]
