@@ -456,7 +456,6 @@ report 120 "Aged Accounts Receivable"
                                         (CustLedgEntryEndingDate."Due Date" > EndingDate) and
                                         (CustLedgEntryEndingDate."Posting Date" <= EndingDate))
                                     then begin
-                                        OnCustomerOnAfterGetRecordOnBeforeSetCustLedgEntryEndingDateAmount(CustLedgEntryEndingDate, DetailedCustomerLedgerEntry);
                                         if DetailedCustomerLedgerEntry."Entry Type" in
                                            [DetailedCustomerLedgerEntry."Entry Type"::"Initial Entry",
                                             DetailedCustomerLedgerEntry."Entry Type"::"Unrealized Loss",
@@ -992,11 +991,6 @@ report 120 "Aged Accounts Receivable"
 
     [IntegrationEvent(false, false)]
     local procedure OnTempCustLedgEntryGetRecordOnAfterSetDetailedEntryFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCustomerOnAfterGetRecordOnBeforeSetCustLedgEntryEndingDateAmount(var CustLedgEntryEndingDate: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 }

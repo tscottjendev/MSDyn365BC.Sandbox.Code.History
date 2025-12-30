@@ -37,8 +37,6 @@ page 254 "Purchase Journal"
     DataCaptionExpression = Rec.DataCaption();
     DelayedInsert = true;
     PageType = Worksheet;
-    AboutTitle = 'About Purchase Journals';
-    AboutText = 'Record and post purchase-related transactions such as invoices, payments, and credit memos, including amounts, accounts, VAT, and dimensions, to update vendor balances and the general ledger.';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -172,7 +170,7 @@ page 254 "Purchase Journal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("<Vendor Name>"; GetVendorName())
+                field("<Vendor Name>"; AccName)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor Name';
@@ -1690,14 +1688,6 @@ page 254 "Purchase Journal"
         TotalBalanceVisible := ShowTotalBalance;
         if ShowTotalBalance then
             NumberOfRecords := Rec.Count();
-    end;
-
-    local procedure GetVendorName(): Text[100]
-    begin
-        if (Rec."Account Type" = Rec."Account Type"::Vendor) and (AccName <> '') then
-            exit(AccName);
-
-        exit('');
     end;
 
     local procedure EnableApplyEntriesAction()
