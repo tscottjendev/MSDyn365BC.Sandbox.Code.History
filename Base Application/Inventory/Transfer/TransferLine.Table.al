@@ -2194,15 +2194,8 @@ table 5741 "Transfer Line"
     /// Confirms the change of dimensions for an already shipped transfer line.
     /// </summary>
     /// <returns>Returns true if the change is confirmed, otherwise false.</returns>
-    procedure ConfirmShippedDimChange() Result: Boolean
-    var
-        IsHandled: Boolean;
+    procedure ConfirmShippedDimChange(): Boolean
     begin
-        IsHandled := false;
-        OnBeforeConfirmShippedDimChange(Rec, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
         if not Confirm(Text012, false, TableCaption) then
             Error(Text013);
 
@@ -2700,11 +2693,6 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateItemNo(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmShippedDimChange(var TransferLine: Record "Transfer Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
