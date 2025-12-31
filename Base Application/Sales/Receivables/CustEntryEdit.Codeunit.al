@@ -5,6 +5,8 @@
 namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Sales.History;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.BankAccount;
 
 codeunit 103 "Cust. Entry-Edit"
 {
@@ -40,12 +42,14 @@ codeunit 103 "Cust. Entry-Edit"
             DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             DtldCustLedgEntry.ModifyAll("Initial Entry Due Date", Rec."Due Date");
-            DtldCustLedgEntry.ModifyAll("Bank Receipt", Rec."Bank Receipt");
             CustLedgEntry."Pmt. Discount Date" := Rec."Pmt. Discount Date";
             CustLedgEntry."Applies-to ID" := Rec."Applies-to ID";
             CustLedgEntry."Bank Receipt" := Rec."Bank Receipt";
             CustLedgEntry."Payment Method Code" := Rec."Payment Method Code";
             CustLedgEntry."Allow Issue" := Rec."Allow Issue";
+            UpdateFromPaymentMethodAndBill(CustLedgEntry."Payment Method Code", CustLedgEntry);
+            DtldCustLedgEntry.ModifyAll("Bank Receipt", Rec."Bank Receipt");
+
             CustLedgEntry.Validate("Payment Reference", Rec."Payment Reference");
             CustLedgEntry.Validate("Your Reference", Rec."Your Reference");
             CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", Rec."Remaining Pmt. Disc. Possible");
@@ -106,7 +110,13 @@ codeunit 103 "Cust. Entry-Edit"
     local procedure UpdateSalesInvoiceHeader(UpdateSalesInvoiceCustLedgEntry: Record "Cust. Ledger Entry")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesInvoiceHeader(UpdateSalesInvoiceCustLedgEntry, CalledFromSalesInvEdit, IsHandled);
+        if IsHandled then
+            exit;
+
         if CalledFromSalesInvEdit then
             exit;
         if UpdateSalesInvoiceCustLedgEntry."Document Type" <> UpdateSalesInvoiceCustLedgEntry."Document Type"::Invoice then
@@ -141,6 +151,25 @@ codeunit 103 "Cust. Entry-Edit"
         exit(Changed);
     end;
 
+    local procedure UpdateFromPaymentMethodAndBill(PaymentMethodCode: Code[10]; var CustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        PaymentMethod: Record "Payment Method";
+        Bill: Record Bill;
+    begin
+        if PaymentMethodCode = '' then
+            exit;
+
+        PaymentMethod.SetLoadFields("Bill Code");
+        if not PaymentMethod.Get(PaymentMethodCode) then
+            exit;
+
+        Bill.SetLoadFields("Allow Issue", "Bank Receipt");
+        if Bill.Get(PaymentMethod."Bill Code") then begin
+            CustLedgEntry."Allow Issue" := Bill."Allow Issue";
+            CustLedgEntry."Bank Receipt" := Bill."Bank Receipt";
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustLedgEntryModify(var CustLedgEntry: Record "Cust. Ledger Entry"; FromCustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -158,6 +187,11 @@ codeunit 103 "Cust. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLogFieldChanged(CurrCustLedgerEntry: Record "Cust. Ledger Entry"; NewCustLedgerEntry: Record "Cust. Ledger Entry"; var Changed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesInvoiceHeader(var UpdateSalesInvoiceCustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromSalesInvEdit: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
