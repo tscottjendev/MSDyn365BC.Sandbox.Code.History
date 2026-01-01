@@ -113,9 +113,6 @@ table 30106 "Shpfy Customer Address"
         {
             Clustered = true;
         }
-        key(Key2; "Customer Id", Default)
-        {
-        }
     }
 
     trigger OnInsert()

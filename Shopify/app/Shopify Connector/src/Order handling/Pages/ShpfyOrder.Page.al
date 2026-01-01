@@ -353,13 +353,6 @@ page 30113 "Shpfy Order"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if tax is included in the unit price.';
                 }
-                field("Channel Liable Taxes"; Rec."Channel Liable Taxes")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ToolTip = 'Specifies if any tax line on the order is liable to be charged by the sales channel.';
-                }
-
                 field(CurrencyCode; Rec."Currency Code")
                 {
                     ApplicationArea = All;
@@ -660,10 +653,10 @@ page 30113 "Shpfy Order"
 
                     trigger OnAction()
                     var
-                        Orders: Codeunit "Shpfy Orders";
+                        OrdersApi: Codeunit "Shpfy Orders API";
                         ErrorInfo: ErrorInfo;
                     begin
-                        if Orders.MarkAsPaid(Rec."Shopify Order Id", Rec."Shop Code") then
+                        if OrdersApi.MarkAsPaid(Rec."Shopify Order Id", Rec."Shop Code") then
                             Message(MarkAsPaidMsg)
                         else begin
                             ErrorInfo.Message := MarkAsPaidFailedErr;
@@ -797,7 +790,7 @@ page 30113 "Shpfy Order"
             action(Fulfillments)
             {
                 ApplicationArea = All;
-                Caption = 'Completed Fulfillments';
+                Caption = 'Fulfillments';
                 Image = ShipmentLines;
                 Promoted = true;
                 PromotedCategory = Category4;
