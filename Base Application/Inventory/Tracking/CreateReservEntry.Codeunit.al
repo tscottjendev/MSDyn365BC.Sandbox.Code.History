@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Tracking;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Document;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -162,6 +163,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 ReservEntry.UpdateItemTracking();
                 OnBeforeReservEntryInsert(ReservEntry);
                 ReservEntry.Insert();
+                CheckReservationEntryForRoundingQty(ReservEntry);
                 OnAfterReservEntryInsert(ReservEntry);
                 if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
                     ReservEntry2."Entry No." := ReservEntry."Entry No.";
@@ -180,6 +182,35 @@ codeunit 99000830 "Create Reserv. Entry"
         Clear(QtyToHandleAndInvoiceIsSet);
 
         OnAfterCreateEntry(ItemNo, VariantCode, LocationCode);
+    end;
+
+    procedure CheckReservationEntryForRoundingQty(ReservEntry: Record "Reservation Entry")
+    var
+        Item: Record Item;
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        SaleLineQty: Decimal;
+        RoundQty: Decimal;
+    begin
+        Item.Get(ReservEntry."Item No.");
+        if Item.Reserve <> Item."Reserve"::"Always" then
+            exit;
+        if SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
+            SaleLineQty := SalesLine.Quantity
+        else
+            exit;
+        ReservationEntry.SetLoadFields("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", Quantity);
+        ReservationEntry.SetRange("Source Type", ReservEntry."Source Type");
+        ReservationEntry.SetRange("Source Subtype", ReservEntry."Source Subtype");
+        ReservationEntry.SetRange("Source ID", ReservEntry."Source ID");
+        ReservationEntry.SetRange("Source Ref. No.", ReservEntry."Source Ref. No.");
+        ReservationEntry.CalcSums(Quantity);
+
+        if Abs(ReservationEntry.Quantity) > SaleLineQty then begin
+            RoundQty := SaleLineQty - Abs(ReservationEntry.Quantity);
+            ReservEntry.Validate(Quantity, (ReservEntry.Quantity - RoundQty));
+            ReservEntry.Modify();
+        end;
     end;
 
     procedure CreateReservEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date)
@@ -754,7 +785,15 @@ codeunit 99000830 "Create Reserv. Entry"
                         if TempTrkgSpec1.FindLast() then
                             NextState := NextState::Split
                         else
-                            NextState := NextState::Error;
+                            if TempTrkgSpec2."Quantity (Base)" < 0 then begin
+                                TempTrkgSpec1.SetRange("Serial No.");
+                                TempTrkgSpec1.SetRange("Lot No.");
+                                if TempTrkgSpec1.FindLast() then
+                                    NextState := NextState::Split
+                                else
+                                    NextState := NextState::SetFilter2
+                            end else
+                                NextState := NextState::Error;
                     end;
                 NextState::SetFilter2:
                     begin
@@ -870,6 +909,7 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntry.Validate("Quantity (Base)", TempTrkgSpec1."Quantity (Base)");
         if Abs(ReservEntry.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision() then
             ReservEntry.Quantity := OldReservEntryQty;
+        ReservEntry.Positive := (ReservEntry."Quantity (Base)" > 0);
         TempTrkgSpec1.Delete();
 
         if (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation) or
@@ -883,6 +923,7 @@ codeunit 99000830 "Create Reserv. Entry"
             ReservEntry2.Validate("Quantity (Base)", TempTrkgSpec2."Quantity (Base)");
             if Abs(ReservEntry2.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision() then
                 ReservEntry2.Quantity := OldReservEntryQty;
+            ReservEntry2.Positive := (ReservEntry2."Quantity (Base)" > 0);
             if ReservEntry2.Positive then
                 ReservEntry2."Appl.-from Item Entry" := TempTrkgSpec2."Appl.-from Item Entry";
             TempTrkgSpec2.Delete();
