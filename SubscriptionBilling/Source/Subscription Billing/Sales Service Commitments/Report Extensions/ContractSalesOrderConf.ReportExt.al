@@ -1,9 +1,9 @@
 namespace Microsoft.SubscriptionBilling;
 
-using Microsoft.Sales.Document;
-using Microsoft.Utilities;
-using System.Text;
 using System.Utilities;
+using System.Text;
+using Microsoft.Utilities;
+using Microsoft.Sales.Document;
 
 reportextension 8010 "Contract Sales Order Conf." extends "Standard Sales - Order Conf."
 {
@@ -24,7 +24,7 @@ reportextension 8010 "Contract Sales Order Conf." extends "Standard Sales - Orde
                 SalesReportPrintoutMgmt.ExcludeItemFromTotals(Line, TotalSubTotal, TotalInvDiscAmount, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
             end;
         }
-        addlast(Line)
+        addlast(AssemblyLine)
         {
             dataitem(ServiceCommitmentHeaderForSalesLine; "Integer")
             {

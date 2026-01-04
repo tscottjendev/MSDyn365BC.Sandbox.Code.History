@@ -58,11 +58,6 @@ table 30139 "Shpfy Fulfillment Line"
         {
             Clustered = true;
         }
-        key(Indx001; "Fulfillment Id", "Is Gift Card")
-        {
-        }
-        key(Key3; "Order Id", "Is Gift Card")
-        {
-        }
+        key(Indx001; "Fulfillment Id", "Is Gift Card") { }
     }
 }

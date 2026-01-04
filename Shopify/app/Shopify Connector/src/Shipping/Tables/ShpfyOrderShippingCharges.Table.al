@@ -82,9 +82,6 @@ table 30130 "Shpfy Order Shipping Charges"
         {
             Clustered = true;
         }
-        key(Key2; "Shopify Order Id")
-        {
-        }
     }
 
     trigger OnDelete()
