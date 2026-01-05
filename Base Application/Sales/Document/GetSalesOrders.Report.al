@@ -105,7 +105,7 @@ report 698 "Get Sales Orders"
 
     trigger OnPreReport()
     begin
-        OnBeforeOnPreReport(HideDialog, ReqLine);
+        OnBeforeOnPreReport(HideDialog);
         ReqWkshTmpl.Get(ReqLine."Worksheet Template Name");
         ReqWkshName.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name");
         ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
@@ -278,7 +278,7 @@ report 698 "Get Sales Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnPreReport(var HideDialog: Boolean; var RequisitionLine: Record "Requisition Line")
+    local procedure OnBeforeOnPreReport(var HideDialog: Boolean)
     begin
     end;
 
