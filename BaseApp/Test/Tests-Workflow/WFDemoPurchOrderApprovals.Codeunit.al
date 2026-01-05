@@ -808,10 +808,9 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [GIVEN] Approval Setup
         CreateUserSetupsAndChainOfApprovers(CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
-        SetUnlimitedPurchaseApprovalLimits(IntermediateApproverUserSetup);
 
         // [GIVEN] Purchase Order created with Purchase Line containing Over-Receipt Code
-        CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
+        CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(10, 50));
         LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
         PurchLine.Validate("Over-Receipt Code", CreateOverReceiptCode());
         PurchLine.Validate("Over-Receipt Approval Status", PurchLine."Over-Receipt Approval Status"::Pending);
