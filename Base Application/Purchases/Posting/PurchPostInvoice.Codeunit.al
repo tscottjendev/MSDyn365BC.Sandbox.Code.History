@@ -818,10 +818,6 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                                 end;
                         end;
                 end;
-                if TempInvoicePostingBufferGST.Type = TempInvoicePostingBufferGST.Type::"Fixed Asset" then begin
-                    GSTPurchEntry."Document Line Code" := TempInvoicePostingBufferGST."G/L Account";
-                    GSTPurchEntry."Document Line Description" := TempInvoicePostingBufferGST."Entry Description";
-                end;
                 GSTPurchEntry."Document Line No." := TempInvoicePostingBufferGST."Fixed Asset Line No.";
                 GSTPurchEntry."Document Line Type" := TempInvoicePostingBufferGST.Type;
                 GSTPurchEntry."Vendor No." := PurchHeader."Buy-from Vendor No.";
@@ -1545,12 +1541,11 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         PurchPostInvoiceEvents.RunOnAfterCreatePostedDeferralSchedule(PurchLine, PostedDeferralHeader);
     end;
 
-    local procedure CalcSplitFA(GenJnlLine: Record "Gen. Journal Line"; SplitNo: Integer) SplitEnabled: Boolean
+    local procedure CalcSplitFA(GenJnlLine: Record "Gen. Journal Line"; SplitNo: Integer): Boolean
     begin
-        SplitEnabled :=
+        exit(
           (SplitNo >= 2) and
-          (GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Acquisition Cost");
-        PurchPostInvoiceEvents.RunOnCalcSplitFA(GenJnlLine, SplitNo, SplitEnabled);
+          (GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::"Acquisition Cost"));
     end;
 
     local procedure SplitFA(GenJnlLine: Record "Gen. Journal Line"; SplitNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
