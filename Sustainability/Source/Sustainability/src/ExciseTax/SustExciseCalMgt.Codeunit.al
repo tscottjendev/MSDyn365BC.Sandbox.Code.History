@@ -83,7 +83,6 @@ codeunit 6274 "Sust. Excise Cal. Mgt"
         SustExciseJournalLine.Validate("Entry Type", SustExciseJournalLine."Entry Type"::Purchase);
         SustExciseJournalLine.Validate("Document Type", SustExciseJournalLine."Document Type"::Invoice);
         SustExciseJournalLine.Validate("Document No.", NoSeriesBatch.GetNextNo(SustainabilityExciseJnlBatch."No Series", SustExciseJournalLine."Posting Date"));
-        SustExciseJournalLine.Validate(Description, PurchInvLine.Description);
         SustExciseJournalLine.Validate("Partner Type", SustExciseJournalLine."Partner Type"::Vendor);
         SustExciseJournalLine.Validate("Partner No.", PurchInvLine."Buy-from Vendor No.");
         SustExciseJournalLine.Validate("Source of Emission Data", PurchInvLine."Source of Emission Data");
@@ -162,10 +161,9 @@ codeunit 6274 "Sust. Excise Cal. Mgt"
         SalesShipmentHeader.SetLoadFields("Sell-to Customer No.", "Sell-to Country/Region Code");
         SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
 
-        SalesShipmentLine.SetLoadFields(Description, "Unit of Measure Code", Quantity, "Total EPR Fee");
+        SalesShipmentLine.SetLoadFields("Unit of Measure Code", Quantity, "Total EPR Fee");
         SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
 
-        SustExciseJournalLine.Validate(Description, SalesShipmentLine.Description);
         SustExciseJournalLine.Validate("Partner No.", SalesShipmentHeader."Sell-to Customer No.");
         SustExciseJournalLine.Validate("Country/Region Code", SalesShipmentHeader."Sell-to Country/Region Code");
         SustExciseJournalLine.Validate("Source Type", SustExciseJournalLine."Source Type"::Item);
@@ -183,10 +181,9 @@ codeunit 6274 "Sust. Excise Cal. Mgt"
         SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.", "Sell-to Country/Region Code");
         SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
 
-        SalesInvoiceLine.SetLoadFields(Description, "Unit of Measure Code", Quantity, "Total EPR Fee");
+        SalesInvoiceLine.SetLoadFields("Unit of Measure Code", Quantity, "Total EPR Fee");
         SalesInvoiceLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
 
-        SustExciseJournalLine.Validate(Description, SalesInvoiceLine.Description);
         SustExciseJournalLine.Validate("Partner No.", SalesInvoiceHeader."Sell-to Customer No.");
         SustExciseJournalLine.Validate("Country/Region Code", SalesInvoiceHeader."Sell-to Country/Region Code");
         SustExciseJournalLine.Validate("Source Type", SustExciseJournalLine."Source Type"::Item);
