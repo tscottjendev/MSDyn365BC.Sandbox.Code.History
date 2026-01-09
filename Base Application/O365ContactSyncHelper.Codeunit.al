@@ -3,13 +3,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 #pragma warning disable AA0247
-#if not CLEAN28
 codeunit 6702 "O365 Contact Sync. Helper"
 {
-    ObsoleteReason = 'Contact sync is now moved to assisted setup experience with new Graph based implementation.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '28.0';
-
     trigger OnRun()
     begin
     end;
@@ -700,4 +695,3 @@ codeunit 6702 "O365 Contact Sync. Helper"
     end;
 }
 
-#endif

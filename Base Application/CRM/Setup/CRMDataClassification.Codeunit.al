@@ -52,9 +52,7 @@ codeunit 1766 "CRM-Data Classification"
         ClassifyInteractionMergeData();
         ClassifyMergeDuplicatesBuffer();
         ClassifyMergeDuplicatesConflict();
-#if not CLEAN28
         ClassifyExchangeSync();
-#endif
         ClassifySalespersonPurchaser();
 
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Office Add-in Context");
@@ -115,9 +113,7 @@ codeunit 1766 "CRM-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Current Salesperson");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Exchange Folder");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Exchange Service Setup");
-#if not CLEAN28
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Exchange Contact");
-#endif
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Campaign Target Group");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"To-do Interaction Language");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Relationship Mgmt. Cue");
@@ -421,7 +417,6 @@ codeunit 1766 "CRM-Data Classification"
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyContact.FieldNo(Name));
     end;
 
-#if not CLEAN28
     local procedure ClassifyExchangeSync()
     var
         DummyExchangeSync: Record "Exchange Sync";
@@ -431,7 +426,6 @@ codeunit 1766 "CRM-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(TableNo);
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyExchangeSync.FieldNo("User ID"));
     end;
-#endif
 
     local procedure ClassifySalespersonPurchaser()
     var
