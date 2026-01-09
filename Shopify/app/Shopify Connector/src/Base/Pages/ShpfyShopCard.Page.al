@@ -527,10 +527,6 @@ page 30101 "Shpfy Shop Card"
                     ToolTip = 'Specifies if Business Central document no. is synchronized to Shopify as order attribute.';
                     Enabled = Rec."Allow Outgoing Requests" or Rec."Order Attributes To Shopify";
                 }
-                field("Create Invoices From Orders"; Rec."Create Invoices From Orders")
-                {
-                    ApplicationArea = All;
-                }
                 field(ArchiveProcessOrders; Rec."Archive Processed Orders")
                 {
                     ApplicationArea = All;
@@ -766,7 +762,7 @@ page 30101 "Shpfy Shop Card"
             action(CustomerTemplates)
             {
                 ApplicationArea = All;
-                Caption = 'Customer Setup by Country/Region';
+                Caption = 'Customer Templates';
                 Image = Template;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -774,7 +770,7 @@ page 30101 "Shpfy Shop Card"
                 PromotedOnly = true;
                 RunObject = page "Shpfy Customer Templates";
                 RunPageLink = "Shop Code" = field(Code);
-                ToolTip = 'Set up default customer accounts or templates per country or regions. The designated default customer account for a specific country or region will take precedence over the value in the Shopify Shop card page. When a missing customer is created, the appropriate template according to the customer''s address is selected. Additionally, you may specify tax settings by county or province to ensure more accurate tax calculations.';
+                ToolTip = 'Set up a customer template and default customer per country.';
             }
             action(Companies)
             {
@@ -917,21 +913,6 @@ page 30101 "Shpfy Shop Card"
                         CommunicationMgt.ClearApiVersionCache();
                     end;
                 }
-                action(LeaveReview)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Leave a Review';
-                    Image = CustomerRating;
-                    ToolTip = 'Open the Shopify App Store to leave a review for the Shopify connector.';
-
-                    trigger OnAction()
-                    var
-                        ShopReview: Codeunit "Shpfy Shop Review";
-                    begin
-                        ShopReview.OpenReviewLinkFromShop(Rec.GetStoreName());
-                    end;
-                }
-
             }
             group(Sync)
             {
@@ -1237,7 +1218,6 @@ page 30101 "Shpfy Shop Card"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         AuthenticationMgt: Codeunit "Shpfy Authentication Mgt.";
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
-        ShopReview: Codeunit "Shpfy Shop Review";
         ApiVersionExpiryDateTime: DateTime;
     begin
         FeatureTelemetry.LogUptake('0000HUU', 'Shopify', Enum::"Feature Uptake Status"::Discovered);
@@ -1256,10 +1236,6 @@ page 30101 "Shpfy Shop Card"
                     Rec.Enabled := false;
                     Rec.Modify();
                 end;
-#if not CLEAN28
-            Rec.UpdateFulfillmentService();
-#endif
-            ShopReview.MaybeShowReviewReminder(Rec.GetStoreName());
         end;
     end;
 

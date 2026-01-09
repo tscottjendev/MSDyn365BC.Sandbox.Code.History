@@ -82,9 +82,7 @@ codeunit 6108 "E-Document Processing"
 #endif
     begin
 #if not CLEAN26
-#pragma warning disable AL0432
         EDocumentLog.OnUpdateEDocumentStatus(EDocument, IsHandled);
-#pragma warning restore AL0432
         if IsHandled then
             exit;
 #endif
@@ -170,7 +168,6 @@ codeunit 6108 "E-Document Processing"
         TempBlobList: Codeunit "Temp Blob List";
         TypeHelper: Codeunit "Type Helper";
         SourceReference: RecordRef;
-        ExtensionList: List of [Text];
     begin
         // Email if attachment is E-Document or PDF & E-Document
         TypeHelper.CopyRecVariantToRecRef(RecordVariant, SourceReference);
@@ -185,13 +182,11 @@ codeunit 6108 "E-Document Processing"
         if EDocumentService.FindSet() then
             repeat
                 Clear(TempBlob);
-                if EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Exported) then begin
+                if EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Exported) then
                     TempBlobList.Add(TempBlob);
-                    ExtensionList.Add(EDocumentService.GetDefaultFileExtension());
-                end;
             until EDocumentService.Next() = 0;
 
-        EDocumentEmailing.SetAttachments(TempBlobList, ExtensionList);
+        EDocumentEmailing.SetAttachments(TempBlobList);
         EDocumentEmailing.SendEDocumentEmail(DocumentSendingProfile, ReportUsage, RecordVariant, DocNo, DocName, ToCust, ShowDialog);
     end;
 
@@ -301,7 +296,7 @@ codeunit 6108 "E-Document Processing"
         RecordRef: RecordRef;
         EDocumentType: Enum "E-Document Type";
     begin
-        if not (RecordVariant.IsRecord() or RecordVariant.IsRecordRef()) then
+        if not RecordVariant.IsRecord() then
             exit(Enum::"E-Document Type"::None);
 
         TypeHelper.CopyRecVariantToRecRef(RecordVariant, RecordRef);
