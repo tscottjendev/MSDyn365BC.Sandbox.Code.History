@@ -5,11 +5,10 @@
 
 namespace System.Agents;
 
-using System.Environment;
 using System.Environment.Configuration;
 using System.Reflection;
+using System.Environment;
 using System.Security.AccessControl;
-using System.Environment.Consumption;
 
 codeunit 4301 "Agent Impl."
 {
@@ -24,7 +23,7 @@ codeunit 4301 "Agent Impl."
                   tabledata User = r,
                   tabledata "User Personalization" = rim;
 
-    procedure CreateAgent(AgentMetadataProvider: Enum "Agent Metadata Provider"; var UserName: Code[50]; AgentUserDisplayName: Text[80]; var TempAgentAccessControl: Record "Agent Access Control" temporary): Guid
+    internal procedure CreateAgent(AgentMetadataProvider: Enum "Agent Metadata Provider"; var UserName: Code[50]; AgentUserDisplayName: Text[80]; var TempAgentAccessControl: Record "Agent Access Control" temporary): Guid
     var
         Agent: Record Agent;
     begin
@@ -38,23 +37,43 @@ codeunit 4301 "Agent Impl."
             GetUserAccess(Agent, TempAgentAccessControl, true);
 
         AssignCompany(Agent."User Security ID", CompanyName());
-        AssignDefaultProfile(Agent."User Security ID");
         UpdateAgentAccessControl(TempAgentAccessControl, Agent);
 
         exit(Agent."User Security ID");
     end;
 
-    procedure Activate(AgentUserSecurityID: Guid)
+    internal procedure Activate(AgentUserSecurityID: Guid)
     begin
         ChangeAgentState(AgentUserSecurityID, true);
     end;
 
-    procedure Deactivate(AgentUserSecurityID: Guid)
+    internal procedure Deactivate(AgentUserSecurityID: Guid)
     begin
         ChangeAgentState(AgentUserSecurityID, false);
     end;
 
-    procedure InsertCurrentOwnerIfNoOwnersDefined(var Agent: Record Agent; var AgentAccessControl: Record "Agent Access Control")
+    [NonDebuggable]
+    internal procedure SetInstructions(AgentUserSecurityID: Guid; Instructions: SecretText)
+    var
+        AgentALFunctions: DotNet AgentALFunctions;
+    begin
+        AgentALFunctions.SetInstructions(AgentUserSecurityID, Instructions.Unwrap());
+    end;
+
+    [NonDebuggable]
+    internal procedure GetInstructions(AgentUserSecurityID: Guid): SecretText
+    var
+        AgentALFunctions: DotNet AgentALFunctions;
+        InstructionsAsSecretText: SecretText;
+    begin
+        if IsNullGuid(AgentUserSecurityID) then
+            exit;
+
+        InstructionsAsSecretText := AgentALFunctions.GetInstructions(AgentUserSecurityID);
+        exit(InstructionsAsSecretText);
+    end;
+
+    internal procedure InsertCurrentOwnerIfNoOwnersDefined(var Agent: Record Agent; var AgentAccessControl: Record "Agent Access Control")
     begin
         SetOwnerFilters(AgentAccessControl);
         AgentAccessControl.SetRange("Agent User Security ID", Agent."User Security ID");
@@ -63,7 +82,7 @@ codeunit 4301 "Agent Impl."
         InsertCurrentOwner(Agent."User Security ID", AgentAccessControl);
     end;
 
-    procedure InsertCurrentOwner(AgentUserSecurityID: Guid; var AgentAccessControl: Record "Agent Access Control")
+    internal procedure InsertCurrentOwner(AgentUserSecurityID: Guid; var AgentAccessControl: Record "Agent Access Control")
     begin
         AgentAccessControl."Can Configure Agent" := true;
         AgentAccessControl."Agent User Security ID" := AgentUserSecurityID;
@@ -71,7 +90,22 @@ codeunit 4301 "Agent Impl."
         AgentAccessControl.Insert();
     end;
 
-    procedure GetUserAccess(AgentUserSecurityID: Guid; var TempAgentAccessControl: Record "Agent Access Control" temporary)
+    internal procedure VerifyOwnerExists(AgentAccessControlModified: Record "Agent Access Control")
+    var
+        ExistingAgentAccessControl: Record "Agent Access Control";
+    begin
+        if (AgentAccessControlModified."Can Configure Agent") then
+            exit;
+
+        SetOwnerFilters(ExistingAgentAccessControl);
+        ExistingAgentAccessControl.SetFilter("User Security ID", '<>%1', AgentAccessControlModified."User Security ID");
+        ExistingAgentAccessControl.SetRange("Agent User Security ID", AgentAccessControlModified."Agent User Security ID");
+
+        if ExistingAgentAccessControl.IsEmpty() then
+            Error(OneOwnerMustBeDefinedForAgentErr);
+    end;
+
+    internal procedure GetUserAccess(AgentUserSecurityID: Guid; var TempAgentAccessControl: Record "Agent Access Control" temporary)
     var
         Agent: Record Agent;
     begin
@@ -103,47 +137,20 @@ codeunit 4301 "Agent Impl."
         until AgentAccessControl.Next() = 0;
     end;
 
-    procedure PopulateProfileTempRecord(ProfileID: Text[30]; ProfileAppID: Guid; var TempAllProfile: Record "All Profile" temporary)
-    begin
-        TempAllProfile.Scope := TempAllProfile.Scope::Tenant;
-        TempAllProfile."App ID" := ProfileAppID;
-        TempAllProfile."Profile ID" := ProfileID;
-        TempAllProfile.Insert();
-    end;
-
-    local procedure AssignDefaultProfile(AgentUserSecurityID: Guid)
+    internal procedure SetProfile(AgentUserSecurityID: Guid; var AllProfile: Record "All Profile")
     var
         Agent: Record Agent;
-        TempAllProfile: Record "All Profile" temporary;
-        AgentFactory: Interface IAgentFactory;
-    begin
-        GetAgent(Agent, AgentUserSecurityID);
-
-        AgentFactory := Agent."Agent Metadata Provider";
-        AgentFactory.GetDefaultProfile(TempAllProfile);
-        SetProfile(Agent, TempAllProfile);
-    end;
-
-    procedure SetProfile(AgentUserSecurityID: Guid; var AllProfile: Record "All Profile")
-    var
-        Agent: Record Agent;
-    begin
-        GetAgent(Agent, AgentUserSecurityID);
-
-        SetProfile(Agent, AllProfile);
-    end;
-
-    local procedure SetProfile(Agent: Record Agent; var AllProfile: Record "All Profile")
-    var
         UserSettingsRecord: Record "User Settings";
         UserSettings: Codeunit "User Settings";
     begin
+        GetAgent(Agent, AgentUserSecurityID);
+
         UserSettings.GetUserSettings(Agent."User Security ID", UserSettingsRecord);
-        UpdateUserSettingsWithProfile(AllProfile, UserSettingsRecord);
+        UpdateProfile(AllProfile, UserSettingsRecord);
         UpdateAgentUserSettings(UserSettingsRecord);
     end;
 
-    procedure UpdateLocalizationSettings(AgentUserSecurityID: Guid; var NewUserSettingsRec: Record "User Settings")
+    internal procedure UpdateUserSettings(AgentUserSecurityID: Guid; var NewUserSettingsRec: Record "User Settings")
     var
         Agent: Record Agent;
         UserSettingsRecord: Record "User Settings";
@@ -158,7 +165,7 @@ codeunit 4301 "Agent Impl."
         UpdateAgentUserSettings(UserSettingsRecord);
     end;
 
-    procedure GetUserSettings(AgentUserSecurityID: Guid; var UserSettingsRec: Record "User Settings")
+    internal procedure GetUserSettings(AgentUserSecurityID: Guid; var UserSettingsRec: Record "User Settings")
     var
         Agent: Record Agent;
         UserSettings: Codeunit "User Settings";
@@ -172,7 +179,7 @@ codeunit 4301 "Agent Impl."
         UserSettings.GetUserSettings(UserSecurityID, UserSettingsRec);
     end;
 
-    local procedure AssignCompany(AgentUserSecurityID: Guid; CompanyName: Text)
+    internal procedure AssignCompany(AgentUserSecurityID: Guid; CompanyName: Text)
     var
         Agent: Record Agent;
         UserSettingsRecord: Record "User Settings";
@@ -182,12 +189,12 @@ codeunit 4301 "Agent Impl."
 
         UserSettings.GetUserSettings(Agent."User Security ID", UserSettingsRecord);
 #pragma warning disable AA0139
-        UserSettingsRecord.Company := CompanyName;
+        UserSettingsRecord.Company := CompanyName();
 #pragma warning restore AA0139
         UpdateAgentUserSettings(UserSettingsRecord);
     end;
 
-    procedure GetUserName(AgentUserSecurityID: Guid): Code[50]
+    internal procedure GetUserName(AgentUserSecurityID: Guid): Code[50]
     var
         Agent: Record Agent;
     begin
@@ -196,7 +203,7 @@ codeunit 4301 "Agent Impl."
         exit(Agent."User Name");
     end;
 
-    procedure GetDisplayName(AgentUserSecurityID: Guid): Text[80]
+    internal procedure GetDisplayName(AgentUserSecurityID: Guid): Text[80]
     var
         Agent: Record Agent;
     begin
@@ -205,7 +212,7 @@ codeunit 4301 "Agent Impl."
         exit(Agent."Display Name")
     end;
 
-    procedure SetDisplayName(AgentUserSecurityID: Guid; DisplayName: Text[80])
+    internal procedure SetDisplayName(AgentUserSecurityID: Guid; DisplayName: Text[80])
     var
         Agent: Record Agent;
     begin
@@ -215,7 +222,7 @@ codeunit 4301 "Agent Impl."
         Agent.Modify(true);
     end;
 
-    procedure IsActive(AgentUserSecurityID: Guid): Boolean
+    internal procedure IsActive(AgentUserSecurityID: Guid): Boolean
     var
         Agent: Record Agent;
     begin
@@ -224,7 +231,7 @@ codeunit 4301 "Agent Impl."
         exit(Agent.State = Agent.State::Enabled);
     end;
 
-    procedure UpdateAgentAccessControl(AgentUserSecurityID: Guid; var TempAgentAccessControl: Record "Agent Access Control" temporary)
+    internal procedure UpdateAgentAccessControl(AgentUserSecurityID: Guid; var TempAgentAccessControl: Record "Agent Access Control" temporary)
     var
         Agent: Record Agent;
     begin
@@ -235,7 +242,7 @@ codeunit 4301 "Agent Impl."
     end;
 
     # Region TODO: Update System App signatures to use the codeunit 9175 "User Settings Impl."
-    procedure UpdateAgentUserSettings(NewUserSettings: Record "User Settings")
+    internal procedure UpdateAgentUserSettings(NewUserSettings: Record "User Settings")
     var
         UserPersonalization: Record "User Personalization";
     begin
@@ -261,27 +268,20 @@ codeunit 4301 "Agent Impl."
 
         if TempAllProfile.Get(UserSettingsRec.Scope, UserSettingsRec."App ID", UserSettingsRec."Profile ID") then;
         if Page.RunModal(Page::Roles, TempAllProfile) = Action::LookupOK then begin
-            UpdateUserSettingsWithProfile(TempAllProfile, UserSettingsRec);
+            UpdateProfile(TempAllProfile, UserSettingsRec);
             exit(true);
         end;
         exit(false);
     end;
 
-    procedure CanShowMonetizationData(): Boolean
-    var
-        DummyUserAIConsumptionData: Record "User AI Consumption Data";
-    begin
-        exit(DummyUserAIConsumptionData.ReadPermission());
-    end;
-
-    local procedure UpdateUserSettingsWithProfile(var TempAllProfile: Record "All Profile" temporary; var UserSettingsRec: Record "User Settings")
+    internal procedure UpdateProfile(var TempAllProfile: Record "All Profile" temporary; var UserSettingsRec: Record "User Settings")
     begin
         UserSettingsRec."Profile ID" := TempAllProfile."Profile ID";
         UserSettingsRec."App ID" := TempAllProfile."App ID";
         UserSettingsRec.Scope := TempAllProfile.Scope;
     end;
 
-    local procedure PopulateProfiles(var TempAllProfile: Record "All Profile" temporary)
+    procedure PopulateProfiles(var TempAllProfile: Record "All Profile" temporary)
     var
         AllProfile: Record "All Profile";
         DescriptionFilterTxt: Label 'Navigation menu only.';
@@ -299,35 +299,37 @@ codeunit 4301 "Agent Impl."
                 TempAllProfile.Insert();
             until AllProfile.Next() = 0;
     end;
-    #endregion
 
-    procedure AssignPermissionSets(var UserSecurityID: Guid; var TempAccessControlBuffer: Record "Access Control Buffer" temporary)
+    procedure GetProfileName(Scope: Option System,Tenant; AppID: Guid; ProfileID: Code[30]) ProfileName: Text
+    var
+        AllProfile: Record "All Profile";
+    begin
+        // If current profile has been changed, then find it and update the description; else, get the default
+        if not AllProfile.Get(Scope, AppID, ProfileID) then
+            exit;
+
+        ProfileName := AllProfile.Caption;
+    end;
+
+    internal procedure AssignPermissionSets(var UserSID: Guid; PermissionCompanyName: Text; var AggregatePermissionSet: Record "Aggregate Permission Set")
     var
         AccessControl: Record "Access Control";
     begin
-        AccessControl.SetRange("User Security ID", UserSecurityID);
-        if AccessControl.FindSet() then
-            repeat
-                if not TempAccessControlBuffer.Get(AccessControl."Company Name", AccessControl.Scope, AccessControl."App ID", AccessControl."Role ID") then
-                    AccessControl.Delete(true);
-            until AccessControl.Next() = 0;
-
-        AccessControl.Reset();
-        TempAccessControlBuffer.Reset();
-        if not TempAccessControlBuffer.FindSet() then
+        if not AggregatePermissionSet.FindSet() then
             exit;
 
         repeat
-            if not AccessControl.Get(UserSecurityID, TempAccessControlBuffer."Role ID", TempAccessControlBuffer."Company Name", TempAccessControlBuffer.Scope, TempAccessControlBuffer."App ID") then begin
-                AccessControl."User Security ID" := UserSecurityID;
-                AccessControl."Role ID" := TempAccessControlBuffer."Role ID";
-                AccessControl."Company Name" := TempAccessControlBuffer."Company Name";
-                AccessControl.Scope := TempAccessControlBuffer.Scope;
-                AccessControl."App ID" := TempAccessControlBuffer."App ID";
-                AccessControl.Insert();
-            end;
-        until TempAccessControlBuffer.Next() = 0;
+            AccessControl."App ID" := AggregatePermissionSet."App ID";
+            AccessControl."User Security ID" := UserSID;
+            AccessControl."Role ID" := AggregatePermissionSet."Role ID";
+            AccessControl.Scope := AggregatePermissionSet.Scope;
+#pragma warning disable AA0139
+            AccessControl."Company Name" := PermissionCompanyName;
+#pragma warning restore AA0139
+            AccessControl.Insert();
+        until AggregatePermissionSet.Next() = 0;
     end;
+    #endregion
 
     local procedure GetAgent(var Agent: Record Agent; UserSecurityID: Guid)
     begin
@@ -338,20 +340,14 @@ codeunit 4301 "Agent Impl."
     local procedure ChangeAgentState(UserSecurityID: Guid; Enabled: Boolean)
     var
         Agent: Record Agent;
+
     begin
         GetAgent(Agent, UserSecurityId);
 
-        if Enabled then begin
-            if Agent.State = Agent.State::Enabled then
-                exit;
-
+        if Enabled then
             Agent.State := Agent.State::Enabled
-        end else begin
-            if Agent.State = Agent.State::Disabled then
-                exit;
-
+        else
             Agent.State := Agent.State::Disabled;
-        end;
 
         Agent.Modify();
     end;
@@ -359,45 +355,66 @@ codeunit 4301 "Agent Impl."
     local procedure UpdateAgentAccessControl(var TempAgentAccessControl: Record "Agent Access Control" temporary; var Agent: Record Agent)
     begin
         // We must delete or update the user doing the change the last to avoid removing permissions that are needed to commit the change
-        UpdateAgentAccessControlForUsers(TempAgentAccessControl, Agent, '<>%1', UserSecurityId());
+        UpdateUsersOtherThanMainUser(TempAgentAccessControl, Agent);
 
         // Update the user at the end
-        UpdateAgentAccessControlForUsers(TempAgentAccessControl, Agent, '%1', UserSecurityId());
+        UpdateUserDoingTheChange(TempAgentAccessControl, Agent);
     end;
 
-    local procedure UpdateAgentAccessControlForUsers(var TempAgentAccessControl: Record "Agent Access Control" temporary; var Agent: Record Agent; UserSecurityIdFilter: Text; UserSecurityIdValue: Guid)
+    local procedure UpdateUsersOtherThanMainUser(var TempAgentAccessControl: Record "Agent Access Control" temporary; var Agent: Record Agent)
     var
         AgentAccessControl: Record "Agent Access Control";
     begin
-        // Delete any existing records that match the filter and are not in the temp table
         AgentAccessControl.SetRange("Agent User Security ID", Agent."User Security ID");
-        AgentAccessControl.SetFilter("User Security ID", UserSecurityIdFilter, UserSecurityIdValue);
+        AgentAccessControl.SetFilter("User Security ID", '<>%1', UserSecurityId());
         if AgentAccessControl.FindSet() then
             repeat
-                if not TempAgentAccessControl.Get(AgentAccessControl."Agent User Security ID", AgentAccessControl."User Security ID", AgentAccessControl."Company Name") then
+                if not TempAgentAccessControl.Get(AgentAccessControl."Agent User Security ID", AgentAccessControl."User Security ID") then
                     AgentAccessControl.Delete(true);
             until AgentAccessControl.Next() = 0;
 
-        // Insert or update all records from temp table that match the filter
         AgentAccessControl.Reset();
         TempAgentAccessControl.Reset();
-        TempAgentAccessControl.SetFilter("User Security ID", UserSecurityIdFilter, UserSecurityIdValue);
+        TempAgentAccessControl.SetFilter("User Security ID", '<>%1', UserSecurityId());
         if not TempAgentAccessControl.FindSet() then
             exit;
 
         repeat
-            if AgentAccessControl.Get(Agent."User Security ID", TempAgentAccessControl."User Security ID", TempAgentAccessControl."Company Name") then begin
-                AgentAccessControl."Can Configure Agent" := TempAgentAccessControl."Can Configure Agent";
+            if AgentAccessControl.Get(Agent."User Security ID", TempAgentAccessControl."User Security ID") then begin
+                AgentAccessControl.TransferFields(TempAgentAccessControl, true);
+                AgentAccessControl."Agent User Security ID" := Agent."User Security ID";
                 AgentAccessControl.Modify();
             end else begin
-                Clear(AgentAccessControl);
+                AgentAccessControl.TransferFields(TempAgentAccessControl, true);
                 AgentAccessControl."Agent User Security ID" := Agent."User Security ID";
-                AgentAccessControl."User Security ID" := TempAgentAccessControl."User Security ID";
-                AgentAccessControl."Company Name" := TempAgentAccessControl."Company Name";
-                AgentAccessControl."Can Configure Agent" := TempAgentAccessControl."Can Configure Agent";
                 AgentAccessControl.Insert();
             end;
         until TempAgentAccessControl.Next() = 0;
+    end;
+
+    local procedure UpdateUserDoingTheChange(var TempAgentAccessControl: Record "Agent Access Control" temporary; var Agent: Record Agent)
+    var
+        AgentAccessControl: Record "Agent Access Control";
+    begin
+        TempAgentAccessControl.SetFilter("User Security ID", UserSecurityId());
+        if not TempAgentAccessControl.FindFirst() then begin
+            if AgentAccessControl.Get(Agent."User Security ID", UserSecurityId()) then
+                AgentAccessControl.Delete();
+
+            exit;
+        end;
+
+        if AgentAccessControl.Get(Agent."User Security ID", UserSecurityId()) then begin
+            AgentAccessControl.TransferFields(TempAgentAccessControl, true);
+            AgentAccessControl."Agent User Security ID" := Agent."User Security ID";
+            AgentAccessControl.Modify();
+            exit;
+        end else begin
+            AgentAccessControl.TransferFields(TempAgentAccessControl, true);
+            AgentAccessControl."Agent User Security ID" := Agent."User Security ID";
+            AgentAccessControl.Insert();
+            exit;
+        end;
     end;
 
     procedure SelectAgent(var Agent: Record "Agent")
@@ -445,7 +462,6 @@ codeunit 4301 "Agent Impl."
         AgentNamePrefix: Text[50];
         NumberOfAgentDigits: Integer;
         MaximumPrefixLength: Integer;
-        NumberIncrement: Integer;
         AgentNumberSeparatorTok: Label '-', Locked = true;
     begin
         // Check if the user name is already unique
@@ -466,22 +482,14 @@ codeunit 4301 "Agent Impl."
 
         // Generate a unique user name by appending digits
         User.SetFilter("User Name", '%1', AgentNamePrefix + '*');
-        NumberIncrement := User.Count() + 2;
 #pragma warning disable AA0139
-        UniqueUserName := AgentNamePrefix + Format(NumberIncrement);
+        UniqueUserName := AgentNamePrefix + Format(User.Count() + 2);
 #pragma warning restore AA0139
-        User.SetRange("User Name", UniqueUserName);
-
-        while not User.IsEmpty() do begin
-            NumberIncrement += 1;
-            UniqueUserName := AgentNamePrefix + Format(NumberIncrement);
-            User.SetRange("User Name", UniqueUserName);
-        end;
 
         exit(UniqueUserName);
     end;
 
-    procedure OpenSetupPageId(AgentMetadataProvider: Enum "Agent Metadata Provider"; AgentUserSecurityID: Guid)
+    internal procedure OpenSetupPageId(AgentMetadataProvider: Enum "Agent Metadata Provider"; AgentUserSecurityID: Guid)
     var
         PageMetadata: Record "Page Metadata";
         FieldMetadata: Record Field;
@@ -499,7 +507,7 @@ codeunit 4301 "Agent Impl."
         if (PageMetadata.SourceTable = 0) then
             Error(SetupPageMissingSourceTableErr, SetupPageId);
 
-        SetupPageRecordRef.Open(PageMetadata.SourceTable, PageMetadata.SourceTableTemporary);
+        SetupPageRecordRef.Open(PageMetadata.SourceTable);
 
         FieldMetadata.SetRange(TableNo, PageMetadata.SourceTable);
         FieldMetadata.SetRange(FieldName, UserSecurityIdTok);
@@ -515,27 +523,8 @@ codeunit 4301 "Agent Impl."
         Page.RunModal(SetupPageId, SourceRecordVariant);
     end;
 
-    procedure GetAccessControlForSingleCompany(AgentUserSecurityID: Guid; var SingleCompanyName: Text[30]): Boolean
     var
-        TempCompany: Record Company temporary;
-        UserSettings: Codeunit "User Settings";
-    begin
-        UserSettings.GetAllowedCompaniesForUser(AgentUserSecurityID, TempCompany);
-        if TempCompany.IsEmpty() then begin
-#pragma warning disable AA0139
-            SingleCompanyName := CompanyName();
-#pragma warning restore AA0139
-            exit(true);
-        end;
-
-        if TempCompany.Count() <> 1 then
-            exit(false);
-
-        SingleCompanyName := TempCompany.Name;
-        exit(true);
-    end;
-
-    var
+        OneOwnerMustBeDefinedForAgentErr: Label 'One owner must be defined for the agent.';
         AgentDoesNotExistErr: Label 'Agent does not exist.';
         NoActiveAgentsErr: Label 'There are no active agents setup on the system.';
         NoAgentsAvailableNotificationLbl: Label 'Business Central agents are currently not available in your country.';
