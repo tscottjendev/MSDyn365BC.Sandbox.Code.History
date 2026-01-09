@@ -1004,11 +1004,6 @@ table 167 Job
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Sell-to Country/Region Code"));
             ValidateTableRelation = false;
-
-            trigger OnLookup()
-            begin
-                PostCode.LookupPostCode("Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(2008; "Sell-to County"; Text[30])
         {
@@ -1346,12 +1341,10 @@ table 167 Job
     trigger OnRename()
     var
         CommentLine: Record "Comment Line";
-        JobArchiveManagement: Codeunit "Job Archive Management";
     begin
         UpdateJobNoInReservationEntries();
         DimMgt.RenameDefaultDim(Database::Job, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Job, xRec."No.", "No.");
-        JobArchiveManagement.RenameJobArchieve(xRec."No.", Rec."No.");
         "Last Date Modified" := Today;
     end;
 
@@ -1759,7 +1752,7 @@ table 167 Job
         JobPlanningLine.LockTable();
         if JobPlanningLine.Find('-') then
             repeat
-                OnCurrencyUpdatePlanningLinesOnBeforeUpdateJobPlanningLine(Rec, JobPlanningLine);
+                OnCurrencyUpdatePlanningLinesOnBeforeUpdateJobPlanningLine(Job, JobPlanningLine);
                 if JobPlanningLine."Qty. Transferred to Invoice" <> 0 then
                     Error(AssociatedEntriesExistErr, FieldCaption("Currency Code"), TableCaption);
                 JobPlanningLine.Validate("Currency Code", "Currency Code");
