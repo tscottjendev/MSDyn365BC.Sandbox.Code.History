@@ -49,7 +49,7 @@ codeunit 5407 "Prod. Order Status Management"
 
         ChangeStatusForm.Set(Rec);
         if ChangeStatusForm.RunModal() = ACTION::Yes then begin
-            OnRunOnAfterChangeStatusFormRun(Rec);
+            OnRunOnAfterChangeStatusFormRun(Rec, ChangeStatusForm);
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost, FinishOrderWithoutOutput);
             ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
             Commit();
@@ -124,20 +124,22 @@ codeunit 5407 "Prod. Order Status Management"
         if (NewStatus = Enum::"Production Order Status"::Released) and (ProdOrder."Source Type" = ProdOrder."Source Type"::Item) then
             Item.CheckItemAndVariantForProdBlocked(ProdOrder."Source No.", '', Enum::"Item Production Blocked"::Output);
         if NewStatus = NewStatus::Finished then begin
-            CheckBeforeFinishProdOrder(ProdOrder);
-            FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
-            IsHandled := false;
-            OnChangeProdOrderStatusOnBeforeDeleteDocReservation(ProdOrder, IsHandled);
-            if not IsHandled then
-                ReservMgt.DeleteDocumentReservation(Database::"Prod. Order Line", ProdOrder.Status.AsInteger(), ProdOrder."No.", false);
-            ErrorIfUnableToClearWIP(ProdOrder);
-            TransProdOrder(ProdOrder);
+            if not IsVariantCodeMandatory(ProdOrder) then begin
+                CheckBeforeFinishProdOrder(ProdOrder);
+                FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
+                IsHandled := false;
+                OnChangeProdOrderStatusOnBeforeDeleteDocReservation(ProdOrder, IsHandled);
+                if not IsHandled then
+                    ReservMgt.DeleteDocumentReservation(Database::"Prod. Order Line", ProdOrder.Status.AsInteger(), ProdOrder."No.", false);
+                ErrorIfUnableToClearWIP(ProdOrder);
+                TransProdOrder(ProdOrder);
 
-            MakeMultiLevelAdjmt(ProdOrder);
-            AdjustWIPForProduction(ProdOrder);
+                MakeMultiLevelAdjmt(ProdOrder);
+                AdjustWIPForProduction(ProdOrder);
 
-            WhseProdRelease.FinishedDelete(ProdOrder);
-            WhseOutputProdRelease.FinishedDelete(ProdOrder);
+                WhseProdRelease.FinishedDelete(ProdOrder);
+                WhseOutputProdRelease.FinishedDelete(ProdOrder);
+            end;
         end else begin
             OnChangeProdOrderStatusOnBeforeTransProdOrder(ProdOrder, NewStatus);
             TransProdOrder(ProdOrder);
@@ -459,6 +461,8 @@ codeunit 5407 "Prod. Order Status Management"
         if GeneralLedgerSetup."Journal Templ. Name Mandatory" then
             InventoryPostingToGL.SetGenJnlBatch(InventorySetup."Invt. Cost Jnl. Template Name", InventorySetup."Invt. Cost Jnl. Batch Name");
 
+        if NewPostingDate <> 0D then
+            ValueEntry."Posting Date" := NewPostingDate;
         InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
     end;
 
@@ -940,6 +944,24 @@ codeunit 5407 "Prod. Order Status Management"
                 FromProdOrderCapNeed.DeleteAll();
             end;
         end;
+    end;
+
+    local procedure IsVariantCodeMandatory(ProdOrder: Record "Production Order"): Boolean
+    var
+        VariantItem: Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine.SetFilter("Remaining Quantity", '<>0');
+        if ProdOrderLine.FindSet() then
+            repeat
+                VariantItem.Get(ProdOrderLine."Item No.");
+                if VariantItem.IsVariantMandatory(VariantItem."Variant Mandatory if Exists" = VariantItem."Variant Mandatory if Exists"::Yes) then begin
+                    ProdOrderLine.TestField("Variant Code", ErrorInfo.Create());
+                    exit(ProdOrderLine."Variant Code" = '');
+                end;
+            until ProdOrderLine.Next() = 0;
     end;
 
     procedure FlushProdOrder(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; PostingDate: Date)
@@ -1872,7 +1894,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterChangeStatusFormRun(var ProductionOrder: Record "Production Order")
+    local procedure OnRunOnAfterChangeStatusFormRun(var ProductionOrder: Record "Production Order"; var ChangeStatusOnProdOrder: Page "Change Status on Prod. Order")
     begin
     end;
 
