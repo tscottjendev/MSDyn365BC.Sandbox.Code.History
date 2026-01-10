@@ -27,7 +27,6 @@ report 99003801 "Implement Registered Absence"
                 CalendarAbsEntry.Validate("Ending Time", "Ending Time");
                 CalendarAbsEntry.Validate(Capacity, Capacity);
                 CalendarAbsEntry.Validate(Description, Description);
-                OnRegisteredAbsenceOnAfterGetRecordOnBeforeInsert(CalendarAbsEntry, "Registered Absence");
                 if not CalendarAbsEntry.Insert() then
                     if Overwrite then
                         CalendarAbsEntry.Modify();
@@ -67,10 +66,5 @@ report 99003801 "Implement Registered Absence"
     var
         CalendarAbsEntry: Record "Calendar Absence Entry";
         Overwrite: Boolean;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnRegisteredAbsenceOnAfterGetRecordOnBeforeInsert(var CalendarAbsEntry: Record "Calendar Absence Entry"; RegisteredAbsence: Record "Registered Absence")
-    begin
-    end;
 }
 
