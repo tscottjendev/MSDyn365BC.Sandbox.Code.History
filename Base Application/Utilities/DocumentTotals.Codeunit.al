@@ -129,9 +129,8 @@ codeunit 57 "Document Totals"
                             InvoiceDiscountPct := Round(InvoiceDiscountAmount / SalesLine2."Line Amount" * 100, 0.00001);
                         TotalSalesHeader."Invoice Discount Value" := InvoiceDiscountAmount;
                         RoundingDiffDiscountPer := Abs(OldInvoiceDiscountPct - InvoiceDiscountPct);
-                        if not SalesSetup."Calc. Inv. Discount" and (TotalSalesHeader.Status = TotalSalesHeader.Status::Open) then
-                            if (RoundingDiffDiscountPer > 0) and (RoundingDiffDiscountPer <= 0.01) and (OldInvoiceDiscountPct <> 0) then
-                                Message(InvoiceDiscountPerRoundingMsgTxt);
+                        if (RoundingDiffDiscountPer > 0) and (RoundingDiffDiscountPer <= 0.01) and (OldInvoiceDiscountPct <> 0) then
+                            Message(InvoiceDiscountPerRoundingMsgTxt);
                     end;
             end;
 
