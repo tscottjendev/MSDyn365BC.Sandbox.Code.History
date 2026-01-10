@@ -33,9 +33,7 @@ table 6103 "E-Document Service"
             DataClassification = SystemMetadata;
         }
 #if not CLEANSCHEMA29
-#pragma warning disable AL0432
         field(4; "Service Integration"; Enum "E-Document Integration")
-#pragma warning restore AL0432
         {
             Caption = 'Service Integration';
             DataClassification = SystemMetadata;
@@ -298,12 +296,6 @@ table 6103 "E-Document Service"
             InitValue = true;
             DataClassification = SystemMetadata;
         }
-        field(61; "Processing Customizations"; Enum "E-Doc. Proc. Customizations")
-        {
-            Caption = 'Processing customizations';
-            ToolTip = 'Specifies the customizations for the processing of e-documents processed the service.';
-            DataClassification = SystemMetadata;
-        }
         #endregion [60-80] are reserved for purchase draft document settings.
     }
     keys
@@ -379,41 +371,15 @@ table 6103 "E-Document Service"
                 EDocImportParameters."Step to Run / Desired Status" := EDocImportParameters."Step to Run / Desired Status"::"Desired E-Document Status";
                 EDocImportParameters."Desired E-Document Status" := EDocImportParameters."Desired E-Document Status"::Unprocessed;
             end;
-
-        EDocImportParameters."Processing Customizations" := Rec."Processing Customizations";
     end;
 
     internal procedure ToString(): Text
     begin
 #if not CLEAN26
-#pragma warning disable AL0432
         exit(StrSubstNo(EDocStringLbl, SystemId, "Document Format", "Service Integration", "Use Batch Processing", "Batch Mode"));
-#pragma warning restore AL0432
 #else
         exit(StrSubstNo(EDocStringLbl, SystemId, "Document Format", "Service Integration V2", "Use Batch Processing", "Batch Mode"));
 #endif
-    end;
-
-    /// <summary>
-    /// Gets the default file extension for the e-document service.
-    /// </summary>
-    /// <returns>The default file extension (e.g., '.xml'). Can be overridden via OnAfterGetDefaultFileExtension event.</returns>
-    procedure GetDefaultFileExtension() FileExtension: Text
-    var
-        XMLFileTypeTok: Label '.xml', Locked = true;
-    begin
-        FileExtension := XMLFileTypeTok;
-        OnAfterGetDefaultFileExtension(Rec, FileExtension);
-    end;
-
-    /// <summary>
-    /// Integration event that allows subscribers to override the default file extension for the e-document service.
-    /// </summary>
-    /// <param name="EDocumentService">The E-Document Service record.</param>
-    /// <param name="FileExtension">The file extension to be used. By default, it is set to '.xml'.</param>
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetDefaultFileExtension(EDocumentService: Record "E-Document Service"; var FileExtension: Text)
-    begin
     end;
 
     var

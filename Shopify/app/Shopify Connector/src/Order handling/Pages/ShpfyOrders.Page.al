@@ -152,12 +152,6 @@ page 30115 "Shpfy Orders"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the sum of the line amounts on all lines in the document minus any discount amounts plus the shipping costs.';
                 }
-                field("Channel Liable Taxes"; Rec."Channel Liable Taxes")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies if any tax line on the order is liable to be charged by the channel.';
-                    Visible = false;
-                }
                 field(Processed; Rec.Processed)
                 {
                     ApplicationArea = All;
@@ -423,30 +417,6 @@ page 30115 "Shpfy Orders"
                     end;
                 }
             }
-        }
-    }
-
-    views
-    {
-        view(UnprocessedOrders)
-        {
-            Caption = 'Unprocessed Orders';
-            Filters = where(Processed = const(false));
-        }
-        view(OrderWithConflicts)
-        {
-            Caption = 'Orders with Conflicts';
-            Filters = where("Has Order State Error" = const(true));
-        }
-        view(OrderWithProcessingErrors)
-        {
-            Caption = 'Orders with Processing Errors';
-            Filters = where("Has Error" = const(true));
-        }
-        view(OpenOrders)
-        {
-            Caption = 'Open Orders';
-            Filters = where(Closed = const(false));
         }
     }
 
