@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -9,6 +9,7 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
 using System.Agents;
+using System.Agents.TaskPane;
 
 page 6105 "Inbound E-Documents"
 {
@@ -85,7 +86,19 @@ page 6105 "Inbound E-Documents"
                     Caption = 'Agent Task No.';
                     ToolTip = 'Specifies the task number for the document.';
                     Editable = false;
+                    ExtendedDatatype = Task;
                     BlankNumbers = BlankZero;
+
+                    trigger OnDrillDown()
+                    var
+                        Task: Record "Agent Task";
+                        TaskPane: Codeunit "Task Pane";
+                    begin
+                        if AgentTask.ID = 0 then
+                            exit;
+                        Task.Get(AgentTask.ID);
+                        TaskPane.ShowTask(Task);
+                    end;
                 }
                 field(TaskStatus; AgentTask.Status)
                 {
@@ -462,7 +475,7 @@ page 6105 "Inbound E-Documents"
         ProcessFilesUploads(EDocumentService, Files, Enum::"E-Doc. File Format"::XML);
     end;
 
-    local procedure ProcessFilesUploads(EDocumentService: Record "E-Document Service"; Files: List of [FileUpload]; Type: Enum "E-Doc. File Format")
+    internal procedure ProcessFilesUploads(EDocumentService: Record "E-Document Service"; Files: List of [FileUpload]; Type: Enum "E-Doc. File Format")
     var
         EDocument: Record "E-Document";
         EDocImport: Codeunit "E-Doc. Import";

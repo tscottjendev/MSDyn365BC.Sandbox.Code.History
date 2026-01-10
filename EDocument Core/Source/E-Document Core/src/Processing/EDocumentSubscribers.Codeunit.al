@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -578,7 +578,7 @@ codeunit 6103 "E-Document Subscribers"
 
     procedure CreateEDocumentFromPostedDocument(PostedRecord: Variant; DocumentSendingProfile: Record "Document Sending Profile")
     begin
-        CreateEDocumentFromPostedDocument(PostedRecord, DocumentSendingProfile, EDocumentProcessing.GetTypeFromPostedSourceDocument(PostedRecord));
+        CreateEDocumentFromPostedDocument(PostedRecord, DocumentSendingProfile, EDocumentProcessing.GetTypeFromSourceDocument(PostedRecord));
     end;
 
     procedure CreateEDocumentFromPostedDocument(PostedRecord: Variant; DocumentSendingProfile: Record "Document Sending Profile"; DocumentType: Enum "E-Document Type")
@@ -587,13 +587,8 @@ codeunit 6103 "E-Document Subscribers"
         TypeHelper: Codeunit "Type Helper";
         RecordRef: RecordRef;
         PostedSourceDocumentHeader: RecordRef;
-        IsHandled: Boolean;
         UnsupportedRecordTypeErr: Label 'Unsupported record %1.', Comment = '%1 - Record Type';
     begin
-        OnBeforeCreateEDocumentFromPostedDocument(PostedRecord, IsHandled);
-        if IsHandled then
-            exit;
-
         if DocumentType = DocumentType::None then begin // Undefined document type is not supported
             TypeHelper.CopyRecVariantToRecRef(PostedRecord, RecordRef);
             Error(UnsupportedRecordTypeErr, RecordRef.Name());
@@ -641,8 +636,4 @@ codeunit 6103 "E-Document Subscribers"
         Telemetry.LogMessage('0000PYF', DraftChangeTok, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateEDocumentFromPostedDocument(PostedRecord: Variant; var IsHandled: Boolean)
-    begin
-    end;
 }
