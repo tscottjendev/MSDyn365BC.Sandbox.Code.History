@@ -38,7 +38,7 @@ codeunit 5763 "Whse.-Post Shipment"
         Code();
         Rec := WhseShptLine;
 
-        OnAfterRun(Rec, WhsePostParameters."Preview Posting", WhsePostParameters."Suppress Commit");
+        OnAfterRun(Rec, WhsePostParameters."Preview Posting");
     end;
 
     var
@@ -99,7 +99,7 @@ codeunit 5763 "Whse.-Post Shipment"
         WhseShptLine.SetCurrentKey(WhseShptLine."No.");
         WhseShptLine.SetRange("No.", WhseShptLine."No.");
         IsHandled := false;
-        OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, WhsePostParameters."Post Invoice", WhsePostParameters."Suppress Commit", IsHandled, WhsePostParameters."Preview Posting");
+        OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, WhsePostParameters."Post Invoice", WhsePostParameters."Suppress Commit", IsHandled);
         if IsHandled then
             exit;
         WhseShptLine.SetFilter("Qty. to Ship", '>0');
@@ -691,7 +691,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; PreviewMode: Boolean; SuppressCommit: Boolean)
+    local procedure OnAfterRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; PreviewMode: Boolean)
     begin
     end;
 
@@ -1079,7 +1079,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Invoice: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean; PreviewPosting: Boolean)
+    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Invoice: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 
