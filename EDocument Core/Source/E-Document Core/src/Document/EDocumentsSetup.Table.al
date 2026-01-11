@@ -38,6 +38,7 @@ table 6107 "E-Documents Setup"
     var
         EnvironmentInformation: Codeunit "Environment Information";
         TenantId: Text;
+        ListOfAvailableCountries: List of [Text];
     begin
         Clear(Rec);
         if Rec.FindFirst() then
@@ -59,25 +60,27 @@ table 6107 "E-Documents Setup"
         if EnvironmentInformation.GetEnvironmentSetting('EnableNewEDocumentExperience') <> '' then
             exit(true);
 
-        exit(EnvironmentInformation.GetApplicationFamily() in ['US', 'AU', 'NZ', 'GB', 'W1'])
+        ListOfAvailableCountries := GetListOfNewExperienceCountries();
+        ListOfAvailableCountries.Add('W1');
+
+        exit(ListOfAvailableCountries.Contains(EnvironmentInformation.GetApplicationFamily()));
     end;
 
-    procedure IsEDocHistoricalMatchingWithLLMActive(): Boolean
+    internal procedure GetListOfNewExperienceCountries(): List of [Text]
     var
-        EnvironmentInformation: Codeunit "Environment Information";
-        EnvironmentEnabledValueTok: Label 'true', Locked = true;
-        TenantId: Text;
+        CountryList: List of [Text];
     begin
-        
-        if TryGetAadTenantId(TenantId) then
-            if TenantId in [
-            '7bfacc13-5977-43eb-ae75-63e4cbf78029',
-            '5d02776e-8cf2-4fae-8cac-a52cfdfbe90f',
-            'f0ac72d1-c1b3-4c2a-a196-8fb82cac5934'
-            ] then
-                exit(true);
-
-        exit(LowerCase(EnvironmentInformation.GetEnvironmentSetting('EnableEDocHistoricalMatchingWithLLM')) = EnvironmentEnabledValueTok);
+        CountryList.Add('US');
+        CountryList.Add('AU');
+        CountryList.Add('NZ');
+        CountryList.Add('GB');
+        CountryList.Add('ES');
+        CountryList.Add('FR');
+        CountryList.Add('CA');
+        CountryList.Add('IT');
+        CountryList.Add('DE');
+        CountryList.Add('DK');
+        exit(CountryList);
     end;
 
     [TryFunction]
