@@ -1,4 +1,3 @@
-#if not CLEANSCHEMA31
 table 5428 "E-Doc From Resource Mapping"
 {
     Access = Internal;
@@ -6,14 +5,6 @@ table 5428 "E-Doc From Resource Mapping"
     InherentPermissions = RIMDX;
     DataClassification = CustomerContent;
     ReplicateData = false;
-    ObsoleteReason = 'This table is not required anymore. A new implementation in Contoso Inb.Inv. Handler codeunit is used instead.';
-#if not CLEAN28
-    ObsoleteState = Pending;
-    ObsoleteTag = '28.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '31.0';
-#endif
 
     fields
     {
@@ -59,4 +50,3 @@ table 5428 "E-Doc From Resource Mapping"
         }
     }
 }
-#endif

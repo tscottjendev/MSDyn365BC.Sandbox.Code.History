@@ -4,18 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Document;
+using Microsoft.eServices.EDocument.OrderMatch;
+using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Processing.Import;
 #if not CLEAN26
 using Microsoft.eServices.EDocument.Integration;
 #endif
-using Microsoft.eServices.EDocument.Integration.Receive;
-using Microsoft.eServices.EDocument.OrderMatch;
-using Microsoft.eServices.EDocument.Processing.Import;
-using Microsoft.eServices.EDocument.Processing.Import.Purchase;
-using Microsoft.eServices.EDocument.Processing.Interfaces;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Vendor;
 using System.Utilities;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 codeunit 6140 "E-Doc. Import"
 {
@@ -130,22 +130,18 @@ codeunit 6140 "E-Doc. Import"
     var
         EDocDraftSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
-        LastErrorText: Text;
     begin
         EDocumentErrorHelper.ClearErrorMessages(EDocument);
         Commit();
         if not ImportEDocumentProcess.Run() then begin
-            LastErrorText := GetLastErrorText();
-            if LastErrorText <> '' then begin // We don't insert an error when empty, following the convention of empty error meaning "operation cancelled by user"
-                EDocument.SetRecFilter();
-                EDocument.FindFirst();
+            EDocument.SetRecFilter();
+            EDocument.FindFirst();
 
-                EDocErrorHelper.LogSimpleErrorMessage(EDocument, LastErrorText);
-                EDocument.CalcFields("Import Processing Status");
-                EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument."Import Processing Status");
-                EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
-                EDocumentProcessing.ModifyEDocumentStatus(EDocument);
-            end;
+            EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
+            EDocument.CalcFields("Import Processing Status");
+            EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument."Import Processing Status");
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             EDocDraftSessionTelemetry.SetText('Step', Format(ImportEDocumentProcess.GetStep()));
             EDocDraftSessionTelemetry.SetBool('Success', false);
             exit(false);
@@ -818,10 +814,7 @@ codeunit 6140 "E-Doc. Import"
 
     local procedure V1_CopyFromPurchaseLine(PurchaseLine: Record "Purchase Line"; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
     begin
-        if PurchaseLine."Item Reference No." <> '' then // No. takes precedence over Item Reference No., but if only Item Reference No. is set we use that 
-            EDocumentPurchaseLine."Product Code" := PurchaseLine."Item Reference No.";
-        if PurchaseLine."No." <> '' then
-            EDocumentPurchaseLine."Product Code" := PurchaseLine."No.";
+        EDocumentPurchaseLine."Product Code" := PurchaseLine."No.";
         EDocumentPurchaseLine."Description" := PurchaseLine.Description;
         EDocumentPurchaseLine.Quantity := PurchaseLine.Quantity;
         EDocumentPurchaseLine."Unit Price" := PurchaseLine."Direct Unit Cost";

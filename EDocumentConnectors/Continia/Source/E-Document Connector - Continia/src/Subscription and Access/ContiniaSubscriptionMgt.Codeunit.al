@@ -4,12 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.EServices.EDocumentConnector.Continia;
 
-using Microsoft.CRM.Team;
-using Microsoft.Foundation.Company;
-using System.Azure.Identity;
-using System.Email;
 using System.Environment;
+using System.Azure.Identity;
+using Microsoft.Foundation.Company;
 using System.Security.AccessControl;
+using Microsoft.CRM.Team;
+using System.Email;
 using System.Security.User;
 
 codeunit 6397 "Continia Subscription Mgt."
