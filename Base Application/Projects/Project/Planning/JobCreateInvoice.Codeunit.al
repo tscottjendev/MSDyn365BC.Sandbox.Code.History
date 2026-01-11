@@ -76,6 +76,7 @@ codeunit 1002 "Job Create-Invoice"
         DocumentDate: Date;
         InvoiceNo: Code[20];
         IsHandled: Boolean;
+        SkipCommit: Boolean;
     begin
         IsHandled := false;
         OnCreateSalesInvoiceOnBeforeRunReport(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled, CrMemo);
@@ -113,6 +114,7 @@ codeunit 1002 "Job Create-Invoice"
                 TempJobTask.DeleteAll();
                 JobPlanningLine2.Copy(JobPlanningLine);
                 JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.");
+                OnCreateSalesInvoiceOnBeforeFindJobPlanningLines(JobPlanningLine2);
                 if JobPlanningLine2.FindSet() then
                     repeat
                         if not TempJobTask.Get(JobPlanningLine2."Job No.", JobPlanningLine2."Job Task No.") then begin
@@ -132,7 +134,10 @@ codeunit 1002 "Job Create-Invoice"
                     until TempJobTask.Next() = 0;
             end;
 
-            Commit();
+            SkipCommit := false;
+            OnCreateSalesInvoiceOnBeforeCommit(JobPlanningLine, SkipCommit);
+            if not SkipCommit then
+                Commit();
 
             ShowMessageLinesTransferred(JobPlanningLine, CrMemo);
         end;
@@ -160,10 +165,15 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         LineCounter: Integer;
         LastError: Text;
+        SkipError: Boolean;
+        SkipClear: Boolean;
+        SkipCreateSalesLine: Boolean;
     begin
-        OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo, NoOfSalesLinesCreated);
+        SkipClear := false;
+        OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo, NoOfSalesLinesCreated, SkipClear);
 
-        ClearAll();
+        if not SkipClear then
+            ClearAll();
         Job.Get(JobNo);
         OnCreateSalesInvoiceLinesOnBeforeTestJob(Job);
         if Job.Blocked = Job.Blocked::All then
@@ -223,16 +233,20 @@ codeunit 1002 "Job Create-Invoice"
                     then
                         JobPlanningLine.TestField("No.");
 
+                    SkipCreateSalesLine := false;
                     OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(
-                      JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated);
+                      JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated, SkipCreateSalesLine);
 
-                    CreateSalesLine(JobPlanningLine);
+                    if not SkipCreateSalesLine then
+                        CreateSalesLine(JobPlanningLine);
 
                     JobPlanningLineInvoice.InitFromJobPlanningLine(JobPlanningLine);
                     if NewInvoice then
                         JobPlanningLineInvoice.InitFromSales(SalesHeader, PostingDate, SalesLine."Line No.")
                     else
                         JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
+
+                    OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineInvoiceInsert(JobPlanningLineInvoice);
                     JobPlanningLineInvoice.Insert();
 
                     JobPlanningLine.UpdateQtyToTransfer();
@@ -245,8 +259,11 @@ codeunit 1002 "Job Create-Invoice"
           JobPlanningLineSource."Job No.", JobPlanningLineSource."Job Task No.", JobPlanningLineSource."Line No.");
         JobPlanningLineSource.CalcFields("Qty. Transferred to Invoice");
 
-        if NoOfSalesLinesCreated = 0 then
-            Error(Text002, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
+        SkipError := false;
+        OnCreateSalesInvoiceLinesOnBeforeNoSalesLineCreatedError(SkipError);
+        if not SkipError then
+            if NoOfSalesLinesCreated = 0 then
+                Error(Text002, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"));
 
         OnAfterCreateSalesInvoiceLines(SalesHeader, NewInvoice);
     end;
@@ -648,6 +665,8 @@ codeunit 1002 "Job Create-Invoice"
         OnCreateSalesLineOnBeforeCheckPricesIncludingVATAndSetJobInformation(SalesLine, JobPlanningLine, IsHandled);
         if not IsHandled then begin
             if not SalesHeader."Prices Including VAT" then
+                SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
+            if SalesHeader."Prices Including VAT" and (SalesLine.Type = SalesLine.Type::" ") then
                 SalesLine.Validate("Job Contract Entry No.", JobPlanningLine."Job Contract Entry No.");
             SalesLine."Job No." := JobPlanningLine."Job No.";
             SalesLine."Job Task No." := JobPlanningLine."Job Task No.";
@@ -1272,7 +1291,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesInvoiceLines(var JobPlanningLine: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean; var NoOfSalesLinesCreated: Integer)
+    local procedure OnBeforeCreateSalesInvoiceLines(var JobPlanningLine: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean; var NoOfSalesLinesCreated: Integer; var SkipClear: Boolean)
     begin
     end;
 
@@ -1412,7 +1431,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; NewInvoice: Boolean; var NoOfSalesLinesCreated: Integer)
+    local procedure OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; NewInvoice: Boolean; var NoOfSalesLinesCreated: Integer; var SkipCreateSalesLine: Boolean)
     begin
     end;
 
@@ -1529,6 +1548,26 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnTestExchangeRateOnBeforeValidateCurrencyDate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; var CurrencyExchangeRate: Record "Currency Exchange Rate"; var ShouldValidateCurrencyCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeNoSalesLineCreatedError(var SkipError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineInvoiceInsert(var JobPlanningLineInvoice: Record "Job Planning Line Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceOnBeforeFindJobPlanningLines(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceOnBeforeCommit(var JobPlanningLine: Record "Job Planning Line"; var SkipCommit: Boolean)
     begin
     end;
 }
