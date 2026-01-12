@@ -14,6 +14,8 @@ page 5832 "Capacity Ledger Entries"
     Caption = 'Capacity Ledger Entries';
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Capacity Ledger Entries';
+    AboutText = 'Track and analyze posted capacity usage for work centers and machine centers, including labor and machine time, quantities, output, scrap, run time, setup time, and costs, to monitor activities such as maintenance and non-production tasks.';
     SourceTable = "Capacity Ledger Entry";
     SourceTableView = sorting("Entry No.")
                       order(descending);
@@ -104,6 +106,27 @@ page 5832 "Capacity Ledger Entries"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the overhead cost in the additional reporting currency.';
+                    Visible = false;
+                }
+                field(Reversed; Rec.Reversed)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
+                    Visible = false;
+                }
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
+                    Visible = false;
+                }
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
