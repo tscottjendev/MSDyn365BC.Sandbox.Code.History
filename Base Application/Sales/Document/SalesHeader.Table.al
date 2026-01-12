@@ -198,7 +198,7 @@ table 36 "Sales Header"
 
                 UpdateShipToCodeFromCust();
                 IsHandled := false;
-                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec);
+                OnValidateSellToCustomerNoOnBeforeValidateLocationCode(Rec, Customer, IsHandled, xRec, LocationCode);
                 if not IsHandled then
                     LocationCode := "Location Code";
 
@@ -2762,6 +2762,8 @@ table 36 "Sales Header"
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
 
+                OnValidateResponsibilityCenterOnBeforeRecreateSalesLines(Rec, CurrFieldNo);
+
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateSalesLines(FieldCaption("Responsibility Center"));
                     "Assigned User ID" := '';
@@ -4542,6 +4544,7 @@ table 36 "Sales Header"
                 if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                    OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(Rec, xRec, CurrFieldNo, OldDimSetID);
                 end;
 
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist() then begin
@@ -5506,7 +5509,7 @@ table 36 "Sales Header"
                 "Ship-to Contact" := CompanyInfo."Ship-to Contact";
             end;
 
-        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
+        OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo, Location, CompanyInfo);
     end;
 
     local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
@@ -9464,7 +9467,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
+    local procedure OnAfterUpdateShipToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; Location: Record Location; CompanyInformation: Record "Company Information")
     begin
     end;
 
@@ -10216,6 +10219,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnKeepDimensionsOnAfterUpdateGlobalDim(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNo: Integer; OldDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnAfterAssignType(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
@@ -10292,6 +10300,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponsibilityCenterOnBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -10874,7 +10887,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
+    local procedure OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; var LocationCode: Code[10])
     begin
     end;
 
