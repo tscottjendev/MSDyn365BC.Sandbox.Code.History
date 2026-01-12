@@ -81,7 +81,6 @@ codeunit 6124 "E-Doc. Providers" implements IPurchaseLineProvider, IUnitOfMeasur
         ActivityLog
             .Init(Database::"E-Document Purchase Line", FieldNo, SystemId)
             .SetExplanation(Reasoning)
-            .SetConfidence('High') // Default to high confidence
             .SetReferenceSource(PageId, RecordRef)
             .SetReferenceTitle(RefTitle);
     end;

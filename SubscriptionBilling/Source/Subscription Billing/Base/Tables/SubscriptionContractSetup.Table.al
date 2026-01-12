@@ -33,7 +33,7 @@ table 8051 "Subscription Contract Setup"
         }
         field(5; "Aut. Insert C. Contr. DimValue"; Boolean)
         {
-            Caption = 'Autom. Insert Cust. Sub. Contr. Dimension Value';
+            Caption = 'Autom. Insert Cust. Contr. Dimension Value';
         }
         field(6; "Sub. Line Start Date Inv. Pick"; Enum "Serv. Start Date For Inv. Pick")
         {
@@ -75,10 +75,6 @@ table 8051 "Subscription Contract Setup"
         {
             Caption = 'Dimension Code for Customer Subscription Contract';
             TableRelation = Dimension;
-        }
-        field(30; "Invoice Desc. (Surcharge)"; Enum "Invoice Detail Origin")
-        {
-            Caption = 'Invoice Description (Surcharge)';
         }
         field(59; "Default Period Calculation"; enum "Period Calculation")
         {

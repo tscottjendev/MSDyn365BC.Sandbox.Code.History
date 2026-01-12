@@ -1,4 +1,3 @@
-
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -20,9 +19,9 @@ codeunit 6188 "E-Document Emailing"
     InherentPermissions = X;
 
     var
-        GlobalTempBlobList: Codeunit "Temp Blob List";
-        GlobalExtensionList: List of [Text];
+        TempBlobList: Codeunit "Temp Blob List";
         EDocumentAttachmentNameTok: Label '%1 %2', Locked = true, Comment = '%1 = Attachment name, %2 = File format';
+        XMLFileTypeTok: Label '.xml', Locked = true;
         PDFFileTypeTok: Label '.pdf', Locked = true;
         ZipFileTypeTok: Label '.zip', Locked = true;
         FileNoTok: Label '_%1', Locked = true;
@@ -57,7 +56,7 @@ codeunit 6188 "E-Document Emailing"
         SourceRelationTypes: List of [Integer];
         SendToEmailAddress: Text[250];
         AttachmentFileName: Text[250];
-        AttachmentFileExtension: Text;
+        AttachmentFileExtension: Text[4];
     begin
         TypeHelper.CopyRecVariantToRecRef(RecordVariant, SourceReference);
         CreateSourceLists(ToCust, SourceReference, SourceTableIDs, SourceIDs, SourceRelationTypes);
@@ -88,10 +87,9 @@ codeunit 6188 "E-Document Emailing"
         );
     end;
 
-    procedure SetAttachments(Attachments: Codeunit "Temp Blob List"; ExtensionList: List of [Text])
+    procedure SetAttachments(Attachments: Codeunit "Temp Blob List")
     begin
-        GlobalTempBlobList := Attachments;
-        GlobalExtensionList := ExtensionList;
+        TempBlobList := Attachments;
     end;
 
     local procedure CreateSourceLists(ToCust: Code[20]; var SourceReference: RecordRef; var SourceTableIDs: List of [Integer]; var SourceIDs: List of [Guid]; var SourceRelationTypes: List of [Integer])
@@ -122,12 +120,12 @@ codeunit 6188 "E-Document Emailing"
         DataCompression.CreateZipArchive();
         if TempBlobList.Count() = 1 then begin
             TempBlobList.Get(1, TempBlob);
-            DataCompression.AddEntry(TempBlob.CreateInStream(), AttachmentFileName + GlobalExtensionList.Get(1));
+            DataCompression.AddEntry(TempBlob.CreateInStream(), AttachmentFileName + XMLFileTypeTok);
         end else
             for i := 1 to TempBlobList.Count() do begin
                 TempBlobList.Get(i, TempBlob);
                 FileNo := StrSubstNo(FileNoTok, i);
-                DataCompression.AddEntry(TempBlob.CreateInStream(), AttachmentFileName + FileNo + GlobalExtensionList.Get(i));
+                DataCompression.AddEntry(TempBlob.CreateInStream(), AttachmentFileName + FileNo + XMLFileTypeTok);
             end;
     end;
 
@@ -149,21 +147,21 @@ codeunit 6188 "E-Document Emailing"
         DocName: Text[150];
         ToCust: Code[20];
         var AttachmentFileName: Text[250];
-        var AttachmentFileExtension: Text): Codeunit "Temp Blob"
+        var AttachmentFileExtension: Text[4]): Codeunit "Temp Blob"
     var
         DataCompression: Codeunit "Data Compression";
         TempBlob: Codeunit "Temp Blob";
     begin
-        if GlobalTempBlobList.IsEmpty() then
+        if TempBlobList.IsEmpty() then
             exit(TempBlob);
 
         AttachmentFileName := CreateAttachmentName(DocNo, DocName);
-        if (GlobalTempBlobList.Count() = 1) and (DocumentSendingProfile."E-Mail Attachment" = Enum::"Document Sending Profile Attachment Type"::"E-Document")
+        if (TempBlobList.Count() = 1) and (DocumentSendingProfile."E-Mail Attachment" = Enum::"Document Sending Profile Attachment Type"::"E-Document")
         then begin
-            GlobalTempBlobList.Get(1, TempBlob);
-            AttachmentFileExtension := GlobalExtensionList.Get(1);
+            TempBlobList.Get(1, TempBlob);
+            AttachmentFileExtension := XMLFileTypeTok;
         end else begin
-            CreateZipArchiveWithEDocAttachments(DataCompression, GlobalTempBlobList, AttachmentFileName);
+            CreateZipArchiveWithEDocAttachments(DataCompression, TempBlobList, AttachmentFileName);
 
             if DocumentSendingProfile."E-Mail Attachment" = Enum::"Document Sending Profile Attachment Type"::"PDF & E-Document" then
                 AddPdfAttachmentToZipArchive(DataCompression, ReportUsage, RecordVariant, ToCust, AttachmentFileName);
