@@ -5,6 +5,7 @@
 
 namespace System.Agents;
 
+using System.Security.User;
 using System.Environment.Configuration;
 using System.Globalization;
 
@@ -65,13 +66,13 @@ page 4315 "Agent Card"
 
                         trigger OnAssistEdit()
                         var
-                            Agent: Codeunit Agent;
+                            AgentImpl: Codeunit "Agent Impl.";
                         begin
                             if not Confirm(ProfileChangedQst, false) then
                                 exit;
 
-                            if Agent.ProfileLookup(UserSettingsRecord) then
-                                Agent.SetProfile(UserSettingsRecord."User Security ID", UserSettingsRecord."Profile ID", UserSettingsRecord."App ID");
+                            if AgentImpl.ProfileLookup(UserSettingsRecord) then
+                                AgentImpl.UpdateAgentUserSettings(UserSettingsRecord);
                         end;
                     }
                     field(Language; Language.GetWindowsLanguageName(UserSettingsRecord."Language ID"))
@@ -97,7 +98,7 @@ page 4315 "Agent Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Standard;
                     Caption = 'State';
-                    ToolTip = 'Specifies if the agent is active or inactive.';
+                    ToolTip = 'Specifies if the agent is enabled or disabled.';
 
                     trigger OnValidate()
                     begin
@@ -106,14 +107,17 @@ page 4315 "Agent Card"
                     end;
                 }
             }
-            part(Permissions; "View Agent Permissions")
+
+            part(Permissions; "User Subform")
             {
+                Editable = ControlsEditable;
                 ApplicationArea = Basic, Suite;
-                Caption = 'Agent Permissions';
+                Caption = 'Agent Permission Sets';
                 SubPageLink = "User Security ID" = field("User Security ID");
             }
-            part(UserAccess; "View Agent Access Control")
+            part(UserAccess; "Agent Access Control")
             {
+                Editable = ControlsEditable;
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Access';
                 SubPageLink = "Agent User Security ID" = field("User Security ID");
@@ -188,23 +192,25 @@ page 4315 "Agent Card"
 
     trigger OnOpenPage()
     var
-        AgentUtilities: Codeunit "Agent Utilities";
-        AgentSystemPermissions: Codeunit "Agent System Permissions";
+        AgentSessionImpl: Codeunit "Agent Session Impl.";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+        AgentSessionImpl.BlockPageFromBeingOpenedByAgent();
 
-        if not AgentSystemPermissions.CurrentUserHasCanManageAllAgentsPermission() then
+        if not Rec.WritePermission() then
             Error(YouDoNotHavePermissionToModifyThisAgentErr);
     end;
 
     local procedure UpdateControls()
     var
+        AgentImpl: Codeunit "Agent Impl.";
         UserSettings: Codeunit "User Settings";
     begin
         if not IsNullGuid(Rec."User Security ID") then begin
             UserSettings.GetUserSettings(Rec."User Security ID", UserSettingsRecord);
-            ProfileDisplayName := UserSettings.GetProfileName(UserSettingsRecord);
+            ProfileDisplayName := AgentImpl.GetProfileName(UserSettingsRecord.Scope, UserSettingsRecord."App ID", UserSettingsRecord."Profile ID");
         end;
+
+        ControlsEditable := Rec.State = Rec.State::Disabled;
     end;
 
     local procedure ChangeState()
@@ -246,7 +252,8 @@ page 4315 "Agent Card"
         UserSettingsRecord: Record "User Settings";
         Language: Codeunit Language;
         ProfileDisplayName: Text;
-        ProfileChangedQst: Label 'Changing the agent''s profile may affect its accuracy and performance. It could also grant access to unexpected fields and actions.\\Do you want to continue?';
+        ControlsEditable: Boolean;
+        ProfileChangedQst: Label 'Changing the agent''s profile may affect its accuracy and performance. It could also grant access to unexpected fields and actions. Do you want to continue?';
         OpenConfigurationPageQst: Label 'To activate the agent, use the setup page. Would you like to open this page now?';
         YouCannotEnableAgentWithoutUsingConfigurationPageErr: Label 'You can''t activate the agent from this page. Use the action to set up and activate the agent.';
         YouDoNotHavePermissionToModifyThisAgentErr: Label 'You do not have permission to modify this agent. Contact your system administrator to update your permissions or to mark you as one of the administrators for the agent.';
