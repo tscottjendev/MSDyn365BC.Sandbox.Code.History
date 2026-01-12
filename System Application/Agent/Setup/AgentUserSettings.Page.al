@@ -5,10 +5,10 @@
 
 namespace System.Agents;
 
-using System.DateTime;
-using System.Environment.Configuration;
 using System.Globalization;
+using System.DateTime;
 using System.Security.AccessControl;
+using System.Environment.Configuration;
 
 /// <summary>
 /// Page that shows the settings of a given user.
@@ -104,20 +104,18 @@ page 4317 "Agent User Settings"
     }
 
     trigger OnOpenPage()
-    var
-        AgentUtilities: Codeunit "Agent Utilities";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
-
-        if (not Rec.Initialized) and (not TemporaryRecord) then
+        if not Rec.Initialized then
             UserSettings.GetUserSettings(Rec."User Security ID", Rec);
 
         SetGlobalsFromRec(Rec);
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        AgentImpl: Codeunit "Agent Impl.";
     begin
-        ProfileDisplayName := UserSettings.GetProfileName(Rec);
+        ProfileDisplayName := AgentImpl.GetProfileName(Rec.Scope, Rec."App ID", Rec."Profile ID");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
