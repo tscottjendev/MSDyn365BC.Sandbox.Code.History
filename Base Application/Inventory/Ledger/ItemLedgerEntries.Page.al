@@ -23,6 +23,8 @@ page 38 "Item Ledger Entries"
     DataCaptionFields = "Item No.";
     Editable = false;
     PageType = List;
+    AboutTitle = 'About Item Ledger Entries';
+    AboutText = 'Track inventory transactions and quantity changes for items, review detailed posting and cost information.';
     SourceTable = "Item Ledger Entry";
     SourceTableView = sorting("Entry No.")
                       order(descending);
@@ -187,6 +189,12 @@ page 38 "Item Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                     Visible = true;
+                }
+                field("Remaining Qty. by Date"; Rec."Remaining Qty. by Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the remaining quantity for the item ledger entry as of the date specified in the Date Filter field.';
+                    Visible = false;
                 }
                 field("Shipped Qty. Not Returned"; Rec."Shipped Qty. Not Returned")
                 {
