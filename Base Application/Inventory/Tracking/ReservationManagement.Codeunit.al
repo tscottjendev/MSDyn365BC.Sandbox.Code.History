@@ -343,7 +343,6 @@ codeunit 99000845 "Reservation Management"
         GetItemSetup(CalcReservEntry);
         Positive := EntryIsPositive;
         CalcReservEntry2.SetPointerFilter();
-        OnUpdateReservationOnAfterSetPointerFilter(CalcReservEntry2);
         CallCalcReservedQtyOnPick();
     end;
 
@@ -673,8 +672,6 @@ codeunit 99000845 "Reservation Management"
                         QtyThisLineBase := 0;
                         QtyThisLine := 0;
                     end;
-
-                    OnAutoReserveItemLedgEntryOnAfterCalcReservQty(CalcItemLedgEntry, QtyThisLine, QtyThisLineBase);
 
                     if (Location."Bin Mandatory" or Location."Require Pick") and
                        (TotalAvailQty + QtyOnOutBound < QtyThisLineBase)
@@ -1169,8 +1166,6 @@ codeunit 99000845 "Reservation Management"
             exit;
 
         GetItemSetup(CalcReservEntry);
-        OnAutoTrackOnAfterGetItemSetup(CalcReservEntry, Item);
-
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
             exit;
 
@@ -1817,7 +1812,6 @@ codeunit 99000845 "Reservation Management"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
-        TempTrackingSpecification: Record "Tracking Specification" temporary;
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
@@ -1868,15 +1862,9 @@ codeunit 99000845 "Reservation Management"
                 QtyOnOutboundBins :=
                     WhseAvailMgt.CalcQtyOnOutboundBins(CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup, true);
 
-            if WhseItemTrackingSetup.TrackingExists() then begin
-                TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
-                QtyReservedOnPickShip :=
-                  WhseAvailMgt.CalcReservQtyOnPicksShipsWithItemTracking(
-                    TempWhseActivLine2, TempTrackingSpecification, CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code");
-            end else
-                QtyReservedOnPickShip :=
-                  WhseAvailMgt.CalcReservQtyOnPicksShips(
-                    CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
+            QtyReservedOnPickShip :=
+              WhseAvailMgt.CalcReservQtyOnPicksShips(
+                CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
 
             QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
@@ -2050,42 +2038,35 @@ codeunit 99000845 "Reservation Management"
         RemainingQtyToReserve: Decimal;
         RemainingQtyToReserveBase: Decimal;
         StopReservation: Boolean;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeAutoReserveToShip(IsHandled, FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
-        if not IsHandled then begin
-            CalcReservEntry.TestField("Source Type");
+        CalcReservEntry.TestField("Source Type");
 
-            if CalcReservEntry."Source Type" in [1 /*Sales*/, 3 /* Purchase*/]
-            then
-                StopReservation := not (CalcReservEntry."Source Subtype" in [1, 2, 5]); // Only invoice, order and return order
+        if CalcReservEntry."Source Type" in [1 /*Sales*/, 3 /* Purchase*/]
+        then
+            StopReservation := not (CalcReservEntry."Source Subtype" in [1, 2, 5]); // Only invoice, order and return order
 
-            if CalcReservEntry."Source Type" in [7 /*Prod. Order Line"*/, 8 /* Prod. Order Component */]
-            then
-                StopReservation := CalcReservEntry."Source Subtype" < 2; // Not simulated or planned
+        if CalcReservEntry."Source Type" in [7 /*Prod. Order Line"*/, 8 /* Prod. Order Component */]
+        then
+            StopReservation := CalcReservEntry."Source Subtype" < 2; // Not simulated or planned
 
-            if StopReservation then begin
-                FullAutoReservation := true;
-                exit;
-            end;
-
-            RemainingQtyToReserve := QuantityToShip;
-            RemainingQtyToReserveBase := QuantityToShipBase;
-            FullAutoReservation := false;
-
-            if RemainingQtyToReserve = 0 then begin
-                FullAutoReservation := true;
-                exit;
-            end;
-
-            SetValueArray(0);
-            AutoReserveOneLine(ValueArray[1], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
-
-            FullAutoReservation := (RemainingQtyToReserve = 0);
+        if StopReservation then begin
+            FullAutoReservation := true;
+            exit;
         end;
 
-        OnAfterAutoReserveToShip(FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
+        RemainingQtyToReserve := QuantityToShip;
+        RemainingQtyToReserveBase := QuantityToShipBase;
+        FullAutoReservation := false;
+
+        if RemainingQtyToReserve = 0 then begin
+            FullAutoReservation := true;
+            exit;
+        end;
+
+        SetValueArray(0);
+        AutoReserveOneLine(ValueArray[1], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
+
+        FullAutoReservation := (RemainingQtyToReserve = 0);
     end;
 
     local procedure CalcCurrLineReservQtyOnPicksShips(ReservationEntry: Record "Reservation Entry"): Decimal
@@ -2957,11 +2938,6 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAutoTrackOnAfterGetItemSetup(var ReservationEntry: Record "Reservation Entry"; var Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnTestItemType(SourceRecRef: RecordRef);
     begin
     end;
@@ -3018,26 +2994,6 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultDampenerPeriod(var DampenerPeriod: DateFormula)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAutoReserveItemLedgEntryOnAfterCalcReservQty(CalcItemLedgerEntry: Record "Item Ledger Entry"; QtyThisLine: Decimal; QtyThisLineBase: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateReservationOnAfterSetPointerFilter(var CalcReservationEntry: Record "Reservation Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveToShip(var IsHandled: Boolean; var FullAutoReservation: Boolean; Description: Text[100]; AvailabilityDate: Date; QuantityToShip: Decimal; QuantityToShipBase: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterAutoReserveToShip(var FullAutoReservation: Boolean; Description: Text[100]; AvailabilityDate: Date; QuantityToShip: Decimal; QuantityToShipBase: Decimal)
     begin
     end;
 }
