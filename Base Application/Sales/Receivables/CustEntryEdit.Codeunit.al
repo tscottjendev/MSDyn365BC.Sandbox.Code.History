@@ -98,13 +98,7 @@ codeunit 103 "Cust. Entry-Edit"
     local procedure UpdateSalesInvoiceHeader(UpdateSalesInvoiceCustLedgEntry: Record "Cust. Ledger Entry")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeUpdateSalesInvoiceHeader(UpdateSalesInvoiceCustLedgEntry, CalledFromSalesInvEdit, IsHandled);
-        if IsHandled then
-            exit;
-
         if CalledFromSalesInvEdit then
             exit;
         if UpdateSalesInvoiceCustLedgEntry."Document Type" <> UpdateSalesInvoiceCustLedgEntry."Document Type"::Invoice then
@@ -214,10 +208,5 @@ codeunit 103 "Cust. Entry-Edit"
     local procedure OnBeforeModifyCustLedgEntry(var CurrentSalesHeader: Record "Sales Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSalesInvoiceHeader(var UpdateSalesInvoiceCustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromSalesInvEdit: Boolean; var IsHandled: Boolean)
-    begin
-    end;    
 }
 
