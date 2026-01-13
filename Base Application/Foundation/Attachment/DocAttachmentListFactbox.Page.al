@@ -281,10 +281,6 @@ page 1178 "Doc. Attachment List Factbox"
     trigger OnAfterGetCurrRecord()
     begin
         UpdateActionsVisibility();
-        Rec.FilterGroup := 4;
-        if Rec.GetFilter("VAT Report Config. Code") <> '' then
-            Evaluate(Rec."VAT Report Config. Code", Rec.GetFilter("VAT Report Config. Code"));
-        Rec.FilterGroup := 0;
     end;
 
     var

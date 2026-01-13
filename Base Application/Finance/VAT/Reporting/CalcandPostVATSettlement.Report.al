@@ -194,9 +194,8 @@ report 20 "Calc. and Post VAT Settlement"
             dataitem("Activity Code Loop"; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = filter(1 ..));
-                column(ActivityCode; activitycodefilter)
-                {
-                }
+
+
                 dataitem("Closing G/L and VAT Entry"; "Integer")
                 {
                     DataItemTableView = sorting(Number);
@@ -608,11 +607,8 @@ report 20 "Calc. and Post VAT Settlement"
                 }
                 trigger OnAfterGetRecord()
                 begin
-                    if (Number = 1) and GLSetup."Use Activity Code" then begin
-                        if ActivityCodeFilter <> '' then
-                            ActivityCode.SetFilter(Code, ActivityCodeFilter);
+                    if (Number = 1) and GLSetup."Use Activity Code" then
                         ActivityCode.FindSet();
-                    end;
                     if (Number = 2) and not GLSetup."Use Activity Code" then
                         CurrReport.Break();
                     if (Number >= 2) and GLSetup."Use Activity Code" then
@@ -695,8 +691,7 @@ report 20 "Calc. and Post VAT Settlement"
                         UpdatePeriodicSettlementVATEntryActivityCode();
 #endif
                     end;
-                end else begin
-                    OnVATPostingSetupOnPostDataItemOnBeforePostSettlement(GenJnlLine);
+                end else
                     if PostSettlement then
 #if not CLEAN27
                         if FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled() then
@@ -706,7 +701,6 @@ report 20 "Calc. and Post VAT Settlement"
 #else
                         UpdatePeriodicSettlementVATEntryActivityCode();
 #endif
-                end;
                 OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine, PostSettlement);
             end;
 
@@ -924,27 +918,6 @@ report 20 "Calc. and Post VAT Settlement"
                             exit(false);
                         end;
                     }
-                    field("Activity Code Filter"; ActivityCodeFilter)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Activity Code Filter';
-                        ToolTip = 'Specifies the activity code to filter the VAT settlement.';
-                        Importance = Additional;
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        var
-                            ActivityCodeRec: Record "Activity Code";
-                            ActivityCodesPage: Page "Activity Codes";
-                        begin
-                            ActivityCodesPage.LookupMode(true);
-                            if ActivityCodesPage.RunModal() = Action::LookupOK then begin
-                                ActivityCodesPage.GetRecord(ActivityCodeRec);
-                                ActivityCodeFilter := ActivityCodeRec.Code;
-                                exit(true);
-                            end;
-                            exit(false);
-                        end;
-                    }
                 }
             }
         }
@@ -1083,6 +1056,7 @@ report 20 "Calc. and Post VAT Settlement"
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
         LastVATEntryNo: Integer;
+        PostingDate: Date;
         DocNo: Code[20];
         VATType: Enum "General Posting Type";
         VATAmount: Decimal;
@@ -1095,7 +1069,6 @@ report 20 "Calc. and Post VAT Settlement"
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
         CountryRegionFilter: Text;
-        ActivityCodeFilter: Text;
 #if not CLEAN27
         PriorPeriodVATEntry: Record "Periodic Settlement VAT Entry";
         PriorPeriodVATEntry2: Record "Periodic Settlement VAT Entry";
@@ -1182,7 +1155,6 @@ report 20 "Calc. and Post VAT Settlement"
         PostSettlement: Boolean;
         EntrdStartDate: Date;
         EndDateReq: Date;
-        PostingDate: Date;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; NewPosRoundAcc: Code[20]; NewNegRoundAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
@@ -1510,7 +1482,7 @@ report 20 "Calc. and Post VAT Settlement"
         DebitNextPeriod: Decimal;
     begin
         SafeSet(TotalSaleRoundedPerActivity, ActivityCode, FiscalRoundAmount(GetTotalOrZero(TotalSaleRoundedPerActivity, ActivityCode) + GetTotalOrZero(TotalSaleAmountPerActivity, ActivityCode)));
-        SafeSet(TotalPurchRoundedPerActivity, ActivityCode, FiscalRoundAmount(GetTotalOrZero(TotalPurchRoundedPerActivity, ActivityCode) - GetTotalOrZero(TotalPurchaseAmountPerActivity, ActivityCode)));
+        SafeSet(TotalPurchRoundedPerActivity, ActivityCode, FiscalRoundAmount(GetTotalOrZero(TotalPurchRoundedPerActivity, ActivityCode) + GetTotalOrZero(TotalPurchaseAmountPerActivity, ActivityCode)));
 
         NewVATAmount := GetTotalOrZero(TotalPurchRoundedPerActivity, ActivityCode) - GetTotalOrZero(TotalSaleRoundedPerActivity, ActivityCode);
         if NewVATAmount > 0 then
@@ -1721,16 +1693,6 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine: Record "Gen. Journal Line"; PostSettlement: Boolean)
-    begin
-    end;
-
-    /// <summary>
-    /// Integration event raised before posting settlement entry during VAT posting setup processing.
-    /// Enables custom validation and modification of journal lines before settlement posting.
-    /// </summary>
-    /// <param name="GenJnlLine">General journal line being prepared for posting</param>
-    [IntegrationEvent(false, false)]
-    local procedure OnVATPostingSetupOnPostDataItemOnBeforePostSettlement(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }
