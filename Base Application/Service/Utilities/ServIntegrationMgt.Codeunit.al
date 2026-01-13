@@ -443,7 +443,7 @@ codeunit 6450 "Serv. Integration Mgt."
             CertificateOfSupply."Document Type"::"Service Shipment":
                 begin
                     ServiceShipmentHeader.Get(DocumentNo);
-                    ServiceShipmentHeader.InitCertificateOfSupply(CertificateOfSupply);
+                    CertificateOfSupply.InitRecord(DocumentType, DocumentNo);
                     IsHandled := true;
                 end;
         end;
