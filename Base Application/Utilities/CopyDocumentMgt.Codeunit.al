@@ -897,7 +897,7 @@ codeunit 6620 "Copy Document Mgt."
         CopyPurchDoc(FromDocType, FromDocNo, ToPurchHeader, false);
     end;
 
-    procedure CopyPurchDoc(FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var ToPurchHeader: Record "Purchase Header"; ClearOriginalDocNo: Boolean)
+    procedure CopyPurchDoc(FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var ToPurchHeader: Record "Purchase Header"; ClearVendorFieldsOnTarget: Boolean)
     var
         ToPurchLine: Record "Purchase Line";
         FromPurchHeader: Record "Purchase Header";
@@ -973,7 +973,7 @@ codeunit 6620 "Copy Document Mgt."
         if IncludeHeader then
             CopyPurchDocUpdateHeader(
                 FromDocType, FromDocNo, ToPurchHeader, FromPurchHeader,
-                FromPurchRcptHeader, FromPurchInvHeader, FromReturnShptHeader, FromPurchCrMemoHeader, FromPurchHeaderArchive, ReleaseDocument, ClearOriginalDocNo)
+                FromPurchRcptHeader, FromPurchInvHeader, FromReturnShptHeader, FromPurchCrMemoHeader, FromPurchHeaderArchive, ReleaseDocument, ClearVendorFieldsOnTarget)
         else
             OnCopyPurchDocWithoutHeader(ToPurchHeader, FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromPurchInvHeader, FromPurchCrMemoHeader);
 
@@ -1172,19 +1172,18 @@ codeunit 6620 "Copy Document Mgt."
             until FromPurchLineArchive.Next() = 0;
     end;
 
-    local procedure CopyPurchDocUpdateHeader(FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header"; FromPurchInvHeader: Record "Purch. Inv. Header"; FromReturnShptHeader: Record "Return Shipment Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; FromPurchHeaderArchive: Record "Purchase Header Archive"; var ReleaseDocument: Boolean; ClearOriginalDocNosOnTarget: Boolean)
+    local procedure CopyPurchDocUpdateHeader(FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header"; FromPurchInvHeader: Record "Purch. Inv. Header"; FromReturnShptHeader: Record "Return Shipment Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; FromPurchHeaderArchive: Record "Purchase Header Archive"; var ReleaseDocument: Boolean; ClearVendorFieldsOnTarget: Boolean)
     var
-        BuyFromVendor: Record Vendor;
-        PayToVendor: Record Vendor;
+        Vend: Record Vendor;
         OldPurchHeader: Record "Purchase Header";
         SavedDimSetId: Integer;
     begin
-        if BuyFromVendor.Get(FromPurchHeader."Buy-from Vendor No.") then
-            BuyFromVendor.CheckBlockedVendOnDocs(BuyFromVendor, false);
-        if PayToVendor.Get(FromPurchHeader."Pay-to Vendor No.") then
-            PayToVendor.CheckBlockedVendOnDocs(PayToVendor, false);
+        if Vend.Get(FromPurchHeader."Buy-from Vendor No.") then
+            Vend.CheckBlockedVendOnDocs(Vend, false);
+        if Vend.Get(FromPurchHeader."Pay-to Vendor No.") then
+            Vend.CheckBlockedVendOnDocs(Vend, false);
         OldPurchHeader := ToPurchHeader;
-        OnBeforeCopyPurchHeaderDone(ToPurchHeader, FromPurchHeader, FromDocType, OldPurchHeader, FromPurchRcptHeader, FromPurchInvHeader, FromReturnShptHeader, FromPurchCrMemoHeader, FromPurchHeaderArchive, BuyFromVendor, PayToVendor);
+        OnBeforeCopyPurchHeaderDone(ToPurchHeader, FromPurchHeader, FromDocType, OldPurchHeader, FromPurchRcptHeader, FromPurchInvHeader, FromReturnShptHeader, FromPurchCrMemoHeader, FromPurchHeaderArchive);
         case FromDocType of
             "Purchase Document Type From"::Quote,
             "Purchase Document Type From"::"Blanket Order",
@@ -1242,8 +1241,8 @@ codeunit 6620 "Copy Document Mgt."
         ToPurchHeader."Applies-to Doc. No." := '';
         ToPurchHeader."Applies-to ID" := '';
         ToPurchHeader."Quote No." := '';
-        if ClearOriginalDocNosOnTarget then
-            ClearOriginalDocumentNos(ToPurchHeader);
+        if ClearVendorFieldsOnTarget then
+            ClearPurchaseHeaderVendorFields(ToPurchHeader);
 
         OnCopyPurchDocUpdateHeaderOnBeforeUpdateVendLedgerEntry(ToPurchHeader, FromDocType.AsInteger(), FromDocNo);
 
@@ -5093,7 +5092,7 @@ codeunit 6620 "Copy Document Mgt."
         TranslationHelper.RestoreGlobalLanguage();
 
         IsHandled := false;
-        OnBeforeInsertOldSalesDocNoLine(ToSalesHeader, ToSalesLine2, OldDocType, OldDocNo, NextLineNo, IsHandled);
+        OnBeforeInsertOldSalesDocNoLine(ToSalesHeader, ToSalesLine2, OldDocType, OldDocNo, IsHandled);
         if not IsHandled then
             ToSalesLine2.Insert();
     end;
@@ -5168,7 +5167,7 @@ codeunit 6620 "Copy Document Mgt."
         TranslationHelper.RestoreGlobalLanguage();
 
         IsHandled := false;
-        OnBeforeInsertOldPurchDocNoLine(ToPurchHeader, ToPurchLine2, OldDocType, OldDocNo, NextLineNo, IsHandled);
+        OnBeforeInsertOldPurchDocNoLine(ToPurchHeader, ToPurchLine2, OldDocType, OldDocNo, IsHandled);
         if not IsHandled then
             ToPurchLine2.Insert();
     end;
@@ -8366,7 +8365,7 @@ codeunit 6620 "Copy Document Mgt."
             SkipCopyFromDescription := true;
     end;
 
-    local procedure ClearOriginalDocumentNos(var ToPurchHeader: Record "Purchase Header")
+    local procedure ClearPurchaseHeaderVendorFields(var ToPurchHeader: Record "Purchase Header")
     begin
         ToPurchHeader."Vendor Order No." := '';
         ToPurchHeader."Vendor Invoice No." := '';
@@ -9553,9 +9552,7 @@ codeunit 6620 "Copy Document Mgt."
                                                                                                                                                                FromPurchInvHeader: Record "Purch. Inv. Header";
                                                                                                                                                                FromReturnShipmentHeader: Record "Return Shipment Header";
                                                                                                                                                                FromPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-                                                                                                                                                               FromPurchaseHeaderArchive: Record "Purchase Header Archive";
-                                                                                                                                                               BuyFromVendor: Record Vendor;
-                                                                                                                                                               PayToVendor: Record Vendor)
+                                                                                                                                                               FromPurchaseHeaderArchive: Record "Purchase Header Archive")
     begin
     end;
 
@@ -9857,7 +9854,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertOldSalesDocNoLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var NextLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInsertOldSalesDocNoLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -9907,7 +9904,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var NextLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
