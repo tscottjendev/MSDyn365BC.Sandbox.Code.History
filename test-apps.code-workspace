@@ -25,6 +25,9 @@
       "path": "./StatisticalAccounts/Test/Statistical Accounts Tests"
     },
     {
+      "path": "./Withholding Tax/Test/Withholding Tax Tests"
+    },
+    {
       "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
     },
     {
