@@ -25,7 +25,6 @@ codeunit 134344 "Document Totals Pages"
         IsInitialized: Boolean;
         WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
         InvoiceDiscountPerRoundingMsg: Label 'The system has recalculated the discount percentage to align with the rounded discount amount.';
-        VATAmountErr: Label '%1 should be equal to %2', Comment = '%1 - VAT Amount Field, %2 - VAT Amount Field';
 
     [Test]
     [HandlerFunctions('ChangeExchangeRateMPH')]
@@ -2293,82 +2292,6 @@ codeunit 134344 "Document Totals Pages"
         // [THEN] Verify the value has been rounded to near 12 and message handler page shows same message of rounding
     end;
 
-    [Test]
-    [HandlerFunctions('PostedSalesDocumentLinesHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoTotalsCalculatedAfterGetPostedDocToReverse()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesCreditMemo: TestPage "Sales Credit Memo";
-        CustomerNo: Code[20];
-        ExpectedTotalExclVAT: Decimal;
-        ExpectedTotalInclVAT: Decimal;
-    begin
-        // [SCENARIO 603839] Verify totals are automatically calculated when using "Get Posted Document to Reverse" action
-        Initialize();
-
-        // [GIVEN] Create and post a Sales Invoice
-        CustomerNo := LibrarySales.CreateCustomerNo();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        CreateSalesLineWithItemAndQuantity(SalesHeader, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(1, 10), LibraryRandom.RandDecInRange(100, 1000, 2));
-
-        // [GIVEN] Calculate expected totals (assuming no VAT for simplicity)
-        SalesHeader.CalcFields("Amount Including VAT", "Amount");
-        ExpectedTotalExclVAT := SalesHeader.Amount;
-        ExpectedTotalInclVAT := SalesHeader."Amount Including VAT";
-
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [GIVEN] Create a Sales Credit Memo
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-
-        // [WHEN] Open Sales Credit Memo page and use "Get Posted Document to Reverse"
-        SalesCreditMemo.OpenEdit();
-        SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
-
-        LibraryVariableStorage.Enqueue(1); // PostedInvoices option
-        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
-
-        // [THEN] Totals are automatically calculated and displayed correctly
-        Assert.AreEqual(ExpectedTotalExclVAT, SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
-            VATAmountErr);
-        Assert.AreEqual(ExpectedTotalInclVAT, SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
-            VATAmountErr);
-    end;
-
-    [Test]
-    procedure NoInvoiceDiscountRoundingMsgWhenSetCalcInvDiscountInSalesSetup()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesSetup: Record "Sales & Receivables Setup";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [SCENARIO 610966] No Invoice Discount rounding message will be shown when Invoice Discount Percentage is set from Customer Invoice Discount
-        Initialize();
-
-        // [GIVEN] Invoice Discount in Sales & Receivables Setup set to true
-        SalesSetup.Get();
-        SalesSetup.Validate("Calc. Inv. Discount", true);
-        SalesSetup.Modify(true);
-
-        // [GIVEN] Create sales order
-        CreateSalesDocumentWithCustInvDisc(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-        Commit();
-
-        // [GIVEN] Open the Sales Order Page
-        SalesOrder.OpenEdit();
-        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-
-        // [WHEN] Set the Quantity to 1 to trigger recalculation of Invoice Discount Percentage
-        SalesOrder.SalesLines.Quantity.SetValue(1);
-
-        // [THEN] Verify Invoice Discount Percentage is not zero and no message will be shown
-        Assert.IsTrue(SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal() <> 0, InvoiceDiscountPercentErr);
-
-        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
-    end;
-
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2570,15 +2493,6 @@ codeunit 134344 "Document Totals Pages"
         exit(CurrencyCode);
     end;
 
-    local procedure CreateSalesLineWithItemAndQuantity(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LineQuantity: Decimal; LinePrice: Decimal)
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LineQuantity);
-        SalesLine.Validate("Unit Price", LinePrice);
-        SalesLine.Modify(true);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ChangeExchangeRateMPH(var ChangeExchangeRate: TestPage "Change Exchange Rate")
@@ -2623,19 +2537,6 @@ codeunit 134344 "Document Totals Pages"
     begin
         PurchaseHeader.CalcFields("Invoice Discount Amount");
         PurchaseHeader.TestField("Invoice Discount Amount", InvoiceDiscountAmount);
-    end;
-
-    local procedure CreateSalesDocumentWithCustInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-    begin
-        CreateCustomerWithDiscount(Customer);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesLine.Modify();
     end;
 
     [ConfirmHandler]
@@ -2732,24 +2633,5 @@ codeunit 134344 "Document Totals Pages"
     procedure InvoiceDiscountMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(InvoiceDiscountPerRoundingMsg, Message);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostedSalesDocumentLinesHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
-    var
-        DocumentType: Option "Posted Shipments","Posted Invoices","Posted Return Receipts","Posted Cr. Memos";
-    begin
-        case LibraryVariableStorage.DequeueInteger() of
-            0:
-                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Return Receipts"));
-            1:
-                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Invoices"));
-            2:
-                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Shipments"));
-            3:
-                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Cr. Memos"));
-        end;
-        PostedSalesDocumentLines.OK().Invoke();
     end;
 }
