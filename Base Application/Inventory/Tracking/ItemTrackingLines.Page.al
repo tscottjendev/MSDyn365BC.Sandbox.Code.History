@@ -3054,7 +3054,7 @@ page 6510 "Item Tracking Lines"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeAssignNewLotNo(Rec, IsHandled, SourceTrackingSpecification, FunctionsSupplyVisible);
+        OnBeforeAssignNewLotNo(Rec, IsHandled, SourceTrackingSpecification);
         if IsHandled then
             exit;
 
@@ -3941,7 +3941,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignNewLotNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var SourceTrackingSpecification: Record "Tracking Specification"; FunctionsSupplyVisible: Boolean)
+    local procedure OnBeforeAssignNewLotNo(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
