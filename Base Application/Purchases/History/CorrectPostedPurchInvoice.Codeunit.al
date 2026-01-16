@@ -839,6 +839,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
+                    UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine);
                     UpdateReverseItemChargeAssignment(PurchaseLine, PurchInvLine.Quantity);
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
