@@ -49,11 +49,7 @@
   "idRanges": [
     {
       "from": 139511,
-      "to": 139520
-    },
-    {
-      "from": 139537,
-      "to": 139537
+      "to": 139514
     }
   ],
   "resourceExposurePolicy": {
