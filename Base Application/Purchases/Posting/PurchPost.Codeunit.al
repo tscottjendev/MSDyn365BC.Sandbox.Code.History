@@ -721,8 +721,10 @@ codeunit 90 "Purch.-Post"
         if GuiAllowed() and not HideProgressWindow then
             InitProgressWindow(PurchHeader);
 
-        if PurchHeader.Invoice then
+        if PurchHeader.Invoice then begin
             CreatePrepmtLines(PurchHeader, true);
+            CreatePrepaymentLineForCreditMemo(PurchHeader);
+        end;
 
         DateOrderSeriesUsed := false;
         ModifyHeader := UpdatePostingNos(PurchHeader);
@@ -5493,9 +5495,10 @@ codeunit 90 "Purch.-Post"
                             FinalInvoice := false;
                     until not FinalInvoice or (TempPurchaseLineReceiptBuffer.Next() = 0);
 
-            UpdatePrepmtPurchLineWithRounding(
-              PrepmtPurchLine, TotalRoundingAmount, TotalPrepmtAmount,
-              FinalInvoice, PricesInclVATRoundingAmount);
+            if PurchHeader."Document Type" <> PurchHeader."Document Type"::"Credit Memo" then
+                UpdatePrepmtPurchLineWithRounding(
+                  PrepmtPurchLine, TotalRoundingAmount, TotalPrepmtAmount,
+                  FinalInvoice, PricesInclVATRoundingAmount);
         end;
     end;
 
@@ -8867,6 +8870,91 @@ codeunit 90 "Purch.-Post"
             PostedDocumentNo := PostingPreviewNoTok + Format(Random(999999), 0, PostingPreviewNoFormatTxt)
         else
             PostedDocumentNo := DocumentNo;
+    end;
+
+    local procedure CreatePrepaymentLineForCreditMemo(var PurchaseHeader: Record "Purchase Header")
+    var
+        GLAccount: Record "G/L Account";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoiceLine: Record "Purch. Inv. Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        TempPrepmtPurchaseLine: Record "Purchase Line" temporary;
+        TempExtendedTextLine: Record "Extended Text Line" temporary;
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        LineNo: Integer;
+    begin
+        if not CheckApplicationExistForCreditMemo(PurchaseHeader) then
+            exit;
+
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindLast() then
+            LineNo := PurchaseLine."Line No." + 10000
+        else
+            LineNo := 10000;
+
+        TempPrepmtPurchaseLine.SetHasBeenShown();
+        PurchaseInvoiceLine.SetRange("Document No.", PurchaseHeader."Applies-to Doc. No.");
+        PurchaseInvoiceLine.SetRange("Prepayment Line", true);
+        if PurchaseInvoiceLine.FindSet() then
+            repeat
+                GeneralPostingSetup.Get(PurchaseInvoiceLine."Gen. Bus. Posting Group", PurchaseInvoiceLine."Gen. Prod. Posting Group");
+                GLAccount.Get(GeneralPostingSetup.GetPurchPrepmtAccount());
+
+                TempPrepmtPurchaseLine.Init();
+                TempPrepmtPurchaseLine."Document Type" := PurchaseHeader."Document Type";
+                TempPrepmtPurchaseLine."Document No." := PurchaseHeader."No.";
+                TempPrepmtPurchaseLine."Line No." := LineNo;
+                TempPrepmtPurchaseLine."System-Created Entry" := true;
+                TempPrepmtPurchaseLine.Validate(Type, TempPrepmtPurchaseLine.Type::"G/L Account");
+                TempPrepmtPurchaseLine.Validate("No.", PurchaseInvoiceLine."No.");
+                TempPrepmtPurchaseLine.Validate(Quantity, -1);
+                TempPrepmtPurchaseLine."Qty. to Receive" := TempPrepmtPurchaseLine.Quantity;
+                TempPrepmtPurchaseLine."Qty. to Invoice" := TempPrepmtPurchaseLine.Quantity;
+                TempPrepmtPurchaseLine.Validate("Direct Unit Cost", PurchaseInvoiceLine."Direct Unit Cost");
+                TempPrepmtPurchaseLine.Validate("Qty. to Invoice", TempPrepmtPurchaseLine.Quantity);
+                TempPrepmtPurchaseLine.Validate("Prepayment Line", true);
+                TempPrepmtPurchaseLine.Validate("Shortcut Dimension 1 Code", PurchaseInvoiceLine."Shortcut Dimension 1 Code");
+                TempPrepmtPurchaseLine.Validate("Shortcut Dimension 2 Code", PurchaseInvoiceLine."Shortcut Dimension 2 Code");
+                TempPrepmtPurchaseLine.Validate("Dimension Set ID", PurchaseInvoiceLine."Dimension Set ID");
+                LineNo := LineNo + 10000;
+                TempPrepmtPurchaseLine.Insert(true);
+
+                TransferExtendedText.PrepmtGetAnyExtText(
+                    TempPrepmtPurchaseLine."No.",
+                    DATABASE::"Purch. Cr. Memo Line",
+                    PurchaseHeader."Document Date",
+                    PurchaseHeader."Language Code",
+                    TempExtendedTextLine);
+
+                if TempExtendedTextLine.FindSet() then
+                    repeat
+                        TempPrepmtPurchaseLine.Init();
+                        TempPrepmtPurchaseLine.Validate(Description, TempExtendedTextLine.Text);
+                        TempPrepmtPurchaseLine.Validate("System-Created Entry", true);
+                        TempPrepmtPurchaseLine.Validate("Prepayment Line", true);
+                        TempPrepmtPurchaseLine.Validate("Line No.", LineNo);
+                        LineNo := LineNo + 10000;
+                        TempPrepmtPurchaseLine.Insert(true);
+                    until TempExtendedTextLine.Next() = 0;
+            until PurchaseInvoiceLine.Next() = 0;
+
+        if TempPrepmtPurchaseLine.FindSet() then
+            repeat
+                TempPurchLineGlobal := TempPrepmtPurchaseLine;
+                TempPurchLineGlobal.Insert(true);
+            until TempPrepmtPurchaseLine.Next() = 0;
+    end;
+
+    local procedure CheckApplicationExistForCreditMemo(PurchaseHeader: Record "Purchase Header"): Boolean
+    begin
+        if not (PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo") then
+            exit(false);
+
+        if (PurchaseHeader."Applies-to Doc. Type" <> PurchaseHeader."Applies-to Doc. Type"::" ") and
+           (PurchaseHeader."Applies-to Doc. No." <> '')
+        then
+            exit(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
