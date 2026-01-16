@@ -40,7 +40,6 @@ codeunit 6452 "Serv. Availability Mgt."
     var
         ServiceLine: Record "Service Line";
         ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
-        IsHandled: Boolean;
     begin
         CaptionText := ServiceOrderTxt;
         OrderPromisingLine.DeleteAll();
@@ -51,15 +50,11 @@ codeunit 6452 "Serv. Availability Mgt."
         OnSetServiceHeaderOnAfterFilterServiceLine(ServiceLine, ServiceHeader);
         if ServiceLine.Find('-') then
             repeat
-                IsHandled := false;
-                OnSetServiceHeaderOnBeforeProcessServiceLine(ServiceLine, OrderPromisingLine, IsHandled);
-                if not IsHandled then begin
-                    OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
-                    ServAvailabilityMgt.TransferToOrderPromisingLine(OrderPromisingLine, ServiceLine);
-                    ServiceLine.CalcFields("Reserved Qty. (Base)");
-                    AvailabilityManagement.InsertPromisingLine(
-                        OrderPromisingLine, ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)");
-                end;
+                OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
+                ServAvailabilityMgt.TransferToOrderPromisingLine(OrderPromisingLine, ServiceLine);
+                ServiceLine.CalcFields("Reserved Qty. (Base)");
+                AvailabilityManagement.InsertPromisingLine(
+                    OrderPromisingLine, ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)");
             until ServiceLine.Next() = 0;
     end;
 
@@ -667,9 +662,4 @@ codeunit 6452 "Serv. Availability Mgt."
     local procedure OnSetServiceHeaderOnAfterFilterServiceLine(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
     begin
     end;
-    [IntegrationEvent(false, false)]
-    local procedure OnSetServiceHeaderOnBeforeProcessServiceLine(var ServiceLine: Record "Service Line"; var OrderPromisingLine: Record "Order Promising Line"; var IsHandled: Boolean)
-    begin
-    end;
-
 }
