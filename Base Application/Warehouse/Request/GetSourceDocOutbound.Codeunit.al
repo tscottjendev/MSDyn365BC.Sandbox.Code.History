@@ -25,7 +25,6 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     var
         GetSourceDocuments: Report "Get Source Documents";
-        CalledFromCreateWarehouseShipmentReport: Boolean;
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -429,10 +428,6 @@ codeunit 5752 "Get Source Doc. Outbound"
 
         NotAvailable := Item.Inventory - (Item."Reserved Qty. on Inventory" - QtyReservedForOrder) < QtyBaseNeeded;
         ErrorMessage := StrSubstNo(Text002, CurrItemVariant."Item No.", LocationCode, FormCaption, SourceID);
-        
-        if (NotAvailable) and (not ShowError) and (CalledFromCreateWarehouseShipmentReport) then
-            exit(true);
-
         if AfterCheckAvailability(NotAvailable, ShowError, ErrorMessage, Result) then
             exit(Result);
     end;
@@ -612,11 +607,6 @@ codeunit 5752 "Get Source Doc. Outbound"
                 LocationCodeFilter := ''''''
             else
                 LocationCodeFilter += '|' + '''''';
-    end;
-
-    procedure SetCalledFromCreateWarehouseShipmentReport(CalledFromCreateWhseShipmentReport: Boolean)
-    begin
-        CalledFromCreateWarehouseShipmentReport := CalledFromCreateWhseShipmentReport;
     end;
 
     [IntegrationEvent(false, false)]
