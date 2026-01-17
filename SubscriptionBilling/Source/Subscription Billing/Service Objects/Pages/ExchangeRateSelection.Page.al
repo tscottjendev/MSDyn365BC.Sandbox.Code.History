@@ -60,12 +60,12 @@ page 8088 "Exchange Rate Selection"
                 Error(CurrencyCodeChangePriceMustBeUpdatedErr);
     end;
 
-    procedure SetIsCalledFromServiceObject(CalledFromServiceObject: Boolean)
+    internal procedure SetIsCalledFromServiceObject(CalledFromServiceObject: Boolean)
     begin
         IsCalledFromServiceObject := CalledFromServiceObject;
     end;
 
-    procedure SetData(NewKeyDate: Date; NewCurrencyCode: Code[10]; NewMessage: Text)
+    internal procedure SetData(NewKeyDate: Date; NewCurrencyCode: Code[10]; NewMessage: Text)
     begin
         KeyDate := NewKeyDate;
         CurrencyCode := NewCurrencyCode;
@@ -75,7 +75,7 @@ page 8088 "Exchange Rate Selection"
         MessageTxt := NewMessage;
     end;
 
-    procedure GetData(var NewKeyDate: Date; var NewExchangeRate: Decimal)
+    internal procedure GetData(var NewKeyDate: Date; var NewExchangeRate: Decimal)
     begin
         NewKeyDate := KeyDate;
         NewExchangeRate := ExchangeRate;
