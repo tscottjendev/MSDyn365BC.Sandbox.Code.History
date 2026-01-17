@@ -579,13 +579,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     local procedure TestVATPostingSetup(PurchInvLine: Record "Purch. Inv. Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeTestVATPostingSetup(PurchInvLine, IsHandled); //due to GST extensions for Indian Version
-        if IsHandled then
-            exit;
-
         VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
         if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Sales Tax" then begin
             VATPostingSetup.TestField("Purchase VAT Account");
@@ -843,7 +837,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
-                    UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine);
                     UpdateReverseItemChargeAssignment(PurchaseLine, PurchInvLine.Quantity);
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
@@ -1179,11 +1172,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetTrackInfoForCancellation(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestVATPostingSetup(PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -413,16 +413,12 @@ table 846 "Cash Flow Worksheet Line"
                 CheckCrMemo := false;
             "Document Type"::"Credit Memo":
                 CheckCrMemo := true;
-            else begin
-                OnCalculateForPostedDocumentsOnCheckDocumentTypeElseCase(Rec);
+            else
                 exit;
-            end;
         end;
 
-        if not CashFlowForecast."Consider Discount" then begin
-            OnCalculateForPostedDocumentsOnNotConsiderDiscountBeforeExit(Rec);
+        if not CashFlowForecast."Consider Discount" then
             exit;
-        end;
 
         if CashFlowForecast."Consider Pmt. Disc. Tol. Date" then
             CFDiscountDate := "Pmt. Disc. Tolerance Date"
@@ -627,16 +623,6 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnValidateCashFlowAccountNo(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var xCashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalculateForPostedDocumentsOnCheckDocumentTypeElseCase(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalculateForPostedDocumentsOnNotConsiderDiscountBeforeExit(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line")
     begin
     end;
 }
