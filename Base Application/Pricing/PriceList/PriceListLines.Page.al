@@ -516,7 +516,7 @@ page 7001 "Price List Lines"
         CurrPage.Update(true);
     end;
 
-    [IntegrationEvent(true, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateColumnVisibility(PriceListHeader: Record "Price List Header"; var SourceTypeVisible: Boolean; var JobSourceTypeVisible: Boolean)
     begin
     end;
