@@ -64,7 +64,6 @@ codeunit 60 "Sales-Calc. Discount"
         TempSalesLine: Record "Sales Line" temporary;
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
-        TotalChargeItemLineAmount: Decimal;
         ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
@@ -121,9 +120,7 @@ codeunit 60 "Sales-Calc. Discount"
         else
             CurrencyDate := SalesHeader."Posting Date";
 
-        TotalChargeItemLineAmount := GetTotalChargeItemLineAmount(SalesLine."Document Type", SalesLine."Document No.");
-
-        CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, (ChargeBase - TotalChargeItemLineAmount));
+        CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
         OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
         if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
@@ -198,7 +195,7 @@ codeunit 60 "Sales-Calc. Discount"
                       (SalesLine2."Prepayment %" = 0)
                     then
                         SalesLine2.Validate("Inv. Discount Amount");
-                    if (SalesLine2."Allow Invoice Disc.") and (SalesLine2."Line Discount %" < 100) and (CustInvDiscFound) then begin
+                    if (SalesLine2."Allow Invoice Disc.") and (SalesLine2."Line Discount %" < 100) then begin
                         case GLSetup."Discount Calculation" of
                             GLSetup."Discount Calculation"::" ",
                             GLSetup."Discount Calculation"::"Line Disc. * Inv. Disc. + Payment Disc.",
@@ -282,22 +279,21 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine2.SetSalesHeader(SalesHeader);
             SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             UpdatePrepmtLineAmount(SalesHeader);
-        end else
-            if CustInvDiscFound then begin
-                SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
-                SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
-                if UpdateHeader then
-                    SalesHeader.Modify();
+        end else begin
+            SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
+            SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
+            if UpdateHeader then
+                SalesHeader.Modify();
 
-                TempVATAmountLine.SetInvoiceDiscountPercent(
-                  CustInvDisc."Discount %", SalesHeader."Currency Code",
-                  SalesHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
-                  SalesHeader."VAT Base Discount %");
+            TempVATAmountLine.SetInvoiceDiscountPercent(
+              CustInvDisc."Discount %", SalesHeader."Currency Code",
+              SalesHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
+              SalesHeader."VAT Base Discount %");
 
-                SalesLine2.SetSalesHeader(SalesHeader);
-                SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
-                UpdatePrepmtLineAmount(SalesHeader);
-            end;
+            SalesLine2.SetSalesHeader(SalesHeader);
+            SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+            UpdatePrepmtLineAmount(SalesHeader);
+        end;
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
         OnAfterCalcSalesDiscount(SalesHeader, TempVATAmountLine, SalesLine2);
@@ -423,19 +419,6 @@ codeunit 60 "Sales-Calc. Discount"
                     end;
                 until SalesLine.Next() = 0;
         end;
-    end;
-
-    local procedure GetTotalChargeItemLineAmount(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]): Decimal
-    var
-        SalesLine3: Record "Sales Line";
-    begin
-        SalesLine3.Reset();
-        SalesLine3.SetLoadFields("Line Amount");
-        SalesLine3.SetRange("Document Type", DocumentType);
-        SalesLine3.SetRange("Document No.", DocumentNo);
-        SalesLine3.SetRange(Type, SalesLine3.Type::"Charge (Item)");
-        SalesLine3.CalcSums("Line Amount");
-        exit(SalesLine3."Line Amount");
     end;
 
     [IntegrationEvent(false, false)]
