@@ -183,8 +183,7 @@ page 1932 "Perf. Profiler Schedule Card"
                         SelectedUser: Record User;
                         UserSelection: Codeunit "User Selection";
                     begin
-                        if not UserSelection.OpenWithSystemUsers(SelectedUser) then
-                            exit;
+                        UserSelection.OpenWithSystemUsers(SelectedUser);
                         UserName := SelectedUser."User Name";
                         Rec.Validate("User ID", SelectedUser."User Security ID");
                     end;
