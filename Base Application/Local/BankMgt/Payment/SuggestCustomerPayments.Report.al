@@ -441,7 +441,7 @@ report 10864 "Suggest Customer Payments"
                     if GenPayLine."Dimension Set ID" = 0 then
                         GenPayLine.DimensionSetup();
                     // per "Vendor", per "Due Date"
-                    GenPayLine.Insert(true);
+                    GenPayLine.Insert();
                 end;
                 GenPayLineInserted := true;
             until TempPaymentPostBuffer.Next() = 0;
