@@ -173,8 +173,6 @@ table 30121 "Shpfy Orders to Import"
             Caption = 'Channel Name';
             DataClassification = SystemMetadata;
             Editable = false;
-            TableRelation = "Shpfy Sales Channel".Name where("Shop Code" = field("Shop Code"));
-            ValidateTableRelation = false;
         }
         field(23; "Purchasing Entity"; Enum "Shpfy Order Purchasing Entity")
         {
@@ -216,12 +214,6 @@ table 30121 "Shpfy Orders to Import"
             DataClassification = SystemMetadata;
             AutoFormatType = 1;
             AutoFormatExpression = "Currency Code";
-        }
-        field(30; "Channel Liable Taxes"; Boolean)
-        {
-            Caption = 'Channel Liable Taxes';
-            DataClassification = SystemMetadata;
-            Editable = false;
         }
         field(100; "Import Action"; Enum "Shpfy Import Action")
         {

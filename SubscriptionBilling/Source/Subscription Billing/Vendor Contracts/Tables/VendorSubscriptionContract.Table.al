@@ -1592,14 +1592,14 @@ table 8063 "Vendor Subscription Contract"
             until VendorContractLine.Next() = 0;
     end;
 
-    procedure CreateVendorContractLineFromServiceCommitment(ServiceCommitment: Record "Subscription Line")
+    internal procedure CreateVendorContractLineFromServiceCommitment(ServiceCommitment: Record "Subscription Line")
     var
         VendorContractLine: Record "Vend. Sub. Contract Line";
     begin
         CreateVendorContractLineFromServiceCommitment(ServiceCommitment, ServiceCommitment."Subscription Contract No.", VendorContractLine);
     end;
 
-    procedure CreateVendorContractLineFromServiceCommitment(var ServiceCommitment: Record "Subscription Line"; ContractNo: Code[20]; var VendorContractLine: Record "Vend. Sub. Contract Line")
+    internal procedure CreateVendorContractLineFromServiceCommitment(var ServiceCommitment: Record "Subscription Line"; ContractNo: Code[20]; var VendorContractLine: Record "Vend. Sub. Contract Line")
     var
         ServiceObject: Record "Subscription Header";
         VendorContract: Record "Vendor Subscription Contract";
