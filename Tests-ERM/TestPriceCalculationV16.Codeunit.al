@@ -5614,6 +5614,198 @@ codeunit 134159 "Test Price Calculation - V16"
         // [THEN] Check Amount Type Field value saved after chnge the value
     end;
 
+    [Test]
+    procedure JobsLinkedPurchaseOrderFullyReceivedIsIgnoredInPlanningWorksheet()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 592371] Project Planning Line does not show Requisition Line when linked Purchase Order is fully received but not invoiced.
+        Initialize();
+
+        // [GIVEN] Create a Job and Job Task.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create an item with "Reordering Policy" = "Lot-for-Lot"
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        // [GIVEN] Store a random quantity.
+        Quantity := LibraryRandom.RandIntInRange(1, 10);
+
+        // [GIVEN] Create a job planning line with "Line Type" = "Budget", "Type" = "Item", linked to the Job Task and an Item.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate(Quantity, Quantity);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create a Purchase Line with the Item, linked to the Job, Job Task and Job Planning Line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Validate Qty. to Receive = Quantity.
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post the Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Calculate the plan for Requisition Worksheet.
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate() - LibraryRandom.RandIntInRange(365, 365), WorkDate());
+
+        // [THEN] Requisition Line for the Item should not be created.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PurchaseLineAllowInvoiceDiscForGLAccountFromPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccountNo: Code[20];
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [SCENARIO 613067] Allow Invoice Discount field on purchase line should be Yes when selecting G/L Account with price list that has Allow Invoice Discount enabled
+        Initialize();
+        PriceListLine.DeleteAll();
+
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] "Default G/L Account Quantity" is enabled in Purchases & Payables Setup
+        EnableDefaultGLAccountQuantity();
+
+        // [GIVEN] Create a new G/L account.
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+
+        // [GIVEN] Create Price List Header for purchase with "Allow Invoice Disc." = TRUE.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Purchase, PriceListHeader."Source Type"::"All Vendors", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Validate("Allow Invoice Disc.", true);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Create Price List Line for purchase with G/L Account and "Minimum Quantity" = 0
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '', "Price Asset Type"::"G/L Account", '');
+        PriceListLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Change status Active.
+        PriceListHeader.Get(PriceListHeader.Code);
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Create Purchase Line with Type "G/L Account", "No." = 'X' (which sets default Quantity = 1)
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.Validate("No.", GLAccountNo);
+        PurchaseLine.Modify(true);
+
+        // [THEN] Purchase Line "Allow Invoice Disc." is TRUE (from price list)
+        VerifyPurchaseLineFields(PurchaseLine);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerOK,GetPriceLineHandler')]
+    procedure VerifySalesLinePriceUpdateUsingGetPriceFunction()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListHeader: array[2] of Record "Price List Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: array[2] of Decimal;
+        FirstDayOfYear, LastDayOfYear : Date;
+    begin
+        // [SCENARIO 614325] Confirm sales price in sales line when sales price is updated via GetPrice function.
+        Initialize();
+
+        // [GIVEN] Calculate the first and last day of the year.
+        FirstDayOfYear := CalcDate('<-CY>', WorkDate());
+        LastDayOfYear := CalcDate('<CY>', WorkDate());
+
+        // [GIVEN] Create an Item and customer.
+        CreateItemAndCustomer(Item, Customer);
+
+        // [GIVEN] Create First Sales Price.
+        UnitPrice[1] := CreatePriceListHeader(
+            PriceListHeader[1], Customer."No.", Item."No.", FirstDayOfYear, LastDayOfYear);
+
+        // [GIVEN] Create Second Sales Price.
+        UnitPrice[2] := CreatePriceListHeader(
+            PriceListHeader[2], Customer."No.", Item."No.", CalcDate('<6M>', FirstDayOfYear), LastDayOfYear);
+
+        // [GIVEN] Set WorkDate.
+        WorkDate := CalcDate('<5M>', FirstDayOfYear);
+
+        // [GIVEN] Create a sales order.
+        LibraryVariableStorage.Enqueue(PriceListHeader[2]."Starting Date");
+
+        // [GIVEN] Create Sales Order.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesOrder.SalesLines.Type.SetValue(2);
+        SalesOrder.SalesLines."No.".SetValue(Item."No.");
+
+        // [WHEN] Quantity is inserted in the Sales Line table.
+        SalesOrder.SalesLines.Quantity.SetValue(1);
+
+        // [THEN] Verify Sales Line Unit Price.
+        Assert.Equal(UnitPrice[1], SalesOrder.SalesLines."Unit Price".AsDecimal());
+
+        // [GIVEN] Update the Posting Date and Order Date on the Sales Order.
+        SalesOrder."Posting Date".SetValue(CalcDate('<2M>', WorkDate()));
+        SalesOrder."Order Date".SetValue(CalcDate('<2M>', WorkDate()));
+
+        // [WHEN] Get Prices Action was invoked.
+        SalesOrder.SalesLines.GetPrices.Invoke();
+
+        // [GIVEN] Find Updated Sales Line.
+        FindSalesLine(SalesLine, SalesOrder."No.".Value(), Item."No.");
+
+        // [THEN] No error occurred and the unit price is updating in the sales line from the sales price.
+        Assert.AreEqual(
+            UnitPrice[2], SalesLine."Unit Price",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                SalesLine.FieldCaption("Unit Price"),
+                UnitPrice[2],
+                SalesLine.TableCaption()));
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6448,12 +6640,27 @@ codeunit 134159 "Test Price Calculation - V16"
             SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrdertNo: Code[20]; ItemNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrderNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.", SalesOrdertNo);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
         SalesLine.FindFirst();
+    end;
+
+    local procedure EnableDefaultGLAccountQuantity()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default G/L Account Quantity", true);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure VerifyPurchaseLineFields(var PurchaseLine: Record "Purchase Line")
+    begin
+        PurchaseLine.TestField("Allow Invoice Disc.", true);
+        PurchaseLine.TestField(Quantity, 1);
     end;
 
     [RequestPageHandler]
