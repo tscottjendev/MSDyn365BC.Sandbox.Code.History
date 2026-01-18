@@ -2321,6 +2321,7 @@ table 83 "Item Journal Line"
     /// </summary>
     procedure OpenItemTrackingLines(IsReclass: Boolean)
     begin
+        OnBeforeOpenItemTrackingLines(Rec, IsReclass);
         ItemJnlLineReserve.CallItemTracking(Rec, IsReclass);
     end;
 
@@ -5259,6 +5260,12 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNewShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNumber: Integer; var NewShortcutDimCode: Code[20])
+    begin
+    end;
+    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
     begin
     end;
 }
