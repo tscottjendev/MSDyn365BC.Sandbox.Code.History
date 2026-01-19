@@ -268,11 +268,11 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine.FindFirst();
         until ItemJnlLine."Line No." = StartLineNo;
         NoOfRecords := LineCount;
-        if NoOfRecords > 0 then 
+        if NoOfRecords > 0 then
             if not InventorySetup.UseLegacyPosting() then begin
                 SequenceNoMgt.AllocateSeqNoBuffer(Database::"Item Ledger Entry", NoOfRecords);
                 SequenceNoMgt.AllocateSeqNoBuffer(Database::"Value Entry", NoOfRecords);
-        end;
+            end;
 
         OnAfterCheckLines(ItemJnlLine);
     end;
@@ -540,6 +540,8 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemLedgEntry4.SetRange("Item No.", ItemJnlLine."Item No.");
             ItemLedgEntry4.SetRange(Positive, true);
             PostingDate := ItemJnlLine."Posting Date";
+            ItemLedgEntry4.SetFilter("Date Filter", '<=%1', PostingDate);
+            ItemLedgEntry4.SetAutoCalcFields("Remaining Qty. by Date");
 
             if (ItemJnlLine4."Location Code" <> '') or
                (ItemJnlLine4."Inventory Value Per" in
@@ -560,7 +562,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                         ItemLedgEntry5 := ItemLedgEntry4;
 
                         ItemJnlLine4."Entry Type" := ItemLedgEntry4."Entry Type";
-                        ItemJnlLine4.Quantity := ItemLedgEntry4.CalculateRemQuantity(ItemLedgEntry4."Entry No.", ItemJnlLine."Posting Date");
+                        ItemJnlLine4.Quantity := ItemLedgEntry4."Remaining Qty. by Date";
 
                         ItemJnlLine4."Quantity (Base)" := ItemJnlLine4.Quantity;
                         ItemJnlLine4."Invoiced Quantity" := ItemJnlLine4.Quantity;
@@ -642,10 +644,17 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     local procedure IncludeEntryInCalc(ItemLedgEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean): Boolean
+    var
+        ShouldIncludeEntryInCalc: Boolean;
     begin
         if IncludeExpectedCost then
-            exit(ItemLedgEntry."Posting Date" in [0D .. PostingDate]);
-        exit(ItemLedgEntry."Completely Invoiced" and (ItemLedgEntry."Last Invoice Date" in [0D .. PostingDate]));
+            ShouldIncludeEntryInCalc := ItemLedgEntry."Posting Date" in [0D .. PostingDate]
+        else
+            ShouldIncludeEntryInCalc := ItemLedgEntry."Completely Invoiced" and (ItemLedgEntry."Last Invoice Date" in [0D .. PostingDate]);
+
+        OnAfterIncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost, ShouldIncludeEntryInCalc);
+
+        exit(ShouldIncludeEntryInCalc);
     end;
 
     local procedure UpdateStdCost()
@@ -857,7 +866,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     AvailableQty := Item."Net Change" - Item."Reserved Qty. on Inventory";
                     OnCheckItemAvailabilityOnAfterSetAvailableQty(TempSKU, ItemJnlLine2, AvailableQty);
 
-                    if (Item."Reserved Qty. on Inventory" > 0) and (AvailableQty < Abs(QtyinItemJnlLine)) then
+                    if (Item."Reserved Qty. on Inventory" > 0) and (AvailableQty < Abs(QtyinItemJnlLine)) and not InvtSetup."Prevent Negative Inventory" then
                         if not ConfirmManagement.GetResponseOrDefault(
                             StrSubstNo(
                                 Text010, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
@@ -1308,6 +1317,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [InternalEvent(false)]
     local procedure OnCheckItemAvailabilityOnAfterSetAvailableQty(var TempSKU: Record "Stockkeeping Unit" temporary; var ItemJnlLine: Record "Item Journal Line"; var AvailableQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncludeEntryInCalc(ItemLedgEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean; var ShouldIncludeEntryInCalc: Boolean)
     begin
     end;
 }
