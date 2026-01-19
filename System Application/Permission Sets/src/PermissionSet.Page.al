@@ -5,7 +5,6 @@
 
 namespace System.Security.AccessControl;
 
-using System.Agents;
 using System.Telemetry;
 using System.Security.User;
 
@@ -169,11 +168,8 @@ page 9855 "Permission Set"
 
     trigger OnOpenPage()
     var
-        AgentUtilities: Codeunit "Agent Utilities";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
-        
         FeatureTelemetry.LogUptake('0000HZJ', ComposablePermissionSetsTok, Enum::"Feature Uptake Status"::Discovered);
         UpdatePageParts();
     end;
