@@ -769,7 +769,6 @@ codeunit 134092 "ERM Consolidation"
         BusinessUnit: Record "Business Unit";
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        AccountingPeriod: Record "Accounting Period";
         ConsolidateWizard: TestPage "Consolidate Wizard";
         DimensionCode: Code[20];
         StartingDate: Date;
@@ -788,14 +787,8 @@ codeunit 134092 "ERM Consolidation"
         // [GIVEN] Create and setup Business Unit
         CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
         BusinessUnit.Consolidate := true;
-        AccountingPeriod.SetRange(Closed, false);
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetCurrentKey("Starting Date");
-        AccountingPeriod.Ascending(true);
-        AccountingPeriod.FindFirst();
-
-        BusinessUnit."Starting Date" := CalcDate('<1M>', AccountingPeriod."Starting Date");
-        BusinessUnit."Ending Date" := CalcDate('<+1M>', BusinessUnit."Starting Date");
+        BusinessUnit."Starting Date" := CalcDate('<-1M>', CurrentDateTime().Date);
+        BusinessUnit."Ending Date" := CalcDate('<+1M>', CurrentDateTime().Date);
         BusinessUnit.Modify(true);
 
         // [GIVEN] Setup consolidation parameters
