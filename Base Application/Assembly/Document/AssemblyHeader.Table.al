@@ -154,6 +154,7 @@ table 900 "Assembly Header"
                     ItemVariant.TestField(Blocked, false);
                     Description := ItemVariant.Description;
                     "Description 2" := ItemVariant."Description 2";
+                    OnValidateVariantCodeOnAfterUpdateDescriptions(Rec, ItemVariant);
                 end;
                 IsHandled := false;
                 OnValidateVariantCodeOnBeforeValidateDates(Rec, xRec, IsHandled);
@@ -1629,7 +1630,13 @@ table 900 "Assembly Header"
     var
         Location: Record Location;
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, IsHandled, xRec);
+        if IsHandled then
+            exit;
+
         if (Quantity * xRec.Quantity > 0) and
            ("Item No." = xRec."Item No.") and
            ("Location Code" = xRec."Location Code") and
@@ -1946,6 +1953,7 @@ table 900 "Assembly Header"
         GetItem();
         Description := Item.Description;
         "Description 2" := Item."Description 2";
+        OnAfterSetDescriptionsFromItem(Rec, Item);
     end;
 
     procedure CalcTotalCost(var ExpCost: array[5] of Decimal): Decimal
@@ -2299,6 +2307,11 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; xAssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -2335,6 +2348,16 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnConfirmDeletionOnBeforeAssemblyLineLoop(var AssemblyLine: Record "Assembly Line"; var Confirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDescriptionsFromItem(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnAfterUpdateDescriptions(var AssemblyHeader: Record "Assembly Header"; ItemVariant: Record "Item Variant")
     begin
     end;
 }
