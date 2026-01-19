@@ -56,7 +56,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
         }
         field(10; "Calculation Base %"; Decimal)
@@ -198,7 +198,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             Caption = 'Calculation Base Amount (LCY)';
             Editable = false;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             AutoFormatExpression = '';
         }
         field(38; Discount; Boolean)
@@ -211,7 +211,6 @@ table 8019 "Sub. Contr. Analysis Entry"
             Caption = 'Quantity';
             Editable = false;
             AutoFormatType = 0;
-            DecimalPlaces = 0 : 5;
         }
         field(100; "Unit Cost"; Decimal)
         {

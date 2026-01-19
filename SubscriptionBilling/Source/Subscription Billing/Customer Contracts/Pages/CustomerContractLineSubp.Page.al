@@ -123,7 +123,6 @@ page 8068 "Customer Contract Line Subp."
                     Caption = 'Quantity';
                     ToolTip = 'Specifies the number of units of Subscription.';
                     AutoFormatType = 0;
-                    DecimalPlaces = 0 : 5;
 
                     trigger OnValidate()
                     begin
@@ -144,8 +143,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    AutoFormatType = 2;
-                    AutoFormatExpression = ServiceCommitment."Currency Code";
 
                     trigger OnValidate()
                     begin
@@ -160,8 +157,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    DecimalPlaces = 0 : 5;
-                    AutoFormatType = 0;
 
                     trigger OnValidate()
                     begin
@@ -171,9 +166,6 @@ page 8068 "Customer Contract Line Subp."
                 field("Unit Cost (LCY)"; ServiceCommitment."Unit Cost (LCY)")
                 {
                     ToolTip = 'Specifies the unit cost of the item.';
-                    AutoFormatType = 2;
-                    AutoFormatExpression = '';
-
                     trigger OnValidate()
                     begin
                         UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Unit Cost (LCY)"));
@@ -185,8 +177,6 @@ page 8068 "Customer Contract Line Subp."
                     ToolTip = 'Specifies the price of the Subscription Line with quantity of 1 in the billing period. The price is calculated from Base Price and Base Price %.';
                     Editable = false;
                     BlankZero = true;
-                    AutoFormatType = 2;
-                    AutoFormatExpression = ServiceCommitment."Currency Code";
                 }
                 field("Price (LCY)"; ServiceCommitment."Price (LCY)")
                 {
@@ -196,8 +186,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    AutoFormatType = 2;
-                    AutoFormatExpression = '';
 
                     trigger OnValidate()
                     begin
@@ -213,8 +201,6 @@ page 8068 "Customer Contract Line Subp."
                     MaxValue = 100;
                     Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
                     Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
-                    DecimalPlaces = 0 : 5;
-                    AutoFormatType = 0;
 
                     trigger OnValidate()
                     begin
@@ -229,8 +215,6 @@ page 8068 "Customer Contract Line Subp."
                     MinValue = 0;
                     Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
                     Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
-                    AutoFormatType = 1;
-                    AutoFormatExpression = ServiceCommitment."Currency Code";
 
                     trigger OnValidate()
                     begin
@@ -245,9 +229,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = (not IsCommentLineEditable) and (not IsDiscountLine);
                     Enabled = (not IsCommentLineEditable) and (not IsDiscountLine);
-                    AutoFormatType = 1;
-                    AutoFormatExpression = '';
-
                     trigger OnValidate()
                     begin
                         UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Discount Amount (LCY)"));
@@ -260,8 +241,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    AutoFormatType = 1;
-                    AutoFormatExpression = ServiceCommitment."Currency Code";
 
                     trigger OnValidate()
                     begin
@@ -276,8 +255,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    AutoFormatType = 1;
-                    AutoFormatExpression = '';
 
                     trigger OnValidate()
                     begin
@@ -399,11 +376,8 @@ page 8068 "Customer Contract Line Subp."
                 }
                 field(Discount; ServiceCommitment.Discount)
                 {
+                    Editable = false;
                     ToolTip = 'Specifies whether the Subscription Line is used as a basis for periodic invoicing or discounts.';
-                    trigger OnValidate()
-                    begin
-                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Exclude from Price Update"));
-                    end;
                 }
                 field("Create Contract Deferrals"; ServiceCommitment."Create Contract Deferrals")
                 {
@@ -452,8 +426,6 @@ page 8068 "Customer Contract Line Subp."
                     BlankZero = true;
                     Editable = not IsCommentLineEditable;
                     Enabled = not IsCommentLineEditable;
-                    DecimalPlaces = 0 : 15;
-                    AutoFormatType = 0;
 
                     trigger OnValidate()
                     begin

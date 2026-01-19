@@ -374,23 +374,22 @@ codeunit 5289 "Generate File SAF-T"
                 ExportGLAccount(
                     GLAccountMappingLine."G/L Account No.", '',
                     GLAccountMappingLine."Standard Account Category No.", GLAccountMappingLine."Standard Account No.",
-                    GLAccountMappingHeader."Standard Account Type",
                     AuditFileExportHeader."Starting Date", AuditFileExportHeader."Ending Date")
             else
                 ExportGLAccount(
                     GLAccountMappingLine."G/L Account No.", GLAccountMappingLine."Standard Account No.",
-                    '', '', GLAccountMappingHeader."Standard Account Type",
-                    AuditFileExportHeader."Starting Date", AuditFileExportHeader."Ending Date");
+                    '', '', AuditFileExportHeader."Starting Date", AuditFileExportHeader."Ending Date");
         until GLAccountMappingLine.Next() = 0;
         XmlHelper.FinalizeXmlNode();
     end;
 
-    local procedure ExportGLAccount(GLAccNo: Code[20]; StandardAccNo: Text; GroupingCategory: Code[20]; GroupingNo: Code[20]; StandardAccountType: Enum "Standard Account Type"; StartingDate: Date; EndingDate: Date)
+    local procedure ExportGLAccount(GLAccNo: Code[20]; StandardAccNo: Text; GroupingCategory: Code[20]; GroupingNo: Code[20]; StartingDate: Date; EndingDate: Date)
     var
         GLAccount: Record "G/L Account";
-        StandardAccountCategory: Record "Standard Account Category";
-        GroupingCategoryValue: Text;
-        OpeningDebitBalance, OpeningCreditBalance, ClosingDebitBalance, ClosingCreditBalance : Decimal;
+        OpeningDebitBalance: Decimal;
+        OpeningCreditBalance: Decimal;
+        ClosingDebitBalance: Decimal;
+        ClosingCreditBalance: Decimal;
     begin
         GLAccount.Get(GLAccNo);
 
@@ -422,12 +421,7 @@ codeunit 5289 "Generate File SAF-T"
         if StandardAccNo <> '' then
             XmlHelper.AppendXmlNode('StandardAccountID', StandardAccNo)
         else begin
-            // Use Extended No. if available for long category codes
-            GroupingCategoryValue := GroupingCategory;
-            if StandardAccountCategory.Get(StandardAccountType, GroupingCategory) then
-                if StandardAccountCategory."Extended No." <> '' then
-                    GroupingCategoryValue := StandardAccountCategory."Extended No.";
-            XmlHelper.AppendXmlNode('GroupingCategory', GroupingCategoryValue);
+            XmlHelper.AppendXmlNode('GroupingCategory', GroupingCategory);
             XmlHelper.AppendXmlNode('GroupingCode', GroupingNo);
         end;
 

@@ -70,7 +70,7 @@ table 8069 "Sales Sub. Line Archive"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
             AutoFormatExpression = Rec."Currency Code";
         }
         field(16; "Calculation Base %"; Decimal)
@@ -95,7 +95,7 @@ table 8069 "Sales Sub. Line Archive"
             MinValue = 0;
             MaxValue = 100;
             BlankZero = true;
-            DecimalPlaces = 0 : 5;
+            DecimalPlaces = 0 : 2;
             AutoFormatType = 0;
         }
         field(19; "Discount Amount"; Decimal)
