@@ -1,4 +1,3 @@
-#if not CLEAN28
 codeunit 5405 "E-Doc. From Resource Helper"
 {
     Access = Internal;
@@ -6,9 +5,6 @@ codeunit 5405 "E-Doc. From Resource Helper"
     InherentPermissions = X;
     Permissions = tabledata "Purch. Inv. Header" = rimd,
                   tabledata "Purch. Inv. Line" = rimd;
-    ObsoleteReason = 'A new implementation in Contoso Inbound E-Document codeunit is used instead.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '28.0';
 
     /// <summary>
     ///  Creates E-Documents from PDF files located in the .resources\PDFs folder.
@@ -192,4 +188,3 @@ codeunit 5405 "E-Doc. From Resource Helper"
     begin
     end;
 }
-#endif

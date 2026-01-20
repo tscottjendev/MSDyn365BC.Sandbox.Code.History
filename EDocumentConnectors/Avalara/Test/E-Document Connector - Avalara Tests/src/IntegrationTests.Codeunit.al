@@ -9,8 +9,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Document;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.VAT.Setup;
 using System.Threading;
 using Microsoft.eServices.EDocument.Integration;
 using Microsoft.eServices.EDocument.Service;
@@ -534,17 +532,10 @@ codeunit 148191 "Integration Tests"
     var
         ConnectionSetup: Record "Connection Setup";
         CompanyInformation: Record "Company Information";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         AvalaraAuth: Codeunit Authenticator;
         KeyGuid: Guid;
     begin
         LibraryPermission.SetOutsideO365Scope();
-
-        GeneralLedgerSetup.Get();
-        PrevVATReportingDateValue := GeneralLedgerSetup."VAT Reporting Date Usage";
-        GeneralLedgerSetup."VAT Reporting Date Usage" := Enum::"VAT Reporting Date Usage"::Disabled;
-        GeneralLedgerSetup.Modify();
-
         // Clean up token between runs
         if ConnectionSetup.Get() then
             if IsolatedStorage.Delete(ConnectionSetup."Token - Key", DataScope::Company) then;
@@ -583,6 +574,8 @@ codeunit 148191 "Integration Tests"
 
         IsInitialized := true;
     end;
+
+
 
     local procedure SetCompanyIdInConnectionSetup(Id: Text[100]; Name: Text[100])
     var
@@ -665,15 +658,10 @@ codeunit 148191 "Integration Tests"
     local procedure TearDown()
     var
         CompanyInformation: Record "Company Information";
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := OriginalVATNumber;
         CompanyInformation.Modify();
-
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."VAT Reporting Date Usage" := PrevVATReportingDateValue;
-        GeneralLedgerSetup.Modify();
     end;
 
     [HttpClientHandler]
@@ -723,7 +711,6 @@ codeunit 148191 "Integration Tests"
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        PrevVATReportingDateValue: Enum "VAT Reporting Date Usage";
         OriginalVATNumber: Text[20];
         IncorrectValueErr: Label 'Wrong value';
         DocumentStatus: Option Completed,Pending,Error;
