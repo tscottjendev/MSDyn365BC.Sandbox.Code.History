@@ -4233,6 +4233,7 @@ table 5900 "Service Header"
         Init();
         GetServiceMgtSetup();
         InitRecord();
+        OnInitRecordFromContactOnAfterInitRecord(Rec, xRec);
         "No. Series" := xRec."No. Series";
         if xRec."Shipping No." <> '' then begin
             "Shipping No. Series" := xRec."Shipping No. Series";
@@ -5469,6 +5470,7 @@ table 5900 "Service Header"
         GenJournalLine."Ship-to/Order Address Code" := "Ship-to Code";
         GenJournalLine."EU 3-Party Trade" := "EU 3-Party Trade";
         GenJournalLine."Salespers./Purch. Code" := "Salesperson Code";
+        GenJournalLine."Your Reference" := "Your Reference";
         if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
             GenJournalLine."Posting Group" := "Customer Posting Group";
         GeneralLedgerSetup.GetRecordOnce();
@@ -6381,6 +6383,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupAppliesToDocNo(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordFromContactOnAfterInitRecord(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 }
