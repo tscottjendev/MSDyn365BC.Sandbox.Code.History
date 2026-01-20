@@ -24,9 +24,6 @@ using System.Reflection;
 
 codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 {
-    Permissions = tabledata "Prod. Order Capacity Need" = rm,
-                  tabledata "Capacity Ledger Entry" = rm;
-
     var
         Item: Record Item;
         Location: Record Location;
@@ -458,7 +455,7 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
         else
             ValuedQty := CalcCapQty(ItemJnlLine);
 
-        if GetItem(ItemJnlLine."Item No.", false) then
+        if Item.Get(ItemJnlLine."Item No.") then
             if not sender.GetCalledFromAdjustment() then
                 Item.TestField("Inventory Value Zero", false);
 
@@ -471,14 +468,14 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 
         sender.CalcDirAndIndirCostAmts(DirCostAmt, IndirCostAmt, ValuedQty, ItemJnlLine);
 
-        OnPostOutputOnBeforeInsertCostValueEntries(ItemJnlLine, CapLedgEntry, ValuedQty, DirCostAmt, IndirCostAmt, sender);
+        OnPostOutputOnBeforeInsertCostValueEntries(ItemJnlLine, CapLedgEntry, ValuedQty, DirCostAmt, IndirCostAmt);
 #if not CLEAN27
         sender.RunOnPostOutputOnBeforeInsertCostValueEntries(ItemJnlLine, CapLedgEntry, ValuedQty, DirCostAmt, IndirCostAmt);
 #endif
         sender.InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Direct Cost", ValuedQty, ValuedQty, DirCostAmt);
         sender.InsertCapValueEntry(ItemJnlLine, CapLedgEntry, ItemJnlLine."Value Entry Type"::"Indirect Cost", ValuedQty, 0, IndirCostAmt);
 
-        OnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, sender.GetCalledFromAdjustment(), sender.GetPostToGL(), sender);
+        OnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, sender.GetCalledFromAdjustment(), sender.GetPostToGL());
 #if not CLEAN27
         sender.RunOnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, sender.GetCalledFromAdjustment(), sender.GetPostToGL());
 #endif
@@ -596,24 +593,6 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
 #if not CLEAN27
         sender.RunOnAfterPostOutput(GlobalItemLedgerEntry, ProdOrderLine, ItemJnlLine);
 #endif
-    end;
-
-    local procedure GetItem(ItemNo: Code[20]; ForceGetItem: Boolean): Boolean
-    var
-        HasGotItem: Boolean;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetItem(Item, ItemNo, ForceGetItem, HasGotItem, IsHandled);
-        if IsHandled then
-            exit(HasGotItem);
-
-        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
-        if not ForceGetItem then
-            exit(Item.Get(ItemNo));
-
-        Item.Get(ItemNo);
-        exit(true);
     end;
 
     local procedure PostOutputForProdOrder(
@@ -1235,12 +1214,12 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPostOutputOnBeforeInsertCostValueEntries(var ItemJournalLine: Record "Item Journal Line"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var ValuedQty: Decimal; var DirCostAmt: Decimal; var IndirCostAmt: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnPostOutputOnBeforeInsertCostValueEntries(var ItemJournalLine: Record "Item Journal Line"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var ValuedQty: Decimal; var DirCostAmt: Decimal; var IndirCostAmt: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnAfterInsertCostValueEntries(ItemJournalLine: Record "Item Journal Line"; var CapLedgEntry: Record "Capacity Ledger Entry"; CalledFromAdjustment: Boolean; PostToGL: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnPostOutputOnAfterInsertCostValueEntries(ItemJournalLine: Record "Item Journal Line"; var CapLedgEntry: Record "Capacity Ledger Entry"; CalledFromAdjustment: Boolean; PostToGL: Boolean)
     begin
     end;
 
@@ -1424,11 +1403,6 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetItem(var Item: Record Item; ItemNo: Code[20]; ForceGetItem: Boolean; var HasGotItem: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnCodeOnAfterCalcQtyPerUnitOfMeasure', '', true, true)]
     local procedure OnCodeOnAfterCalcQtyPerUnitOfMeasure(var ItemJnlLine: Record "Item Journal Line")
     begin
@@ -1459,9 +1433,6 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
         CapLedgEntry."Concurrent Capacity" := ItemJournalLine."Concurrent Capacity";
         CapLedgEntry."Work Shift Code" := ItemJournalLine."Work Shift Code";
         CapLedgEntry."Last Output Line" := LastOperation;
-
-        if ItemJournalLine."Rev. Capacity Ledger Entry No." <> 0 then
-            UpdateReversedCapacityLedgerEntry(ItemJournalLine, CapLedgEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetupTempSplitItemJnlLineOnAfterDeductNonDistr', '', true, true)]
@@ -1528,37 +1499,5 @@ codeunit 99000822 "Mfg. Item Jnl.-Post Line"
     begin
         if ItemJournalLine.Subcontracting then
             CapLedgEntry."Completely Invoiced" := CapLedgEntry."Invoiced Quantity" = CapLedgEntry."Output Quantity"
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterGetUpdatedAppliedQtyForConsumption', '', true, true)]
-    local procedure OnAfterGetUpdatedAppliedQtyForConsumption(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry2: Record "Reservation Entry"; SourceType: Integer; var AppliedQty: Decimal)
-    begin
-        if SourceType = Database::"Prod. Order Component" then begin
-            if (ReservationEntry2."Source ID" <> ItemLedgerEntry."Order No.") then begin
-                AppliedQty := 0;
-                exit;
-            end;
-
-            if ReservationEntry2."Source Ref. No." <> ItemLedgerEntry."Prod. Order Comp. Line No." then begin
-                AppliedQty := 0;
-                exit;
-            end;
-
-            AppliedQty := -Abs(OldItemLedgerEntry."Reserved Quantity")
-        end;
-    end;
-
-    local procedure UpdateReversedCapacityLedgerEntry(var ItemJnlLine: Record "Item Journal Line"; var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
-    var
-        ReversedCapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
-    begin
-        ReversedCapacityLedgerEntry.Get(ItemJnlLine."Rev. Capacity Ledger Entry No.");
-        CapLedgEntry.Reversed := true;
-        CapLedgEntry."Reversed Entry No." := ReversedCapacityLedgerEntry."Entry No.";
-        CapLedgEntry.Description := ReversedCapacityLedgerEntry.Description;
-
-        ReversedCapacityLedgerEntry.Reversed := true;
-        ReversedCapacityLedgerEntry."Reversed by Entry No." := CapLedgEntry."Entry No.";
-        ReversedCapacityLedgerEntry.Modify();
     end;
 }
