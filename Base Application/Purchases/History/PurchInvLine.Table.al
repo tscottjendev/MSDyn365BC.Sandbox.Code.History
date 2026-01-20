@@ -992,10 +992,9 @@ table 123 "Purch. Inv. Line"
         exit(Format(Type));
     end;
 
-    procedure IsCancellationSupported() Result: Boolean
+    procedure IsCancellationSupported(): Boolean
     begin
-        Result := Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource];
-        OnAfterIsCancellationSupported(Rec, Result);
+        exit(Type in [Type::" ", Type::Item, Type::"G/L Account", Type::"Charge (Item)", Type::Resource]);
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1068,11 +1067,6 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsProdOrder(var PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsCancellationSupported(PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
     begin
     end;
 }
