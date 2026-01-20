@@ -2073,13 +2073,13 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', SalesLine[1]."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[1]."Line Amount"));
-        VATAmount := SalesLine[1]."Amount Including VAT" - SalesLine[1].Amount;
+        VATAmount := Round(SalesLine[1].Amount * SalesLine[1]."VAT %" / 100 * SalesLine[1]."Qty. to Invoice" / SalesLine[1].Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
 
         Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[2]."Line Amount"));
-        VATAmount := SalesLine[2]."Amount Including VAT" - SalesLine[2].Amount;
+        VATAmount := Round(SalesLine[2].Amount * SalesLine[2]."VAT %" / 100 * SalesLine[2]."Qty. to Invoice" / SalesLine[2].Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
@@ -2942,6 +2942,32 @@ codeunit 134984 "ERM Sales Report III"
     end;
 
     [Test]
+    [HandlerFunctions('StandardStatementRequestPageHandler')]
+    procedure VerifyCustomerStatementReportwhenCustomerNohasSpecialCharacters()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 614170] Verify Customer Statement Report when Customer No has Special Characters
+        Initialize();
+
+        // [GIVEN] Create Customer with special characters in No.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Rename('Ø' + Customer."No.");
+
+        // [GIVEN] Create and post Sales Order for the Customer
+        LibrarySales.CreateSalesOrderForCustomerNo(SalesHeader, Customer."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Customer Statement Report
+        RunStandardStatementReport(Customer."No.");
+
+        // [THEN] Dataset contains data for the Customer
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), '');
+    end;
+
+    [Test]
     [HandlerFunctions('RHAgedAccountsReceivableFileName')]
     [Scope('OnPrem')]
     procedure AgedAccountReceivablesReportsPrioritizeMostRecentPostingCausingFaultyReports()
@@ -3007,11 +3033,14 @@ codeunit 134984 "ERM Sales Report III"
         DocumentNo: Code[20];
         PeriodLength: DateFormula;
     begin
+
         //[SCENARIO 599304] Aged Accounts Receivable/Payable reports do not show credit memo when using option Aging By = Posting Date
         Initialize();
+
         // [GIVEN] Create Customer
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
+
         // [GIVEN] Create and Post Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -3020,6 +3049,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesLine.Validate("Unit Price", 1000); //Use a value that is easy to verify in the report
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
         // [GIVEN] Create and Post Sales Credit Memo
         LibrarySales.CreateSalesHeader(SalesCrMemo, SalesCrMemo."Document Type"::"Credit Memo", Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesCrMemo, SalesLine.Type::Item, Item."No.", 1);
@@ -3028,17 +3058,63 @@ codeunit 134984 "ERM Sales Report III"
         SalesLine.Validate("Unit Price", 1000); //Use a value that is easy to verify in the report
         SalesLine.Modify(true);
         DocumentNo := LibrarySales.PostSalesDocument(SalesCrMemo, true, false);
+
         // [WHEN] Apply Entries from Credit Memo to Invoice
         LibraryERM.FindCustomerLedgerEntry(CustledEntry, CustledEntry."Document Type"::"Credit Memo", DocumentNo);
         ApplyCustLedgerEntry(CustledEntry."Document Type"::"Credit Memo", Customer."No.");
+
         // [WHEN] Run Aged Accounts Receivable Report
         Evaluate(PeriodLength, '<1M>');
         Customer.SetRecFilter();
         Commit();
         SaveAgedAccountsReceivable(
             Customer, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, true, true);
+
         //[THEN] Check These  Entries should be there.
         LibraryReportDataset.AssertElementWithValueNotExist('CLEPostingDate', WorkDate());
+    end;
+
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    [Scope('OnPrem')]
+    procedure VerifyTaxAmountOnPartialQuantityStandardSalesProFormaInv()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+        AmountInclVAT: Decimal;
+        VATAmount: Decimal;
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 608883] Verify the VAT Amount on the Pro Forma Invoice should be according to qty to ship
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        Quantity := LibraryRandom.RandInt(10);
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [WHEN] Create first Sales Line
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+
+        // [GIVEN] Create "Amount Inc. VAT" with prescision = 0.001, which will be round down. The 2*"Amount Inc. VAT" will be rounded up.
+        AmountInclVAT := LibraryRandom.RandDecInDecimalRange(50, 100, 2) + LibraryRandom.RandDecInDecimalRange(0.003, 0.004, 3);
+        UnitPrice := AmountInclVAT / (1 + SalesLine."VAT %" / 100) / Quantity;
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+
+        // [WHEN] Print "Pro Forma Invoice" report
+        RunStandardSalesProFormaInv(SalesLine."Document No.");
+
+        // [THEN] The fields VATAmount evaluates correctly
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), Rep1302DatasetErr);
+        if SalesHeader."Currency Code" = '' then
+            VATAmount := Round(
+                                SalesLine.Amount * SalesLine."VAT %" / 100 * SalesLine."Qty. to Invoice" / SalesLine.Quantity, 0.01);
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
     local procedure Initialize()
@@ -3978,6 +4054,7 @@ codeunit 134984 "ERM Sales Report III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';        // to avoid error on updating LCY Code
         GeneralLedgerSetup.Validate("LCY Code", CurrencyCode);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -4628,7 +4705,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         Item.Get(SalesLine."No.");
         LineAmount := Round(SalesLine.Amount * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
-        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        VATAmount := Round(SalesLine.Amount * SalesLine."VAT %" / 100 * SalesLine."Qty. to Invoice" / SalesLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CountryOfManufacturing', Item."Country/Region of Origin Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Tariff', Item."Tariff No.");
@@ -4896,6 +4973,7 @@ codeunit 134984 "ERM Sales Report III"
         Item.Modify(true);
     end;
 
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DocumentEntriesReqPageHandler(var DocumentEntries: TestRequestPage "Document Entries")
@@ -5157,6 +5235,13 @@ codeunit 134984 "ERM Sales Report III"
         AgedAccountsReceivable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate());
         AgedAccountsReceivable.PrintDetails.SetValue(true);
         AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesProFormaInvRequestPageHandler(var StandardSalesProFormaInv: TestRequestPage "Standard Sales - Pro Forma Inv")
+    begin
+        StandardSalesProFormaInv.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
