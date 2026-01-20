@@ -76,7 +76,7 @@ codeunit 57 "Document Totals"
         RoundingDiffDiscountPer: Decimal;
     begin
         IsHandled := false;
-        OnBeforeCalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled);
+        OnBeforeCalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled, TotalsUpToDate, NeedRefreshSalesLine);
         if IsHandled then
             exit;
 
@@ -129,8 +129,9 @@ codeunit 57 "Document Totals"
                             InvoiceDiscountPct := Round(InvoiceDiscountAmount / SalesLine2."Line Amount" * 100, 0.00001);
                         TotalSalesHeader."Invoice Discount Value" := InvoiceDiscountAmount;
                         RoundingDiffDiscountPer := Abs(OldInvoiceDiscountPct - InvoiceDiscountPct);
-                        if (RoundingDiffDiscountPer > 0) and (RoundingDiffDiscountPer <= 0.01) and (OldInvoiceDiscountPct <> 0) then
-                            Message(InvoiceDiscountPerRoundingMsgTxt);
+                        if not SalesSetup."Calc. Inv. Discount" and (TotalSalesHeader.Status = TotalSalesHeader.Status::Open) then
+                            if (RoundingDiffDiscountPer > 0) and (RoundingDiffDiscountPer <= 0.01) and (OldInvoiceDiscountPct <> 0) then
+                                Message(InvoiceDiscountPerRoundingMsgTxt);
                     end;
             end;
 
@@ -1062,7 +1063,7 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesSubPageTotals(var TotalSalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateSalesSubPageTotals(var TotalSalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean; var TotalsUpToDate: Boolean; var NeedRefreshSalesLine: Boolean)
     begin
     end;
 
