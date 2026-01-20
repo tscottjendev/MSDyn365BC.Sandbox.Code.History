@@ -1,7 +1,6 @@
 ﻿namespace System.Environment.Configuration;
 
 using System;
-using System.Agents;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
@@ -177,10 +176,7 @@ page 9200 "Personalized Pages"
     end;
 
     trigger OnOpenPage()
-    var
-        AgentUtilities: Codeunit "Agent Utilities";
     begin
-        AgentUtilities.BlockPageFromBeingOpenedByAgent();
         Rec.Reset();
 
         PrivacyFilterUserPersonalizations();
