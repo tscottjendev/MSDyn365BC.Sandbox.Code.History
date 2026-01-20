@@ -7895,7 +7895,13 @@ codeunit 90 "Purch.-Post"
         WHTPostingSetup: Record "WHT Posting Setup";
         GLReg: Record "G/L Register";
         InvoiceWHTEntryExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWHT(PurchHeader, TotalInvAmount, PurchInvHeader, PurchCrMemoHeader, TempPurchLineGlobal, WHTEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempPurchLineGlobal.Type <> TempPurchLineGlobal.Type::" " then
             WHTPostingSetup.Get(TempPurchLineGlobal."WHT Business Posting Group", TempPurchLineGlobal."WHT Product Posting Group");
         if PurchHeader."Document Type" in [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice] then begin
@@ -11753,6 +11759,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemChargeAssgntOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWHT(var PurchaseHeader: Record "Purchase Header"; var TotalInvAmount: Decimal; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPurchaseLineGlobal: Record "Purchase Line" temporary; var WHTEntry: Record "WHT Entry"; var IsHandled: Boolean)
     begin
     end;
 }
