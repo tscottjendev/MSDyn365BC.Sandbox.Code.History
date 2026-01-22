@@ -5,7 +5,6 @@
 
 namespace System.Agents;
 
-using System.Agents.TaskPane;
 using System.Environment.Consumption;
 
 #pragma warning disable AS0032 
@@ -36,15 +35,6 @@ page 4300 "Agent Task List"
                 field(TaskID; Rec.ID)
                 {
                     Caption = 'Task ID';
-                    Editable = false;
-                    ExtendedDatatype = Task;
-
-                    trigger OnDrillDown()
-                    var
-                        TaskPane: Codeunit "Task Pane";
-                    begin
-                        TaskPane.ShowTask(Rec);
-                    end;
                 }
                 field(Title; Rec.Title)
                 {
@@ -93,13 +83,6 @@ page 4300 "Agent Task List"
                 {
                     Caption = 'Agent';
                     ToolTip = 'Specifies the agent that is associated with the task.';
-
-                    trigger OnDrillDown()
-                    var
-                        TaskPane: Codeunit "Task Pane";
-                    begin
-                        TaskPane.ShowAgent(Rec."Agent User Security ID");
-                    end;
                 }
                 field(CreatedByID; Rec."Created By")
                 {

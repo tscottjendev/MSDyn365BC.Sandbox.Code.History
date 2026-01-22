@@ -13,5 +13,4 @@ interface "ISFTP File"
     procedure FullName(): Text
     procedure IsDirectory(): Boolean
     procedure Length(): BigInteger
-    procedure LastWriteTime(): DateTime
 }

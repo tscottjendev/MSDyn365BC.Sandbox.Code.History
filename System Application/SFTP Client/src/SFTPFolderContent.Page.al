@@ -45,10 +45,6 @@ page 9761 "SFTP Folder Content"
                 {
                     ApplicationArea = All;
                 }
-                field("Last Write Time"; Rec."Last Write Time")
-                {
-                    ApplicationArea = All;
-                }
             }
         }
     }

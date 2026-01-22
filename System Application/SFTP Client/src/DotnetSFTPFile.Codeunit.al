@@ -49,11 +49,6 @@ codeunit 9761 "Dotnet SFTP File" implements "ISFTP File"
         exit(RenciSFTPFile.Length());
     end;
 
-    procedure LastWriteTime(): DateTime
-    begin
-        exit(RenciSFTPFile.LastWriteTimeUtc());
-    end;
-
     procedure SetFile(NewFile: DotNet RenciISftpFile)
     begin
         RenciSFTPFile := NewFile;
