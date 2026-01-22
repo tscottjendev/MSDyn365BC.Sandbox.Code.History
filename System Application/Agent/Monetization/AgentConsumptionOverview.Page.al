@@ -96,7 +96,7 @@ page 4333 "Agent Consumption Overview"
                     Caption = 'Description';
                     ToolTip = 'Specifies the description of the operation';
                 }
-                field(CopilotStudioFeature; Rec."Copilot Studio Feature Display Name")
+                field(CopilotStudioFeature; Rec."Copilot Studio Feature")
                 {
                     Caption = 'Copilot Studio feature';
                 }
@@ -238,7 +238,7 @@ page 4333 "Agent Consumption Overview"
                     UpdateDateRange(StartDate, EndDate);
                     Clear(TaskNameTxt);
                     Clear(TotalTaskConsumedCredits);
-                    CurrPage.Update(false);
+                    CurrPage.Update(true);
                 end;
             }
             action(NextMonth)
