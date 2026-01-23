@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System;
-using System.Text;
 using System.Utilities;
+using System.Text;
 
 codeunit 8889 "Email Account Impl."
 {

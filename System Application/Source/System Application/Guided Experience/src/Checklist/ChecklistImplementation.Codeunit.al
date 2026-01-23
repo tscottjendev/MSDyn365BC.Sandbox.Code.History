@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
-using System.Environment;
-using System.Reflection;
+
+using System.Telemetry;
 using System.Security.AccessControl;
 using System.Security.User;
-using System.Telemetry;
+using System.Environment;
+using System.Reflection;
 
 codeunit 1993 "Checklist Implementation"
 {

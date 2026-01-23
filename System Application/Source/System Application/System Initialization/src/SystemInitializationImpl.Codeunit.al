@@ -4,10 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
-using System.Azure.Identity;
-using System.Environment;
+
 using System.Security.User;
 using System.Telemetry;
+using System.Azure.Identity;
+using System.Environment;
 
 codeunit 151 "System Initialization Impl."
 {

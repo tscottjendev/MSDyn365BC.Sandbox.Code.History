@@ -3,8 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace System.AI;
-using System.Globalization;
+
 using System.Telemetry;
+using System.Globalization;
 
 /// <summary>
 /// This codeunit is called from Platform.
