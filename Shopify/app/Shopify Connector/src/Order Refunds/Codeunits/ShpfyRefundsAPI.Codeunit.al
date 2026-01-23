@@ -141,17 +141,15 @@ codeunit 30228 "Shpfy Refunds API"
         DataCapture: Record "Shpfy Data Capture";
         RefundLine: Record "Shpfy Refund Line";
         RefundLineRecordRef: RecordRef;
-        RefundLineId: BigInteger;
-        LineItemId: BigInteger;
+        Id: BigInteger;
         ReturnLocation: BigInteger;
     begin
-        RefundLineId := CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JLine, 'id'));
-        LineItemId := CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JLine, 'lineItem.id'));
+        Id := CommunicationMgt.GetIdOfGId(JsonHelper.GetValueAsText(JLine, 'lineItem.id'));
 
-        if not RefundLine.Get(RefundId, RefundLineId) then begin
-            RefundLine."Refund Line Id" := RefundLineId;
+        if not RefundLine.Get(RefundId, Id) then begin
+            RefundLine."Refund Line Id" := Id;
             RefundLine."Refund Id" := RefundId;
-            RefundLine."Order Line Id" := LineItemId;
+            RefundLine."Order Line Id" := Id;
             RefundLine.Insert();
         end;
 
