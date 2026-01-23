@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment;
-using System.Security.AccessControl;
+
 using System.Telemetry;
+using System.Security.AccessControl;
 
 codeunit 2301 "Tenant License State Impl."
 {

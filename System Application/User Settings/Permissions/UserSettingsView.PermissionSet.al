@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
-using System.Azure.Identity;
-using System.Environment;
+
 using System.Globalization;
-using System.Reflection;
+using System.Environment;
 using System.Security.User;
+using System.Azure.Identity;
+using System.Reflection;
 
 permissionset 9176 "User Settings - View"
 {

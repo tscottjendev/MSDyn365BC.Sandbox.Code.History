@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
-using System.Environment.Configuration;
+
 using System.Reflection;
+using System.Environment.Configuration;
 
 permissionset 99 "Reporting - Edit"
 {
