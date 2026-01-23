@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
-using System.Apps;
+
 using System.Globalization;
+using System.Apps;
 
 permissionset 1993 "Guided Experience - Edit"
 {
