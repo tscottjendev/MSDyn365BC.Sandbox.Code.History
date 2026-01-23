@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Functions;
+
 using System.Security.Authentication;
-using System.Telemetry;
 using System.Utilities;
+using System.Telemetry;
 
 codeunit 7803 "Azure Functions Impl"
 {

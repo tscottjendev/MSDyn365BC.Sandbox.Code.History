@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
-using System.Integration;
+
 using System.Telemetry;
+using System.Integration;
 
 page 8889 "Email Attachments"
 {

@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Identity;
-using System.Apps;
+
 using System.Environment;
 using System.Security.AccessControl;
+using System.Apps;
 
 table 9018 "Custom Permission Set In Plan"
 {

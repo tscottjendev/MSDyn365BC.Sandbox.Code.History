@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Upgrade;
-using System.Environment;
+
 using System.Integration;
 using System.Reflection;
+using System.Environment;
 
 codeunit 9996 "Upgrade Tag Impl."
 {
