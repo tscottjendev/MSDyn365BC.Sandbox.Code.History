@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.Authentication;
+
 using System;
-using System.Environment;
 using System.Text;
+using System.Environment;
 using System.Utilities;
 
 codeunit 502 OAuth2Impl
