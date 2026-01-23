@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Identity;
+
 using System;
-using System.Environment.Configuration;
+using System.Security.User;
 using System.Globalization;
 using System.Security.AccessControl;
-using System.Security.User;
+using System.Environment.Configuration;
 
 codeunit 9029 "Azure AD User Sync Impl."
 {

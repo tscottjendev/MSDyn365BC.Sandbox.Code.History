@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Tooling;
-using System.DataAdministration;
-using System.Environment;
+
 using System.PerformanceProfile;
+using System.DataAdministration;
 using System.Security.AccessControl;
 using System.Security.User;
+using System.Environment;
 
 codeunit 1932 "Scheduled Perf. Profiler Impl."
 {
