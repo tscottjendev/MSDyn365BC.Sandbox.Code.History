@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Telemetry;
-using System.Environment;
-using System.Environment.Configuration;
+
 using System.Globalization;
+using System.Environment.Configuration;
+using System.Environment;
 
 codeunit 8712 "Telemetry Impl."
 {

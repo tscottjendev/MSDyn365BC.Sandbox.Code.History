@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.User;
-using System.Environment.Configuration;
+
 using System.Security.AccessControl;
+using System.Environment.Configuration;
 
 permissionset 775 "User Details - View"
 {

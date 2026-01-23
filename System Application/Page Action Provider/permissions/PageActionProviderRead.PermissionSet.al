@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration;
-using System.Environment.Configuration;
+
 using System.Reflection;
+using System.Environment.Configuration;
 
 permissionset 2916 "Page Action Provider - Read"
 {
