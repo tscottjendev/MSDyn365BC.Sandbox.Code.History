@@ -5,8 +5,6 @@
 
 namespace System.TestTools.TestRunner;
 
-using System.Globalization;
-
 codeunit 130458 "Test Inputs Management"
 {
     EventSubscriberInstance = Manual;
@@ -140,8 +138,6 @@ codeunit 130458 "Test Inputs Management"
         FileType: Text;
         TelemetryCD: Dictionary of [Text, Text];
     begin
-        ReadMetadataFromFile(FileName, TestInputInStream, LanguageID, GroupName, InputText);
-
         if not TestInputGroup.Find() then
             CreateTestInputGroup(TestInputGroup, FileName, ImportedByAppId, LanguageID, GroupName);
 
@@ -158,6 +154,7 @@ codeunit 130458 "Test Inputs Management"
 
         if FileName.EndsWith(YamlFileExtensionTxt) then begin
             FileType := YamlFileExtensionTxt;
+            TestInputInStream.Read(InputText);
             ParseDataInputsYaml(InputText, TestInputGroup);
         end;
 
@@ -205,32 +202,6 @@ codeunit 130458 "Test Inputs Management"
             TestInputGroupCode := CopyStr(FileName.Substring(1, FileName.LastIndexOf('.') - 1), 1, MaxStrLen(TestInputGroupCode))
         else
             TestInputGroupCode := CopyStr(FileName, 1, MaxStrLen(TestInputGroupCode));
-    end;
-
-    local procedure ReadMetadataFromFile(FileName: Text; var TestInputInStream: InStream; var LanguageID: Integer; var GroupName: Text; var InputText: Text)
-    var
-        WindowsLanguage: Record "Windows Language";
-        MetadataJsonObject: JsonObject;
-        MetadataJsonToken: JsonToken;
-    begin
-        if not FileName.EndsWith(YamlFileExtensionTxt) then
-            exit;
-
-        TestInputInStream.Read(InputText);
-
-        if not MetadataJsonObject.ReadFromYaml(InputText) then
-            exit;
-
-        if MetadataJsonObject.Get(LanguageTok, MetadataJsonToken) then
-            if MetadataJsonToken.IsValue() then begin
-                WindowsLanguage.SetRange("Language Tag", MetadataJsonToken.AsValue().AsText());
-                if WindowsLanguage.FindFirst() then
-                    LanguageID := WindowsLanguage."Language ID";
-            end;
-
-        if MetadataJsonObject.Get(NameTok, MetadataJsonToken) then
-            if MetadataJsonToken.IsValue() then
-                GroupName := MetadataJsonToken.AsValue().AsText();
     end;
 
     local procedure CreateTestInputGroup(var TestInputGroup: Record "Test Input Group"; FileName: Text; ImportedByAppId: Guid; LanguageID: Integer; GroupName: Text)
@@ -402,8 +373,6 @@ codeunit 130458 "Test Inputs Management"
     var
         DataNameTok: Label 'name', Locked = true;
         DescriptionTok: Label 'description', Locked = true;
-        LanguageTok: Label 'language', Locked = true;
-        NameTok: Label 'name', Locked = true;
         TestsTok: Label 'tests', Locked = true;
         TestInputTok: Label 'testInput', Locked = true;
         ChooseFileLbl: Label 'Choose a file to import';
