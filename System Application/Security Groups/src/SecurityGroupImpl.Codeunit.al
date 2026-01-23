@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System;
-using System.Azure.Identity;
 using System.Telemetry;
+using System.Azure.Identity;
 
 codeunit 9871 "Security Group Impl."
 {

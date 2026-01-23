@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Identity;
-using System.Apps;
+
 using System.Environment;
 using System.Security.AccessControl;
+using System.Apps;
 
 /// <summary>
 /// The container used for fetching permission sets associated with plans.
