@@ -128,7 +128,7 @@ page 149040 "AIT Test Suite List"
 
     trigger OnAfterGetRecord()
     begin
-        if Rec."Copilot Capability".AsInteger() = 0 then
+        if Format(Rec."Copilot Capability") = '' then
             CopilotCapabilityText := UnspecifiedLbl
         else
             CopilotCapabilityText := Format(Rec."Copilot Capability");
