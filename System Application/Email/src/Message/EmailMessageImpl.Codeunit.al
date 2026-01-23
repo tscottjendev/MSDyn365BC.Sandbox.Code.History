@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System;
-using System.Environment;
-using System.Telemetry;
 using System.Text;
+using System.Telemetry;
 using System.Utilities;
+using System.Environment;
 
 codeunit 8905 "Email Message Impl."
 {
