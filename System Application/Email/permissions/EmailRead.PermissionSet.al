@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
+
 using System.DataAdministration;
-using System.Environment;
 using System.Reflection;
+using System.Environment;
 using System.Security.AccessControl;
 
 permissionset 8900 "Email - Read"
