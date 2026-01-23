@@ -4,11 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Environment.Configuration;
-using System.Apps;
-using System.Environment;
+
 using System.Globalization;
 using System.Reflection;
+using System.Environment;
 using System.Security.AccessControl;
+using System.Apps;
 
 permissionset 1991 "Guided Experience - Read"
 {

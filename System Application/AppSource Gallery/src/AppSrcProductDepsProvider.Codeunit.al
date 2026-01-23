@@ -3,10 +3,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace System.Apps.AppSource;
-using System.Azure.Identity;
-using System.Environment;
+
 using System.Environment.Configuration;
 using System.Globalization;
+using System.Azure.Identity;
+using System.Environment;
 using System.RestClient;
 
 /// <summary>
