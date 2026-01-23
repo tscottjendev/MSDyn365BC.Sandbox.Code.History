@@ -836,11 +836,10 @@ table 115 "Sales Cr.Memo Line"
     internal procedure GetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
         ValueEntry: Record "Value Entry";
-    begin    
+    begin
         CheckApplFromItemLedgEntry(ItemLedgerEntry);
-        
+
         if ItemLedgerEntry."Entry No." = 0 then
             FindItemLedgerEntryFromItemApplicationEntry(ItemLedgerEntry);
 
@@ -848,22 +847,8 @@ table 115 "Sales Cr.Memo Line"
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
-        if ValueEntry.FindFirst() then begin
+        if ValueEntry.FindFirst() then
             SalesInvoiceLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.");
-            exit;
-        end;
-
-        if ItemLedgerEntry."Entry No." = 0 then begin
-            SalesCreditMemoHeader.Get("Document No.");
-            if SalesCreditMemoHeader."Applies-to Doc. Type" <> SalesCrMemoHeader."Applies-to Doc. Type"::Invoice then
-                exit;
-
-            SalesInvoiceLine.Reset();
-            SalesInvoiceLine.SetRange("Document No.", SalesCreditMemoHeader."Applies-to Doc. No.");
-            SalesInvoiceLine.SetRange(Type, Type);
-            SalesInvoiceLine.SetRange("No.", "No.");
-            if SalesInvoiceLine.FindFirst() then;
-        end;
     end;
 
     local procedure CheckApplFromItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
@@ -879,7 +864,7 @@ table 115 "Sales Cr.Memo Line"
         ItemLedgerEntry.TestField("Variant Code", "Variant Code");
         ItemLedgerEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-from Item Entry"));
     end;
-     
+
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
         ValueEntry.Reset();
