@@ -4,12 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Integration.Word;
+
 using System;
-using System.Integration;
 using System.IO;
-using System.Reflection;
-using System.Telemetry;
 using System.Utilities;
+using System.Telemetry;
+using System.Integration;
+using System.Reflection;
 
 codeunit 9988 "Word Template Impl."
 {

@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.DataAdministration;
-using System.Environment;
+
 using System.Upgrade;
+using System.Environment;
 
 #pragma warning disable AA0235
 codeunit 3907 "Retention Policy Installer"
