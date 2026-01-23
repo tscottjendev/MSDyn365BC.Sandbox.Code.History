@@ -4,8 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Azure.Storage.Files;
-using System.Azure.Storage;
+
 using System.Security.Authentication;
+using System.Azure.Storage;
 
 codeunit 8954 "AFS Web Request Helper"
 {

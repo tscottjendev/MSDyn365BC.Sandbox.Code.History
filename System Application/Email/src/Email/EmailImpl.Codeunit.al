@@ -4,10 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Email;
-using System.Globalization;
-using System.Reflection;
-using System.Security.AccessControl;
+
 using System.Telemetry;
+using System.Globalization;
+using System.Security.AccessControl;
+using System.Reflection;
 
 codeunit 8900 "Email Impl"
 {

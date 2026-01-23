@@ -1,8 +1,9 @@
 ﻿namespace System.Integration;
+
 using System.Apps;
 using System.Reflection;
-using System.Text.Json;
 using System.Utilities;
+using System.Text.Json;
 
 codeunit 8333 "VS Code Integration Impl."
 {
