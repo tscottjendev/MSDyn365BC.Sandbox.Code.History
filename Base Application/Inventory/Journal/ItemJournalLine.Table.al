@@ -2403,6 +2403,8 @@ table 83 "Item Journal Line"
                                 CreateNewDimFromDefaultDim(Rec.FieldNo("Item No."));
                             Database::"Salesperson/Purchaser":
                                 CreateNewDimFromDefaultDim(Rec.FieldNo("Salespers./Purch. Code"));
+                            else
+                                OnCreateDimOnTransferOtherTableId(Rec, TableId);
                         end;
                 end;
             end;
@@ -3759,6 +3761,7 @@ table 83 "Item Journal Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCode,
             "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code", 0, 0);
+        OnCreateNewDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("New Dimension Set ID", "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code");
     end;
 
@@ -3787,7 +3790,7 @@ table 83 "Item Journal Line"
         else
             DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."New Location Code", FieldNo = Rec.FieldNo("New Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo, CalledForNewDimension);
     end;
 
     /// <summary>
@@ -4097,8 +4100,9 @@ table 83 "Item Journal Line"
     /// <param name="ItemJournalLine">The Item Journal Line record.</param>
     /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     /// <param name="FieldNo">The field number that triggered the validation.</param>
+    /// <param name="CalledForNewDimension">Whether the event was called for a new dimension.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer; CalledForNewDimension: Boolean)
     begin
     end;
 
@@ -5276,6 +5280,16 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnTransferOtherTableId(var ItemJournalLine: Record "Item Journal Line"; TableId: Integer)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }
