@@ -11,7 +11,7 @@ page 4303 "Agent Task Log Entry List"
     PageType = List;
     ApplicationArea = All;
     SourceTable = "Agent Task Log Entry";
-    Caption = 'Agent Task Log';
+    Caption = 'Agent Task Log (Preview)';
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = false;
@@ -153,7 +153,7 @@ page 4303 "Agent Task Log Entry List"
             action(Feedback)
             {
                 ApplicationArea = All;
-                Caption = 'Give feedback';
+                Caption = 'Give Feedback';
                 ToolTip = 'Tell us what you think about the agent and suggest new features or improvements.';
                 Image = Comment;
                 Enabled = IsFeedbackActionEnabled;

@@ -3495,11 +3495,6 @@ table 39 "Purchase Line"
             Caption = 'Prepmt. on-Deductible VAT Amount';
             Editable = false;
         }
-        field(6206; "Item Charge Has Non.Ded. VAT"; Boolean)
-        {
-            Caption = 'Item Charge Has Non-Deductible VAT';
-            Editable = false;
-        }
         field(6600; "Return Shipment No."; Code[20])
         {
             Caption = 'Return Shipment No.';
@@ -6283,8 +6278,8 @@ table 39 "Purchase Line"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         AssignItemChargePurch: Codeunit "Item Charge Assgnt. (Purch.)";
         ItemChargeAssgnts: Page "Item Charge Assignment (Purch)";
-        ItemChargeAssgntLineAmt, NonDedVATAmount : Decimal;
-        IsHandled, IncludeNonDedVATAmount : Boolean;
+        ItemChargeAssgntLineAmt: Decimal;
+        IsHandled: Boolean;
     begin
         Get("Document Type", "Document No.", "Line No.");
         CheckNoAndQuantityForItemChargeAssgnt();
@@ -6302,14 +6297,9 @@ table 39 "Purchase Line"
         if ("Inv. Discount Amount" = 0) and
            ("Line Discount Amount" = 0) and
            (not PurchHeader."Prices Including VAT")
-        then begin
-            ItemChargeAssgntLineAmt := "Line Amount";
-            NonDedVATAmount := NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec);
-            if NonDedVATAmount <> 0 then begin
-                ItemChargeAssgntLineAmt += NonDedVATAmount;
-                IncludeNonDedVATAmount := true;
-            end;
-        end else
+        then
+            ItemChargeAssgntLineAmt := "Line Amount" + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
+        else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
                   Round(CalcLineAmount() / (1 + GetVATPct() / 100), Currency."Amount Rounding Precision") + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
@@ -6342,12 +6332,6 @@ table 39 "Purchase Line"
         else
             AssignItemChargePurch.CreateDocChargeAssgnt(ItemChargeAssgntPurch, "Receipt No.");
         Clear(AssignItemChargePurch);
-
-        if IncludeNonDedVATAmount then begin
-            Rec."Item Charge Has Non.Ded. VAT" := IncludeNonDedVATAmount;
-            Rec.Modify();
-        end;
-
         Commit();
 
         ItemChargeAssgnts.Initialize(Rec, ItemChargeAssgntLineAmt);
