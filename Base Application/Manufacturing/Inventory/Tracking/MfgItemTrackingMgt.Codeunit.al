@@ -329,6 +329,7 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
             CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine, TempProdOrdLineTrackingBuff);
             TempProdOrdLineTrackingBuff."Buffer Entry No." := 1;
             TempProdOrdLineTrackingBuff.Insert();
+            OnAfterSplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff);
             exit;
         end;
 
@@ -366,6 +367,7 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
             TempProdOrdLineTrackingBuff."Buffer Entry No." := 1;
             TempProdOrdLineTrackingBuff.Insert();
         end;
+        OnAfterSplitProdOrderLineForOutputPutAway(ProdOrderLine, TempProdOrdLineTrackingBuff);
     end;
 
     local procedure CopyProdOrderLineFieldsToTempProdOrdLineTrackingBuff(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff.")
@@ -765,6 +767,11 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; ProdOrderLine: Record "Prod. Order Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var QtyBaseAvailableToPutAway: Decimal; var RemainingHandledQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSplitProdOrderLineForOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary)
     begin
     end;
 }
