@@ -6960,7 +6960,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                 CreateGLEntry(
                                     GenJnlLine, VATPostingSetup.GetRevChargeAccount(false),
                                     VATEntry.Amount, CalcAddCurrForUnapplication(VATEntry."Posting Date", VATEntry.Amount), false,
-                                    CalcAmountSrcCurr(GenJnlLine, -VATEntry.Amount));
+                                    CalcAmountSrcCurr(GenJnlLine, VATEntry.Amount));
                             end else
                                 GLEntryNoFromVAT := PostUnrealVATByUnapply(GenJnlLine, VATPostingSetup, VATEntry, TempVATEntry);
                         VATEntry2 := TempVATEntry;
@@ -13216,4 +13216,3 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 }
-
