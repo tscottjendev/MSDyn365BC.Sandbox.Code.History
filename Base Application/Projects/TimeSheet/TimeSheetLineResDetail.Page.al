@@ -22,11 +22,13 @@ page 965 "Time Sheet Line Res. Detail"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
+                    ToolTip = 'Specifies a description of the time sheet line.';
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = WorkTypeCodeAllowEdit;
+                    ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
             }
         }
