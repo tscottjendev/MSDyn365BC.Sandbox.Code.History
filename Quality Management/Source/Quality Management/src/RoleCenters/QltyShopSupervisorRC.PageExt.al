@@ -18,13 +18,13 @@ pageextension 20416 "Qlty. Shop Supervisor RC" extends "Shop Supervisor Role Cen
     {
         addlast(processing)
         {
-            group(Qlty_QualityManagement)
+            group(Qlty_Management)
             {
                 Image = TaskQualityMeasure;
                 Caption = 'Quality Management';
                 ToolTip = 'Create Quality Inspections.';
 
-                action(Qlty_ShowQualityInspections)
+                action(Qlty_ShowInspections)
                 {
                     Caption = 'Quality Inspections';
                     Image = TaskQualityMeasure;
@@ -44,7 +44,7 @@ pageextension 20416 "Qlty. Shop Supervisor RC" extends "Shop Supervisor Role Cen
                 {
                     Caption = 'Analysis';
 
-                    action(Qlty_QualityInspectionLines)
+                    action(Qlty_InspectionLines)
                     {
                         Caption = 'Quality Inspection Lines';
                         Image = AnalysisView;
@@ -53,21 +53,10 @@ pageextension 20416 "Qlty. Shop Supervisor RC" extends "Shop Supervisor Role Cen
                         RunObject = Page "Qlty. Inspection Lines";
                     }
                 }
-                group(Qlty_ConfigureQualityManagement)
+                group(Qlty_SemiRegularSetup)
                 {
-                    Caption = 'Setup';
-                    Tooltip = 'Configure the Quality Management';
-                    Image = Setup;
+                    Caption = 'Templates and Rules';
 
-                    action(Qlty_ManagementSetup)
-                    {
-                        Caption = 'Quality Management Setup';
-                        RunObject = Page "Qlty. Management Setup";
-                        ApplicationArea = QualityManagement;
-                        Image = Setup;
-                        RunPageMode = Edit;
-                        Tooltip = 'Change the behavior of the Quality Management.';
-                    }
                     action(Qlty_ConfigureInspectionTemplates)
                     {
                         ApplicationArea = QualityManagement;
@@ -96,15 +85,31 @@ pageextension 20416 "Qlty. Shop Supervisor RC" extends "Shop Supervisor Role Cen
                         ToolTip = 'Specifies a quality inspection test is a data points to capture, or questions, or measurements.';
                     }
                 }
+                group(Qlty_ManagementConfigure)
+                {
+                    Caption = 'Setup';
+                    Tooltip = 'Configure the Quality Management';
+                    Image = Setup;
+
+                    action(Qlty_ManagementSetup)
+                    {
+                        Caption = 'Quality Management Setup';
+                        Tooltip = 'Change the behavior of the Quality Management.';
+                        RunObject = Page "Qlty. Management Setup";
+                        ApplicationArea = QualityManagement;
+                        Image = Setup;
+                        RunPageMode = Edit;
+                    }
+                }
             }
         }
         addlast(sections)
         {
-            group(Qlty_QualityManagement_Sections_Group)
+            group(Qlty_Sections_Group)
             {
                 Caption = 'Quality Inspection';
 
-                action(Qlty_Sections_ShowQualityInspections)
+                action(Qlty_Sections_ShowInspections)
                 {
                     Caption = 'Quality Inspections';
                     Image = TaskQualityMeasure;
@@ -112,7 +117,7 @@ pageextension 20416 "Qlty. Shop Supervisor RC" extends "Shop Supervisor Role Cen
                     ApplicationArea = QualityManagement;
                     RunObject = Page "Qlty. Inspection List";
                 }
-                action(Qlty_Sections_QualityInspectionLines)
+                action(Qlty_Sections_InspectionLines)
                 {
                     Caption = 'Quality Inspection Lines';
                     Image = AnalysisView;

@@ -35,7 +35,6 @@ codeunit 7233 "Master Data Management"
                   tabledata "Integration Table Mapping" = rimd,
                   tabledata "Integration Synch. Job" = r,
                   tabledata "Job Queue Entry" = rimd,
-                  tabledata "Scheduled Task" = rm,
                   tabledata "Master Data Management Setup" = rimd;
 
     var

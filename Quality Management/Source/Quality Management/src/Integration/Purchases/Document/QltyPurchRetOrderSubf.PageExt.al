@@ -12,13 +12,13 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
 {
     actions
     {
-        addlast("F&unctions")
+        addafter("&Line")
         {
-            group(Qlty_QualityManagement)
+            group(Qlty_Management)
             {
                 Caption = 'Quality Management';
 
-                action(Qlty_CreateQualityInspection)
+                action(Qlty_InspectionCreate)
                 {
                     ApplicationArea = QualityManagement;
                     Image = CreateForm;
@@ -26,8 +26,8 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
                     ToolTip = 'Creates a quality inspection for this purchase return order line.';
                     AboutTitle = 'Create Quality Inspection';
                     AboutText = 'Create a quality inspection for this purchase return order line.';
-                    Enabled = QltyCreateQualityInspection;
-                    Visible = QltyCreateQualityInspection;
+                    Enabled = QltyShowCreateInspection;
+                    Visible = QltyShowCreateInspection;
 
                     trigger OnAction()
                     var
@@ -36,7 +36,7 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
                         QltyInspectionCreate.CreateInspectionWithVariant(Rec, true);
                     end;
                 }
-                action(Qlty_ShowQualityInspectionsForItemAndDocument)
+                action(Qlty_InspectionShowInspectionsForItemAndDocument)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
@@ -44,8 +44,8 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
                     ToolTip = 'Shows quality inspections for this item and document.';
                     AboutTitle = 'Show Quality Inspections';
                     AboutText = 'Shows quality inspections for this item and document.';
-                    Enabled = QltyReadQualityInspections;
-                    Visible = QltyReadQualityInspections;
+                    Enabled = QltyReadTestResults;
+                    Visible = QltyReadTestResults;
 
                     trigger OnAction()
                     var
@@ -54,7 +54,7 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
                         QltyInspectionList.RunModalSourceItemAndSourceDocumentFilterWithRecord(Rec);
                     end;
                 }
-                action(Qlty_ShowQualityInspectionsForItem)
+                action(Qlty_InspectionShowInspectionsForItem)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
@@ -62,8 +62,8 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
                     ToolTip = 'Shows Quality Inspections for Item';
                     AboutTitle = 'Show Quality Inspections';
                     AboutText = 'Shows quality inspections for this item.';
-                    Enabled = QltyReadQualityInspections;
-                    Visible = QltyReadQualityInspections;
+                    Enabled = QltyReadTestResults;
+                    Visible = QltyReadTestResults;
 
                     trigger OnAction()
                     var
@@ -77,18 +77,18 @@ pageextension 20407 "Qlty. Purch. Ret. Order Subf." extends "Purchase Return Ord
     }
 
     var
-        QltyReadQualityInspections, QltyCreateQualityInspection : Boolean;
+        QltyShowCreateInspection: Boolean;
+        QltyReadTestResults: Boolean;
 
     trigger OnOpenPage()
     var
         CheckLicensePermissionQltyInspectionHeader: Record "Qlty. Inspection Header";
         QltyPermissionMgmt: Codeunit "Qlty. Permission Mgmt.";
     begin
-        QltyReadQualityInspections := QltyPermissionMgmt.CanReadInspectionResults();
-
         if not CheckLicensePermissionQltyInspectionHeader.WritePermission() then
             exit;
 
-        QltyCreateQualityInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyShowCreateInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyReadTestResults := QltyPermissionMgmt.CanReadInspectionResults();
     end;
 }

@@ -12,7 +12,7 @@ pageextension 20413 "Qlty. Serial No. Info. List" extends "Serial No. Informatio
 {
     layout
     {
-        addafter("Expired Inventory")
+        addafter(Blocked)
         {
             field(QltyInspectionResultDescription; MostRecentQltyResultDescription)
             {

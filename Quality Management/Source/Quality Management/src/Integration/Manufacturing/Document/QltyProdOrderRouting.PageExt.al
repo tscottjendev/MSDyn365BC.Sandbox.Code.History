@@ -12,19 +12,19 @@ pageextension 20400 "Qlty. Prod. Order Routing" extends "Prod. Order Routing"
 {
     actions
     {
-        addlast("F&unctions")
+        addbefore("&Line")
         {
-            group(Qlty_QualityManagement)
+            group(Qlty_Management)
             {
                 Caption = 'Quality Management';
 
-                action(Qlty_CreateQualityInspection)
+                action(Qlty_InspectionCreate)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
                     Caption = 'Create Quality Inspection';
                     ToolTip = 'Specifies to create a new quality inspection.';
-                    Enabled = QltyCreateQualityInspection;
+                    Enabled = QltyShowCreateInspection;
 
                     trigger OnAction()
                     var
@@ -33,13 +33,13 @@ pageextension 20400 "Qlty. Prod. Order Routing" extends "Prod. Order Routing"
                         QltyInspectionCreate.CreateInspectionWithVariant(Rec, true);
                     end;
                 }
-                action(Qlty_ShowQualityInspectionsForItem)
+                action(Qlty_InspectionShowInspectionsForItem)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
                     Caption = 'Show Quality Inspections';
                     ToolTip = 'Shows existing Quality Inspections.';
-                    Enabled = QltyReadQualityInspections;
+                    Enabled = QltyReadTestResults;
 
                     trigger OnAction()
                     var
@@ -53,18 +53,18 @@ pageextension 20400 "Qlty. Prod. Order Routing" extends "Prod. Order Routing"
     }
 
     var
-        QltyReadQualityInspections, QltyCreateQualityInspection : Boolean;
+        QltyShowCreateInspection: Boolean;
+        QltyReadTestResults: Boolean;
 
     trigger OnOpenPage()
     var
         CheckLicensePermissionQltyInspectionHeader: Record "Qlty. Inspection Header";
         QltyPermissionMgmt: Codeunit "Qlty. Permission Mgmt.";
     begin
-        QltyReadQualityInspections := QltyPermissionMgmt.CanReadInspectionResults();
-
         if not CheckLicensePermissionQltyInspectionHeader.WritePermission() then
             exit;
 
-        QltyCreateQualityInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyShowCreateInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyReadTestResults := QltyPermissionMgmt.CanReadInspectionResults();
     end;
 }

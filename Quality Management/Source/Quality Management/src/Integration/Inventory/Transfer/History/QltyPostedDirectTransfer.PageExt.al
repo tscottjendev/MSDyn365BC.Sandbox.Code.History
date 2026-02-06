@@ -12,7 +12,7 @@ pageextension 20424 "Qlty. Posted Direct Transfer" extends "Posted Direct Transf
     {
         addlast(General)
         {
-            group(Qlty_QualityManagement)
+            group(Qlty_Management)
             {
                 ShowCaption = false;
                 Visible = (Rec."Qlty. Inspection No." <> '');

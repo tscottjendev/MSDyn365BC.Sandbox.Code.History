@@ -12,13 +12,13 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
 {
     actions
     {
-        addlast(Navigation)
+        addafter("&Item Tracking")
         {
-            group(Qlty_QualityManagement)
+            group(Qlty_Management)
             {
                 Caption = 'Quality Management';
 
-                action(Qlty_CreateQualityInspection)
+                action(Qlty_InspectionCreate)
                 {
                     ApplicationArea = QualityManagement;
                     Image = CreateForm;
@@ -26,8 +26,8 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
                     ToolTip = 'Creates a quality inspection for this warehouse entry.';
                     AboutTitle = 'Create Quality Inspection';
                     AboutText = 'Create a quality inspection for this warehouse entry.';
-                    Enabled = QltyCreateQualityInspection;
-                    Visible = QltyCreateQualityInspection;
+                    Enabled = QltyShowCreateInspection;
+                    Visible = QltyShowCreateInspection;
 
                     trigger OnAction()
                     var
@@ -36,7 +36,7 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
                         QltyInspectionCreate.CreateInspectionWithVariant(Rec, true);
                     end;
                 }
-                action(Qlty_ShowQualityInspectionsForItemAndDocument)
+                action(Qlty_InspectionShowInspectionsForItemAndDocument)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
@@ -44,8 +44,8 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
                     ToolTip = 'Shows quality inspections for this item and document.';
                     AboutTitle = 'Show Quality Inspections';
                     AboutText = 'Shows quality inspections for this item and document.';
-                    Enabled = QltyReadQualityInspections;
-                    Visible = QltyReadQualityInspections;
+                    Enabled = QltyReadTestResults;
+                    Visible = QltyReadTestResults;
 
                     trigger OnAction()
                     var
@@ -54,7 +54,7 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
                         QltyInspectionList.RunModalSourceItemAndSourceDocumentFilterWithRecord(Rec);
                     end;
                 }
-                action(Qlty_ShowQualityInspectionsForItem)
+                action(Qlty_InspectionShowInspectionsForItem)
                 {
                     ApplicationArea = QualityManagement;
                     Image = TaskQualityMeasure;
@@ -62,8 +62,8 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
                     ToolTip = 'Shows Quality Inspections for Item';
                     AboutTitle = 'Show Quality Inspections';
                     AboutText = 'Shows quality inspections for this item.';
-                    Enabled = QltyReadQualityInspections;
-                    Visible = QltyReadQualityInspections;
+                    Enabled = QltyReadTestResults;
+                    Visible = QltyReadTestResults;
 
                     trigger OnAction()
                     var
@@ -77,18 +77,18 @@ pageextension 20427 "Qlty. Warehouse Entries" extends "Warehouse Entries"
     }
 
     var
-        QltyReadQualityInspections, QltyCreateQualityInspection : Boolean;
+        QltyShowCreateInspection: Boolean;
+        QltyReadTestResults: Boolean;
 
     trigger OnOpenPage()
     var
         CheckLicensePermissionQltyInspectionHeader: Record "Qlty. Inspection Header";
         QltyPermissionMgmt: Codeunit "Qlty. Permission Mgmt.";
     begin
-        QltyReadQualityInspections := QltyPermissionMgmt.CanReadInspectionResults();
-
         if not CheckLicensePermissionQltyInspectionHeader.WritePermission() then
             exit;
 
-        QltyCreateQualityInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyShowCreateInspection := QltyPermissionMgmt.CanCreateManualInspection();
+        QltyReadTestResults := QltyPermissionMgmt.CanReadInspectionResults();
     end;
 }

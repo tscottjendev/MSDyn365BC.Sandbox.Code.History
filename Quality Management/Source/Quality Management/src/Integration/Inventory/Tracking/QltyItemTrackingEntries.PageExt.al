@@ -20,7 +20,7 @@ pageextension 20429 "Qlty. Item Tracking Entries" extends "Item Tracking Entries
                 Caption = 'Quality Inspections';
                 Image = TaskQualityMeasure;
                 ToolTip = 'View quality inspections filtered by the selected item, variant, location, and tracking details.';
-                Visible = QltyReadQualityInspections;
+                Visible = QltyReadTestResults;
 
                 trigger OnAction()
                 begin
@@ -31,13 +31,17 @@ pageextension 20429 "Qlty. Item Tracking Entries" extends "Item Tracking Entries
     }
 
     var
-        QltyReadQualityInspections: Boolean;
+        QltyReadTestResults: Boolean;
 
     trigger OnOpenPage()
     var
+        CheckLicensePermissionQltyInspectionHeader: Record "Qlty. Inspection Header";
         QltyPermissionMgmt: Codeunit "Qlty. Permission Mgmt.";
     begin
-        QltyReadQualityInspections := QltyPermissionMgmt.CanReadInspectionResults();
+        if not CheckLicensePermissionQltyInspectionHeader.ReadPermission() then
+            exit;
+
+        QltyReadTestResults := QltyPermissionMgmt.CanReadInspectionResults();
     end;
 
     local procedure ShowQualityInspections()

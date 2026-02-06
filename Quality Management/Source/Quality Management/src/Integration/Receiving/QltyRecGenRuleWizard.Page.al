@@ -148,7 +148,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(LocationFilerErr, GetLastErrorText());
                         end;
@@ -172,7 +171,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(VendorFilterErr, GetLastErrorText());
                         end;
@@ -190,7 +188,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(PurchasingCodeErr, GetLastErrorText());
                         end;
@@ -213,7 +210,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(CustomerFilterErr, GetLastErrorText());
                         end;
@@ -231,7 +227,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(ReturnReasonFilterErr, GetLastErrorText());
                         end;
@@ -255,7 +250,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(TransferFromFilterErr, GetLastErrorText());
                         end;
@@ -273,7 +267,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(TransferToFilterErr, GetLastErrorText());
                         end;
@@ -297,7 +290,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(ToZoneFilterErr, GetLastErrorText());
                         end;
@@ -315,7 +307,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                         trigger OnValidate()
                         begin
-                            ClearLastError();
                             if not UpdateFullTextRuleStringsFromFilters() then
                                 Error(ToBinFilterErr, GetLastErrorText());
                         end;
@@ -359,7 +350,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                     trigger OnValidate()
                     begin
-                        ClearLastError();
                         if not UpdateFullTextRuleStringsFromFilters() then
                             Error(ItemFilterErr, GetLastErrorText());
                     end;
@@ -377,7 +367,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                     trigger OnValidate()
                     begin
-                        ClearLastError();
                         if not UpdateFullTextRuleStringsFromFilters() then
                             Error(ItemCategoryFilterErr, GetLastErrorText());
                     end;
@@ -395,7 +384,6 @@ page 20461 "Qlty. Rec. Gen. Rule Wizard"
 
                     trigger OnValidate()
                     begin
-                        ClearLastError();
                         if not UpdateFullTextRuleStringsFromFilters() then
                             Error(InventoryPostingGroupErr, GetLastErrorText());
                     end;

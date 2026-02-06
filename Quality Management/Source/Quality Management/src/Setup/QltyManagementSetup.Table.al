@@ -39,7 +39,7 @@ table 20400 "Qlty. Management Setup"
         {
             Caption = 'Quality Inspection Nos.';
             TableRelation = "No. Series";
-            ToolTip = 'Specifies the default number series for quality inspection documents.';
+            ToolTip = 'Specifies the default number series for quality inspection documents used when there isn''t a number series defined on the quality inspection template.';
         }
         field(4; "Inspection Creation Option"; Enum "Qlty. Inspect. Creation Option")
         {

@@ -12,7 +12,7 @@ pageextension 20411 "Qlty. Lot No. Info. List" extends "Lot No. Information List
 {
     layout
     {
-        addafter("Expired Inventory")
+        addafter("Test Quality")
         {
             field(QltyInspectionResultDescription; MostRecentQltyResultDescription)
             {
