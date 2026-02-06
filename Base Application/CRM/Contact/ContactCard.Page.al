@@ -1264,9 +1264,8 @@ page 5050 "Contact Card"
                     EmailScenario: Enum "Email Scenario";
                 begin
                     TempEmailItem.AddSourceDocument(Database::Contact, Rec.SystemId);
-                    TempEmailItem."Send to" := Rec."E-Mail";
-                    if TempEmailItem.Send(false, EmailScenario::Default) then
-                        Rec.CreateInteractionForEmail();
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             action("Create Opportunity")
