@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -39,12 +39,10 @@ table 5406 "Prod. Order Line"
         field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            ToolTip = 'Specifies a value that is copied from the corresponding field on the production order header.';
         }
         field(2; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
-            ToolTip = 'Specifies the number of the related production order.';
             TableRelation = "Production Order"."No." where(Status = field(Status));
         }
         field(3; "Line No."; Integer)
@@ -54,7 +52,6 @@ table 5406 "Prod. Order Line"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            ToolTip = 'Specifies the number of the item that is to be produced.';
             TableRelation = Item where(Type = const(Inventory), "Production Blocked" = filter(<> Output));
 
             trigger OnValidate()
@@ -133,7 +130,6 @@ table 5406 "Prod. Order Line"
         field(12; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."),
                                                        Code = field("Variant Code"),
                                                        "Production Blocked" = filter(<> Output));
@@ -166,17 +162,14 @@ table 5406 "Prod. Order Line"
         field(13; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the value of the Description field on the item card. If you enter a variant code, the variant description is copied to this field instead.';
         }
         field(14; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
-            ToolTip = 'Specifies an additional description.';
         }
         field(20; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the location code, if the produced items should be stored in a specific location.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -199,7 +192,6 @@ table 5406 "Prod. Order Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -212,7 +204,6 @@ table 5406 "Prod. Order Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -224,7 +215,6 @@ table 5406 "Prod. Order Line"
         field(23; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
-            ToolTip = 'Specifies the bin that the produced item is posted to as output, and from where it can be taken to storage or cross-docked.';
             TableRelation = if (Quantity = filter(< 0)) "Bin Content"."Bin Code" where("Location Code" = field("Location Code"),
                                                                                      "Item No." = field("Item No."),
                                                                                      "Variant Code" = field("Variant Code"))
@@ -265,7 +255,6 @@ table 5406 "Prod. Order Line"
         field(35; "Standard Task Code"; Code[10])
         {
             Caption = 'Standard Task Code';
-            ToolTip = 'Specifies a standard task.';
             TableRelation = "Standard Task";
             ObsoleteReason = 'This field is not required anymore. The standard task code is now defined on the routing line.';
 #if CLEAN27
@@ -281,7 +270,6 @@ table 5406 "Prod. Order Line"
         {
             AutoFormatType = 0;
             Caption = 'Quantity';
-            ToolTip = 'Specifies the quantity to be produced if you manually fill in this line.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -316,7 +304,6 @@ table 5406 "Prod. Order Line"
         {
             AutoFormatType = 0;
             Caption = 'Finished Quantity';
-            ToolTip = 'Specifies how much of the quantity on this line has been produced.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
@@ -325,7 +312,6 @@ table 5406 "Prod. Order Line"
         {
             AutoFormatType = 0;
             Caption = 'Remaining Quantity';
-            ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
@@ -334,14 +320,12 @@ table 5406 "Prod. Order Line"
         {
             AutoFormatType = 0;
             Caption = 'Scrap %';
-            ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(47; "Due Date"; Date)
         {
             Caption = 'Due Date';
-            ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
             Editable = false;
 
             trigger OnValidate()
@@ -440,7 +424,6 @@ table 5406 "Prod. Order Line"
         field(60; "Production BOM No."; Code[20])
         {
             Caption = 'Production BOM No.';
-            ToolTip = 'Specifies the number of the production BOM that is the basis for creating the Prod. Order Component list for this line.';
             TableRelation = "Production BOM Header"."No.";
 
             trigger OnValidate()
@@ -466,7 +449,6 @@ table 5406 "Prod. Order Line"
         field(61; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
-            ToolTip = 'Specifies the number of the routing used as the basis for creating the production order routing for this line.';
             TableRelation = "Routing Header"."No.";
 
             trigger OnValidate()
@@ -540,7 +522,6 @@ table 5406 "Prod. Order Line"
             AutoFormatType = 2;
             AutoFormatExpression = '';
             Caption = 'Unit Cost';
-            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
 
             trigger OnValidate()
             begin
@@ -569,7 +550,6 @@ table 5406 "Prod. Order Line"
             AutoFormatType = 1;
             AutoFormatExpression = '';
             Caption = 'Cost Amount';
-            ToolTip = 'Specifies the total cost on the line by multiplying the unit cost by the quantity.';
             Editable = false;
         }
         field(68; "Reserved Quantity"; Decimal)
@@ -585,7 +565,6 @@ table 5406 "Prod. Order Line"
                                                                   "Source Prod. Order Line" = field("Line No."),
                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
-            ToolTip = 'Specifies how many units of this item have been reserved.';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -637,7 +616,6 @@ table 5406 "Prod. Order Line"
         field(80; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            ToolTip = 'Specifies how each unit of the item is measured, such as in pieces or tons. By default, the value in the Base Unit of Measure field on the item card is inserted. It will be changed if you switch Product BOM or Production BOM Version.';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -755,7 +733,6 @@ table 5406 "Prod. Order Line"
         field(198; "Starting Date-Time"; DateTime)
         {
             Caption = 'Starting Date-Time';
-            ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
 
             trigger OnValidate()
             begin
@@ -767,7 +744,6 @@ table 5406 "Prod. Order Line"
         field(199; "Ending Date-Time"; DateTime)
         {
             Caption = 'Ending Date-Time';
-            ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
 
             trigger OnValidate()
             begin
@@ -813,7 +789,6 @@ table 5406 "Prod. Order Line"
         {
             AutoFormatType = 0;
             Caption = 'Qty. Put Away';
-            ToolTip = 'Specifies the quantity that is put away.';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -884,7 +859,6 @@ table 5406 "Prod. Order Line"
         field(99000750; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
-            ToolTip = 'Specifies the version code of the production BOM.';
             TableRelation = "Production BOM Version"."Version Code" where("Production BOM No." = field("Production BOM No."));
 
             trigger OnValidate()
@@ -902,7 +876,6 @@ table 5406 "Prod. Order Line"
         field(99000751; "Routing Version Code"; Code[20])
         {
             Caption = 'Routing Version Code';
-            ToolTip = 'Specifies the version number of the routing.';
             TableRelation = "Routing Version"."Version Code" where("Routing No." = field("Routing No."));
 
             trigger OnValidate()
@@ -937,7 +910,6 @@ table 5406 "Prod. Order Line"
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
 
             trigger OnValidate()
             begin
