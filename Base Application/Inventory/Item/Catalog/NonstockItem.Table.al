@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -23,7 +23,6 @@ table 5718 "Nonstock Item"
         field(1; "Entry No."; Code[20])
         {
             Caption = 'Entry No.';
-            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
             OptimizeForTextSearch = true;
             Editable = true;
 
@@ -41,7 +40,6 @@ table 5718 "Nonstock Item"
         field(2; "Manufacturer Code"; Code[10])
         {
             Caption = 'Manufacturer Code';
-            ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
             TableRelation = Manufacturer.Code;
 
             trigger OnValidate()
@@ -52,7 +50,6 @@ table 5718 "Nonstock Item"
         field(3; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
-            ToolTip = 'Specifies the number of the vendor from whom you can purchase the catalog item.';
             OptimizeForTextSearch = true;
             TableRelation = Vendor."No.";
 
@@ -74,7 +71,6 @@ table 5718 "Nonstock Item"
         field(4; "Vendor Item No."; Code[50])
         {
             Caption = 'Vendor Item No.';
-            ToolTip = 'Specifies the number that the vendor uses for this item.';
 
             trigger OnValidate()
             var
@@ -95,7 +91,6 @@ table 5718 "Nonstock Item"
         field(5; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies a description of the catalog item.';
             OptimizeForTextSearch = true;
             Editable = true;
 
@@ -107,7 +102,6 @@ table 5718 "Nonstock Item"
         field(6; "Unit of Measure"; Code[10])
         {
             Caption = 'Unit of Measure';
-            ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
             TableRelation = "Unit of Measure";
 
             trigger OnValidate()
@@ -120,7 +114,6 @@ table 5718 "Nonstock Item"
             AutoFormatType = 2;
             AutoFormatExpression = '';
             Caption = 'Published Cost';
-            ToolTip = 'Specifies the published cost or vendor list price for the catalog item.';
 
             trigger OnValidate()
             begin
@@ -132,7 +125,6 @@ table 5718 "Nonstock Item"
             AutoFormatType = 2;
             AutoFormatExpression = '';
             Caption = 'Negotiated Cost';
-            ToolTip = 'Specifies the price you negotiated to pay for the catalog item.';
 
             trigger OnValidate()
             begin
@@ -144,7 +136,6 @@ table 5718 "Nonstock Item"
             AutoFormatType = 2;
             AutoFormatExpression = '';
             Caption = 'Unit Price';
-            ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
 
             trigger OnValidate()
             begin
@@ -155,7 +146,6 @@ table 5718 "Nonstock Item"
         {
             AutoFormatType = 0;
             Caption = 'Gross Weight';
-            ToolTip = 'Specifies the gross weight, including the weight of any packaging, of the catalog item.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -167,7 +157,6 @@ table 5718 "Nonstock Item"
         {
             AutoFormatType = 0;
             Caption = 'Net Weight';
-            ToolTip = 'Specifies the net weight of the item. The weight of packaging materials is not included.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -178,13 +167,11 @@ table 5718 "Nonstock Item"
         field(14; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
-            ToolTip = 'Specifies the date on which the catalog item card was last modified.';
             Editable = false;
         }
         field(15; "Bar Code"; Code[20])
         {
             Caption = 'Bar Code';
-            ToolTip = 'Specifies the bar code of the catalog item.';
 
             trigger OnValidate()
             begin
@@ -194,7 +181,6 @@ table 5718 "Nonstock Item"
         field(16; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            ToolTip = 'Specifies the item number that the program has generated for this catalog item.';
             Editable = false;
             TableRelation = Item."No.";
 
@@ -226,7 +212,6 @@ table 5718 "Nonstock Item"
         field(98; "Item Templ. Code"; Code[20])
         {
             Caption = 'Item Template Code';
-            ToolTip = 'Specifies the code for the item template used for this catalog item.';
             TableRelation = "Item Templ.";
 
             trigger OnValidate()
