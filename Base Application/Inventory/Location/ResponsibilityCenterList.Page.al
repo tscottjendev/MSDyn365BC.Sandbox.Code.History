@@ -33,10 +33,12 @@ page 5715 "Responsibility Center List"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the name.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the location of the responsibility center.';
                 }
             }
         }
