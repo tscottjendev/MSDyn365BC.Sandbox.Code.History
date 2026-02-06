@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,13 +31,11 @@ table 336 "Tracking Specification"
         field(2; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            ToolTip = 'Specifies the number of the item associated with the entry.';
             TableRelation = Item;
         }
         field(3; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the location code for the entry.';
             TableRelation = Location;
         }
         field(4; "Quantity (Base)"; Decimal)
@@ -71,7 +69,6 @@ table 336 "Tracking Specification"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the description of the entry.';
         }
         field(8; "Creation Date"; Date)
         {
@@ -120,7 +117,6 @@ table 336 "Tracking Specification"
         field(24; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
-            ToolTip = 'Specifies the serial number associated with the entry.';
 
             trigger OnValidate()
             begin
@@ -160,7 +156,6 @@ table 336 "Tracking Specification"
         field(38; "Appl.-to Item Entry"; Integer)
         {
             Caption = 'Appl.-to Item Entry';
-            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
 
             trigger OnLookup()
             var
@@ -200,12 +195,10 @@ table 336 "Tracking Specification"
         field(40; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
-            ToolTip = 'Specifies that a warranty date must be entered manually.';
         }
         field(41; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
-            ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
 
             trigger OnValidate()
             var
@@ -345,7 +338,6 @@ table 336 "Tracking Specification"
         field(80; "New Serial No."; Code[50])
         {
             Caption = 'New Serial No.';
-            ToolTip = 'Specifies a new serial number that will take the place of the serial number in the Serial No. field.';
 
             trigger OnValidate()
             begin
@@ -356,7 +348,6 @@ table 336 "Tracking Specification"
         field(81; "New Lot No."; Code[50])
         {
             Caption = 'New Lot No.';
-            ToolTip = 'Specifies a new lot number that will take the place of the lot number in the Lot No. field.';
 
             trigger OnValidate()
             begin
@@ -370,7 +361,6 @@ table 336 "Tracking Specification"
         field(5400; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
-            ToolTip = 'Specifies the lot number of the item being handled for the associated document line.';
 
             trigger OnValidate()
             begin
@@ -387,7 +377,6 @@ table 336 "Tracking Specification"
         field(5401; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            ToolTip = 'Specifies the variant of the item on the line.';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(5402; "Bin Code"; Code[20])
@@ -398,7 +387,6 @@ table 336 "Tracking Specification"
         field(5811; "Appl.-from Item Entry"; Integer)
         {
             Caption = 'Appl.-from Item Entry';
-            ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
             MinValue = 0;
 
             trigger OnLookup()
@@ -448,7 +436,6 @@ table 336 "Tracking Specification"
         field(6505; "New Expiration Date"; Date)
         {
             Caption = 'New Expiration Date';
-            ToolTip = 'Specifies a new expiration date.';
 
             trigger OnValidate()
             begin
@@ -458,7 +445,6 @@ table 336 "Tracking Specification"
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';
-            ToolTip = 'Specifies the package number of the item being handled for the associated document line.';
             CaptionClass = '6,1';
 
             trigger OnValidate()
@@ -476,7 +462,6 @@ table 336 "Tracking Specification"
         field(6516; "New Package No."; Code[50])
         {
             Caption = 'New Package No.';
-            ToolTip = 'Specifies a new package number that will take the place of the package number in the Package No. field.';
             CaptionClass = '6,2';
 
             trigger OnValidate()

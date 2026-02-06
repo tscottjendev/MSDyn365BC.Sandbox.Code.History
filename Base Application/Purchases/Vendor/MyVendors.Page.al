@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,6 +20,7 @@ page 9151 "My Vendors"
                 field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor numbers that are displayed in the My Vendor Cue on the Role Center.';
 
                     trigger OnValidate()
                     begin
@@ -33,6 +34,7 @@ page 9151 "My Vendors"
                     DrillDown = false;
                     ExtendedDatatype = PhoneNo;
                     Lookup = false;
+                    ToolTip = 'Specifies the vendor''s phone number.';
                 }
                 field(Name; Rec.Name)
                 {
@@ -40,6 +42,7 @@ page 9151 "My Vendors"
                     Caption = 'Name';
                     DrillDown = false;
                     Lookup = false;
+                    ToolTip = 'Specifies the name of the record.';
                 }
                 field("<Balance>"; Rec."Balance (LCY)")
                 {

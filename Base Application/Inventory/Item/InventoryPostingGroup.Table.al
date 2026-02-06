@@ -17,13 +17,11 @@ table 94 "Inventory Posting Group"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
-            ToolTip = 'Specifies the identifier for the inventory posting group.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies a description of the inventory posting group.';
         }
     }
 
