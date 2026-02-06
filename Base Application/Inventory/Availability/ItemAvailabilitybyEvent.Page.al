@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -182,6 +182,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the first date in the selected period where a supply or demand event occurs that changes the item''s availability figures.';
                 }
                 field("Period Start"; Rec."Period Start")
                 {
@@ -189,6 +190,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies on which date the period starts, such as the first day of March, if the period is Month.';
                     Visible = true;
                 }
                 field(Description; Rec.Description)
@@ -197,6 +199,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the description of the availability line.';
                 }
                 field(Type; Rec.Type)
                 {
@@ -204,6 +207,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the type of the source document or source line.';
                 }
                 field(Source; Rec.Source)
                 {
@@ -211,6 +215,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies which type of document or line the availability figure is based on.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -218,6 +223,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the number of the document that the availability figure is based on.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -225,6 +231,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
@@ -233,6 +240,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the location of the demand document, from which the Item Availability by Event window was opened.';
                     Visible = false;
                 }
                 field("Gross Requirement"; Rec."Gross Requirement")
@@ -241,6 +249,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the item''s total demand.';
                 }
                 field("Reserved Requirement"; Rec."Reserved Requirement")
                 {
@@ -248,6 +257,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the quantity of the item that is reserved from requirement.';
                 }
                 field("Scheduled Receipt"; Rec."Scheduled Receipt")
                 {
@@ -255,6 +265,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the sum of items on existing supply orders.';
                 }
                 field("Reserved Receipt"; Rec."Reserved Receipt")
                 {
@@ -262,6 +273,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the quantity of the item that is reserved from receipt.';
                 }
                 field("Remaining Quantity (Base)"; Rec."Remaining Quantity (Base)")
                 {
@@ -281,6 +293,7 @@ page 5530 "Item Availability by Event"
                     Enabled = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the item''s availability. This quantity includes all known supply and demand but does not include anticipated demand from demand forecasts or blanket sales orders or suggested supplies from planning or requisition worksheets.';
                 }
                 field(Forecast; Rec.Forecast)
                 {
@@ -288,6 +301,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the quantity that is demanded on the demand forecast that the availability figure is based on.';
                 }
                 field("Forecasted Projected Inventory"; Rec."Forecasted Projected Inventory")
                 {
@@ -296,6 +310,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the item''s inventory, including anticipated demand from demand forecasts or blanket sales orders.';
                 }
                 field("Remaining Forecast"; Rec."Remaining Forecast")
                 {
@@ -303,6 +318,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the quantity that remains on the demand forecast, after the forecast quantity on the availability line has been consumed.';
                 }
                 field("Action Message"; Rec."Action Message")
                 {
@@ -310,6 +326,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the action message of the planning or requisition line that this availability figure is based on.';
                 }
                 field("Action Message Qty."; Rec."Action Message Qty.")
                 {
@@ -317,6 +334,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the quantity that is suggested in the planning or requisition line that this availability figure is based on.';
                 }
                 field("Suggested Projected Inventory"; Rec."Suggested Projected Inventory")
                 {
@@ -325,6 +343,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
+                    ToolTip = 'Specifies the item''s inventory, including the suggested supplies that occur in planning or requisition worksheet lines.';
                 }
             }
         }

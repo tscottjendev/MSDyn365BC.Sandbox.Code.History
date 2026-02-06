@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -61,7 +61,6 @@ table 1296 "Posted Payment Recon. Line"
         field(5; "Transaction Date"; Date)
         {
             Caption = 'Transaction Date';
-            ToolTip = 'Specifies the date when the payment represented by the journal line was recorded in the bank account.';
         }
         /// <summary>
         /// Transaction description from the bank statement.
@@ -69,7 +68,6 @@ table 1296 "Posted Payment Recon. Line"
         field(6; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the description of the posted payment.';
         }
         /// <summary>
         /// Amount from the bank statement in bank account currency.
@@ -79,7 +77,6 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Amount';
-            ToolTip = 'Specifies the amount on the bank transaction that represents the posted payment.';
         }
         /// <summary>
         /// Difference between statement amount and applied amount.
@@ -89,7 +86,6 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Difference';
-            ToolTip = 'Specifies the difference between the amount in the Statement Amount field and the Applied Amount field.';
         }
         /// <summary>
         /// Total amount applied to ledger entries during reconciliation.
@@ -99,7 +95,6 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Applied Amount';
-            ToolTip = 'Specifies the amount that was applied to the related invoice or credit memo before this payment was posted.';
             Editable = false;
         }
         /// <summary>
@@ -117,7 +112,6 @@ table 1296 "Posted Payment Recon. Line"
         field(11; "Applied Entries"; Integer)
         {
             Caption = 'Applied Entries';
-            ToolTip = 'Specifies which customer or vendor ledger entries were applied in relation to posting the payment.';
             Editable = false;
         }
         /// <summary>
@@ -140,7 +134,6 @@ table 1296 "Posted Payment Recon. Line"
         field(15; "Related-Party Name"; Text[250])
         {
             Caption = 'Related-Party Name';
-            ToolTip = 'Specifies information about the customer or vendor that the posted payment was for.';
         }
         /// <summary>
         /// Additional transaction information from the bank statement.
@@ -148,7 +141,6 @@ table 1296 "Posted Payment Recon. Line"
         field(16; "Additional Transaction Info"; Text[100])
         {
             Caption = 'Additional Transaction Info';
-            ToolTip = 'Specifies information about the transaction as recorded on the bank statement line.';
         }
         /// <summary>
         /// Reference to data exchange entry for imported transactions.
@@ -173,7 +165,6 @@ table 1296 "Posted Payment Recon. Line"
         field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            ToolTip = 'Specifies the type of the account that the payment was posted to.';
         }
         /// <summary>
         /// Account number for transaction posting.
@@ -181,7 +172,6 @@ table 1296 "Posted Payment Recon. Line"
         field(22; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            ToolTip = 'Specifies the account number that the payment was posted to.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
                                                                                           Blocked = const(false))
             else
@@ -201,7 +191,6 @@ table 1296 "Posted Payment Recon. Line"
         field(23; "Applied Document No."; Text[250])
         {
             Caption = 'Applied Document No.';
-            ToolTip = 'Specifies the number of the document that the payment is applied to.';
         }
         /// <summary>
         /// Contains the entry numbers of all applied entries, concatenated as text.
@@ -216,7 +205,6 @@ table 1296 "Posted Payment Recon. Line"
         field(70; "Transaction ID"; Text[250])
         {
             Caption = 'Transaction ID';
-            ToolTip = 'Specifies the ID of the posted payment reconciliation.';
         }
         /// <summary>
         /// Indicates whether this payment reconciliation line has been reconciled.
