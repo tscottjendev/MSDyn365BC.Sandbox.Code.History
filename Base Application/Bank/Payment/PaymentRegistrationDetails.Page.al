@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -36,6 +36,7 @@ page 983 "Payment Registration Details"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = true;
+                    ToolTip = 'Specifies the name of the customer or vendor that the payment relates to.';
 
                     trigger OnDrillDown()
                     var
@@ -53,6 +54,7 @@ page 983 "Payment Registration Details"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    ToolTip = 'Specifies the number of the document that the payment relates to.';
 
                     trigger OnDrillDown()
                     begin
@@ -63,17 +65,20 @@ page 983 "Payment Registration Details"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    ToolTip = 'Specifies the type of document that the payment relates to.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    ToolTip = 'Specifies the invoice transaction that the payment relates to.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = DueDateStyle;
+                    ToolTip = 'Specifies the payment due date on the related document.';
                 }
             }
             group("Payment Discount")
@@ -83,6 +88,7 @@ page 983 "Payment Registration Details"
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = PmtDiscStyle;
+                    ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
 
                     trigger OnValidate()
                     begin
@@ -94,11 +100,13 @@ page 983 "Payment Registration Details"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = PmtDiscStyle;
+                    ToolTip = 'Specifies the amount that remains to be paid on the document.';
                 }
                 field("Rem. Amt. after Discount"; Rec."Rem. Amt. after Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    ToolTip = 'Specifies the remaining amount after the payment discount is deducted.';
                 }
             }
             group(Warning)

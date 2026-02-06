@@ -16,13 +16,11 @@ table 286 Territory
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
-            ToolTip = 'Specifies a territory code.';
             NotBlank = true;
         }
         field(2; Name; Text[50])
         {
             Caption = 'Name';
-            ToolTip = 'Specifies a description of the territory.';
         }
     }
 

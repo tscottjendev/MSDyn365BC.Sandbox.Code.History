@@ -22,18 +22,22 @@ page 5714 "Responsibility Center Card"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the responsibility center code.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the name.';
                 }
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the address associated with the responsibility center.';
                 }
                 field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies additional address information.';
                 }
                 field(City; Rec.City)
                 {
@@ -54,6 +58,7 @@ page 5714 "Responsibility Center Card"
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the country/region of the address.';
                 }
                 field(Contact; Rec.Contact)
                 {
@@ -63,14 +68,17 @@ page 5714 "Responsibility Center Card"
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
                 field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the location of the responsibility center.';
                 }
             }
             group(Communication)
@@ -79,20 +87,24 @@ page 5714 "Responsibility Center Card"
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the responsibility center''s phone number.';
                 }
                 field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
+                    ToolTip = 'Specifies the fax number of the responsibility center.';
                 }
                 field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Location;
                     ExtendedDatatype = EMail;
+                    ToolTip = 'Specifies the email address of the responsibility center.';
                 }
                 field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies the responsibility center''s web site.';
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -37,11 +37,13 @@ page 378 "Bank Account Balance Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
+                    ToolTip = 'Specifies the start date of the period defined on the line for the summary of the bank account balance.';
                 }
                 field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
+                    ToolTip = 'Specifies the name of the period shown in the line.';
                 }
                 field(NetChange; Rec."Net Change")
                 {
@@ -50,6 +52,7 @@ page 378 "Bank Account Balance Lines"
                     AutoFormatType = 1;
                     Caption = 'Net Change';
                     DrillDown = true;
+                    ToolTip = 'Specifies the net value of entries for the period shown in the left column.';
 
                     trigger OnDrillDown()
                     begin

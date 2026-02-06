@@ -35,7 +35,6 @@ table 1284 "Outstanding Bank Transaction"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
-            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         /// <summary>
         /// Posting date of the original bank transaction.
@@ -44,7 +43,6 @@ table 1284 "Outstanding Bank Transaction"
         field(2; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            ToolTip = 'Specifies the posting date of the entry.';
         }
         /// <summary>
         /// Document type of the original transaction.
@@ -53,7 +51,6 @@ table 1284 "Outstanding Bank Transaction"
         field(3; "Document Type"; Option)
         {
             Caption = 'Document Type';
-            ToolTip = 'Specifies the type of document that generated the entry.';
             OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,Deposit';
             OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,Deposit;
         }
@@ -64,7 +61,6 @@ table 1284 "Outstanding Bank Transaction"
         field(4; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            ToolTip = 'Specifies the number of the document that generated the entry.';
         }
         /// <summary>
         /// Bank account number where the outstanding transaction occurred.
@@ -81,7 +77,6 @@ table 1284 "Outstanding Bank Transaction"
         field(6; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the description of the entry.';
         }
         /// <summary>
         /// Transaction amount for the outstanding bank transaction.
@@ -92,7 +87,6 @@ table 1284 "Outstanding Bank Transaction"
             AutoFormatType = 1;
             AutoFormatExpression = GetCurrencyCode();
             Caption = 'Amount';
-            ToolTip = 'Specifies the amount of the entry.';
         }
         /// <summary>
         /// Type of source ledger entry for the outstanding transaction.
@@ -101,7 +95,6 @@ table 1284 "Outstanding Bank Transaction"
         field(8; Type; Option)
         {
             Caption = 'Type';
-            ToolTip = 'Specifies the type of the entry.';
             OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry';
             OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry";
         }
@@ -112,7 +105,6 @@ table 1284 "Outstanding Bank Transaction"
         field(9; Applied; Boolean)
         {
             Caption = 'Applied';
-            ToolTip = 'Specifies if the entry has been applied.';
         }
         /// <summary>
         /// Type of statement used for reconciliation processing.
