@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,6 +31,7 @@ page 986 "Document Search Result"
                 field("Doc. No."; Rec."Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
 
                     trigger OnDrillDown()
                     begin
@@ -40,6 +41,7 @@ page 986 "Document Search Result"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
 
                     trigger OnDrillDown()
                     begin
@@ -49,6 +51,7 @@ page 986 "Document Search Result"
                 field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies information about a non-posted document that is found using the Document Search window during manual payment processing.';
                 }
             }
         }
