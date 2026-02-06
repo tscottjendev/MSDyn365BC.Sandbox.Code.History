@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -83,7 +83,6 @@ table 1293 "Payment Application Proposal"
         field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
 
             trigger OnValidate()
             begin
@@ -97,7 +96,6 @@ table 1293 "Payment Application Proposal"
         field(22; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            ToolTip = 'Specifies the account number the payment application will be posted to when you post the payment reconciliation journal.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
                                                                                           Blocked = const(false))
             else
@@ -123,7 +121,6 @@ table 1293 "Payment Application Proposal"
         field(23; "Applies-to Entry No."; Integer)
         {
             Caption = 'Applies-to Entry No.';
-            ToolTip = 'Specifies the number of the customer or vendor ledger entry that the payment will be applied to when you post the payment reconciliation journal line.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Entry"
             else
             if ("Account Type" = const(Customer)) "Cust. Ledger Entry" where(Open = const(true))
@@ -157,7 +154,6 @@ table 1293 "Payment Application Proposal"
         field(25; Applied; Boolean)
         {
             Caption = 'Applied';
-            ToolTip = 'Specifies that the payment specified on the header of the Payment Application window is applied to the open entry.';
 
             trigger OnValidate()
             var
@@ -207,7 +203,6 @@ table 1293 "Payment Application Proposal"
         field(31; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            ToolTip = 'Specifies the posting date of the open entry.';
         }
         /// <summary>
         /// Document type of the target ledger entry.
@@ -216,7 +211,6 @@ table 1293 "Payment Application Proposal"
         field(32; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            ToolTip = 'Specifies the type of document that is related to the open entry.';
         }
         /// <summary>
         /// Document number of the target ledger entry.
@@ -225,7 +219,6 @@ table 1293 "Payment Application Proposal"
         field(33; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            ToolTip = 'Specifies the number of the document that is related to the open entry.';
         }
         /// <summary>
         /// Description from the target ledger entry.
@@ -234,7 +227,6 @@ table 1293 "Payment Application Proposal"
         field(34; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies the description of the open entry.';
         }
         /// <summary>
         /// Currency code for the payment application proposal.
@@ -243,7 +235,6 @@ table 1293 "Payment Application Proposal"
         field(35; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
-            ToolTip = 'Specifies the currency code of the open entry.';
             Editable = false;
             TableRelation = Currency;
         }
@@ -254,7 +245,6 @@ table 1293 "Payment Application Proposal"
         field(36; "Due Date"; Date)
         {
             Caption = 'Due Date';
-            ToolTip = 'Specifies the due date of the open entry.';
             Editable = false;
         }
         /// <summary>
@@ -264,7 +254,6 @@ table 1293 "Payment Application Proposal"
         field(37; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         /// <summary>
         /// Confidence level for the automatic matching proposal.
@@ -273,14 +262,12 @@ table 1293 "Payment Application Proposal"
         field(50; "Match Confidence"; Enum "Bank Rec. Match Confidence")
         {
             Caption = 'Match Confidence';
-            ToolTip = 'Specifies the quality of the match between the payment and the open entry for payment application purposes.';
             Editable = false;
             InitValue = "None";
         }
         field(51; "Pmt. Disc. Due Date"; Date)
         {
             Caption = 'Pmt. Disc. Due Date';
-            ToolTip = 'Specifies the date on which the remaining amount on the open entry must be paid to grant a discount.';
 
             trigger OnValidate()
             begin
@@ -293,7 +280,6 @@ table 1293 "Payment Application Proposal"
         field(52; "Remaining Pmt. Disc. Possible"; Decimal)
         {
             Caption = 'Remaining Pmt. Disc. Possible';
-            ToolTip = 'Specifies how much discount you can grant for the payment if you apply it to the open entry.';
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
 
@@ -308,7 +294,6 @@ table 1293 "Payment Application Proposal"
         field(53; "Pmt. Disc. Tolerance Date"; Date)
         {
             Caption = 'Pmt. Disc. Tolerance Date';
-            ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
 
             trigger OnValidate()
             begin
@@ -321,7 +306,6 @@ table 1293 "Payment Application Proposal"
         field(60; "Applied Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Applied Amt. Incl. Discount';
-            ToolTip = 'Specifies the payment amount, excluding the value in the Applied Pmt. Discount field, that is applied to the open entry.';
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
 
@@ -339,7 +323,6 @@ table 1293 "Payment Application Proposal"
         field(61; "Remaining Amount"; Decimal)
         {
             Caption = 'Remaining Amount';
-            ToolTip = 'Specifies the amount that remains to be paid for the open entry.';
             Editable = false;
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
@@ -350,7 +333,6 @@ table 1293 "Payment Application Proposal"
         field(62; "Remaining Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Remaining Amt. Incl. Discount';
-            ToolTip = 'Specifies the amount that remains to be paid for the open entry, minus any granted payment discount.';
             Editable = false;
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
