@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,28 +24,23 @@ table 6502 "Item Tracking Code"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
-            ToolTip = 'Specifies the code of the record.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies a description of the item tracking code.';
         }
         field(3; "Warranty Date Formula"; DateFormula)
         {
             Caption = 'Warranty Date Formula';
-            ToolTip = 'Specifies the formula that calculates the warranty date entered in the Warranty Date field on item tracking line.';
         }
         field(5; "Man. Warranty Date Entry Reqd."; Boolean)
         {
             Caption = 'Man. Warranty Date Entry Reqd.';
-            ToolTip = 'Specifies that a warranty date must be entered manually.';
         }
         field(6; "Man. Expir. Date Entry Reqd."; Boolean)
         {
             Caption = 'Man. Expir. Date Entry Reqd.';
-            ToolTip = 'Specifies that items that use this item tracking code must have an expiration date, and that you must enter the expiration date manually. The date formula specified in the Expiration Calculation field on the item card will be ignored.';
 
             trigger OnValidate()
             begin
@@ -56,7 +51,6 @@ table 6502 "Item Tracking Code"
         field(8; "Strict Expiration Posting"; Boolean)
         {
             Caption = 'Strict Expiration Posting';
-            ToolTip = 'Specifies if the expiration date is considered when you sell items. For example, you cannot post a sales order for an item that has passed its expiration date.';
 
             trigger OnValidate()
             begin
@@ -67,7 +61,6 @@ table 6502 "Item Tracking Code"
         field(9; "Use Expiration Dates"; Boolean)
         {
             Caption = 'Use Expiration Dates';
-            ToolTip = 'Specifies that items that use this item tracking code can have an expiration date. This will enable checks for expiration dates, which can affect performance for documents with many Item Tracking Lines.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -81,7 +74,6 @@ table 6502 "Item Tracking Code"
         field(11; "SN Specific Tracking"; Boolean)
         {
             Caption = 'SN Specific Tracking';
-            ToolTip = 'Specifies that when handling an outbound unit of the item in question, you must always specify which existing serial number to handle.';
 
             trigger OnValidate()
             begin
@@ -110,18 +102,15 @@ table 6502 "Item Tracking Code"
         field(13; "SN Info. Inbound Must Exist"; Boolean)
         {
             Caption = 'SN Info. Inbound Must Exist';
-            ToolTip = 'Specifies that serial numbers on inbound document lines must have an information record in the Serial No. Information Card.';
         }
         field(14; "SN Info. Outbound Must Exist"; Boolean)
         {
             Caption = 'SN Info. Outbound Must Exist';
-            ToolTip = 'Specifies that serial numbers on outbound document lines must have an information record in the Serial No. Information Card.';
         }
         field(15; "SN Warehouse Tracking"; Boolean)
         {
             AccessByPermission = TableData Location = R;
             Caption = 'SN Warehouse Tracking';
-            ToolTip = 'Specifies that warehouse document lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -138,7 +127,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'SN Purchase Inbound Tracking';
-            ToolTip = 'Specifies that inbound purchase document lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -149,7 +137,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Return Shipment Header" = R;
             Caption = 'SN Purchase Outbound Tracking';
-            ToolTip = 'Specifies that outbound purchase document lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -160,7 +147,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
             Caption = 'SN Sales Inbound Tracking';
-            ToolTip = 'Specifies that inbound sales document lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -171,7 +157,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'SN Sales Outbound Tracking';
-            ToolTip = 'Specifies that outbound sales document lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -181,7 +166,6 @@ table 6502 "Item Tracking Code"
         field(25; "SN Pos. Adjmt. Inb. Tracking"; Boolean)
         {
             Caption = 'SN Pos. Adjmt. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type positive entry require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -191,7 +175,6 @@ table 6502 "Item Tracking Code"
         field(26; "SN Pos. Adjmt. Outb. Tracking"; Boolean)
         {
             Caption = 'SN Pos. Adjmt. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type positive entry require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -201,7 +184,6 @@ table 6502 "Item Tracking Code"
         field(27; "SN Neg. Adjmt. Inb. Tracking"; Boolean)
         {
             Caption = 'SN Neg. Adjmt. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type negative entry require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -211,7 +193,6 @@ table 6502 "Item Tracking Code"
         field(28; "SN Neg. Adjmt. Outb. Tracking"; Boolean)
         {
             Caption = 'SN Neg. Adjmt. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type negative entry require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -222,7 +203,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData Location = R;
             Caption = 'SN Transfer Tracking';
-            ToolTip = 'Specifies that transfer order lines require serial numbers.';
 
             trigger OnValidate()
             begin
@@ -232,12 +212,10 @@ table 6502 "Item Tracking Code"
         field(34; "Create SN Info on Posting"; Boolean)
         {
             Caption = 'Create SN Info. on posting';
-            ToolTip = 'Specifies that if the Serial No. Information card is missing for the document line, the card will be created during posting.';
         }
         field(41; "Lot Specific Tracking"; Boolean)
         {
             Caption = 'Lot Specific Tracking';
-            ToolTip = 'Specifies that when handling an outbound unit, always specify which existing lot number to handle.';
 
             trigger OnValidate()
             begin
@@ -266,17 +244,14 @@ table 6502 "Item Tracking Code"
         field(43; "Lot Info. Inbound Must Exist"; Boolean)
         {
             Caption = 'Lot Info. Inbound Must Exist';
-            ToolTip = 'Specifies that lot numbers on inbound document lines must have an information record in the Lot No. Information Card.';
         }
         field(44; "Lot Info. Outbound Must Exist"; Boolean)
         {
             Caption = 'Lot Info. Outbound Must Exist';
-            ToolTip = 'Specifies that lot numbers on outbound document lines must have an information record in the Lot No. Information Card.';
         }
         field(45; "Lot Warehouse Tracking"; Boolean)
         {
             Caption = 'Lot Warehouse Tracking';
-            ToolTip = 'Specifies that warehouse document lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -293,7 +268,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lot Purchase Inbound Tracking';
-            ToolTip = 'Specifies that inbound purchase document lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -304,7 +278,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Lot Purchase Outbound Tracking';
-            ToolTip = 'Specifies that outbound purchase document lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -315,7 +288,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Lot Sales Inbound Tracking';
-            ToolTip = 'Specifies that inbound sales document lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -326,7 +298,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Lot Sales Outbound Tracking';
-            ToolTip = 'Specifies that outbound sales document lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -336,7 +307,6 @@ table 6502 "Item Tracking Code"
         field(55; "Lot Pos. Adjmt. Inb. Tracking"; Boolean)
         {
             Caption = 'Lot Pos. Adjmt. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type positive entry require a lot number.';
 
             trigger OnValidate()
             begin
@@ -346,7 +316,6 @@ table 6502 "Item Tracking Code"
         field(56; "Lot Pos. Adjmt. Outb. Tracking"; Boolean)
         {
             Caption = 'Lot Pos. Adjmt. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type positive entry require a lot number.';
 
             trigger OnValidate()
             begin
@@ -356,7 +325,6 @@ table 6502 "Item Tracking Code"
         field(57; "Lot Neg. Adjmt. Inb. Tracking"; Boolean)
         {
             Caption = 'Lot Neg. Adjmt. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type negative entry require a lot number.';
 
             trigger OnValidate()
             begin
@@ -366,7 +334,6 @@ table 6502 "Item Tracking Code"
         field(58; "Lot Neg. Adjmt. Outb. Tracking"; Boolean)
         {
             Caption = 'Lot Neg. Adjmt. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type negative entry require a lot number.';
 
             trigger OnValidate()
             begin
@@ -376,7 +343,6 @@ table 6502 "Item Tracking Code"
         field(59; "Lot Transfer Tracking"; Boolean)
         {
             Caption = 'Lot Transfer Tracking';
-            ToolTip = 'Specifies that transfer order lines require a lot number.';
 
             trigger OnValidate()
             begin
@@ -386,12 +352,10 @@ table 6502 "Item Tracking Code"
         field(64; "Create Lot No. Info on posting"; Boolean)
         {
             Caption = 'Create Lot No. Info. on posting';
-            ToolTip = 'Specifies that if the Lot No. Information card is missing for the document line, the card will be created during posting.';
         }
         field(70; "Package Specific Tracking"; Boolean)
         {
             Caption = 'Package Specific Tracking';
-            ToolTip = 'Specifies that when handling an outbound unit, always specify which existing package number to handle.';
             CaptionClass = '6,70';
 
             trigger OnValidate()
@@ -421,7 +385,6 @@ table 6502 "Item Tracking Code"
         field(71; "Package Warehouse Tracking"; Boolean)
         {
             Caption = 'Package Warehouse Tracking';
-            ToolTip = 'Specifies that warehouse document lines require a package number.';
             CaptionClass = '6,71';
 
             trigger OnValidate()
@@ -438,20 +401,17 @@ table 6502 "Item Tracking Code"
         field(73; "Package Info. Inb. Must Exist"; Boolean)
         {
             Caption = 'Package Info. Inb. Must Exist';
-            ToolTip = 'Specifies that package numbers on inbound document lines must have an information record in the Package No. Information Card.';
             CaptionClass = '6,73';
         }
         field(74; "Package Info. Outb. Must Exist"; Boolean)
         {
             Caption = 'Lot Info. Outb. Must Exist';
-            ToolTip = 'Specifies that package numbers on outbound document lines must have an information record in the Package No. Information Card.';
             CaptionClass = '6,74';
         }
         field(75; "Package Purchase Inb. Tracking"; Boolean)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Package Purchase Inb. Tracking';
-            ToolTip = 'Specifies that inbound purchase document lines require a package number.';
             CaptionClass = '6,75';
 
             trigger OnValidate()
@@ -463,7 +423,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             Caption = 'Package Purch. Outb. Tracking';
-            ToolTip = 'Specifies that outbound purchase document lines require a package number.';
             CaptionClass = '6,76';
 
             trigger OnValidate()
@@ -475,7 +434,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Package Sales Inbound Tracking';
-            ToolTip = 'Specifies that inbound sales document lines require a package number.';
             CaptionClass = '6,77';
 
             trigger OnValidate()
@@ -487,7 +445,6 @@ table 6502 "Item Tracking Code"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Package Sales Outb. Tracking';
-            ToolTip = 'Specifies that outbound sales document lines require a package number.';
             CaptionClass = '6,78';
 
             trigger OnValidate()
@@ -498,7 +455,6 @@ table 6502 "Item Tracking Code"
         field(79; "Package Pos. Inb. Tracking"; Boolean)
         {
             Caption = 'Package Pos. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type positive entry require a package number.';
             CaptionClass = '6,79';
 
             trigger OnValidate()
@@ -509,7 +465,6 @@ table 6502 "Item Tracking Code"
         field(80; "Package Pos. Outb. Tracking"; Boolean)
         {
             Caption = 'Package Pos. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type positive entry require a package number.';
             CaptionClass = '6,80';
 
             trigger OnValidate()
@@ -520,7 +475,6 @@ table 6502 "Item Tracking Code"
         field(81; "Package Neg. Inb. Tracking"; Boolean)
         {
             Caption = 'Package Neg. Inb. Tracking';
-            ToolTip = 'Specifies that inbound item journal lines of type negative entry require a package number.';
             CaptionClass = '6,81';
 
             trigger OnValidate()
@@ -531,7 +485,6 @@ table 6502 "Item Tracking Code"
         field(82; "Package Neg. Outb. Tracking"; Boolean)
         {
             Caption = 'Package Neg. Outb. Tracking';
-            ToolTip = 'Specifies that outbound item journal lines of type negative entry require a package number.';
             CaptionClass = '6,82';
 
             trigger OnValidate()
@@ -542,7 +495,6 @@ table 6502 "Item Tracking Code"
         field(83; "Package Transfer Tracking"; Boolean)
         {
             Caption = 'Package Transfer Tracking';
-            ToolTip = 'Specifies that transfer order lines require a package number.';
             CaptionClass = '6,83';
 
             trigger OnValidate()
