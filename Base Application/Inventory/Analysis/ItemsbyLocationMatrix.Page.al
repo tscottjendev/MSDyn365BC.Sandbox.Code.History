@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ page 9231 "Items by Location Matrix"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Location;
+                    ToolTip = 'Specifies a description of the item.';
                 }
                 field(Field1; MATRIX_CellData[1])
                 {
