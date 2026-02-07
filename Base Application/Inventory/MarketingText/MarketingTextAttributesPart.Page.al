@@ -24,6 +24,7 @@ page 5838 "Marketing Text Attributes Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attribute';
+                    ToolTip = 'Specifies the name of the attribute.';
                     Editable = false;
                     Enabled = false;
                 }
@@ -32,6 +33,7 @@ page 5838 "Marketing Text Attributes Part"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Value';
+                    ToolTip = 'Specifies the value of the attribute.';
                     Editable = false;
                     Enabled = false;
                 }
@@ -41,6 +43,7 @@ page 5838 "Marketing Text Attributes Part"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Include';
                     Width = 5;
+                    ToolTip = 'Specifies if the attribute should be used to generate the marketing text.';
                     Editable = true;
                     Enabled = true;
 

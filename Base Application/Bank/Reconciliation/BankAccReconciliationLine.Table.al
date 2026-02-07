@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -80,7 +80,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(4; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            ToolTip = 'Specifies a number of your choice that will appear on the reconciliation line.';
         }
         /// <summary>
         /// Date when the bank transaction occurred.
@@ -89,7 +88,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(5; "Transaction Date"; Date)
         {
             Caption = 'Transaction Date';
-            ToolTip = 'Specifies the posting date of the bank account or check ledger entry on the reconciliation line when the Suggest Lines function is used.';
         }
         /// <summary>
         /// Descriptive text for the bank transaction.
@@ -98,7 +96,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(6; Description; Text[100])
         {
             Caption = 'Description';
-            ToolTip = 'Specifies a description for the transaction on the reconciliation line.';
         }
         /// <summary>
         /// Amount of the bank statement transaction.
@@ -109,7 +106,6 @@ table 274 "Bank Acc. Reconciliation Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Amount';
-            ToolTip = 'Specifies the amount that was paid into the bank account and then imported as a bank statement line represented by the journal line.';
 
             trigger OnValidate()
             begin
@@ -126,7 +122,6 @@ table 274 "Bank Acc. Reconciliation Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Difference';
-            ToolTip = 'Specifies the difference between the amount in the Statement Amount field and the amount in the Applied Amount field.';
 
             trigger OnValidate()
             begin
@@ -143,7 +138,6 @@ table 274 "Bank Acc. Reconciliation Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Applied Amount';
-            ToolTip = 'Specifies the amount of the transaction on the reconciliation line that has been applied to a bank account or check ledger entry.';
             Editable = false;
 
             trigger OnValidate()
@@ -158,7 +152,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(11; "Applied Entries"; Integer)
         {
             Caption = 'Applied Entries';
-            ToolTip = 'Specifies whether the transaction on the bank''s statement has been applied to one or more bank account or check ledger entries.';
             Editable = false;
 
             trigger OnLookup()
@@ -173,7 +166,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(12; "Value Date"; Date)
         {
             Caption = 'Value Date';
-            ToolTip = 'Specifies the value date of the transaction on the bank reconciliation line.';
         }
         /// <summary>
         /// Indicates whether the statement line is ready for automatic payment application.
@@ -190,7 +182,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(14; "Check No."; Code[20])
         {
             Caption = 'Check No.';
-            ToolTip = 'Specifies the check number for the transaction on the reconciliation line.';
         }
         /// <summary>
         /// Name of the related party (customer, vendor) for the transaction.
@@ -199,7 +190,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(15; "Related-Party Name"; Text[250])
         {
             Caption = 'Related-Party Name';
-            ToolTip = 'Specifies the name of the customer or vendor who made the payment that is represented by the journal line.';
         }
         /// <summary>
         /// Additional transaction information from the bank statement.
@@ -208,7 +198,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(16; "Additional Transaction Info"; Text[100])
         {
             Caption = 'Additional Transaction Info';
-            ToolTip = 'Specifies additional information on the bank statement line for the payment.';
         }
         /// <summary>
         /// Data exchange entry number linking to the imported bank statement file.
@@ -242,7 +231,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            ToolTip = 'Specifies the type of account that the payment application will be posted to when you post the payment reconciliation journal.';
 
             trigger OnValidate()
             begin
@@ -262,7 +250,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(22; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            ToolTip = 'Specifies the account number that the payment application will be posted to when you post the payment reconciliation journal.';
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
                                                                                           Blocked = const(false))
             else
@@ -290,7 +277,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(23; "Transaction Text"; Text[140])
         {
             Caption = 'Transaction Text';
-            ToolTip = 'Specifies the text that the customer or vendor entered on that payment transaction that is represented by the journal line.';
 
             trigger OnValidate()
             begin
@@ -304,7 +290,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(24; "Related-Party Bank Acc. No."; Text[100])
         {
             Caption = 'Related-Party Bank Acc. No.';
-            ToolTip = 'Specifies the bank account number of the customer or vendor who made the payment.';
         }
         /// <summary>
         /// Specifies the address of the related party from the bank statement.
@@ -312,7 +297,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(25; "Related-Party Address"; Text[100])
         {
             Caption = 'Related-Party Address';
-            ToolTip = 'Specifies the address of the customer or vendor who made the payment that is represented by the journal line.';
         }
         /// <summary>
         /// Specifies the city of the related party from the bank statement.
@@ -320,7 +304,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(26; "Related-Party City"; Text[50])
         {
             Caption = 'Related-Party City';
-            ToolTip = 'Specifies the city name of the customer or vendor.';
         }
         /// <summary>
         /// Specifies the payment reference number from the bank statement.
@@ -336,7 +319,6 @@ table 274 "Bank Acc. Reconciliation Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up on the General Ledger Setup page.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -352,7 +334,6 @@ table 274 "Bank Acc. Reconciliation Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up om the General Ledger Setup page.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -371,7 +352,6 @@ table 274 "Bank Acc. Reconciliation Line"
                                                                                 "Statement No." = field("Statement No."),
                                                                                 "Statement Line No." = field("Statement Line No.")));
             Caption = 'Match Confidence';
-            ToolTip = 'Specifies the quality of the automatic payment application on the journal line.';
             Editable = false;
             FieldClass = FlowField;
             InitValue = "None";
@@ -410,7 +390,6 @@ table 274 "Bank Acc. Reconciliation Line"
         field(70; "Transaction ID"; Text[50])
         {
             Caption = 'Transaction ID';
-            ToolTip = 'Specifies the ID of the imported bank transaction.';
         }
         /// <summary>
         /// Specifies the ID of the dimension set for the bank reconciliation line.

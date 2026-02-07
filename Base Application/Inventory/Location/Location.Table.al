@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -37,13 +37,11 @@ table 14 Location
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
-            ToolTip = 'Specifies a location code for the warehouse or distribution center where your items are handled and stored before being sold.';
             NotBlank = true;
         }
         field(2; Name; Text[100])
         {
             Caption = 'Name';
-            ToolTip = 'Specifies the name or address of the location.';
         }
         field(130; "Default Bin Code"; Code[20])
         {
@@ -57,17 +55,14 @@ table 14 Location
         field(5701; Address; Text[100])
         {
             Caption = 'Address';
-            ToolTip = 'Specifies the location address.';
         }
         field(5702; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-            ToolTip = 'Specifies additional address information.';
         }
         field(5703; City; Text[30])
         {
             Caption = 'City';
-            ToolTip = 'Specifies the city of the location.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -93,7 +88,6 @@ table 14 Location
         field(5704; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
-            ToolTip = 'Specifies the telephone number of the location.';
             ExtendedDatatype = PhoneNo;
         }
         field(5705; "Phone No. 2"; Text[30])
@@ -108,17 +102,14 @@ table 14 Location
         field(5707; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
-            ToolTip = 'Specifies the fax number of the location.';
         }
         field(5713; Contact; Text[100])
         {
             Caption = 'Contact';
-            ToolTip = 'Specifies the name of the contact person at the location';
         }
         field(5714; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
-            ToolTip = 'Specifies the postal code.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
@@ -145,12 +136,10 @@ table 14 Location
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
-            ToolTip = 'Specifies the state, province or county as a part of the address.';
         }
         field(5718; "E-Mail"; Text[80])
         {
             Caption = 'Email';
-            ToolTip = 'Specifies the email address of the location.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -169,13 +158,11 @@ table 14 Location
 #endif
         {
             Caption = 'Home Page';
-            ToolTip = 'Specifies the location''s web site.';
             ExtendedDatatype = URL;
         }
         field(5720; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
-            ToolTip = 'Specifies the country/region of the address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -187,7 +174,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Transfer Header" = R;
             Caption = 'Use As In-Transit';
-            ToolTip = 'Specifies that this location is an in-transit location.';
 
             trigger OnValidate()
             begin
@@ -207,7 +193,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Require Put-away';
-            ToolTip = 'Specifies if the location requires a dedicated warehouse activity when putting items away.';
 
             trigger OnValidate()
             var
@@ -234,7 +219,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Require Pick';
-            ToolTip = 'Specifies if the location requires a dedicated warehouse activity when picking items.';
 
             trigger OnValidate()
             var
@@ -262,13 +246,11 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Cross-Dock Due Date Calc.';
-            ToolTip = 'Specifies the cross-dock due date calculation.';
         }
         field(5729; "Use Cross-Docking"; Boolean)
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Use Cross-Docking';
-            ToolTip = 'Specifies if the location supports movement of items directly from the receiving dock to the shipping dock.';
 
             trigger OnValidate()
             var
@@ -292,7 +274,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Receipt Header" = R;
             Caption = 'Require Receive';
-            ToolTip = 'Specifies if the location requires a receipt document when receiving items.';
 
             trigger OnValidate()
             var
@@ -322,7 +303,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Shipment Header" = R;
             Caption = 'Require Shipment';
-            ToolTip = 'Specifies if the location requires a shipment document when shipping items.';
 
             trigger OnValidate()
             var
@@ -350,7 +330,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Bin Mandatory';
-            ToolTip = 'Specifies if the location requires that a bin code is specified on all item transactions.';
 
             trigger OnValidate()
             var
@@ -419,7 +398,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Directed Put-away and Pick';
-            ToolTip = 'Specifies if the location requires advanced warehouse functionality, such as calculated bin suggestion.';
 
             trigger OnValidate()
             var
@@ -467,7 +445,6 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Default Bin Selection';
-            ToolTip = 'Specifies the method used to select the default bin.';
 
             trigger OnValidate()
             begin
@@ -479,31 +456,26 @@ table 14 Location
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Outbound Whse. Handling Time';
-            ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
         }
         field(5791; "Inbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Inbound Whse. Handling Time';
-            ToolTip = 'Specifies the time it takes to make items part of available inventory, after the items have been posted as received.';
         }
         field(7305; "Put-away Template Code"; Code[10])
         {
             Caption = 'Put-away Template Code';
-            ToolTip = 'Specifies the put-away template to be used at this location.';
             TableRelation = "Put-away Template Header";
         }
         field(7306; "Use Put-away Worksheet"; Boolean)
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Use Put-away Worksheet';
-            ToolTip = 'Specifies if put-aways for posted warehouse receipts must be created with the put-away worksheet. If the check box is not selected, put-aways are created directly when you post a warehouse receipt or production output.';
         }
         field(7307; "Pick According to FEFO"; Boolean)
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Pick According to FEFO';
-            ToolTip = 'Specifies whether to use the First-Expired-First-Out (FEFO) method to determine which items to pick, according to expiration dates.';
         }
         field(7308; "Allow Breakbulk"; Boolean)
         {
@@ -515,20 +487,17 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Bin Capacity Policy';
-            ToolTip = 'Specifies how bins are automatically filled, according to their capacity.';
             OptionCaption = 'Never Check Capacity,Allow More Than Max. Capacity,Prohibit More Than Max. Cap.';
             OptionMembers = "Never Check Capacity","Allow More Than Max. Capacity","Prohibit More Than Max. Cap.";
         }
         field(7310; "Pick Bin Policy"; Enum "Pick Bin Policy")
         {
             Caption = 'Pick Bin Policy';
-            ToolTip = 'Specifies how bins are automatically selected for inventory picks.';
             InitValue = "Default Bin";
         }
         field(7311; "Check Whse. Class"; Boolean)
         {
             Caption = 'Check Warehouse Class';
-            ToolTip = 'Specifies if the warehouse class should be checked.';
         }
         field(7312; "Put-away Bin Policy"; Enum "Put-away Bin Policy")
         {
@@ -538,7 +507,6 @@ table 14 Location
         field(7313; "Open Shop Floor Bin Code"; Code[20])
         {
             Caption = 'Open Shop Floor Bin Code';
-            ToolTip = 'Specifies the bin that functions as the default open shop floor bin.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -549,7 +517,6 @@ table 14 Location
         field(7314; "To-Production Bin Code"; Code[20])
         {
             Caption = 'To-Production Bin Code';
-            ToolTip = 'Specifies the bin in the production area where components picked for production are placed by default, before they can be consumed.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -560,7 +527,6 @@ table 14 Location
         field(7315; "From-Production Bin Code"; Code[20])
         {
             Caption = 'From-Production Bin Code';
-            ToolTip = 'Specifies the bin in the production area, where finished end items are taken from by default, when the process involves warehouse activity.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -571,7 +537,6 @@ table 14 Location
         field(7317; "Adjustment Bin Code"; Code[20])
         {
             Caption = 'Adjustment Bin Code';
-            ToolTip = 'Specifies the code of the bin in which you record observed differences in inventory quantities.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -592,19 +557,16 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Always Create Put-away Line';
-            ToolTip = 'Specifies that a put-away line is created, even if an appropriate zone and bin in which to place the items cannot be found.';
         }
         field(7320; "Always Create Pick Line"; Boolean)
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Always Create Pick Line';
-            ToolTip = 'Specifies that a pick line is created, even if an appropriate zone and bin from which to pick the item cannot be found.';
         }
         field(7321; "Special Equipment"; Option)
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Special Equipment';
-            ToolTip = 'Specifies where the program will first looks for special equipment designated for warehouse activities.';
             OptionCaption = ' ,According to Bin,According to SKU/Item';
             OptionMembers = " ","According to Bin","According to SKU/Item";
 
@@ -617,13 +579,11 @@ table 14 Location
         field(7323; "Receipt Bin Code"; Code[20])
         {
             Caption = 'Receipt Bin Code';
-            ToolTip = 'Specifies the default receipt bin code.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
         }
         field(7325; "Shipment Bin Code"; Code[20])
         {
             Caption = 'Shipment Bin Code';
-            ToolTip = 'Specifies the default shipment bin code.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -637,13 +597,11 @@ table 14 Location
         field(7326; "Cross-Dock Bin Code"; Code[20])
         {
             Caption = 'Cross-Dock Bin Code';
-            ToolTip = 'Specifies the bin code that is used by default for the receipt of items to be cross-docked.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
         }
         field(7330; "To-Assembly Bin Code"; Code[20])
         {
             Caption = 'To-Assembly Bin Code';
-            ToolTip = 'Specifies the bin in the assembly area where components are placed by default before they can be consumed in assembly.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -654,7 +612,6 @@ table 14 Location
         field(7331; "From-Assembly Bin Code"; Code[20])
         {
             Caption = 'From-Assembly Bin Code';
-            ToolTip = 'Specifies the bin in the assembly area where finished assembly items are posted to when they are assembled to stock.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -665,7 +622,6 @@ table 14 Location
         field(7332; "Asm.-to-Order Shpt. Bin Code"; Code[20])
         {
             Caption = 'Asm.-to-Order Shpt. Bin Code';
-            ToolTip = 'Specifies the bin where finished assembly items are posted to when they are assembled to a linked sales order.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -676,7 +632,6 @@ table 14 Location
         field(7333; "To-Job Bin Code"; Code[20])
         {
             Caption = 'To-Project Bin Code';
-            ToolTip = 'Specifies the bin where an item will be put away or picked in warehouse and inventory processes at this location. For example, when you choose this location on a project planning line, this bin will be suggested.';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -687,7 +642,6 @@ table 14 Location
         field(7334; "Asm. Consump. Whse. Handling"; Enum "Asm. Consump. Whse. Handling")
         {
             Caption = 'Asm. Consump. Whse. Handling';
-            ToolTip = 'Specifies the warehouse handling for consumption in assembly scenarios.';
 
             trigger OnValidate()
             begin
@@ -701,7 +655,6 @@ table 14 Location
         field(7335; "Job Consump. Whse. Handling"; Enum "Job Consump. Whse. Handling")
         {
             Caption = 'Project Consump. Whse. Handling';
-            ToolTip = 'Specifies the warehouse handling for consumption in project scenarios.';
 
             trigger OnValidate()
             begin
@@ -712,14 +665,12 @@ table 14 Location
         field(7600; "Base Calendar Code"; Code[10])
         {
             Caption = 'Base Calendar Code';
-            ToolTip = 'Specifies a customizable calendar for planning that holds the location''s working days and holidays.';
             TableRelation = "Base Calendar";
         }
         field(7700; "Use ADCS"; Boolean)
         {
             AccessByPermission = TableData "Miniform Header" = R;
             Caption = 'Use ADCS';
-            ToolTip = 'Specifies the automatic data capture system that warehouse employees must use to keep track of items within the warehouse.';
         }
     }
 
