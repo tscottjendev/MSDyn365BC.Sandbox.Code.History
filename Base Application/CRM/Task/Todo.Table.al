@@ -161,7 +161,6 @@ table 5080 "To-do"
 
             trigger OnValidate()
             var
-                AttendeeTask: Record "To-do";
                 TempAttendee: Record Attendee temporary;
                 IsHandled: Boolean;
             begin
@@ -182,11 +181,14 @@ table 5080 "To-do"
                 then
                     case true of
                         (xRec."Contact No." = '') and ("Contact No." <> ''):
-                            TempAttendee.CreateAttendee(
-                              TempAttendee,
-                              "No.", 10000, TempAttendee."Attendance Type"::Required,
-                              TempAttendee."Attendee Type"::Contact,
-                              "Contact No.", false);
+                            begin
+                                TempAttendee.CreateAttendee(
+                                  TempAttendee,
+                                  "No.", 10000, TempAttendee."Attendance Type"::Required,
+                                  TempAttendee."Attendee Type"::Contact,
+                                  "Contact No.", false);
+                                CreateSubTask(TempAttendee, Rec);
+                            end;
                         (xRec."Contact No." <> '') and ("Contact No." = ''):
                             begin
                                 TempAttendee.CreateAttendee(
@@ -203,10 +205,13 @@ table 5080 "To-do"
                                   "No.", 10000, TempAttendee."Attendance Type"::Required,
                                   TempAttendee."Attendee Type"::Contact,
                                   xRec."Contact No.", false);
-                                if FindAttendeeTask(AttendeeTask, TempAttendee) then begin
-                                    AttendeeTask."Contact No." := "Contact No.";
-                                    AttendeeTask.Modify();
-                                end;
+                                DeleteAttendeeTask(TempAttendee);
+                                TempAttendee.CreateAttendee(
+                                  TempAttendee,
+                                  "No.", 20000, TempAttendee."Attendance Type"::Required,
+                                  TempAttendee."Attendee Type"::Contact,
+                                  "Contact No.", false);
+                                CreateSubTask(TempAttendee, Rec);
                             end;
                     end;
             end;
