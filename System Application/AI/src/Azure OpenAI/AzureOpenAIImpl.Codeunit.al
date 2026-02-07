@@ -256,7 +256,6 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
     [NonDebuggable]
     procedure GenerateChatCompletion(var ChatMessages: Codeunit "AOAI Chat Messages"; AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params"; var AOAIOperationResponse: Codeunit "AOAI Operation Response"; CallerModuleInfo: ModuleInfo)
     var
-        AOAIPolicyParams: Codeunit "AOAI Policy Params";
         CustomDimensions: Dictionary of [Text, Text];
         Payload, ToolChoicePayload : JsonObject;
         ToolsPayload: JsonArray;
@@ -274,10 +273,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
         AOAIChatCompletionParams.AddChatCompletionsParametersToPayload(Payload);
 
-        AOAIPolicyParams := AOAIChatCompletionParams.GetAOAIPolicyParams();
-        AzureOpenAIPolicy := (ChatCompletionsAOAIAuthorization.GetResourceUtilization() = Enum::"AOAI Resource Utilization"::"Self-Managed") and AOAIPolicyParams.IsDefaultPolicy()
-            ? '' // The default value is generally not compatible with self managed resources, yet we allow them to specify their own policy and must honor that.
-            : AOAIPolicyParams.GetAOAIPolicy();
+        AzureOpenAIPolicy := AOAIChatCompletionParams.GetAOAIPolicyParams().GetAOAIPolicy();
 
         Payload.Add('messages', ChatMessages.AssembleHistory(MetapromptTokenCount, PromptTokenCount));
 
@@ -471,7 +467,6 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
 
         if not IsBillingTypeAuthorized(AOAIAuthorization, CallerModuleInfo) then begin
             Error := StrSubstNo(BillingTypeAuthorizationErr, CopilotCapabilityImpl.GetCapabilityName(), CopilotCapabilityImpl.GetCopilotBillingType());
-            AOAIOperationResponse.SetOperationResponse(false, 403, '', Error);
             Error(Error);
         end;
 
@@ -494,8 +489,7 @@ codeunit 7772 "Azure OpenAI Impl" implements "AI Service Name"
             Enum::"AOAI Model Type"::"Chat Completions":
                 ALCopilotOperationResponse := ALCopilotFunctions.GenerateChatCompletion(Payload, ALCopilotAuthorization, ALCopilotCapability, AzureOpenAIPolicy);
             else
-                AOAIOperationResponse.SetOperationResponse(false, 400, '', InvalidModelTypeErr);
-                Error(InvalidModelTypeErr);
+                Error(InvalidModelTypeErr)
         end;
 
         Error := ALCopilotOperationResponse.ErrorText();
