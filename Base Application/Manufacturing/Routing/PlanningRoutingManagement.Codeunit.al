@@ -458,14 +458,14 @@ codeunit 99000808 PlanningRoutingManagement
         OnAfterCalculatePlanningLineDates(ReqLine2);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnGetResiliencyErrorOnRouting', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnGetResiliencyErrorOnRouting', '', true, false)]
     local procedure OnGetResiliencyErrorOnRouting(var PlanningErrorLog: Record "Planning Error Log"; var ShouldExit: Boolean)
     begin
         if CalculatePlanningRouteLine.GetResiliencyError(PlanningErrorLog) then
             ShouldExit := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnBeforeRecalculateWithOptionalModify', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnBeforeRecalculateWithOptionalModify', '', true, false)]
     local procedure OnBeforeRecalculateWithOptionalModify(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
     begin
         CalculateRouting(RequisitionLine, Direction);
