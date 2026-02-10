@@ -811,6 +811,22 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentGetReceiptLinesHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.GetReceiptLines.Invoke();
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchReceiptLinesHandler(var PurchReceiptLines: TestPage "Purch. Receipt Lines")
+    begin
+        PurchReceiptLines.First();
+        PurchReceiptLines.OK().Invoke();
+    end;
+
     [ConfirmHandler]
     procedure JobConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
