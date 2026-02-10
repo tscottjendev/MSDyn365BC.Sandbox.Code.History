@@ -6570,10 +6570,10 @@ codeunit 134159 "Test Price Calculation - V16"
             SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrdertNo: Code[20]; ItemNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrderNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.SetRange("Document No.", SalesOrdertNo);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
         SalesLine.SetRange("No.", ItemNo);
         SalesLine.FindFirst();
     end;
