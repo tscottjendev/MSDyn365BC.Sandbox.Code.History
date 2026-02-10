@@ -5,11 +5,10 @@
 
 namespace System.Security.User;
 
+using System.Agents;
 using System.Security.AccessControl;
 
-#pragma warning disable AS0031 // Needed for bug #620449
 page 9801 "User Subform"
-#pragma warning restore AS0031
 {
     Caption = 'User Permission Sets';
     DelayedInsert = true;
@@ -101,6 +100,13 @@ page 9801 "User Subform"
         PermissionScope: Text;
         PermissionSetNotFound: Boolean;
         UserPermissionsTok: Label 'User Permissions', Locked = true;
+
+    trigger OnOpenPage()
+    var
+        AgentUtilities: Codeunit "Agent Utilities";
+    begin
+        AgentUtilities.BlockPageFromBeingOpenedByAgent();
+    end;
 
     trigger OnAfterGetRecord()
     var
