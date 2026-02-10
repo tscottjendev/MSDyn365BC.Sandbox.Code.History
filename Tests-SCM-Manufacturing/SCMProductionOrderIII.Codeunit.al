@@ -10617,6 +10617,14 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [ModalPageHandler]
+    procedure ItemTrackingPageHandlerWithQuantity(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
