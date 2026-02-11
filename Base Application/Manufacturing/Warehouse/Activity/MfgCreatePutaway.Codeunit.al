@@ -1173,7 +1173,6 @@ codeunit 99000893 "Mfg. Create Put-away"
 
         OnCreateNewWhseActivityForProdOrderLineOnBeforeWarehouseActivityLineInsert(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff);
         WarehouseActivityLine.Insert();
-        OnAfterCreateNewWhseActivityForProdOrderLine(WarehouseActivityLine, ProdOrderLine, TempProdOrdLineTrackingBuff);
     end;
 
     local procedure InsertWarehouseActivityHeaderForProdOutputPutAway(ProdOrderLine: Record "Prod. Order Line")
@@ -1348,11 +1347,6 @@ codeunit 99000893 "Mfg. Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewWhseActivityForProdOrderLineOnBeforeWarehouseActivityLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateNewWhseActivityForProdOrderLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary)
     begin
     end;
 
