@@ -410,10 +410,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
         if CapacityLedgerEntry.Subcontracting then
             Error(SubContractingErr);
 
-        if IsLastOperation(CapacityLedgerEntry) then begin
-            OnValidateProdOrderOnIsLastOperation(CapacityLedgerEntry);
+        if IsLastOperation(CapacityLedgerEntry) then
             Error(CannotReverseLastOperationErr, CapacityLedgerEntry.FieldCaption("Entry No."), CapacityLedgerEntry."Entry No.", CapacityLedgerEntry."Order No.", ItemLedgEntry.TableCaption());
-        end;
     end;
 
     local procedure CreateOutputReservationEntry(ItemJnlLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -536,11 +534,6 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseProdItemLedgerEntryOnAfterProcessItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateProdOrderOnIsLastOperation(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
     begin
     end;
 }
