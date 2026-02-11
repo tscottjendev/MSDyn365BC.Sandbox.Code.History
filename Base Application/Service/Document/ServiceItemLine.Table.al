@@ -2311,7 +2311,6 @@ table 5901 "Service Item Line"
                     Item.Get(ItemLedgEntry."Item No.");
                     Description := Item.Description;
                     "Description 2" := Item."Description 2";
-                    OnAssistEditSerialNoOnAfterSetDescription(Rec, Item);
                 end;
                 Validate("Item No.", ItemLedgEntry."Item No.");
             end;
@@ -3256,11 +3255,6 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateContractNoOnBeforeFindServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; var ServiceItemLine: Record "Service Item Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAssistEditSerialNoOnAfterSetDescription(var ServiceItemLine: Record "Service Item Line"; Item: Record Item)
     begin
     end;
 }
