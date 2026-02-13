@@ -519,10 +519,15 @@ table 5406 "Prod. Order Line"
             Caption = 'Unit Cost';
 
             trigger OnValidate()
+            var
+                SkipInventoryValueZeroCheck: Boolean;
             begin
+                OnBeforeOnValidateUnitCost(Rec, SkipInventoryValueZeroCheck);
+
                 TestField("Item No.");
                 GetItem();
-                Item.TestField("Inventory Value Zero", false);
+                if not SkipInventoryValueZeroCheck then
+                    Item.TestField("Inventory Value Zero", false);
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
                     if CurrFieldNo = FieldNo("Unit Cost") then
                         Error(
@@ -2027,6 +2032,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateProductionBOMVersionCode(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateUnitCost(var ProdOrderLine: Record "Prod. Order Line"; var SkipInventoryValueZeroCheck: Boolean)
     begin
     end;
 }
