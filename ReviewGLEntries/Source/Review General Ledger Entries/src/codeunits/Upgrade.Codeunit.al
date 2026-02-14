@@ -16,23 +16,9 @@ codeunit 22201 "Upgrade"
 
     local procedure FixGLEntryReviewLogWithReviewAmountZero()
     var
-        GLEntryReviewLog, GLEntryReviewLog2 : Record "G/L Entry Review Log";
-        GlEntry: Record "G/L Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeFixGLEntryReviewLogWithReviewedAmountZeroTag()) then exit;
-
-        GLEntryReviewLog.SetCurrentKey("Reviewed Amount");
-        GLEntryReviewLog.SetRange("Reviewed Amount", 0);
-        if GLEntryReviewLog.FindSet() then
-            repeat
-                if GlEntry.Get(GLEntryReviewLog."G/L Entry No.") then begin
-                    GLEntryReviewLog2.Copy(GLEntryReviewLog);
-                    GLEntryReviewLog2."Reviewed Amount" := GlEntry.Amount;
-                    GLEntryReviewLog2.Modify(false);
-                end;
-            until GLEntryReviewLog.Next() = 0;
-
         UpgradeTag.SetUpgradeTag(UpgradeFixGLEntryReviewLogWithReviewedAmountZeroTag());
     end;
 
