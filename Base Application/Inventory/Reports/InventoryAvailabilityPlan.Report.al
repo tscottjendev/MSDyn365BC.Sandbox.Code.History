@@ -1,4 +1,3 @@
-#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,12 +16,9 @@ report 707 "Inventory - Availability Plan"
     DefaultLayout = RDLC;
     RDLCLayout = './Inventory/Reports/InventoryAvailabilityPlan.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Inventory - Availability Plan (Obsolete)';
+    Caption = 'Inventory - Availability Plan';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This report has been replaced by the report Inventory - Availability Plan (Excel). This report will be removed in a future release.';
-    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -433,8 +429,8 @@ report 707 "Inventory - Availability Plan"
 
     requestpage
     {
-        AboutTitle = 'About Inventory - Availability Plan (Obsolete)';
-        AboutText = 'Get an overview of specific items and stock-keeping units, and their availability.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
+        AboutTitle = 'About Inventory - Availability Plan';
+        AboutText = 'Get an overview of specific items and stock-keeping units, and their availability.';
         SaveValues = true;
 
         layout
@@ -575,4 +571,3 @@ report 707 "Inventory - Availability Plan"
     end;
 }
 
-#endif
