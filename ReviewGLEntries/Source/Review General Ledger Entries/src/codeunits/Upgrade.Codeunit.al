@@ -16,25 +16,9 @@ codeunit 22201 "Upgrade"
 
     local procedure FixGLEntryReviewLogWithReviewAmountZero()
     var
-        GLEntryReviewLog: Record "G/L Entry Review Log";
-        GlEntry: Record "G/L Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeFixGLEntryReviewLogWithReviewedAmountZeroTag()) then exit;
-
-        GLEntryReviewLog.SetCurrentKey("Reviewed Amount");
-        GLEntryReviewLog.SetRange("Reviewed Amount", 0);
-        if GLEntryReviewLog.FindSet() then
-            repeat
-                if GlEntry.Get(GLEntryReviewLog."G/L Entry No.") then begin
-                    GLEntryReviewLog."Reviewed Amount" := GlEntry.Amount;
-                    if not GLEntryReviewLog.Modify(false) then begin
-                        Session.LogMessage('0000QUR', 'Failed upgrading G/L Entry Review Log with Reviewed Amount Zero', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Review G/L Entries');
-                        exit;
-                    end;
-                end;
-            until GLEntryReviewLog.Next() = 0;
-
         UpgradeTag.SetUpgradeTag(UpgradeFixGLEntryReviewLogWithReviewedAmountZeroTag());
     end;
 
