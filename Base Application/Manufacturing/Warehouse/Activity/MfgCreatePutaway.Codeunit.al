@@ -901,7 +901,7 @@ codeunit 99000893 "Mfg. Create Put-away"
 
     local procedure IsTemplateLineEnableForFindBinFields(): Boolean
     begin
-        exit((PutAwayTemplateLine."Find Empty Bin" or PutAwayTemplateLine."Find Floating Bin") or
+        exit(not (PutAwayTemplateLine."Find Empty Bin" or PutAwayTemplateLine."Find Floating Bin") or
             PutAwayTemplateLine."Find Fixed Bin" or
             PutAwayTemplateLine."Find Same Item" or
             PutAwayTemplateLine."Find Unit of Measure Match" or
@@ -945,7 +945,7 @@ codeunit 99000893 "Mfg. Create Put-away"
         repeat
             QtyToPutAwayBase := RemQtyToPutAwayBase;
 
-            if not IsTemplateLineEnableForFindBinFields() then
+            if IsTemplateLineEnableForFindBinFields() then
                 FindBinFromBinContentForProdOrderLine(ProdOrderLine, TempProdOrdLineTrackingBuff, BinContentQtyBase) // Calc Availability per Bin Content
             else
                 FindBinForProdOrderLine(ProdOrderLine, TempProdOrdLineTrackingBuff, BinContentQtyBase); // Calc Availability per Bin
