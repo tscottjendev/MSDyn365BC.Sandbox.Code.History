@@ -451,15 +451,8 @@ codeunit 6450 "Serv. Integration Mgt."
 
     [EventSubscriber(ObjectType::Table, Database::"Certificate of Supply", 'OnPrint', '', false, false)]
     local procedure CertificateofSupplyOnPrint(var CertificateOfSupply: Record "Certificate of Supply")
-    var
-        DocumentType: Enum "Supply Document Type";
     begin
-        DocumentType := CertificateOfSupply."Document Type";
-
-        if CertificateOfSupply.GetFilter("Document Type") <> '' then
-            DocumentType := CertificateOfSupply.GetRangeMin("Document Type");
-
-        if DocumentType = DocumentType::"Service Shipment" then
+        if CertificateOfSupply."Document Type" = CertificateOfSupply."Document Type"::"Service Shipment" then
             Report.RunModal(Report::"Service Certificate of Supply", true, false, CertificateOfSupply);
     end;
 
