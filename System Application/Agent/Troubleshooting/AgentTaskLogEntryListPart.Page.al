@@ -55,8 +55,7 @@ page 4314 "Agent Task Log Entry ListPart"
 
                     trigger OnDrillDown()
                     begin
-                        if (Rec.Description <> '') then
-                            Message(Rec.Description);
+                        Message(Rec.Description);
                     end;
                 }
                 field(Reason; Rec.Reason)
@@ -67,8 +66,7 @@ page 4314 "Agent Task Log Entry ListPart"
 
                     trigger OnDrillDown()
                     begin
-                        if (Rec.Reason <> '') then
-                            Message(Rec.Reason);
+                        Message(Rec.Reason);
                     end;
                 }
                 field(Details; DetailsTxt)
@@ -78,8 +76,7 @@ page 4314 "Agent Task Log Entry ListPart"
 
                     trigger OnDrillDown()
                     begin
-                        if (DetailsTxt <> '') then
-                            Message(DetailsTxt);
+                        Message(DetailsTxt);
                     end;
                 }
                 field(PageCaption; Rec."Page Caption")
