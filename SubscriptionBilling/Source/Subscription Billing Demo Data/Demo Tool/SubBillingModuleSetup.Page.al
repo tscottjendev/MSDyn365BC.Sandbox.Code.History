@@ -26,9 +26,6 @@ page 8101 "Sub. Billing Module Setup"
                 field("Import reconciliation file"; Rec."Import reconciliation file")
                 {
                 }
-                field("Create Sub. Analysis Entries"; Rec."Create Sub. Analysis Entries")
-                {
-                }
             }
         }
     }
