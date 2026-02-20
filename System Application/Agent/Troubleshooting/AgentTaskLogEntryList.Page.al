@@ -67,8 +67,7 @@ page 4303 "Agent Task Log Entry List"
 
                     trigger OnDrillDown()
                     begin
-                        if (Rec.Description <> '') then
-                            Message(Rec.Description);
+                        Message(Rec.Description);
                     end;
                 }
                 field(Reason; Rec.Reason)
@@ -77,8 +76,7 @@ page 4303 "Agent Task Log Entry List"
 
                     trigger OnDrillDown()
                     begin
-                        if (Rec.Reason <> '') then
-                            Message(Rec.Reason);
+                        Message(Rec.Reason);
                     end;
                 }
                 field(Details; DetailsTxt)
@@ -88,8 +86,7 @@ page 4303 "Agent Task Log Entry List"
 
                     trigger OnDrillDown()
                     begin
-                        if (DetailsTxt <> '') then
-                            Message(DetailsTxt);
+                        Message(DetailsTxt);
                     end;
                 }
             }
