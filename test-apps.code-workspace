@@ -139,10 +139,10 @@
       "path": "./Base Application/System/DevTools/CALTest"
     },
     {
-      "path": "./Test Runner/src/DataDrivenTest"
+      "path": "./System Application/Email/src/Test Email"
     },
     {
-      "path": "./System Application/Email/src/Test Email"
+      "path": "./Test Runner/src/DataDrivenTest"
     },
     {
       "path": "./AI Test Toolkit/src/TestSuite"
