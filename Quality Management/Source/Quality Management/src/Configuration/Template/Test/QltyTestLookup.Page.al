@@ -67,6 +67,8 @@ page 20445 "Qlty. Test Lookup"
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
+                    AboutTitle = 'Unit of Measure Code';
+                    AboutText = 'The unit of measure for the measurement.';
                 }
                 field(Field1; MatrixArrayConditionCellData[1])
                 {
