@@ -210,7 +210,6 @@ page 95 "Sales Quote Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate();
                         UpdateEditableOnRow();
 
                         Rec.RestoreLookupSelection();
