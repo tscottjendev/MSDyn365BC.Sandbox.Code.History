@@ -71,9 +71,6 @@ codeunit 20419 "Qlty. Guided Experience"
         if not (Session.CurrentClientType() in [ClientType::Web, ClientType::Windows, ClientType::Desktop]) then
             exit;
 
-        if not QltyManagementSetup.ReadPermission then
-            exit;
-
         if not Company.Get(CompanyName()) then
             exit;
 
