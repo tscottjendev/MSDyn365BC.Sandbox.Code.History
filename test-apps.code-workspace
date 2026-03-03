@@ -102,7 +102,7 @@
       "path": "./Manufacturing/Test/Manufacturing Tests"
     },
     {
-      "path": "./SubscriptionBilling/Test/Subscription Billing Tests/DisabledTests"
+      "path": "./SubscriptionBilling/Test/Subscription Billing Tests"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
