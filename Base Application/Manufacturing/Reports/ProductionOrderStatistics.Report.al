@@ -184,7 +184,6 @@ report 99000791 "Production Order Statistics"
                 ProdOrderLine.SetRange(Status, Status);
                 ProdOrderLine.SetRange("Prod. Order No.", "No.");
                 ProdOrderLine.SetRange("Planning Level Code", 0);
-                OnAfterSetProdOrderLineFilters(ProdOrderLine, "Production Order");
                 if ProdOrderLine.FindSet() then
                     repeat
                         MfgCostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
@@ -447,11 +446,6 @@ report 99000791 "Production Order Statistics"
     begin
         for i := 1 to ArrayLen(VarPctTotal) do
             VarPctTotal[i] := CalcIndicatorPct(ExpCostTotal[i], ActCostTotal[i]);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetProdOrderLineFilters(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
-    begin
     end;
 }
 
