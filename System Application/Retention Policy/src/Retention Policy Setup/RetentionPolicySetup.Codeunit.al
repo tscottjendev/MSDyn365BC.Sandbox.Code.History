@@ -5,6 +5,7 @@
 
 namespace System.DataAdministration;
 
+using System.Environment.Configuration;
 
 /// <summary>
 /// This codeunit contains helper methods for retention policy setups.
@@ -140,6 +141,15 @@ codeunit 3902 "Retention Policy Setup"
     end;
 
     // these event subscribers are here because the Impl. codeunit has a manual subscriber
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", OnRegisterManualSetup, '', true, true)]
+    local procedure AddRetentionPolicyOnRegisterManualSetup(sender: Codeunit "Guided Experience")
+    var
+        RetentionPolicySetupImpl: Codeunit "Retention Policy Setup Impl.";
+    begin
+        RetentionPolicySetupImpl.AddRetentionPolicyOnRegisterManualSetup(sender)
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Retention Period", OnBeforeDeleteEvent, '', true, true)]
     local procedure VerifyRetentionPolicySetupOnbeforeDeleteRetentionPeriod(var Rec: Record "Retention Period")
     var
