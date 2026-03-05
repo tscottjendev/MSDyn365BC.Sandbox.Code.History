@@ -332,7 +332,7 @@ page 6325 "Power BI Embedded Report Part"
                 Caption = 'Upload Report';
                 ToolTip = 'Uploads a report from a PBIX file.';
                 Image = Add;
-                Visible = CanSynchronizeReports;
+                Visible = IsSaaSUser;
                 Enabled = (PageState = PageState::ElementVisible) or (PageState = PageState::NoElementSelected) or (PageState = PageState::NoElementSelectedButDeploying) or (PageState = PageState::ShouldDeploy);
 
                 trigger OnAction()
@@ -411,9 +411,11 @@ page 6325 "Power BI Embedded Report Part"
     }
 
     trigger OnInit()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         IsPBIAdmin := PowerBiServiceMgt.IsUserAdminForPowerBI(UserSecurityId());
-        CanSynchronizeReports := PowerBIReportSynchronizer.CanSynchronizeReports();
+        IsSaaSUser := EnvironmentInformation.IsSaaSInfrastructure(); // SaaS but not Docker
     end;
 
     trigger OnOpenPage()
@@ -459,7 +461,6 @@ page 6325 "Power BI Embedded Report Part"
     var
         PowerBIFilter: Record "Power BI Filter";
         MediaResources: Record "Media Resources";
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
         PowerBiServiceMgt: Codeunit "Power BI Service Mgt.";
         PowerBiFilterHelper: Codeunit "Power BI Filter Helper";
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -479,7 +480,7 @@ page 6325 "Power BI Embedded Report Part"
         AvailableReportLevelFilters: JsonArray;
         PageContext: Text[30];
         AddInReady: Boolean;
-        CanSynchronizeReports: Boolean;
+        IsSaaSUser: Boolean;
         IsPBIAdmin: Boolean;
         IsPartVisible: Boolean;
         LockedToFirstElement: Boolean;
