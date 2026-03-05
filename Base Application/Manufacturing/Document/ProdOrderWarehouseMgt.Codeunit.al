@@ -855,6 +855,9 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     begin
         IsHandled := false;
         OnBeforeCheckBinCodeFromProdOrderCompLine(WarehouseActivityLine, ProdOrderComponent, IsHandled);
+#if not CLEAN26
+        WarehouseActivityLine.RunOnBeforeCheckBinCodeFromProdOrderCompLine(WarehouseActivityLine, ProdOrderComponent, IsHandled);
+#endif
         if IsHandled then
             exit;
 
@@ -1042,6 +1045,9 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         end;
 
         OnAfterSetDestinationType(WarehouseRequest, ProdOrder);
+#if not CLEAN26
+        WarehouseRequest.RunOnAfterSetDestinationType(WarehouseRequest, ProdOrder);
+#endif
     end;
 
     [IntegrationEvent(false, false)]
@@ -1079,6 +1085,9 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Production);
                     IsHandled := false;
                     OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
+#if not CLEAN26
+                    WhseValidateSourceLine.RunOnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
+#endif
                     if not Ishandled then
                         if Location.Get(NewItemJnlLine."Location Code") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
                             if ProdOrderComp.Get(
@@ -1146,6 +1155,9 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     begin
         IsHandled := false;
         OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp, QtyRemainingToBePicked);
+#if not CLEAN26
+        WhseValidateSourceLine.RunOnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp, QtyRemainingToBePicked);
+#endif
         if IsHandled then
             exit;
 
@@ -1314,6 +1326,9 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             WhseWkshLine."To Zone Code" := Bin."Zone Code";
         end;
         OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
+#if not CLEAN26
+        OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
+#endif
         if WhseWorksheetCreate.CreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine) then
             exit(true);
     end;
