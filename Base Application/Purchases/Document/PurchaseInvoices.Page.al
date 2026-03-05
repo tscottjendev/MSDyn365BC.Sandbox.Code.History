@@ -294,6 +294,24 @@ page 9308 "Purchase Invoices"
             {
                 Caption = '&Invoice';
                 Image = Invoice;
+#if not CLEAN26
+                action(Statistics)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenDocumentStatistics();
+                    end;
+                }
+#endif
                 action(PurchaseStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -301,7 +319,11 @@ page 9308 "Purchase Invoices"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
+#if CLEAN26
                     Visible = true;
+#else
+                    Visible = false;
+#endif                    
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
@@ -604,9 +626,18 @@ page 9308 "Purchase Invoices"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
+                actionref(Statistics_Promoted; Statistics)
+                {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                }
+#else                
                 actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
                 {
                 }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
