@@ -59,9 +59,15 @@ table 9153 "My Account"
             AutoFormatType = 0;
             Caption = 'Account Balance (to be removed)';
             Editable = false;
+#if CLEAN26
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
             ObsoleteReason = 'Replaced by "Acc. Balance" to avoid modification in My Accounts page.';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+            ObsoleteReason = 'Replaced by "Acc. Balance" to avoid modification in My Accounts page.';
+#endif
         }
 #endif
         /// <summary>

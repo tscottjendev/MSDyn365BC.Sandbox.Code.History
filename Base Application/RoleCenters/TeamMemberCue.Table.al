@@ -27,8 +27,13 @@ table 9042 "Team Member Cue"
             FieldClass = FlowField;
             AllowInCustomizations = Never;
             ObsoleteReason = 'For performance reasons, replaced by value calculated in CountTimeSheetsInStatus procedure.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
+#endif
         }
 #endif
 #if not CLEANSCHEMA29
@@ -40,8 +45,13 @@ table 9042 "Team Member Cue"
             FieldClass = FlowField;
             AllowInCustomizations = Never;
             ObsoleteReason = 'For performance reasons, replaced by value calculated in CountTimeSheetsInStatus procedure.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
+#endif
         }
 #endif
 #if not CLEANSCHEMA29
@@ -53,8 +63,13 @@ table 9042 "Team Member Cue"
             FieldClass = FlowField;
             AllowInCustomizations = Never;
             ObsoleteReason = 'For performance reasons, replaced by value calculated in CountTimeSheetsInStatus procedure.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
+#endif
         }
 #endif
 #if not CLEANSCHEMA29
@@ -66,8 +81,13 @@ table 9042 "Team Member Cue"
             FieldClass = FlowField;
             AllowInCustomizations = Never;
             ObsoleteReason = 'For performance reasons, replaced by value calculated in CountTimeSheetsInStatus procedure.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
+#endif
         }
 #endif
 #if not CLEANSCHEMA29
@@ -79,8 +99,13 @@ table 9042 "Team Member Cue"
             FieldClass = FlowField;
             AllowInCustomizations = Never;
             ObsoleteReason = 'For performance reasons, replaced by value calculated in CountTimeSheetsInStatus procedure.';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
             ObsoleteState = Removed;
             ObsoleteTag = '29.0';
+#endif
         }
 #endif
         field(9; "New Time Sheets"; Integer)
