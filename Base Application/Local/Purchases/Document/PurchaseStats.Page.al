@@ -268,7 +268,13 @@ page 10043 "Purchase Stats."
 
     trigger OnOpenPage()
     begin
+#if not CLEAN26
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+#else
         Rec.PrepareOpeningDocumentStatistics();
+#endif
         PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists(Rec."Invoice Disc. Code"));

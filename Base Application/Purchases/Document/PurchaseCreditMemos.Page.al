@@ -271,6 +271,24 @@ page 9309 "Purchase Credit Memos"
             {
                 Caption = '&Credit Memo';
                 Image = CreditMemo;
+#if not CLEAN26
+                action(Statistics)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics or PurchaseOrderStats action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenDocumentStatistics();
+                    end;
+                }
+#endif
                 action(PurchaseStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -278,7 +296,11 @@ page 9309 "Purchase Credit Memos"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
+#if CLEAN26
                     Visible = not SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
@@ -290,7 +312,11 @@ page 9309 "Purchase Credit Memos"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
+#if CLEAN26
                     Visible = SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Stats.";
                     RunPageOnRec = true;
@@ -660,12 +686,21 @@ page 9309 "Purchase Credit Memos"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
+                actionref(Statistics_Promoted; Statistics)
+                {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics  or PurchaseOrderStats  action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                }
+#else
                 actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
                 {
                 }
                 actionref(PurchaseStats_Promoted; PurchaseStats)
                 {
                 }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
