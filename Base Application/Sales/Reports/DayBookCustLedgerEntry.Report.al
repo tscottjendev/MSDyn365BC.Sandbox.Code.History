@@ -18,10 +18,11 @@ using System.Utilities;
 
 report 2501 "Day Book Cust. Ledger Entry"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/DayBookCustLedgerEntry.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Day Book Customer Ledger Entry';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -446,16 +447,6 @@ report 2501 "Day Book Cust. Ledger Entry"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/DayBookCustLedgerEntry.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

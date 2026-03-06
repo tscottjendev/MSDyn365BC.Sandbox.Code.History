@@ -9,10 +9,11 @@ using Microsoft.Manufacturing.Journal;
 
 report 5500 "Prod. Order Comp. and Routing"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Manufacturing/Reports/ProdOrderCompandRouting.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order Comp. and Routing';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -219,16 +220,6 @@ report 5500 "Prod. Order Comp. and Routing"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Manufacturing/Reports/ProdOrderCompandRouting.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

@@ -10,10 +10,11 @@ using Microsoft.Manufacturing.WorkCenter;
 
 report 99000764 "Prod. Order - Precalc. Time"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Manufacturing/Reports/ProdOrderPrecalcTime.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order - Precalc. Time';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -235,16 +236,6 @@ report 99000764 "Prod. Order - Precalc. Time"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Manufacturing/Reports/ProdOrderPrecalcTime.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

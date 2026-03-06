@@ -13,10 +13,11 @@ using System.Utilities;
 
 report 99000754 "Rolled-up Cost Shares"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Manufacturing/Reports/RolledupCostShares.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Rolled-up Cost Shares';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -326,16 +327,6 @@ report 99000754 "Rolled-up Cost Shares"
         begin
             CalculateDate := WorkDate();
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Manufacturing/Reports/RolledupCostShares.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels
