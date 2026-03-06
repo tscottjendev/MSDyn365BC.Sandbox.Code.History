@@ -15,11 +15,12 @@ using Microsoft.Sales.Receivables;
 
 report 114 "Salesperson - Sales Statistics"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/SalespersonSalesStatistics.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Salesperson - Sales Statistics';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -145,16 +146,6 @@ report 114 "Salesperson - Sales Statistics"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/SalespersonSalesStatistics.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

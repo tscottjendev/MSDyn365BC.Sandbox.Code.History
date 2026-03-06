@@ -28,10 +28,11 @@ using System.Utilities;
 /// </summary>
 report 6631 "Return Order Confirmation"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Document/ReturnOrderConfirmation.rdlc';
     Caption = 'Return Order Confirmation';
     PreviewMode = PrintLayout;
     WordMergeDataItem = "Sales Header";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -813,16 +814,6 @@ report 6631 "Return Order Confirmation"
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Document/ReturnOrderConfirmation.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels

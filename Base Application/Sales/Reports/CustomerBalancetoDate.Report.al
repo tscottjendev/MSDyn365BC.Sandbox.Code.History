@@ -17,11 +17,12 @@ using System.Utilities;
 
 report 121 "Customer - Balance to Date"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/CustomerBalancetoDate.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Balance to Date';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -356,16 +357,6 @@ report 121 "Customer - Balance to Date"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/CustomerBalancetoDate.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

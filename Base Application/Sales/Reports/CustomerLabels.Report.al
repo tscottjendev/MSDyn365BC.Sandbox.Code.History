@@ -13,10 +13,11 @@ using Microsoft.Sales.Customer;
 
 report 110 "Customer - Labels"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/CustomerLabels.rdlc';
     ApplicationArea = Suite;
     Caption = 'Customer - Labels';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -236,16 +237,6 @@ report 110 "Customer - Labels"
         trigger OnOpenPage()
         begin
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/CustomerLabels.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels

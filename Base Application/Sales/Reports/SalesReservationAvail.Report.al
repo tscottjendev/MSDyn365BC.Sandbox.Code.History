@@ -20,10 +20,11 @@ report 209 "Sales Reservation Avail."
     ObsoleteState = Pending;
     ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
     ObsoleteTag = '28.0';
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/SalesReservationAvail.rdlc';
     ApplicationArea = Reservation;
     Caption = 'Sales Reservation Avail.';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -342,16 +343,6 @@ report 209 "Sales Reservation Avail."
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/SalesReservationAvail.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
