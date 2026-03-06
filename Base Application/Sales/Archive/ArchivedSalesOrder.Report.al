@@ -27,9 +27,10 @@ using System.Utilities;
 /// </summary>
 report 216 "Archived Sales Order"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Archive/ArchivedSalesOrder.rdlc';
     Caption = 'Archived Sales Order';
     WordMergeDataItem = "Sales Header Archive";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -956,16 +957,6 @@ report 216 "Archived Sales Order"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Archive/ArchivedSalesOrder.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
