@@ -160,10 +160,7 @@ page 20405 "Qlty. Inspection Gen. Rules"
                             if Rec."Schedule Group" = '' then begin
                                 Rec."Schedule Group" := DefaultScheduleGroupLbl;
                                 Rec.Modify(false);
-                                if not QltyJobQueueManagement.PromptCreateJobQueueEntryIfMissing(Rec."Schedule Group") then begin
-                                    Rec."Schedule Group" := '';
-                                    Rec.Modify(false);
-                                end
+                                QltyJobQueueManagement.PromptCreateJobQueueEntryIfMissing(Rec."Schedule Group");
                             end else
                                 QltyJobQueueManagement.RunPageLookupJobQueueEntriesForScheduleGroup(Rec."Schedule Group")
                     end;

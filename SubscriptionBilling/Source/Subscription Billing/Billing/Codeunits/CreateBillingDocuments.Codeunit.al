@@ -312,6 +312,8 @@ codeunit 8060 "Create Billing Documents"
     var
         UsageDataBilling: Record "Usage Data Billing";
         ServiceCommitment: Record "Subscription Line";
+        NewSalesLineQuantity: Decimal;
+        NewSalesLineAmount: Decimal;
     begin
         if not ServiceCommitment.Get(BillingLine."Subscription Line Entry No.") then
             exit;
@@ -321,21 +323,15 @@ codeunit 8060 "Create Billing Documents"
         if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
             exit;
 
+        UsageDataBilling.CalcSums(Amount, Quantity);
+        NewSalesLineQuantity := SalesLine.Quantity;
+        NewSalesLineAmount := UsageDataBilling.Amount;
         UsageDataBilling.FindLast();
         if UsageDataBilling.Rebilling then
-            SalesLine.Validate(Quantity, UsageDataBilling.Quantity);
-        if SalesLine.Quantity = 0 then begin
-            UsageDataBilling.SetFilter(Quantity, '<>0');
-            if UsageDataBilling.FindLast() then
-                SalesLine.Validate(Quantity, UsageDataBilling.Quantity);
-        end;
+            NewSalesLineQuantity := UsageDataBilling.Quantity;
 
-        UsageDataBilling.SetRange(Quantity);
-        UsageDataBilling.CalcSums(Amount);
-        if SalesLine.Quantity <> 0 then
-            SalesLine.Validate("Unit Price", SalesLine.GetSalesDocumentSign() * UsageDataBilling.Amount / SalesLine.Quantity)
-        else
-            SalesLine.Validate("Unit Price", UsageDataBilling."Unit Price");
+        SalesLine.Validate(Quantity, NewSalesLineQuantity);
+        SalesLine.Validate("Unit Price", SalesLine.GetSalesDocumentSign() * NewSalesLineAmount / NewSalesLineQuantity);
         SalesLine.Validate("Line Discount %", ServiceCommitment."Discount %");
     end;
 
@@ -413,6 +409,8 @@ codeunit 8060 "Create Billing Documents"
     var
         UsageDataBilling: Record "Usage Data Billing";
         ServiceCommitment: Record "Subscription Line";
+        NewPurchaseLineQuantity: Decimal;
+        NewPurchaseLineAmount: Decimal;
     begin
         if not ServiceCommitment.Get(BillingLine."Subscription Line Entry No.") then
             exit;
@@ -422,21 +420,15 @@ codeunit 8060 "Create Billing Documents"
         if not ServiceCommitment.IsUsageDataBillingFound(UsageDataBilling, BillingLine."Billing from", BillingLine."Billing to") then
             exit;
 
+        UsageDataBilling.CalcSums("Cost Amount", Quantity);
+        NewPurchaseLineQuantity := PurchLine.Quantity;
+        NewPurchaseLineAmount := UsageDataBilling."Cost Amount";
         UsageDataBilling.FindLast();
         if UsageDataBilling.Rebilling then
-            PurchLine.Validate(Quantity, UsageDataBilling.Quantity);
-        if PurchLine.Quantity = 0 then begin
-            UsageDataBilling.SetFilter(Quantity, '<>0');
-            if UsageDataBilling.FindLast() then
-                PurchLine.Validate(Quantity, UsageDataBilling.Quantity);
-        end;
+            NewPurchaseLineQuantity := UsageDataBilling.Quantity;
 
-        UsageDataBilling.SetRange(Quantity);
-        UsageDataBilling.CalcSums("Cost Amount");
-        if PurchLine.Quantity <> 0 then
-            PurchLine.Validate("Direct Unit Cost", PurchLine.GetPurchaseDocumentSign() * UsageDataBilling."Cost Amount" / PurchLine.Quantity)
-        else
-            PurchLine.Validate("Direct Unit Cost", 0);
+        PurchLine.Validate(Quantity, NewPurchaseLineQuantity);
+        PurchLine.Validate("Direct Unit Cost", PurchLine.GetPurchaseDocumentSign() * NewPurchaseLineAmount / NewPurchaseLineQuantity);
         PurchLine.Validate("Line Discount %", ServiceCommitment."Discount %");
     end;
 
