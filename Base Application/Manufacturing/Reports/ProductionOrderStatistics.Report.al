@@ -324,7 +324,6 @@ report 99000791 "Production Order Statistics"
             Caption = 'Production Order Statistics Word';
             LayoutFile = '.\Manufacturing\Reports\ProdOrderStatisticsWord.docx';
             Type = Word;
-            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
 #if not CLEAN27
         layout(ProdOrderStatisticsRDLC)
@@ -335,7 +334,6 @@ report 99000791 "Production Order Statistics"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
             ObsoleteTag = '27.0';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }
