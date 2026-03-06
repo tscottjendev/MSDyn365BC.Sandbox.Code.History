@@ -231,7 +231,6 @@ report 99000763 "Prod. Order - List"
             Type = RDLC;
             LayoutFile = './Manufacturing/Document/ProdOrderList.rdlc';
             Caption = 'Production Order - List (RDLC)';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
         layout(ProdOrderListExcel)
         {
@@ -239,7 +238,6 @@ report 99000763 "Prod. Order - List"
             LayoutFile = './Manufacturing/Document/ProdOrderList.xlsx';
             Caption = 'Production Order - List (Excel)';
             ExcelLayoutMultipleDataSheets = true;
-            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
     }
 

@@ -38,9 +38,10 @@ using System.Utilities;
 
 report 202 "Sales Document - Test"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reports/SalesDocumentTest.rdlc';
     Caption = 'Sales Document - Test';
     WordMergeDataItem = "Sales Header";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -1866,16 +1867,6 @@ report 202 "Sales Document - Test"
                 InvOnNextPostReq := true;
             end;
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reports/SalesDocumentTest.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels

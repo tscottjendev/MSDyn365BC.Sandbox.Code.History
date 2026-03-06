@@ -22,9 +22,10 @@ using System.Utilities;
 /// </summary>
 report 122 "Reminder - Test"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Reminder/ReminderTest.rdlc';
     Caption = 'Reminder - Test';
     WordMergeDataItem = "Reminder Header";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -790,16 +791,6 @@ report 122 "Reminder - Test"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Reminder/ReminderTest.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

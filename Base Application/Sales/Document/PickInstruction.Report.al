@@ -13,8 +13,9 @@ using System.Utilities;
 /// </summary>
 report 214 "Pick Instruction"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Sales/Document/PickInstruction.rdlc';
     Caption = 'Pick Instruction';
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -193,16 +194,6 @@ report 214 "Pick Instruction"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Sales/Document/PickInstruction.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
