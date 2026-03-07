@@ -504,7 +504,6 @@ table 169 "Job Ledger Entry"
         }
         key(Key4; "Job No.", "Posting Date")
         {
-            IncludedFields = "Amt. to Post to G/L";
         }
         key(Key5; "Entry Type", Type, "No.", "Posting Date")
         {
