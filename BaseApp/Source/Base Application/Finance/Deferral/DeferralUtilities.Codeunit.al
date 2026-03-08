@@ -246,6 +246,7 @@ codeunit 1720 "Deferral Utilities"
         FractionOfPeriod: Decimal;
         PeriodicDeferralAmount: Decimal;
         RunningDeferralTotal: Decimal;
+        NoOfLoops: Integer;
         PeriodicCount: Integer;
         HowManyDaysLeftInPeriod: Integer;
         NumberOfDaysInPeriod: Integer;
@@ -276,10 +277,13 @@ codeunit 1720 "Deferral Utilities"
             PeriodicDeferralAmount := Round(DeferralHeader."Amount to Defer" / DeferralHeader."No. of Periods", AmountRoundingPrecision);
         end;
 
-        for PeriodicCount := 1 to (DeferralHeader."No. of Periods" + 1) do begin
+        NoOfLoops := DeferralHeader."No. of Periods" + 1;
+        OnCalculateStraightlineOnAfterCalcPeriodicDeferralAmount(DeferralHeader, NoOfLoops);
+
+        for PeriodicCount := 1 to NoOfLoops do begin
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
 
-            if (PeriodicCount = 1) or (PeriodicCount = (DeferralHeader."No. of Periods" + 1)) then begin
+            if (PeriodicCount = 1) or (PeriodicCount = NoOfLoops) then begin
                 if PeriodicCount = 1 then begin
                     Clear(RunningDeferralTotal);
 
@@ -1113,6 +1117,7 @@ codeunit 1720 "Deferral Utilities"
             end;
             PostDate := AccountingPeriod."Starting Date";
         end;
+        OnAfterInitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
     end;
 
     local procedure IsAccountingPeriodExist(var AccountingPeriod: Record "Accounting Period"; PostingDate: Date): Boolean
@@ -1818,6 +1823,20 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     /// <summary>
+    /// Integration event raised after calculating periodic deferral amount in straight-line method.
+    /// Enables subscribers to control the number of loops within CalculateStraightline.
+    /// </summary>
+    /// <param name="DeferralHeader">Deferral header record containing calculation parameters</param>
+    /// <param name="NoOfLoops">Number of loop iterations (can be modified by subscribers)</param>
+    /// <remarks>
+    /// Raised from CalculateStraightline procedure after calculating the periodic deferral amount and before the loop starts.
+    /// </remarks>
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateStraightlineOnAfterCalcPeriodicDeferralAmount(var DeferralHeader: Record "Deferral Header"; var NoOfLoops: Integer)
+    begin
+    end;
+
+    /// <summary>
     /// Integration event raised after calculating end date for days per period deferral method.
     /// Enables custom end date adjustments for days-based deferral calculations.
     /// </summary>
@@ -1930,6 +1949,22 @@ codeunit 1720 "Deferral Utilities"
     /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnInitializeDeferralHeaderAndSetPostDateAfterInitDeferralLine(var DeferralLine: Record "Deferral Line")
+    begin
+    end;
+
+    /// <summary>
+    /// Integration event raised after initializing deferral header and setting the post date.
+    /// Enables custom control over the PostDate variable assignment.
+    /// </summary>
+    /// <param name="DeferralLine">Deferral line record that was initialized</param>
+    /// <param name="DeferralHeader">Deferral header containing source information</param>
+    /// <param name="PeriodicCount">Current period number in the deferral schedule</param>
+    /// <param name="PostDate">Posting date that was set based on period calculations</param>
+    /// <remarks>
+    /// Raised from InitializeDeferralHeaderAndSetPostDate procedure after all initialization is complete.
+    /// </remarks>
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
     begin
     end;
 
