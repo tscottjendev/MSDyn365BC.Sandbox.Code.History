@@ -2108,6 +2108,7 @@ table 5050 Contact
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Vendors");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Bank Accs.");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Employees");
+        OnAfterGetSelectedRelationCodes(CodeFilter);
         SelectedBusRelationCodes := CodeFilter;
     end;
 
@@ -3201,16 +3202,6 @@ table 5050 Contact
         exit(ContBusRel.FindFirst())
     end;
 
-    procedure ContactToVendBusinessRelationExist(): Boolean
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-    begin
-        ContactBusinessRelation.Reset();
-        ContactBusinessRelation.SetRange("Contact No.", "No.");
-        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
-        exit(ContactBusinessRelation.FindFirst())
-    end;
-
     procedure CheckIfMinorForProfiles()
     begin
         if Minor then
@@ -4252,6 +4243,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustomerNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSelectedRelationCodes(var CodeFilter: Text)
     begin
     end;
 }
