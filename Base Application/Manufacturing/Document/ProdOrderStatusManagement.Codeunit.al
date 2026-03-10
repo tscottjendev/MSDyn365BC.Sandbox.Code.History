@@ -210,13 +210,7 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure ShowReleasedProdOrderDocument(var ProdOrder: Record "Production Order")
     var
         NewProductionOrder: Record "Production Order";
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeShowReleasedProdOrderDocument(ProdOrder, IsHandled);
-        if IsHandled then
-            exit;
-
         if not Confirm(StrSubstNo(OpenReleasedProdOrderQst, ProdOrder."No.")) then
             exit;
 
@@ -1043,20 +1037,17 @@ codeunit 5407 "Prod. Order Status Management"
         OnFlushProdOrderOnAfterProdOrderCompSetFilters(ProdOrder, ProdOrderComp);
         if ProdOrderComp.FindSet() then begin
             NoOfRecords := ProdOrderComp.Count;
-            if GuiAllowed() then
-                Window.Open(
-                    Text002 +
-                    Text003);
+            Window.Open(
+              Text002 +
+              Text003);
             LineCount := 0;
 
             repeat
                 LineCount := LineCount + 1;
                 Item.Get(ProdOrderComp."Item No.");
                 Item.TestField("Rounding Precision");
-                if GuiAllowed() then begin
-                    Window.Update(1, LineCount);
-                    Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
-                end;
+                Window.Update(1, LineCount);
+                Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
                 ProdOrderLine.Get(ProdOrderComp.Status, ProdOrder."No.", ProdOrderComp."Prod. Order Line No.");
                 if NewStatus = NewStatus::Released then
                     QtyToPost := ProdOrderComp.GetNeededQty(1, false)
@@ -1086,8 +1077,7 @@ codeunit 5407 "Prod. Order Status Management"
                     OnFlushProdOrderOnAfterPostFlushItemJnlLine(ItemJnlLine);
                 end;
             until ProdOrderComp.Next() = 0;
-            if GuiAllowed() then
-                Window.Close();
+            Window.Close();
         end;
     end;
 
@@ -2017,9 +2007,5 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure OnTransferReopenProdOrderRtngLineOnAfterInsert(FromProdOrderRoutingLine: Record "Prod. Order Routing Line"; ToProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromProductionOrder: Record "Production Order")
     begin
     end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowReleasedProdOrderDocument(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
-    begin
-    end;
 }
+
