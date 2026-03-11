@@ -7628,6 +7628,16 @@ codeunit 134393 "ERM Sales Subform"
         CustInvoiceDisc.Modify(true);
     end;
 
+    local procedure CreateExtendedTextForItem(Item: Record Item; var ExtendedTextLine: Record "Extended Text Line")
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+    begin
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryUtility.FillFieldMaxText(ExtendedTextLine, ExtendedTextLine.FieldNo(Text));
+        ExtendedTextLine.Find();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
