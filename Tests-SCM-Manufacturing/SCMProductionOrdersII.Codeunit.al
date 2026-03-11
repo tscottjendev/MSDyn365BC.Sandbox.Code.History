@@ -10104,5 +10104,12 @@ codeunit 137072 "SCM Production Orders II"
         end;
         ItemTrackingLines.OK().Invoke();
     end;
+
+    [ModalPageHandler]
+    procedure ProductionJnlPageHandler5(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Filter.SetFilter("Entry Type", Format("Item Ledger Entry Type"::Consumption));
+        ProductionJournal.Post.Invoke();
+    end;
 }
 
