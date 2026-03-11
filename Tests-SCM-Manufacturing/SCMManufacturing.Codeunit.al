@@ -7581,6 +7581,28 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [ModalPageHandler]
+    procedure ProductionJournalPageHandlerForReservationError(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+        ConsumptionQuantity: Decimal;
+        OutputQuantity: Decimal;
+    begin
+        ConsumptionQuantity := LibraryVariableStorage.DequeueDecimal();
+        OutputQuantity := LibraryVariableStorage.DequeueDecimal();
+
+        if ConsumptionQuantity <> 0 then
+            if ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption) then
+                ProductionJournal.Quantity.SetValue(ConsumptionQuantity);
+
+        if ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output) then begin
+            ProductionJournal."Output Quantity".SetValue(OutputQuantity);
+            ProductionJournal.ItemTrackingLines.Invoke();
+        end;
+
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalPageHandlerOnlyConsumption(var ProductionJournal: TestPage "Production Journal")
     var
