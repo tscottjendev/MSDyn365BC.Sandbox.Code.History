@@ -7,6 +7,7 @@ namespace Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Pricing;
 using Microsoft.Sales.Pricing;
+using System.Environment;
 using System.Environment.Configuration;
 using System.Integration.Excel;
 
@@ -335,6 +336,7 @@ page 7001 "Price List Lines"
         Rec.SetNewRecord(true);
         Rec.Validate("Asset Type", xRec."Asset Type");
         UpdateSourceType();
+        SetFieldEditableForClientTypeOdata();
     end;
 
     protected procedure GetHeader(): Boolean
