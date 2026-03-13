@@ -60,6 +60,7 @@ table 20411 "Qlty. Inspection Result"
         field(10; "Default Number Condition"; Text[500])
         {
             Caption = 'Default Number Condition';
+            NotBlank = true;
             ToolTip = 'Specifies the default condition of when this result is activated.';
 
             trigger OnValidate()
@@ -75,6 +76,7 @@ table 20411 "Qlty. Inspection Result"
         field(11; "Default Text Condition"; Text[500])
         {
             Caption = 'Default Text Condition';
+            NotBlank = false;
             ToolTip = 'Specifies the default condition of when this result is activated.';
 
             trigger OnValidate()
@@ -90,6 +92,7 @@ table 20411 "Qlty. Inspection Result"
         field(12; "Default Boolean Condition"; Text[500])
         {
             Caption = 'Default Boolean Condition';
+            NotBlank = false;
             ToolTip = 'Specifies the default condition of when this result is activated.';
 
             trigger OnValidate()
