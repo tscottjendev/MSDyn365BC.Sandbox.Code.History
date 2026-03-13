@@ -47,8 +47,4 @@ enum 5602 "FA Journal Line FA Posting Type"
     {
         Caption = 'Salvage Value';
     }
-    value(10; "Bonus Depreciation")
-    {
-        Caption = 'Bonus Depreciation';
-    }
 }
