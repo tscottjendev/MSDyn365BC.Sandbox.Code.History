@@ -3213,7 +3213,7 @@ table 5902 "Service Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", DimensionSetID, DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -3644,8 +3644,9 @@ table 5902 "Service Line"
             "Line Amount" := ExpectedLineAmount;
             ClearVATDifference();
         end;
+        if ServHeader."Tax Area Code" = '' then
+            UpdateVATAmounts();
 
-        UpdateVATAmounts();
         InitOutstandingAmount();
         ShouldCheckCrLimit := not IsCustCrLimitChecked and (CurrFieldNo <> 0);
         OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(Rec, IsCustCrLimitChecked, CurrFieldNo, ShouldCheckCrLimit);
@@ -7146,7 +7147,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer; xServiceLine: Record "Service Line")
+    local procedure OnAfterCreateDim(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer)
     begin
     end;
 

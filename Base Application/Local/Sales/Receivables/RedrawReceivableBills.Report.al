@@ -273,18 +273,8 @@ report 7000096 "Redraw Receivable Bills"
             end;
 
             trigger OnPostDataItem()
-            var
-                IsHandled: Boolean;
-                ShowMessage: Boolean;
             begin
                 Window.Close();
-
-                ShowMessage := true;
-                IsHandled := false;
-                OnBeforeOnPostDataItemOnBeforeOnPostDataItemCustLedgEntry(GenJnlLine, BatchName, ShowMessage, IsHandled);
-                if IsHandled then
-                    exit;
-
                 // CarteraDimMgt.CopyJnlLinDim(GenJnlLine,GenJnlLine,TempJnlLineDim,JnlLineDim2);
                 Commit();
                 GenJnlLine.Reset();
@@ -301,8 +291,7 @@ report 7000096 "Redraw Receivable Bills"
 
                 SplitDetailedCVEntry();
 
-                if ShowMessage then
-                    Message(Text1100010, DocCount);
+                Message(Text1100010, DocCount);
             end;
 
             trigger OnPreDataItem()
@@ -822,11 +811,6 @@ report 7000096 "Redraw Receivable Bills"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var NewPaymentMethod: Code[10])
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnPostDataItemOnBeforeOnPostDataItemCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; BatchName: Code[10]; var ShowMessage: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
