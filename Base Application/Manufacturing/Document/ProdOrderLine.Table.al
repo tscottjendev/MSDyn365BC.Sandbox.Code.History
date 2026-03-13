@@ -1261,7 +1261,7 @@ table 5406 "Prod. Order Line"
             Rec, CurrFieldNo, DefaultDimSource, '',
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrder."Dimension Set ID", DATABASE::Item);
 
-        OnAfterCreateDim(Rec, DefaultDimSource, xRec);
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure IsInbound(): Boolean
@@ -1878,7 +1878,7 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var ProdOrderLine: Record "Prod. Order Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; xProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterCreateDim(var ProdOrderLine: Record "Prod. Order Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
