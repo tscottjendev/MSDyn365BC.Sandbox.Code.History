@@ -24,7 +24,7 @@ report 10862 "Suggest Vendor Payments FR"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = sorting("No.") where(Blocked = filter(" "));
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Payment Method Code";
 
             trigger OnAfterGetRecord()
