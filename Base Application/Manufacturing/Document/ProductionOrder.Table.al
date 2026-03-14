@@ -1145,7 +1145,7 @@ table 5405 "Production Order"
                 Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         end;
 
-        OnAfterCreateDim(Rec, DefaultDimSource, xRec);
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1720,7 +1720,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var ProductionOrder: Record "Production Order"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; xProductionOrder: Record "Production Order")
+    local procedure OnAfterCreateDim(var ProductionOrder: Record "Production Order"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
