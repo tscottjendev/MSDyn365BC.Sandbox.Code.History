@@ -147,7 +147,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BalanceCheckSrcCurrAmount2: Decimal;
         CurrentBalance: Decimal;
         TotalAddCurrAmount: Decimal;
-        TotalSrcCurrAmount: Decimal;
         TotalAmount: Decimal;
         UnrealizedRemainingAmountCust: Decimal;
         UnrealizedRemainingAmountVend: Decimal;
@@ -1692,6 +1691,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if BankAccLedgEntry.Amount <> 0 then begin
             BankAccLedgEntry.Open := true;
             BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
+        end
+        else begin
+            BankAccLedgEntry."Closed at Date" := GenJnlLine."Posting Date";
+            BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
         end;
         BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
         OnBeforeBankAccLedgEntryUpdateAmounts(BankAccLedgEntry, GenJnlLine, BankAcc, TaxAmount, TaxAmountLCY);
@@ -2408,7 +2411,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 NextEntryNo, TotalAmount, TotalAddCurrAmount, GLEntry);
 
             TempGLEntryBuf.Insert();
-            TotalSrcCurrAmount += TempGLEntryBuf."Source Currency Amount";
 
             if FirstEntryNo = 0 then
                 FirstEntryNo := TempGLEntryBuf."Entry No.";
@@ -8007,7 +8009,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, TotalAmountAddCurr, true, true, TotalAmountAddCurr)
                 else
                     InitGLEntry(
-                        GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, TotalAmountAddCurr, true, true, -TotalSrcCurrAmount);
+                        GenJnlLine, GLEntry, GLAccNo, TotalAmountLCY, 0, false, true, TotalAmountAddCurr);
         end;
     end;
 
