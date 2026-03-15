@@ -231,13 +231,12 @@ codeunit 12170 "Recall Customer Bill"
                 CustLedgEntry.SetRange("Document Type to Close", CustLedgEntry2."Document Type");
                 CustLedgEntry.SetFilter("Document No. to Close", CustLedgEntry2."Document No.");
                 CustLedgEntry.SetRange("Document Occurrence to Close", CustLedgEntry2."Document Occurrence");
+                CustLedgEntry.SetRange(Open, false);
+                if CustLedgEntry.FindFirst() then
+                    Error(Text1130026, CustLedgEntry."Entry No.");
+
                 CustLedgEntry.SetRange(Open, true);
-                if not CustLedgEntry.FindFirst() then begin
-                    CustLedgEntry.SetRange(Open, false);
-                    if CustLedgEntry.FindFirst() then
-                        Error(Text1130026, CustLedgEntry."Entry No.");
-                    Error(Text1130015);
-                end;
+                CustLedgEntry.FindFirst();
 
                 Window.Update(1, CustLedgEntry."Customer No.");
                 Window.Update(2, CustLedgEntry."Document No.");
