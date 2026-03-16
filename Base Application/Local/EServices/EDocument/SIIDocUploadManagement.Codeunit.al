@@ -80,8 +80,6 @@ codeunit 10752 "SII Doc. Upload Management"
 
         OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(RequestText, RequestType, WebServiceUrl);
 
-        SIISetup.ValidateEndpointUrl(WebServiceUrl);
-
         SIISession.StoreRequestXml(RequestText);
         Commit();
 
