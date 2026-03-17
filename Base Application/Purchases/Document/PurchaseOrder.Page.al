@@ -545,7 +545,7 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the receipt is posted on the invoice.';
-                }
+                }	
                 group("SII Information")
                 {
                     Caption = 'SII Information';
@@ -1812,8 +1812,7 @@ page 50 "Purchase Order"
                             IncomingDocument: Record "Incoming Document";
                         begin
                             if IncomingDocument.Get(Rec."Incoming Document Entry No.") then
-                                if not IncomingDocument.Posted then
-                                    IncomingDocument.RemoveLinkToRelatedRecord();
+                                IncomingDocument.RemoveLinkToRelatedRecord();
                             Rec."Incoming Document Entry No." := 0;
                             Rec.Modify(true);
                         end;
