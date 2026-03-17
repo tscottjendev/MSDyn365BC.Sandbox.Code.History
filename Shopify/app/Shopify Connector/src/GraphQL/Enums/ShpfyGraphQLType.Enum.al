@@ -731,9 +731,4 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Payouts By Ids';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL PayoutsByIds";
     }
-    value(147; HasFulfillmentService)
-    {
-        Caption = 'Has Fulfillment Service';
-        Implementation = "Shpfy IGraphQL" = "Shpfy GQL HasFFService";
-    }
 }
