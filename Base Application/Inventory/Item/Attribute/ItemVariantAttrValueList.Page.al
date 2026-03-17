@@ -42,8 +42,6 @@ page 7514 "Item Variant Attr. Value List"
                             Rec.InsertItemAttributeValue(ItemAttributeValue, Rec);
 
                         InsertItemVariantAttributeValueMapping(ItemAttributeValue);
-
-                        CurrPage.Update(true);
                     end;
                 }
                 field(Value; Rec.Value)
