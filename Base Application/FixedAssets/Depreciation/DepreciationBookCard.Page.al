@@ -105,10 +105,6 @@ page 5610 "Depreciation Book Card"
                 {
                     ApplicationArea = FixedAssets;
                 }
-                field("Use Bonus Depreciation"; Rec."Use Bonus Depreciation")
-                {
-                    ApplicationArea = FixedAssets;
-                }
             }
             group(Integration)
             {
@@ -157,11 +153,6 @@ page 5610 "Depreciation Book Card"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'G/L Integration - Maintenance';
-                    }
-                    field("G/L Integration - Bonus Depr."; Rec."G/L Integration - Bonus Depr.")
-                    {
-                        ApplicationArea = FixedAssets;
-                        Caption = 'G/L Integration - Bonus Depreciation';
                     }
                 }
             }
