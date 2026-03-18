@@ -11,9 +11,10 @@ using System.Utilities;
 
 report 6520 "Item Tracing Specification"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/ItemTracingSpecification.rdlc';
     Caption = 'Item Tracing Specification';
     AllowScheduling = false;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -361,16 +362,6 @@ report 6520 "Item Tracing Specification"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/ItemTracingSpecification.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
