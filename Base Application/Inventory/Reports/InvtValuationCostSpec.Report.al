@@ -11,10 +11,11 @@ using System.Utilities;
 
 report 5801 "Invt. Valuation - Cost Spec."
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/InvtValuationCostSpec.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Invt. Valuation - Cost Spec.';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -197,16 +198,6 @@ report 5801 "Invt. Valuation - Cost Spec."
             if ValuationDate = 0D then
                 ValuationDate := WorkDate();
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/InvtValuationCostSpec.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels
