@@ -8,10 +8,11 @@ using Microsoft.Inventory.Item;
 
 report 701 "Inventory - List"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/InventoryList.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory - List';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -91,16 +92,6 @@ report 701 "Inventory - List"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/InventoryList.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

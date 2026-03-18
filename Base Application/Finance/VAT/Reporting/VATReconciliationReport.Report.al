@@ -15,11 +15,12 @@ using Microsoft.Foundation.Enums;
 /// </summary>
 report 743 "VAT Reconciliation Report"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/VAT/Reporting/VATReconciliationReport.rdlc';
     ApplicationArea = VAT;
     Caption = 'VAT Reconciliation Report';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -139,16 +140,6 @@ report 743 "VAT Reconciliation Report"
                     }
                 }
             }
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/VAT/Reporting/VATReconciliationReport.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
