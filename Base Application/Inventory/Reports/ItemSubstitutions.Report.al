@@ -10,10 +10,11 @@ using Microsoft.Inventory.Item.Substitution;
 
 report 5701 "Item Substitutions"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/ItemSubstitutions.rdlc';
     ApplicationArea = Suite;
     Caption = 'Item Substitutions';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -140,16 +141,6 @@ report 5701 "Item Substitutions"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/ItemSubstitutions.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
