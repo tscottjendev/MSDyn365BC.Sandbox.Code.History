@@ -54,8 +54,6 @@ codeunit 1018 "Purchase Doc. From Job"
         if NoFilter = '' then
             Error(NoPurchaseOrdersCreatedErr);
 
-        OnCreatePurchaseOrderOnAfterBuildNoFilter(Job, NoFilter);
-
         PurchaseHeader.SetFilter("No.", NoFilter);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
 
@@ -128,10 +126,5 @@ codeunit 1018 "Purchase Doc. From Job"
         TempManufacturingUserTemplate."Create Transfer Order" := TempManufacturingUserTemplate."Create Transfer Order"::" ";
         TempManufacturingUserTemplate."Create Assembly Order" := TempManufacturingUserTemplate."Create Assembly Order"::" ";
         TempManufacturingUserTemplate.Insert();
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePurchaseOrderOnAfterBuildNoFilter(var Job: Record Job; var NoFilter: Text)
-    begin
     end;
 }
