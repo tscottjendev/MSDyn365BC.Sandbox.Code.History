@@ -19,8 +19,9 @@ using System.Utilities;
 
 report 702 "Inventory Posting - Test"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/InventoryPostingTest.rdlc';
     Caption = 'Inventory Posting - Test';
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -774,16 +775,6 @@ report 702 "Inventory Posting - Test"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/InventoryPostingTest.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

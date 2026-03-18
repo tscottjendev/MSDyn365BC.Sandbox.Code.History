@@ -22,8 +22,9 @@ using System.Utilities;
 /// </remarks>
 report 14 "Consolidation - Test Database"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/Consolidation/ConsolidationTestDatabase.rdlc';
     Caption = 'Consolidation - Test Database (same environment)';
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -420,16 +421,6 @@ report 14 "Consolidation - Test Database"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/Consolidation/ConsolidationTestDatabase.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

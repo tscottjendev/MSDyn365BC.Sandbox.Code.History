@@ -10,8 +10,9 @@ using System.Utilities;
 
 report 7130 "Item Budget"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/ItemBudget.rdlc';
     Caption = 'Item Budget';
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -238,16 +239,6 @@ report 7130 "Item Budget"
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/ItemBudget.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels
