@@ -9,10 +9,11 @@ using Microsoft.Inventory.Item;
 
 report 809 "Where-Used List"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/WhereUsedList.rdlc';
     ApplicationArea = Assembly;
     Caption = 'Where-Used List';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -86,16 +87,6 @@ report 809 "Where-Used List"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/WhereUsedList.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

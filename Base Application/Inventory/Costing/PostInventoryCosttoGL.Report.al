@@ -17,6 +17,8 @@ using System.Utilities;
 
 report 1002 "Post Inventory Cost to G/L"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Costing/PostInventoryCosttoGL.rdlc';
     AdditionalSearchTerms = 'reconcile inventory';
     ApplicationArea = Basic, Suite;
     Caption = 'Post Inventory Cost to G/L';
@@ -29,7 +31,6 @@ report 1002 "Post Inventory Cost to G/L"
                   TableData "Post Value Entry to G/L" = rd,
                   TableData Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rm;
     UsageCategory = Tasks;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -676,16 +677,6 @@ report 1002 "Post Inventory Cost to G/L"
                     GenJnlLineReq."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
             end;
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Costing/PostInventoryCosttoGL.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels

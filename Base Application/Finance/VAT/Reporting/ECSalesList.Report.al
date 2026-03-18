@@ -15,10 +15,11 @@ using Microsoft.Foundation.Company;
 /// </summary>
 report 130 "EC Sales List"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/VAT/Reporting/ECSalesList.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'EC Sales List';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -260,16 +261,6 @@ report 130 "EC Sales List"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/VAT/Reporting/ECSalesList.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

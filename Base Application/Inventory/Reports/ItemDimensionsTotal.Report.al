@@ -14,10 +14,11 @@ using System.Utilities;
 
 report 7151 "Item Dimensions - Total"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/ItemDimensionsTotal.rdlc';
     ApplicationArea = Dimensions;
     Caption = 'Item Dimensions - Total';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -572,16 +573,6 @@ report 7151 "Item Dimensions - Total"
 
             UpdateColumnDim();
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/ItemDimensionsTotal.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels
