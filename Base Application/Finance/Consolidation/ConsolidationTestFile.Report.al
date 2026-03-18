@@ -21,9 +21,10 @@ using System.Utilities;
 /// </remarks>
 report 15 "Consolidation - Test File"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/Consolidation/ConsolidationTestFile.rdlc';
     Caption = 'Consolidation - Test File';
     AllowScheduling = false;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -290,16 +291,6 @@ report 15 "Consolidation - Test File"
         begin
             FileName := '';
         end;
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/Consolidation/ConsolidationTestFile.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
-        }
     }
 
     labels
