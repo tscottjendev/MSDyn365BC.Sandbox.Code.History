@@ -28,11 +28,12 @@ using System.Reflection;
 /// </remarks>
 report 10019 "G/L Register"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/GeneralLedger/Reports/GLRegister.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'G/L Register';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -279,16 +280,6 @@ report 10019 "G/L Register"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/GeneralLedger/Reports/GLRegister.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

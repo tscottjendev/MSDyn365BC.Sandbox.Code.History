@@ -11,8 +11,9 @@ using System.Utilities;
 
 report 6529 "Item Tracking Navigate"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Reports/ItemTrackingNavigate.rdlc';
     Caption = 'Item Tracking Navigate';
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -152,16 +153,6 @@ report 6529 "Item Tracking Navigate"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Reports/ItemTrackingNavigate.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

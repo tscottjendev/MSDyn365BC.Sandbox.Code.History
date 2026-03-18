@@ -48,9 +48,10 @@ using System.Utilities;
 /// </remarks>
 report 2 "General Journal - Test"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/GeneralLedger/Reports/GeneralJournalTest.rdlc';
     Caption = 'General Journal - Test';
     PreviewMode = PrintLayout;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -831,16 +832,6 @@ report 2 "General Journal - Test"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/GeneralLedger/Reports/GeneralJournalTest.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

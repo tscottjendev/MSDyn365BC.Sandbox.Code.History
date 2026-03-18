@@ -9,11 +9,12 @@ using System.Utilities;
 
 report 5878 "Phys. Invt. Recording"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Counting/Reports/PhysInvtRecording.rdlc';
     ApplicationArea = Warehouse;
     Caption = 'Phys. Invt. Recording';
     UsageCategory = ReportsAndAnalysis;
     WordMergeDataItem = "Phys. Invt. Record Header";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -179,16 +180,6 @@ report 5878 "Phys. Invt. Recording"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Counting/Reports/PhysInvtRecording.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
