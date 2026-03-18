@@ -16,10 +16,11 @@ using System.Utilities;
 /// </summary>
 report 32 "VAT Registration No. Check"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/VAT/Registration/VATRegistrationNoCheck.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Batch VAT Registration No. Check';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -390,16 +391,6 @@ report 32 "VAT Registration No. Check"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/VAT/Registration/VATRegistrationNoCheck.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

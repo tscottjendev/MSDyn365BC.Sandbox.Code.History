@@ -22,12 +22,13 @@ using System.Utilities;
 /// </remarks>
 report 38 "Trial Balance by Period"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/GeneralLedger/Reports/TrialBalancebyPeriod.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Trial Balance by Period';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -342,16 +343,6 @@ report 38 "Trial Balance by Period"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/GeneralLedger/Reports/TrialBalancebyPeriod.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
