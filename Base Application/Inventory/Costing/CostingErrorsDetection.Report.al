@@ -10,10 +10,11 @@ using System.Utilities;
 
 report 5810 "Costing Errors Detection"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Costing/CostingErrorsDetection.rdlc';
     Caption = 'Costing Errors Detection';
     PreviewMode = PrintLayout;
     ApplicationArea = Basic, Suite;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -401,16 +402,6 @@ report 5810 "Costing Errors Detection"
                     ToolTip = 'Specifies if you want to check if the item ledger entries exist for the value entries.';
                 }
             }
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Costing/CostingErrorsDetection.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

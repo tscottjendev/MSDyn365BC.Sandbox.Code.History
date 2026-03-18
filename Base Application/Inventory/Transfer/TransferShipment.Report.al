@@ -11,9 +11,10 @@ using System.Utilities;
 
 report 5704 "Transfer Shipment"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Inventory/Transfer/TransferShipment.rdlc';
     Caption = 'Transfer Shipment';
     WordMergeDataItem = "Transfer Shipment Header";
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -382,16 +383,6 @@ report 5704 "Transfer Shipment"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Inventory/Transfer/TransferShipment.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
