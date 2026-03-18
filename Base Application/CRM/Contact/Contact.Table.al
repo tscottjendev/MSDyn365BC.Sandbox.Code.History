@@ -2108,7 +2108,6 @@ table 5050 Contact
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Vendors");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Bank Accs.");
         AppendFilter(CodeFilter, '|', MarketingSetup."Bus. Rel. Code for Employees");
-        OnAfterGetSelectedRelationCodes(CodeFilter);
         SelectedBusRelationCodes := CodeFilter;
     end;
 
@@ -3180,8 +3179,6 @@ table 5050 Contact
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        OnBeforeCreatePurchaseQuoteFromContact(Rec);
-
         CheckIfPrivacyBlockedGeneric();
 
         PurchaseHeader.Init();
@@ -3954,11 +3951,6 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchaseQuoteFromContact(var Contact: Record Contact)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateVendor(var Contact: Record Contact; var VendorNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -4260,11 +4252,6 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustomerNo: Code[20]; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSelectedRelationCodes(var CodeFilter: Text)
     begin
     end;
 }
