@@ -1897,9 +1897,13 @@ codeunit 22 "Item Jnl.-Post Line"
         OnBeforeInsertTransferEntry(NewItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
 
         InsertItemLedgEntry(NewItemLedgEntry, true);
-        InsertValueEntry(NewValueEntry, NewItemLedgEntry, true);
 
-        UpdateUnitCost(NewValueEntry);
+        IsHandled := false;
+        OnInsertTransferEntryOnBeforeInsertValueEntry(NewValueEntry, NewItemLedgEntry, ValueEntryNo, IsHandled);
+        if not IsHandled then begin
+            InsertValueEntry(NewValueEntry, NewItemLedgEntry, true);
+            UpdateUnitCost(NewValueEntry);
+        end;
 
         xValueEntryNo := ValueEntryNo;
         OnAfterInsertTransferEntry(ItemJnlLine, NewItemLedgEntry, OldItemLedgEntry, NewValueEntry, ValueEntryNo);
@@ -2439,7 +2443,6 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure InitValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     var
-        CalcUnitCost: Boolean;
         InvoicedQuantityNotEmpty: Boolean;
         CostAmt: Decimal;
         CostAmtACY: Decimal;
@@ -2583,36 +2586,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 if GLSetup."Additional Reporting Currency" <> '' then
                     ValueEntry."Cost per Unit (ACY)" := RetrieveCostPerUnitACY(ValueEntry."Cost per Unit");
 
-                if (ValueEntry."Valued Quantity" > 0) and
-                    (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Purchase,
-                                                            ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
-                    (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
-                    not ItemJnlLine.Adjustment
-                then begin
-                    if Item."Costing Method" = Item."Costing Method"::Standard then
-                        ItemJnlLine."Unit Cost" := ValueEntry."Cost per Unit";
-                    CalcPosShares(
-                        CostAmt, OverheadAmount, VarianceAmount, CostAmtACY, OverheadAmountACY, VarianceAmountACY,
-                        CalcUnitCost, (Item."Costing Method" = Item."Costing Method"::Standard) and
-                        (not ValueEntry."Expected Cost"), ValueEntry."Expected Cost");
-                    if (OverheadAmount <> 0) or
-                        (Round(VarianceAmount, GLSetup."Amount Rounding Precision") <> 0) or
-                        CalcUnitCost or ValueEntry."Expected Cost"
-                    then begin
-                        ValueEntry."Cost per Unit" :=
-                            CalcCostPerUnit(CostAmt, ValueEntry."Valued Quantity", false);
-
-                        if GLSetup."Additional Reporting Currency" <> '' then
-                            ValueEntry."Cost per Unit (ACY)" :=
-                                CalcCostPerUnit(CostAmtACY, ValueEntry."Valued Quantity", true);
-                    end;
-                end else
-                    if not ItemJnlLine.Adjustment then
-                        CalcOutboundCostAmt(ValueEntry, CostAmt, CostAmtACY)
-                    else begin
-                        CostAmt := ItemJnlLine.Amount;
-                        CostAmtACY := ItemJnlLine."Amount (ACY)";
-                    end;
+                CalcCostPerUnitForPositiveValuedQty(ItemJnlLine, ValueEntry, CostAmt, CostAmtACY);
 
                 if (ItemJnlLine."Invoiced Quantity" < 0) and (ItemJnlLine."Applies-to Entry" <> 0) and
                     (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Purchase) and (ItemJnlLine."Item Charge No." = '') and
@@ -2727,6 +2701,47 @@ codeunit 22 "Item Jnl.-Post Line"
         xValueEntryNo := ValueEntryNo;
         OnAfterInitValueEntry(ValueEntry, ItemJnlLine, ValueEntryNo, ItemLedgerEntry);
         ValidateSequenceNo(ValueEntryNo, xValueEntryNo, Database::"Value Entry");
+    end;
+
+    local procedure CalcCostPerUnitForPositiveValuedQty(var ItemJournalLine: Record "Item Journal Line"; var ValueEntry: Record "Value Entry"; var CostAmt: Decimal; var CostAmtACY: Decimal)
+    var
+        CalcUnitCost: Boolean;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalcCostPerUnitForPositiveValuedQty(ItemJournalLine, ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (ValueEntry."Valued Quantity" > 0) and
+            (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Purchase,
+                                                    ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+            (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+            not ItemJnlLine.Adjustment
+        then begin
+            if Item."Costing Method" = Item."Costing Method"::Standard then
+                ItemJnlLine."Unit Cost" := ValueEntry."Cost per Unit";
+            CalcPosShares(
+                CostAmt, OverheadAmount, VarianceAmount, CostAmtACY, OverheadAmountACY, VarianceAmountACY,
+                CalcUnitCost, (Item."Costing Method" = Item."Costing Method"::Standard) and
+                (not ValueEntry."Expected Cost"), ValueEntry."Expected Cost");
+            if (OverheadAmount <> 0) or
+                (Round(VarianceAmount, GLSetup."Amount Rounding Precision") <> 0) or
+                CalcUnitCost or ValueEntry."Expected Cost"
+            then begin
+                ValueEntry."Cost per Unit" :=
+                    CalcCostPerUnit(CostAmt, ValueEntry."Valued Quantity", false);
+
+                if GLSetup."Additional Reporting Currency" <> '' then
+                    ValueEntry."Cost per Unit (ACY)" :=
+                        CalcCostPerUnit(CostAmtACY, ValueEntry."Valued Quantity", true);
+            end;
+        end else
+            if not ItemJnlLine.Adjustment then
+                CalcOutboundCostAmt(ValueEntry, CostAmt, CostAmtACY)
+            else begin
+                CostAmt := ItemJnlLine.Amount;
+                CostAmtACY := ItemJnlLine."Amount (ACY)";
+            end;
     end;
 
     local procedure SetValueEntrySourceFieldsFromItemJnlLine(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
@@ -3018,6 +3033,11 @@ codeunit 22 "Item Jnl.-Post Line"
           CalcCostPerUnit(ValueEntry."Cost Amount (Actual)", ValueEntry."Valued Quantity", false);
         ValueEntry."Cost per Unit (ACY)" :=
           CalcCostPerUnit(ValueEntry."Cost Amount (Actual) (ACY)", ValueEntry."Valued Quantity", true);
+
+        IsHandled := false;
+        OnInsertVarValueEntryOnBeforeInsertValueEntry(ValueEntry, GlobalItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         InsertValueEntry(ValueEntry, GlobalItemLedgEntry, false);
     end;
@@ -4457,6 +4477,7 @@ codeunit 22 "Item Jnl.-Post Line"
     local procedure InsertCorrValueEntry(OldValueEntry: Record "Value Entry"; var NewValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry"; DocumentLineNo: Integer; Sign: Integer; QtyToShip: Decimal; QtyToInvoice: Decimal)
     var
         xValueEntryNo: Integer;
+        ShouldInsertValueEntry: Boolean;
     begin
         ValueEntryNo := GetNextValueEntryNo(ValueEntryNo);
 
@@ -4513,6 +4534,12 @@ codeunit 22 "Item Jnl.-Post Line"
 
         InsertItemReg(0, 0, NewValueEntry."Entry No.", 0);
         NewValueEntry."Item Register No." := ItemReg."No.";
+
+        ShouldInsertValueEntry := true;
+        OnInsertCorrValueEntryOnBeforeInsert(NewValueEntry, ItemLedgEntry, ShouldInsertValueEntry);
+        if not ShouldInsertValueEntry then
+            exit;
+
         NewValueEntry.Insert(true);
 
         xValueEntryNo := ValueEntryNo;
@@ -8596,6 +8623,26 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetValuationDate(OldItemLedgerEntry: Record "Item Ledger Entry"; OldValuationDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertVarValueEntryOnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; var GlobalItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransferEntryOnBeforeInsertValueEntry(var NewValueEntry: Record "Value Entry"; var NewItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCorrValueEntryOnBeforeInsert(var NewValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ShouldInsertValueEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCostPerUnitForPositiveValuedQty(var ItemJournalLine: Record "Item Journal Line"; var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 }
