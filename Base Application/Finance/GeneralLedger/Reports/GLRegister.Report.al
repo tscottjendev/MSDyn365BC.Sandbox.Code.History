@@ -18,12 +18,13 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 /// </remarks>
 report 3 "G/L Register"
 {
+    DefaultLayout = RDLC;
+    RDLCLayout = './Finance/GeneralLedger/Reports/GLRegister.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'G/L Register';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -163,16 +164,6 @@ report 3 "G/L Register"
 
         actions
         {
-        }
-    }
-
-    rendering
-    {
-        layout(RDLCLayout)
-        {
-            Type = RDLC;
-            LayoutFile = './Finance/GeneralLedger/Reports/GLRegister.rdlc';
-            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
