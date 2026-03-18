@@ -121,19 +121,19 @@ page 372 "Bank Account Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
-                    Visible = AmountVisible;
+                    Visible = AmountVisible and IsForeignCurrency;
                 }
                 field("Debit Amount (LCY)"; Rec."Debit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
-                    Visible = DebCredAmountVisible;
+                    Visible = DebCredAmountVisible and IsForeignCurrency;
                 }
                 field("Credit Amount (LCY)"; Rec."Credit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
-                    Visible = DebCredAmountVisible;
+                    Visible = DebCredAmountVisible and IsForeignCurrency;
                 }
                 field(RunningBalanceLCY; CalcRunningAccBalance.GetBankAccBalanceLCY(Rec))
                 {
@@ -142,7 +142,7 @@ page 372 "Bank Account Ledger Entries"
                     ToolTip = 'Specifies the running balance in LCY.';
                     AutoFormatType = 1;
                     AutoFormatExpression = '';
-                    Visible = false;
+                    Visible = IsForeignCurrency;
                 }
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
