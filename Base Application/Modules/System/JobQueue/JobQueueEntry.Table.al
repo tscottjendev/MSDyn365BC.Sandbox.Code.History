@@ -745,17 +745,12 @@ table 472 "Job Queue Entry"
     procedure CheckRequiredPermissions()
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
-        DummyJobQueueEntry: Record "Job Queue Entry";
-        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
-        if not DummyJobQueueEntry.WritePermission() then
-            Error(NoPermissionsErr, DummyJobQueueEntry.TableName());
-
         if not DummyJobQueueLogEntry.WritePermission() then
             Error(NoPermissionsErr, DummyJobQueueLogEntry.TableName());
 
@@ -769,17 +764,12 @@ table 472 "Job Queue Entry"
     procedure HasRequiredPermissions(): Boolean
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
-        DummyJobQueueEntry: Record "Job Queue Entry";
-        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
-        if not DummyJobQueueEntry.WritePermission() then
-            exit(false);
-
         if not DummyJobQueueLogEntry.WritePermission() then
             exit(false);
 
