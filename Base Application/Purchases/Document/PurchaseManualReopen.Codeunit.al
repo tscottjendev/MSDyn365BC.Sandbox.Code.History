@@ -2,16 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Purchases.Document;
 
-codeunit 4144 "Purchase Manual Reopen"
+namespace System.Test.Email;
+
+using System.Email;
+
+pageextension 134487 "Email Editor Ext" extends "Email Editor"
 {
-    TableNo = "Purchase Header";
-
-    trigger OnRun()
+    trigger OnOpenPage()
     var
-        ReleasePurchaseDocument: Codeunit "Release Purchase Document";
+        EmailEditorValues: Codeunit "Email Editor Values";
     begin
-        ReleasePurchaseDocument.PerformManualReopen(Rec);
+        DefaultExitOption := EmailEditorValues.GetDefaultExitOption();
     end;
 }

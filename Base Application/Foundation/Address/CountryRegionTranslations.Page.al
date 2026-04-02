@@ -2,31 +2,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Foundation.Address;
 
-page 80 "Country/Region Translations"
+namespace System.Test.Integration.Excel;
+
+using System.Integration.Excel;
+page 132527 "Edit in Excel List 2"
 {
-    Caption = 'Country/Region Translations';
     PageType = List;
     ApplicationArea = All;
-    UsageCategory = None;
-    SourceTable = "Country/Region Translation";
+    UsageCategory = Lists;
+    SourceTable = "Edit in Excel Settings";
 
     layout
     {
         area(Content)
         {
-            repeater(Lines)
+            repeater(GroupName)
             {
-                field("Language Code"; Rec."Language Code")
+                field("Use Centralized deployments"; Rec."Use Centralized deployments")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the Language Code.';
-                }
-                field(Name; Rec.Name)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies the translation of the name.';
+                    ToolTip = 'Specifies if Edit in Excel should use centralized deployments';
                 }
             }
         }

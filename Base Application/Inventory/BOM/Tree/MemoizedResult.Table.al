@@ -2,35 +2,33 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Inventory.BOM.Tree;
 
-table 5871 "Memoized Result"
+namespace System.Test.DataAdministration;
+
+table 135018 "Test Media Cleanup"
 {
-    Caption = 'Memoized Result';
     DataClassification = CustomerContent;
+    InherentPermissions = RIMDX;
+    InherentEntitlements = RIMDX;
 
     fields
     {
-        field(1; Input; Decimal)
+        field(1; "Primary Key"; Integer)
         {
-            Caption = 'Input';
         }
-        field(2; Output; Boolean)
+        field(2; "Test Media"; Media)
         {
-            Caption = 'Output';
+        }
+        field(3; "Test Media Set"; MediaSet)
+        {
         }
     }
 
     keys
     {
-        key(Key1; Input)
+        key(PK; "Primary Key")
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-

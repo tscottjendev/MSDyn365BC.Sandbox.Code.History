@@ -2,13 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Sales.FinanceCharge;
 
-enum 5 "Interest Calculation Method"
+namespace System.TestLibraries.Visualization;
+
+using System.Visualization;
+codeunit 135058 "Cues And KPIs Test Library"
 {
-    Extensible = true;
-    AssignmentCompatibility = true;
-
-    value(0; "Average Daily Balance") { Caption = 'Average Daily Balance'; }
-    value(1; "Balance Due") { Caption = 'Balance Due'; }
+    procedure DeleteAllSetup()
+    var
+        CueSetup: Record "Cue Setup";
+    begin
+        CueSetup.DeleteAll();
+    end;
 }

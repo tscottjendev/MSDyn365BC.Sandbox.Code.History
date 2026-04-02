@@ -2,11 +2,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Currency;
 
-codeunit 597 "Exch. Rate Adjmt. Subscribers"
+namespace System.TestLibraries.DateTime;
+
+
+permissionset 134691 "Recurrence View"
 {
-
-// Reserved for implementation country specific code using subscribers 
-
+    Assignable = true;
+    // No permissions required
 }
