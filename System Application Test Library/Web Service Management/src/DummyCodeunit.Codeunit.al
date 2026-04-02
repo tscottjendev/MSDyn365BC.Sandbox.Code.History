@@ -3,8 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Integration;
+namespace System.Tooling;
 
-codeunit 139044 "Dummy Codeunit"
+enum 149004 "BCPT Test Param. Enum" implements "BCPT Test Param. Provider"
 {
+    Extensible = true;
 }

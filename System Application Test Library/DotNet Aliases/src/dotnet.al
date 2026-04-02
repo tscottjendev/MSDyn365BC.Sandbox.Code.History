@@ -2,15 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Consolidation;
 
-namespace System.Test.Library;
-
-dotnet
+enum 404 "Consolidation Method" implements "Consolidation Method"
 {
-    assembly("MockTest")
+    Extensible = true;
+    value(0; Default)
     {
-        type("MockTest.MockAzureKeyVaultSecret.MockAzureKeyVaultSecretProvider"; "MockAzureKeyVaultSecretProvider")
-        {
-        }
+        Implementation = "Consolidation Method" = "Default Consolidation Method";
     }
 }

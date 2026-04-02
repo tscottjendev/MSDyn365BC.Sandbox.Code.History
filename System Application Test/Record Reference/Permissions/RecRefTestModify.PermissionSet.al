@@ -3,16 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Test.Reflection;
+namespace System.TestTools.AITestToolkit;
 
-/// <summary>
-/// This permissionset should only grant INDIRECT permissions
-/// </summary>
-permissionset 138708 "RecRefTest-Modify"
+permissionset 149033 "AI Test Toolkit - Read"
 {
-    Assignable = false;
     Access = Internal;
-    IncludedPermissionSets = "RecRefTest-Object";
 
-    Permissions = tabledata "Record Reference Test" = m;
+    IncludedPermissionSets = "AI Test Toolkit - Obj";
+
+    Permissions = tabledata "AIT Run History" = R,
+        tabledata "AIT Test Suite" = R,
+        tabledata "AIT Test Method Line" = R,
+        tabledata "AIT Log Entry" = R;
 }

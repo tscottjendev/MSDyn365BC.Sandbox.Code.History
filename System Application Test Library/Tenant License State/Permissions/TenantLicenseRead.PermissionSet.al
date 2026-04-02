@@ -2,13 +2,24 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
 
-namespace System.TestLibraries.Environment;
-
-using System.Environment;
-
-permissionset 138077 "Tenant License Read"
+page 539 "Dimension Value Combinations"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Tenant License State - Read";
+    Caption = 'Dimension Value Combinations';
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    LinksAllowed = false;
+    PageType = Card;
+    SaveValues = true;
+    SourceTable = "Dimension Value";
+
+    layout
+    {
+    }
+
+    actions
+    {
+    }
 }
+
