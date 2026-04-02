@@ -3,12 +3,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Media;
+namespace System.TestTools.TestRunner;
 
-permissionset 135038 "Video Read"
+profile TestRoleCenter
 {
-    Assignable = true;
-
-    // Add Test Tables
-    Permissions = tabledata "My Video Source" = RIMD;
+    Description = 'Test Role Center';
+    Caption = 'Test Role Center';
+    RoleCenter = "Test Role Center";
 }
