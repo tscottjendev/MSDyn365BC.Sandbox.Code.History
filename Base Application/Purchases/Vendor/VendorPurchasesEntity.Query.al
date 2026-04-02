@@ -1,13 +1,11 @@
-// ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-// ------------------------------------------------------------------------------------------------
-namespace Microsoft.Purchases.Vendor;
+namespace Microsoft.API.V1;
 
+using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Payables;
 
-query 5481 "Vendor Purchases Entity"
+query 20001 "APIV1 - Vendor Purchases"
 {
+    APIVersion = 'v1.0';
     Caption = 'vendorPurchases', Locked = true;
     EntityName = 'vendorPurchase';
     EntitySetName = 'vendorPurchases';
@@ -15,11 +13,11 @@ query 5481 "Vendor Purchases Entity"
 
     elements
     {
-        dataitem(Vendor; Vendor)
+        dataitem(QueryElement1; Vendor)
         {
             column(vendorId; SystemId)
             {
-                Caption = 'Id', Locked = true;
+                Caption = 'SystemId', Locked = true;
             }
             column(vendorNumber; "No.")
             {
@@ -29,9 +27,9 @@ query 5481 "Vendor Purchases Entity"
             {
                 Caption = 'Name', Locked = true;
             }
-            dataitem(Vendor_Ledger_Entry; "Vendor Ledger Entry")
+            dataitem(QueryElement3; "Vendor Ledger Entry")
             {
-                DataItemLink = "Vendor No." = Vendor."No.";
+                DataItemLink = "Vendor No." = QueryElement1."No.";
                 SqlJoinType = LeftOuterJoin;
                 column(totalPurchaseAmount; "Purchase (LCY)")
                 {

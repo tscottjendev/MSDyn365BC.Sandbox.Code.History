@@ -1,20 +1,17 @@
-// ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-// ------------------------------------------------------------------------------------------------
-namespace Microsoft.Integration.D365Sales;
+namespace Microsoft.Integration.MDM;
 
-using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 
-page 5331 "CRM Full Synch. Review"
+
+page 7234 "Master Data Full Synch. Review"
 {
-    Caption = 'Dataverse Full Synch. Review';
+    Caption = 'Master Data Initial Synchronization';
     PageType = Worksheet;
-    SourceTable = "CRM Full Synch. Review Line";
+    SourceTable = "Master Data Full Synch. R. Ln.";
     InsertAllowed = false;
     ModifyAllowed = false;
     DeleteAllowed = true;
+    Permissions = tabledata "Master Data Full Synch. R. Ln." = imd;
 
     layout
     {
@@ -23,8 +20,9 @@ page 5331 "CRM Full Synch. Review"
             repeater(Group)
             {
                 Editable = false;
-                field(Name; Rec.Name)
+                field(Name; Rec.GetTableName())
                 {
+                    Caption = 'Table Name';
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name.';
                 }
@@ -50,17 +48,20 @@ page 5331 "CRM Full Synch. Review"
                     ApplicationArea = Suite;
                     Caption = 'Active Session';
                     ToolTip = 'Specifies whether the session is active.';
+                    Visible = false;
                 }
                 field(Direction; Rec.Direction)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the synchronization direction.';
+                    Visible = false;
                 }
                 field("To Int. Table Job Status"; Rec."To Int. Table Job Status")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = ToIntTableJobStatusStyle;
-                    ToolTip = 'Specifies the status of jobs for data going to the integration table. ';
+                    ToolTip = 'Specifies the status of jobs for data going to the source table. ';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -71,7 +72,8 @@ page 5331 "CRM Full Synch. Review"
                 {
                     ApplicationArea = Suite;
                     StyleExpr = FromIntTableJobStatusStyle;
-                    ToolTip = 'Specifies the status of jobs for data coming from the integration table. ';
+                    ToolTip = 'Specifies the status of jobs for data coming from the source table. ';
+                    Caption = 'Job Status';
 
                     trigger OnDrillDown()
                     begin
@@ -80,7 +82,7 @@ page 5331 "CRM Full Synch. Review"
                 }
                 field("Initial Synchronization Recommendation"; InitialSynchRecommendation)
                 {
-                    Caption = 'Recommendation';
+                    Caption = 'Synchronization Mode';
                     ApplicationArea = Suite;
                     Enabled = SynchRecommendationDrillDownEnabled;
                     StyleExpr = InitialSynchRecommendationStyle;
@@ -97,20 +99,10 @@ page 5331 "CRM Full Synch. Review"
                         if not IntegrationTableMapping.Get(Rec.Name) then
                             exit;
 
-                        IntegrationFieldMapping.SetMatchBasedCouplingFilters(IntegrationTableMapping);
+                        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+                        IntegrationFieldMapping.SetRange("Constant Value", '');
                         if Page.RunModal(Page::"Match Based Coupling Criteria", IntegrationFieldMapping) = Action::LookupOK then
                             CurrPage.Update(false);
-                    end;
-                }
-                field("Multi Company Synch. Enabled"; Rec."Multi Company Synch. Enabled")
-                {
-                    ApplicationArea = Suite;
-                    Visible = MultiCompanyCheckboxEnabled;
-                    ToolTip = 'Specifies if the multi-company synchronization should be enabled for the corresponding integration table mapping.';
-
-                    trigger OnValidate()
-                    begin
-                        Message(ResetToApplyTxt);
                     end;
                 }
             }
@@ -124,24 +116,19 @@ page 5331 "CRM Full Synch. Review"
             action(Start)
             {
                 ApplicationArea = Suite;
-                Caption = 'Sync All';
+                Caption = 'Start All';
                 Enabled = ActionStartEnabled;
                 Image = Start;
-                ToolTip = 'Start all the default integration projects for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page. Mappings with finished project status will be skipped.';
+                ToolTip = 'Start all the default integration jobs for synchronizing data from the chosen source company, as defined on the Synchronization Tables page. Tables with finished job status will be skipped.';
 
                 trigger OnAction()
                 var
-                    CDSConnectionSetup: Record "CDS Connection Setup";
-                    CRMSynchHelper: Codeunit "CRM Synch. Helper";
-                    OwnershipModel: Option;
-                    handled: Boolean;
+                    MasterDataManagement: Codeunit "Master Data Management";
                     QuestionTxt: Text;
                 begin
-                    CRMSynchHelper.OnGetCDSOwnershipModel(OwnershipModel, handled);
-                    if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
-                        QuestionTxt := StartInitialSynchTeamOwnershipModelQst
-                    else
-                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short(), CRMProductName.CDSServiceName());
+                    MasterDataManagement.CheckUsagePermissions();
+                    MasterDataManagement.CheckTaskSchedulePermissions();
+                    QuestionTxt := StartInitialSynchTeamOwnershipModelQst;
                     if Confirm(QuestionTxt) then
                         Rec.Start();
                 end;
@@ -152,11 +139,15 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Restart';
                 Enabled = ActionRestartEnabled;
                 Image = Refresh;
-                ToolTip = 'Restart the integration project for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
+                ToolTip = 'Restart the synchronization for the selected table.';
+
                 trigger OnAction()
+                var
+                    MasterDataManagement: Codeunit "Master Data Management";
                 begin
+                    MasterDataManagement.CheckUsagePermissions();
                     Rec.Delete();
-                    Rec.Generate(InitialSynchRecommendations, DeletedLines);
+                    Rec.Generate(InitialSynchRecommendations, true, DeletedLines);
                     Rec.Start();
                 end;
             }
@@ -166,54 +157,45 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Reset';
                 Enabled = ActionResetEnabled;
                 Image = ResetStatus;
-                ToolTip = 'Removes all lines, readds all Integration Table Mappings and recalculates synchronization recommendations.';
+                ToolTip = 'Removes all lines, readds all default tables and recalculates synchronization modes.';
                 trigger OnAction()
                 begin
                     Rec.DeleteAll();
                     Clear(InitialSynchRecommendations);
                     Clear(DeletedLines);
-                    Rec.Generate();
+                    Rec.Generate(true);
                 end;
             }
             action(ScheduleFullSynch)
             {
                 ApplicationArea = Suite;
-                Caption = 'Recommend Full Synchronization';
+                Caption = 'Use Full Synchronization';
                 Enabled = ActionRecommendFullSynchEnabled;
                 Image = RefreshLines;
-                ToolTip = 'Recommend full synchronization job for the selected line.';
+                ToolTip = 'This will create new coupled records based on the records from source company.';
 
                 trigger OnAction()
                 begin
                     if InitialSynchRecommendations.ContainsKey(Rec.Name) then
                         InitialSynchRecommendations.Remove(Rec.Name);
                     InitialSynchRecommendations.Add(Rec.Name, Rec."Initial Synch Recommendation"::"Full Synchronization");
-                    Rec.Delete();
-                    Rec.Generate(InitialSynchRecommendations, DeletedLines);
+                    Rec.Generate(InitialSynchRecommendations, true, DeletedLines);
                 end;
             }
-            action(ToggleMultiCompany)
+            action(ScheduleMatchBasedCpl)
             {
                 ApplicationArea = Suite;
-                Caption = 'Toggle Multi-Company Synchronization';
-                Visible = MultiCompanyCheckboxEnabled;
-                Image = ToggleBreakpoint;
-                ToolTip = 'Toggle multi-company synchronization for this table mapping.';
+                Caption = 'Use Match-Based Coupling';
+                Enabled = ActionRecommendMatchBasedCouplingEnabled;
+                Image = RefreshLines;
+                ToolTip = 'This will try to match the existing local records with the records from source company, based on the criteria that you define.';
 
                 trigger OnAction()
-                var
-                    IntegrationTableMapping: Record "Integration Table Mapping";
                 begin
-                    Rec.Validate("Multi Company Synch. Enabled", (not Rec."Multi Company Synch. Enabled"));
-                    Commit();
-
                     if InitialSynchRecommendations.ContainsKey(Rec.Name) then
                         InitialSynchRecommendations.Remove(Rec.Name);
-
-                    IntegrationTableMapping.Get(Rec.Name);
-                    InitialSynchRecommendations.Add(Rec.Name, Rec.GetInitialSynchRecommendation(IntegrationTableMapping, InitialSynchRecommendations));
-                    Rec.Delete();
-                    Rec.Generate(InitialSynchRecommendations, DeletedLines);
+                    InitialSynchRecommendations.Add(Rec.Name, Rec."Initial Synch Recommendation"::"Couple Records");
+                    Rec.Generate(InitialSynchRecommendations, true, DeletedLines);
                 end;
             }
         }
@@ -229,13 +211,10 @@ page 5331 "CRM Full Synch. Review"
                 actionref(Restart_Promoted; Restart)
                 {
                 }
-                actionref(Reset_Promoted; Reset)
-                {
-                }
                 actionref(ScheduleFullSynch_Promoted; ScheduleFullSynch)
                 {
                 }
-                actionref(ToggleMultiCompany_Promoted; ToggleMultiCompany)
+                actionref(ScheduleMatchBasedCpl_Promoted; ScheduleMatchBasedCpl)
                 {
                 }
             }
@@ -250,6 +229,7 @@ page 5331 "CRM Full Synch. Review"
         ActionResetEnabled := (not Rec.IsThereActiveSessionInProgress());
         ActionRestartEnabled := (not Rec.IsThereActiveSessionInProgress()) and ((Rec."Job Queue Entry Status" = Rec."Job Queue Entry Status"::Error) or (Rec."Job Queue Entry Status" = Rec."Job Queue Entry Status"::Finished));
         ActionRecommendFullSynchEnabled := ActionResetEnabled and (Rec."Initial Synch Recommendation" = Rec."Initial Synch Recommendation"::"Couple Records");
+        ActionRecommendMatchBasedCouplingEnabled := ActionResetEnabled and (Rec."Initial Synch Recommendation" = Rec."Initial Synch Recommendation"::"Full Synchronization");
         JobQueueEntryStatusStyle := Rec.GetStatusStyleExpression(Format(Rec."Job Queue Entry Status"));
         ToIntTableJobStatusStyle := Rec.GetStatusStyleExpression(Format(Rec."To Int. Table Job Status"));
         FromIntTableJobStatusStyle := Rec.GetStatusStyleExpression(Format(Rec."From Int. Table Job Status"));
@@ -267,19 +247,16 @@ page 5331 "CRM Full Synch. Review"
                 InitialSynchRecommendation := CouplingCriteriaSelectedTxt
         end;
         if InitialSynchRecommendation = CouplingCriteriaSelectedTxt then
-            InitialSynchRecommendationStyle := 'Favorable'
+            InitialSynchRecommendationStyle := 'Subordinate'
         else
             InitialSynchRecommendationStyle := Rec.GetInitialSynchRecommendationStyleExpression(Format(Rec."Initial Synch Recommendation"));
         SynchRecommendationDrillDownEnabled := (InitialSynchRecommendation in [MatchBasedCouplingTxt, CouplingCriteriaSelectedTxt]);
     end;
 
     trigger OnOpenPage()
-    var
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
         Clear(DeletedLines);
-        Rec.Generate(SkipEntitiesNotFullSyncReady);
-        MultiCompanyCheckboxEnabled := CDSIntegrationImpl.MultipleCompaniesConnected();
+        Rec.Generate(true);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -287,32 +264,24 @@ page 5331 "CRM Full Synch. Review"
         DeletedLines.Add(Rec.Name);
     end;
 
-    [Scope('OnPrem')]
-    procedure SetSkipEntitiesNotFullSyncReady()
-    begin
-        SkipEntitiesNotFullSyncReady := true;
-    end;
-
     var
-        CRMProductName: Codeunit "CRM Product Name";
         ActionStartEnabled: Boolean;
         ActionResetEnabled: Boolean;
         ActionRestartEnabled: Boolean;
         ActionRecommendFullSynchEnabled: Boolean;
-        SkipEntitiesNotFullSyncReady: Boolean;
+        ActionRecommendMatchBasedCouplingEnabled: Boolean;
         SynchRecommendationDrillDownEnabled: Boolean;
-        MultiCompanyCheckboxEnabled: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
         DeletedLines: List of [Code[20]];
         JobQueueEntryStatusStyle: Text;
         ToIntTableJobStatusStyle: Text;
         FromIntTableJobStatusStyle: Text;
-        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = Dataverse service name';
-        StartInitialSynchTeamOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Do you want to continue?';
+        StartInitialSynchTeamOwnershipModelQst: Label 'This will synchronize all coupled and non-coupled records. \\Use this option only once - right after enabling the data synchronization with the source company. After this, scheduled synchronization jobs will keep running the synchronization and you can view the logs and manage the synchronization from Synchronization Tables page. \\The initial synchronization will run in the background, so you can continue with other tasks. \\To check the status, return to this page or refresh it. \\Do you want to continue?';
         InitialSynchRecommendation: Text;
         InitialSynchRecommendationStyle: Text;
         MatchBasedCouplingTxt: Label 'Select Coupling Criteria';
-        CouplingCriteriaSelectedTxt: Label 'Review Selected Coupling Criteria';
-        ResetToApplyTxt: Label 'Choose action ''Reset'' to apply the change.';
+        CouplingCriteriaSelectedTxt: Label 'Match-Based Coupling';
 }
+
+
 

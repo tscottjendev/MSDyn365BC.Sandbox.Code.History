@@ -1,17 +1,13 @@
-// ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-// ------------------------------------------------------------------------------------------------
-namespace Microsoft.Foundation.Comment;
+namespace Microsoft.Bank.Deposit;
 
-page 5183 "Comment Sheet Archive"
+page 1698 "Bank Acc. Comment List"
 {
-    AutoSplitKey = true;
-    Caption = 'Comment Sheet Archive';
+    Caption = 'Bank Account Comment List';
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
-    SourceTable = "Comment Line Archive";
+    SourceTable = "Bank Acc. Comment Line";
+    Permissions = tabledata "Bank Acc. Comment Line" = rimd;
 
     layout
     {
@@ -20,6 +16,11 @@ page 5183 "Comment Sheet Archive"
             repeater(Control1)
             {
                 ShowCaption = false;
+                field("No."; Rec."No.")
+                {
+                    ApplicationArea = Comments;
+                    ToolTip = 'Specifies the number of the account, bank account, customer, vendor or item to which the comment applies.';
+                }
                 field(Date; Rec.Date)
                 {
                     ApplicationArea = Comments;
