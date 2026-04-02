@@ -2,21 +2,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Pricing.PriceList;
+namespace Microsoft.Finance.VAT.Group;
 
-enum 7005 "Price Status"
+enum 4703 "VAT Group BC Version"
 {
-    Extensible = true;
-    value(0; Draft)
+    value(0; BC)
     {
-        Caption = 'Draft';
+        Caption = 'Business Central';
     }
-    value(1; Active)
+    value(1; NAV2018)
     {
-        Caption = 'Active';
+        Caption = 'Dynamics NAV 2018';
     }
-    value(2; Inactive)
+    value(2; NAV2017)
     {
-        Caption = 'Inactive';
+        Caption = 'Dynamics NAV 2016-2017';
     }
 }
