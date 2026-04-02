@@ -2,41 +2,42 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Dimension;
 
-table 373 "Dimension Entry Buffer"
+namespace System.TestLibraries.Reflection;
+
+table 135037 "Test Table B"
 {
-    Caption = 'Dimension Entry Buffer';
+    DataClassification = SystemMetadata;
     ReplicateData = false;
-    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; "No."; Integer)
+        field(1; MyField; Integer)
         {
-            Caption = 'No.';
             DataClassification = SystemMetadata;
+
         }
-        field(2; "Dimension Entry No."; Integer)
+
+        field(2; MyField2; Decimal)
         {
-            Caption = 'Dimension Entry No.';
             DataClassification = SystemMetadata;
+            AutoFormatType = 0;
+        }
+
+        field(3; MyField3; Text[50])
+        {
+            DataClassification = SystemMetadata;
+
         }
     }
 
     keys
     {
-        key(Key1; "No.")
+        key(PK; MyField)
         {
             Clustered = true;
         }
-        key(Key2; "Dimension Entry No.")
-        {
-        }
     }
 
-    fieldgroups
-    {
-    }
+
 }
-
