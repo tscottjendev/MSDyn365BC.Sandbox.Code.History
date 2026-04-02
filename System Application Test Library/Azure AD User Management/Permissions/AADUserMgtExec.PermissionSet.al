@@ -3,12 +3,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Azure.ActiveDirectory;
+namespace System.Security.AccessControl;
 
-using System.Azure.Identity;
+using System.Agents;
 
-permissionset 132914 "AAD User Mgt Exec"
+permissionset 4305 "Agent - Admin"
 {
     Assignable = true;
-    IncludedPermissionSets = "AAD User Management - Exec";
+    Caption = 'Agent administrator';
+    IncludedPermissionSets = "D365 Agent";
+    Permissions =
+        tabledata "Access Control" = RIMD,
+        tabledata Agent = RIMD,
+        system "Configure All Agents" = X,
+        system "Create Custom Agent" = X;
 }

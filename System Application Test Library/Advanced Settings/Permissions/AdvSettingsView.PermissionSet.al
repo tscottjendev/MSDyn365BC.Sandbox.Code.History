@@ -3,12 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Environment.Configuration;
+namespace System.Test.Tooling;
 
-using System.Environment.Configuration;
+using System.Reflection;
 
-permissionset 132589 "Adv. Settings View"
+codeunit 144759 "BCPT Codeunit With 1 Sql"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Advanced Settings - View";
+    trigger OnRun()
+    var
+        ObjectMetadata: Record "Object Metadata";
+    begin
+        if ObjectMetadata.IsEmpty() then;
+    end;
 }

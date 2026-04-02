@@ -2,13 +2,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-
-namespace System.Test.Security.AccessControl;
+namespace System.Device.UniversalPrint;
 
 using System.Security.AccessControl;
-
-permissionset 132438 "Permission Set A"
+permissionsetextension 2751 "D365 BASIC - Microsoft Universal Print" extends "D365 BASIC"
 {
-    Assignable = false;
-    Permissions = tabledata "Tenant Permission" = RIMD;
+    IncludedPermissionSets = "MS Universal Print - Admin";
 }
