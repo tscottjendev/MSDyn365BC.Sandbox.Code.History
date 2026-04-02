@@ -2,28 +2,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Privacy;
 
-table 9190 "Terms And Conditions"
+namespace System.TestLibraries.Integration.Excel;
+table 132525 "Edit In Excel Test Table"
 {
-    Caption = 'Terms And Conditions';
-    DataPerCompany = false;
+    DataClassification = SystemMetadata;
     ReplicateData = false;
-    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "No."; Code[20])
         {
-            Caption = 'No.';
         }
-        field(2; Description; Text[250])
+
+        field(2; MyField; Blob)
         {
-            Caption = 'Description';
-        }
-        field(3; "Valid From"; Date)
-        {
-            Caption = 'Valid From';
         }
     }
 
@@ -34,9 +27,4 @@ table 9190 "Terms And Conditions"
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-
