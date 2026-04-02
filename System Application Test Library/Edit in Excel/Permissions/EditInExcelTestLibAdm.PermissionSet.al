@@ -2,14 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace System.Device.UniversalPrint;
 
-namespace System.TestLibraries.Integration.Excel;
-permissionset 132525 "Edit in Excel Test Lib. - Adm"
+permissionset 2757 "UniversalPrint - Edit"
 {
     Assignable = false;
+    Access = Public;
+    Caption = 'MicrosoftUniversalPrint - Edit';
 
-    IncludedPermissionSets = "Edit in Excel Test Lib. - Obj.";
+    IncludedPermissionSets = "UniversalPrint - Read";
 
-    Permissions =
-        tabledata "Edit In Excel Test Table" = RIMD; // solves AS0103, PTE0004
+    Permissions = tabledata "Universal Printer Settings" = IMD,
+                    tabledata "Universal Print Share Buffer" = IMD;
 }
