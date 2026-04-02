@@ -3,17 +3,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Reflection;
+namespace System.TestTools.AITestToolkit;
+using System.TestTools.TestRunner;
 
-using System.Reflection;
-
-permissionset 135036 "Field Selection Read"
+permissionset 149030 "AI Test Toolkit"
 {
+    Caption = 'Business Central AI Test Toolkit';
+    Access = Public;
     Assignable = true;
 
-    IncludedPermissionSets = "Field Selection - Read";
+    IncludedPermissionSets = "AI Test Toolkit - View";
 
-    // Include Test Tables
-    Permissions = tabledata "Test Table A" = RIMD,
-                  tabledata "Test Table B" = RIMD;
+    Permissions = tabledata "Test Input" = RIMD,
+                  tabledata "Test Method Line" = RIMD;
 }

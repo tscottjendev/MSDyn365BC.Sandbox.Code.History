@@ -3,10 +3,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Azure.ActiveDirectory;
+namespace System.Tooling;
 
-permissionset 138458 "AAD Licensing Exec"
+interface "BCPT Test Param. Provider"
 {
-    Assignable = true;
-    // No permissions required.
+    procedure GetDefaultParameters(): Text[1000];
+
+    procedure ValidateParameters(Params: Text[1000]);
 }

@@ -2,29 +2,26 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension.Correction;
 
-namespace System.TestLibraries.ExternalFileStorage;
+using Microsoft.Finance.Dimension;
 
-table 135810 "Test File Account"
+table 2580 "Dim Correction Blocked Setup"
 {
-    DataClassification = SystemMetadata;
-    ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; Id; Guid)
+        field(1; "Dimension Code"; Code[20])
         {
-            Caption = 'Primary Key';
-        }
-        field(2; Name; Text[250])
-        {
-            Caption = 'Name';
+            DataClassification = CustomerContent;
+            TableRelation = Dimension.Code;
         }
     }
 
     keys
     {
-        key(PK; Id)
+        key(Key1; "Dimension Code")
         {
             Clustered = true;
         }
