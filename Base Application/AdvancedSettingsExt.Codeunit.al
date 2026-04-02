@@ -2,14 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Environment.Configuration;
 
-codeunit 9203 "Advanced Settings Ext."
+namespace System.Test.Environment.Configuration;
+
+codeunit 132610 "Checklist Test Codeunit"
 {
-    Access = Public;
+    trigger OnRun()
+    begin
+        OnChecklistTestCodeunitRun();
+    end;
 
     [IntegrationEvent(false, false)]
-    internal procedure OnBeforeOpenCompanySettings(var PageID: Integer; var Handled: Boolean)
+    local procedure OnChecklistTestCodeunitRun()
     begin
     end;
 }
