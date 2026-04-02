@@ -2,20 +2,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft;
 
-codeunit 7777 "Connectivity Apps Mgt."
+namespace System.Test.Environment.Configuration;
+
+report 132610 "Checklist Test Report"
 {
-    procedure IsBankingAppAvailable(): Boolean
-    var
-        Result: Boolean;
+    ProcessingOnly = true;
+
+    trigger OnPostReport()
     begin
-        OnIsBankingAppAvailable(Result);
-        exit(Result);
+        OnChecklistTestReportPostRun();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnIsBankingAppAvailable(var Result: Boolean)
+    local procedure OnChecklistTestReportPostRun()
     begin
     end;
 }
