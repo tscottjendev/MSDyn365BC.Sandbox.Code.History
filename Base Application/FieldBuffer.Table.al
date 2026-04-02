@@ -2,46 +2,40 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Reflection;
 
-table 8450 "Field Buffer"
+namespace System.Test.Reflection;
+
+table 138706 "Record Reference Test"
 {
-    Caption = 'Field Buffer';
-    ReplicateData = false;
-    DataClassification = CustomerContent;
+    Access = Internal;
+    DataClassification = SystemMetadata;
+    Caption = 'Record Reference Test Caption';
 
     fields
     {
-        field(1; "Order"; Integer)
+        field(1; "Entry No."; Integer)
         {
-            Caption = 'Order';
             DataClassification = SystemMetadata;
         }
-        field(2; "Table ID"; Integer)
+        field(2; "Description"; Text[30])
         {
-            Caption = 'Table ID';
             DataClassification = SystemMetadata;
         }
-        field(3; "Field ID"; Integer)
+        field(3; "Description 2"; Text[30])
         {
-            Caption = 'Field ID';
+            DataClassification = SystemMetadata;
+        }
+        field(4; "Description 3"; Text[30])
+        {
             DataClassification = SystemMetadata;
         }
     }
 
     keys
     {
-        key(Key1; "Order")
+        key(PrimaryKey; "Entry No.")
         {
             Clustered = true;
         }
-        key(Key2; "Table ID", "Field ID")
-        {
-        }
-    }
-
-    fieldgroups
-    {
     }
 }
-

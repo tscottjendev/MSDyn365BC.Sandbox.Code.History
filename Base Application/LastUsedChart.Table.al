@@ -2,38 +2,36 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AA0247
-table 1311 "Last Used Chart"
+
+namespace System.TestLibraries.DataAdministration;
+
+table 138703 "Retention Policy Test Data 4"
 {
-    Caption = 'Last Used Chart';
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {
-        field(1; UID; Code[50])
+        field(1; "Entry No."; Integer)
         {
-            Caption = 'UID';
+            AutoIncrement = true;
         }
-        field(2; "Code Unit ID"; Integer)
+        field(2; "Date Field"; Date)
         {
-            Caption = 'Code Unit ID';
         }
-        field(3; "Chart Name"; Text[60])
+        field(3; "DateTime Field"; DateTime)
         {
-            Caption = 'Chart Name';
+        }
+        field(4; Description; Text[100])
+        {
         }
     }
 
     keys
     {
-        key(Key1; UID)
+        key(PK; "Entry No.")
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-

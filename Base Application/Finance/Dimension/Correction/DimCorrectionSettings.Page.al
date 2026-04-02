@@ -2,25 +2,30 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Dimension.Correction;
 
-page 2582 "Dim Correction Settings"
+namespace System.TestLibraries.MCP;
+
+page 130132 "Mock Card"
 {
-    PageType = ListPlus;
+    PageType = Card;
     ApplicationArea = All;
     UsageCategory = Administration;
-    Caption = 'Dimension Correction Settings';
-    AdditionalSearchTerms = 'dimension correction setup';
 
     layout
     {
         area(Content)
         {
-            part(DimCorrectionBlockedSetup; "Dim Correction Blocked Setup")
+            group(GroupName)
             {
-                ApplicationArea = All;
-                Caption = 'Dimensions Blocked For Correction';
+                field(Name; NameSource)
+                {
+                    Caption = 'Name';
+                    ToolTip = 'Specifies the name.';
+                }
             }
         }
     }
+
+    var
+        NameSource: Text[100];
 }

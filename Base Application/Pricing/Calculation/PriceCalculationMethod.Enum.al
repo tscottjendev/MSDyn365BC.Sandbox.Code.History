@@ -2,17 +2,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Pricing.Calculation;
 
-enum 7000 "Price Calculation Method"
+namespace System.TestLibraries.Integration;
+enum 132548 "Page Provider Summary Test"
 {
-    Extensible = true;
+    Extensible = false;
 
-    value(0; " ")
+    value(1; Value1)
     {
     }
-    value(1; "Lowest Price")
+    value(2; Value2)
     {
-        Caption = 'Lowest Price';
+    }
+    value(3; Value3)
+    {
     }
 }
