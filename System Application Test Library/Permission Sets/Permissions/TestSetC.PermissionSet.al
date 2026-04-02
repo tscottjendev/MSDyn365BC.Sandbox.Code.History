@@ -2,16 +2,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-
-namespace System.TestLibraries.Security.AccessControl;
+namespace System.Device.UniversalPrint;
 
 using System.Security.AccessControl;
-permissionset 133403 "Test Set C"
+permissionsetextension 2752 "D365 BUS FULL ACCESS - Microsoft Universal Print" extends "D365 BUS FULL ACCESS"
 {
-    Assignable = false;
-
-    IncludedPermissionSets = "Test Set D";
-
-    Permissions = page "Permission Set" = X,
-                  page "Permission Set Subform" = X;
+    IncludedPermissionSets = "MS Universal Print - Admin";
 }

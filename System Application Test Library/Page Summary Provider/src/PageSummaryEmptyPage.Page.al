@@ -3,12 +3,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Integration;
+namespace System.Test.Tooling;
 
-page 132549 "Page Summary Empty Page"
+codeunit 144756 "BCPT Empty Codeunit"
 {
-    PageType = Card;
+    trigger OnRun()
+    begin
 
-
+    end;
 }
-

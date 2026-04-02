@@ -2,25 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.CashFlow;
 
-namespace System.TestLibraries.Integration.Word;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.Service.Document;
 
-table 130446 "Word Templates Test Table 4"
+tableextension 6470 "Serv. Cash Flow Forecast Entry" extends "Cash Flow Forecast Entry"
 {
-    DataClassification = SystemMetadata;
-    Caption = 'Word Templates Test Table 4';
-    ReplicateData = false;
-
     fields
     {
-        field(1; Code; Code[30])
+        modify("Source No.")
         {
-        }
-        field(2; "Value"; Text[100])
-        {
-        }
-        field(3; "Child Id"; BigInteger)
-        {
+            TableRelation = if ("Source Type" = const("Service Orders")) "Service Header"."No." where("Document Type" = const(Order));
         }
     }
 }
