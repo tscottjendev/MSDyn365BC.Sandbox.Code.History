@@ -49,7 +49,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
         EDocumentPurchaseLinesTxt: Text;
         SuccessfulAssignment: Boolean;
         GLAccountsTxt, Reasoning : Text;
-        LinesMatched: Integer;
+        LinesMatched, LinesConsidered: Integer;
         EstimateTokenCount, EstimateGLAccInstrTokenCount : Integer;
         LineDictionary: Dictionary of [Integer, Text[100]];
     begin
@@ -63,6 +63,7 @@ codeunit 6126 "Line To Account LLM Matching" implements "AOAI Function"
             Session.LogMessage('0000POF', 'No invoice lines are being sent to Copilot. There are either none, or they all have an account number.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
             exit(Result);
         end;
+        LinesConsidered := LineDictionary.Keys().Count();
         FindGLAccountsPromptSecTxt := BuildMostAppropriateGLAccountPromptTask();
         GLAccountsTxt := BuildGLAccounts();
         EstimateGLAccInstrTokenCount := AOAIToken.GetGPT4TokenCount(FindGLAccountsPromptSecTxt) + AOAIToken.GetGPT4TokenCount(GLAccountsTxt);
