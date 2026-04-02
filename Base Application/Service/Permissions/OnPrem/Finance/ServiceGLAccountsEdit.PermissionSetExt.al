@@ -2,14 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Security.AccessControl;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Pricing;
+namespace System.TestLibraries.ExternalFileStorage;
 
-permissionsetextension 6465 "Service G/L Accounts - Edit" extends "General Ledger Accounts - Edit"
+using System.ExternalFileStorage;
+
+permissionset 135810 "File Storage Admin"
 {
+    Assignable = true;
+    IncludedPermissionSets = "File Storage - Admin";
+
+    // Include Test Tables
     Permissions =
-                  tabledata "Service Contract Account Group" = r,
-                  tabledata "Service Cost" = r;
+        tabledata "Test File Connector Setup" = RIMD,
+        tabledata "Test File Account" = RIMD;
 }

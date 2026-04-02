@@ -2,28 +2,27 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Projects.Project.Ledger;
+namespace Microsoft.Finance.VAT.Group;
 
-tableextension 6459 "Serv. Job Ledger Entry" extends "Job Ledger Entry"
+using Microsoft.Finance.VAT.Reporting;
+
+tableextension 4703 "VAT Stmt. Rep. Line Extension" extends "VAT Statement Report Line"
 {
     fields
     {
-        field(5900; "Service Order No."; Code[20])
+        field(4700; "Representative Amount"; Decimal)
         {
-            Caption = 'Service Order No.';
             DataClassification = CustomerContent;
+            AutoFormatType = 1;
+            Caption = 'Representative Amount';
+            Editable = false;
         }
-        field(5901; "Posted Service Shipment No."; Code[20])
+        field(4701; "Group Amount"; Decimal)
         {
-            Caption = 'Posted Service Shipment No.';
             DataClassification = CustomerContent;
-        }
-    }
-
-    keys
-    {
-        key(Key6; "Service Order No.")
-        {
+            AutoFormatType = 1;
+            Caption = 'Group Amount';
+            Editable = false;
         }
     }
 }

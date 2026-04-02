@@ -2,27 +2,34 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Dimension.Correction;
 
-page 2580 "Dim Correction Blocked Setup"
+namespace System.Test.Integration.Excel;
+
+using System.TestLibraries.Integration.Excel;
+page 132526 "Edit In Excel Json"
 {
-    PageType = ListPart;
-    SourceTable = "Dim Correction Blocked Setup";
-    Caption = 'Dimensions Blocked for Correction';
+    PageType = List;
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    SourceTable = "Edit In Excel Test Table";
 
     layout
     {
         area(Content)
         {
-            repeater(BlockedDimensions)
+            repeater(GroupName)
             {
-                field(DimensionCode; Rec."Dimension Code")
+
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Dimension Code';
-                    ToolTip = 'Specifies the dimension that cannot be used for corrections.';
+                    ToolTip = 'Specifies the value of the No. field.';
                 }
             }
+        }
+        area(Factboxes)
+        {
+
         }
     }
 }

@@ -2,32 +2,32 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Intercompany.Setup;
 
-table 33 "Intercompany Setup Diagnostic"
+namespace System.TestLibraries.Visualization;
+
+table 135040 "Cues And KPIs Test 2 Cue"
 {
-    TableType = Temporary;
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {
-        field(1; Id; Code[20])
+        field(1; "Primary Key"; Code[10])
         {
-
         }
-        field(2; Description; Text[250])
+        field(10; NormalText; Text[100])
         {
-
         }
-        field(3; Status; Option)
+        field(15; NormalCode; Code[100])
         {
-            OptionMembers = Ok,Warning,Error;
         }
     }
+
     keys
     {
-        key(Key1; Id, Description)
+        key(PK; "Primary Key")
         {
+            Clustered = true;
         }
     }
 }
