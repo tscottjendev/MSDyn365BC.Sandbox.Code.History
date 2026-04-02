@@ -2,15 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
-namespace System.TestLibraries.Integration.Sharepoint;
-
-using System.Integration.Sharepoint;
-
-codeunit 132972 "Dummy SharePoint Authorization" implements "SharePoint Authorization"
+codeunit 4142 "Purchase Manual Release"
 {
-    procedure Authorize(var HttpRequestMessage: HttpRequestMessage);
+    TableNo = "Purchase Header";
+
+    trigger OnRun()
+    var
+        ReleasePurchaseDocument: Codeunit "Release Purchase Document";
     begin
-        // Does nothing
+        ReleasePurchaseDocument.PerformManualRelease(Rec);
     end;
 }

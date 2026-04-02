@@ -1,6 +1,6 @@
 {
-  "id": "4564dd2f-e8b2-41ff-9905-9d7a950475a5",
-  "name": "Tests-Misc",
+  "id": "fa3e2564-a39e-417f-9be6-c0dbe3d94069",
+  "name": "Tests-ERM",
   "publisher": "Microsoft",
   "version": "$(app_currentVersion)",
   "platform": "$(app_platformVersion)",
@@ -24,6 +24,12 @@
       "version": "$(app_minimumVersion)"
     },
     {
+      "id": "e7320ebb-08b3-4406-b1ec-b4927d3e280b",
+      "publisher": "Microsoft",
+      "name": "Any",
+      "version": "$(app_minimumVersion)"
+    },
+    {
       "id": "bee8cf2f-494a-42f4-aabd-650e87934d39",
       "name": "Business Foundation Test Libraries",
       "publisher": "Microsoft",
@@ -43,5 +49,5 @@
     "includeSourceInSymbolFile": true
   },
   "application": "$(app_minimumVersion)",
-  "brief": "Tests-Misc (W1)"
+  "brief": "Tests-ERM (W1)"
 }

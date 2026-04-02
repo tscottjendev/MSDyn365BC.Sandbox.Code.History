@@ -2,15 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Pricing.Asset;
 
-namespace System.Test.Text;
-
-using System.Text;
-
-enumextension 135056 "Unsupported Symbology 2D" extends "Barcode Symbology 2D"
+enumextension 7014 "Serv. Price Asset Type" extends "Price Asset Type"
 {
-    value(135055; "Unsupported Barcode Symbology")
+    value(50; "Service Cost")
     {
-        Caption = 'Unsupported Barcode Symbology';
+        Caption = 'Service Cost';
+        Implementation = "Price Asset" = "Price Asset - Service Cost";
     }
 }
