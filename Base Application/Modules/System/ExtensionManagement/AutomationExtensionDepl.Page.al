@@ -1,10 +1,13 @@
-namespace System.Apps;
+namespace Microsoft.API.V1;
 
-page 5448 "Automation Extension Depl."
+using System.Apps;
+
+page 20007 "APIV1 - Aut. Extension Depl."
 {
     APIGroup = 'automation';
     APIPublisher = 'microsoft';
-    Caption = 'ExtensionDeploymentStatus', Locked = true;
+    APIVersion = 'v1.0';
+    Caption = 'extensionDeploymentStatus', Locked = true;
     DelayedInsert = true;
     DeleteAllowed = false;
     Editable = false;
@@ -15,6 +18,7 @@ page 5448 "Automation Extension Depl."
     PageType = API;
     RefreshOnActivate = true;
     SourceTable = "NAV App Tenant Operation";
+    Extensible = false;
 
     layout
     {
@@ -24,45 +28,38 @@ page 5448 "Automation Extension Depl."
             {
                 field(name; AppName)
                 {
-                    ApplicationArea = All;
                     Caption = 'name', Locked = true;
                     ToolTip = 'Specifies the name of the App.';
                 }
-                field(publisher; Publisher)
+                field(publisher; ExtensionPublisher)
                 {
-                    ApplicationArea = All;
                     Caption = 'publisher', Locked = true;
                     ToolTip = 'Specifies the name of the App Publisher.';
                 }
-                field(operationType; OperationType)
+                field(operationType; OperationTypeOption)
                 {
-                    ApplicationArea = All;
                     Caption = 'operationType', Locked = true;
                     ToolTip = 'Specifies the deployment type.';
                 }
                 field(status; Rec.Status)
                 {
-                    ApplicationArea = All;
                     Caption = 'status', Locked = true;
                     ToolTip = 'Specifies the deployment status.';
                 }
-                field(schedule; Schedule)
+                field(schedule; ExtensionSchedule)
                 {
-                    ApplicationArea = All;
                     Caption = 'schedule', Locked = true;
                     ToolTip = 'Specifies the deployment Schedule.';
                     Width = 12;
                 }
                 field(appVersion; Version)
                 {
-                    ApplicationArea = All;
                     Caption = 'appVersion', Locked = true;
                     ToolTip = 'Specifies the version of the App.';
                     Width = 6;
                 }
                 field(startedOn; Rec."Started On")
                 {
-                    ApplicationArea = All;
                     Caption = 'startedOn', Locked = true;
                     ToolTip = 'Specifies the deployment start date.';
                 }
@@ -78,16 +75,13 @@ page 5448 "Automation Extension Depl."
     }
 
     trigger OnAfterGetRecord()
-    var
-        ExtensionManagement: Codeunit "Extension Management";
     begin
         if Rec."Operation Type" = 0 then
-            OperationType := OperationType::Install
+            OperationTypeOption := OperationTypeOption::Install
         else
-            OperationType := OperationType::Upload;
+            OperationTypeOption := OperationTypeOption::Upload;
 
-        ExtensionManagement.GetDeployOperationInfo(Rec."Operation ID", Version, Schedule, Publisher, AppName, Rec.Description);
-
+        ExtensionManagement.GetDeployOperationInfo(Rec."Operation ID", Version, ExtensionSchedule, ExtensionPublisher, AppName, Rec.Description);
         if Rec.Status = Rec.Status::InProgress then
             ExtensionManagement.RefreshStatus(Rec."Operation ID");
     end;
@@ -99,10 +93,12 @@ page 5448 "Automation Extension Depl."
     end;
 
     var
+        ExtensionManagement: Codeunit "Extension Management";
         Version: Text;
-        Schedule: Text;
-        Publisher: Text;
+        ExtensionSchedule: Text;
+        ExtensionPublisher: Text;
         AppName: Text;
-        OperationType: Option Upload,Install;
+        OperationTypeOption: Option Upload,Install;
 }
+
 
