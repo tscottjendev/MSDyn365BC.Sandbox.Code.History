@@ -3,12 +3,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Integration.Excel;
-permissionset 132524 "Edit in Excel Test Lib. - Obj."
+namespace System.Tooling;
+
+permissionset 132553 "Prev. Mtd. Upd - Obj"
 {
     Assignable = false;
+    Caption = 'Prevent Metadata Updates - Objects';
 
-    Permissions =
-        table "Edit In Excel Test Table" = X,
-        codeunit "Edit in Excel Test Library" = X;
+    // Include Test Tables
+    Permissions = codeunit "Block Changes to System Tables" = X;
 }

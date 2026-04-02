@@ -3,13 +3,19 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.ExternalFileStorage;
+namespace System.TestTools.AITestToolkit;
 
-using System.ExternalFileStorage;
-
-enumextension 135810 "Test File Scenario" extends "File Scenario"
+enum 149032 "AIT Run History - View By"
 {
-    value(135810; "Test File Scenario")
+    Extensible = false;
+
+    value(0; Version)
     {
+        Caption = 'Version';
+    }
+
+    value(1; Tag)
+    {
+        Caption = 'Tag';
     }
 }
