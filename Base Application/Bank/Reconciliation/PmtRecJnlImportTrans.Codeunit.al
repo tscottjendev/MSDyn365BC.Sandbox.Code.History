@@ -2,16 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Bank.Reconciliation;
+namespace Microsoft.Finance.VAT.Group;
 
-codeunit 9023 "Pmt. Rec. Jnl. Import Trans."
+using System.Threading;
+
+codeunit 4707 "VAT Group Sub. Status JobQueue"
 {
+    TableNo = "Job Queue Entry";
 
     trigger OnRun()
-    var
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
-        BankAccReconciliation.ImportAndProcessToNewStatement();
+        Codeunit.Run(Codeunit::"VAT Group Submission Status");
     end;
 }
-

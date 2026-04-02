@@ -2,28 +2,28 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.CRM.Outlook;
 
-codeunit 1632 "Office Error Engine"
+namespace System.Test.Email;
+
+codeunit 134683 "Email Editor Values"
 {
+    Access = Internal;
     SingleInstance = true;
 
-    trigger OnRun()
-    begin
-    end;
-
     var
-        ErrorMessage: Text;
+        ExitOption: Integer;
 
-    procedure ShowError(Message: Text)
+    procedure GetDefaultExitOption(): Integer
     begin
-        ErrorMessage := Message;
-        PAGE.Run(PAGE::"Office Error Dlg");
+        // Default value 1 if the value has not been set
+        if ExitOption = 0 then
+            exit(1);
+
+        exit(ExitOption);
     end;
 
-    procedure GetError(): Text
+    procedure SetDefaultExitOption(NewExitOption: Integer)
     begin
-        exit(ErrorMessage);
+        ExitOption := NewExitOption;
     end;
 }
-

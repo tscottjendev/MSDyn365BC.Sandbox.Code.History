@@ -3,14 +3,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Security.AccessControl;
+namespace System.TestLibraries.Visualization;
 
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
+using System.Visualization;
 
-permissionsetextension 2529 "Service Receivables Doc.- Post" extends "Recievables Documents - Post"
+permissionset 135039 "Cues And KPIs Edit"
 {
+    Assignable = true;
+    IncludedPermissionSets = "Cues And KPIs - Edit";
+
+    // Include Test Tables
     Permissions =
-                  tabledata "Service Document Register" = Rd,
-                  tabledata "Service Mgt. Setup" = R;
+        tabledata "Cues And KPIs Test 1 Cue" = RIMD,
+        tabledata "Cues And KPIs Test 2 Cue" = RIMD;
 }

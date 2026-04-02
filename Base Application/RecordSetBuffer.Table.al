@@ -2,39 +2,33 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.IO;
 
-table 8402 "Record Set Buffer"
+namespace System.TestLibraries.Utilities;
+
+table 132514 "Record Link Test Cross Company"
 {
-    Caption = 'Record Set Buffer';
     ReplicateData = false;
-    DataClassification = CustomerContent;
+    DataPerCompany = false;
+    InherentEntitlements = RIMD;
+    InherentPermissions = RIMD;
 
     fields
     {
-        field(1; No; Integer)
+        field(1; PK; Integer)
         {
             AutoIncrement = true;
-            Caption = 'No';
             DataClassification = SystemMetadata;
         }
-        field(2; "Value RecordID"; RecordID)
+        field(2; Field; Text[50])
         {
-            Caption = 'Value RecordID';
-            DataClassification = CustomerContent;
+            DataClassification = SystemMetadata;
         }
     }
-
     keys
     {
-        key(Key1; No)
+        key(Key1; PK, Field)
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-

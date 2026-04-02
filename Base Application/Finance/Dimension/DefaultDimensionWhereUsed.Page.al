@@ -2,39 +2,44 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Dimension;
 
-page 544 "Default Dimension Where-Used"
+namespace System.TestLibraries.Reflection;
+
+page 135536 "Record Selection Test Page"
 {
-    PageType = List;
-    SourceTable = "Default Dimension";
-    InsertAllowed = false;
-    Editable = false;
-    DeleteAllowed = false;
-    DataCaptionFields = "Dimension Value Code", "Dimension Code";
-
+    PageType = Card;
+    ApplicationArea = All;
+    SourceTable = "Record Selection Test Table";
+    Caption = 'Record Selection Test Page';
 
     layout
     {
         area(Content)
         {
-            repeater(Control1)
+            group(GroupName)
             {
-                field("Table ID"; Rec."Table ID")
+                field(SomeInteger; Rec.SomeInteger)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies some Integer';
                 }
-                field("Table Caption"; Rec."Table Caption")
+
+                field(SomeCode; Rec.SomeCode)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies some Code';
                 }
-                field("No."; Rec."No.")
+
+                field(SomeText; Rec.SomeText)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies some Text';
                 }
-                field("Value Posting"; Rec."Value Posting")
+
+                field(SomeOtherText; Rec.SomeOtherText)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies some Other Text';
                 }
             }
         }
