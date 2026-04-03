@@ -2,9 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Warehouse.Activity;
 
-enumextension 99000775 "Mfg. Whse. Pick Document Type" extends "Warehouse Pick Document Type"
+namespace System.TestLibraries.Utilities;
+
+using System.Utilities;
+
+permissionset 135032 "Blob Storage Exec"
 {
-    value(5; "Production") { Caption = 'Production'; }
+    Assignable = true;
+    IncludedPermissionSets = "Blob Storage - Exec";
 }
