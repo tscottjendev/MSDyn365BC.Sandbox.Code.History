@@ -2,22 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Utilities;
 
-codeunit 7354 "BaseApp ID"
+namespace System.TestLibraries.Reflection;
+
+using System.Reflection;
+
+permissionset 135036 "Field Selection Read"
 {
-    SingleInstance = true;
+    Assignable = true;
 
-    procedure Get(): Guid
-    var
-        EmptyGuid: Guid;
-    begin
-        if Info.Id() = EmptyGuid then
-            NavApp.GetCurrentModuleInfo(Info);
+    IncludedPermissionSets = "Field Selection - Read";
 
-        exit(Info.Id());
-    end;
-
-    var
-        Info: ModuleInfo;
+    // Include Test Tables
+    Permissions = tabledata "Test Table A" = RIMD,
+                  tabledata "Test Table B" = RIMD;
 }
