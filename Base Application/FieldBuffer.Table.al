@@ -16,11 +16,14 @@ table 8450 "Field Buffer"
         {
             Caption = 'Order';
             DataClassification = SystemMetadata;
+            Caption = 'VAT Group Return';
+
         }
         field(2; "Table ID"; Integer)
         {
             Caption = 'Table ID';
             DataClassification = SystemMetadata;
+            Caption = 'VAT Group Return Status';
         }
         field(3; "Field ID"; Integer)
         {
