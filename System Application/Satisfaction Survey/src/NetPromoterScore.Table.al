@@ -1,40 +1,41 @@
-#if not CLEANSCHEMA29
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Import;
 
-table 6109 "EDoc. Purch. Line Field Setup"
+namespace System.Feedback;
+
+table 1433 "Net Promoter Score"
 {
     Access = Internal;
-    ObsoleteReason = 'Replaced by "ED Purchase Line Field Setup"';
-#if not CLEAN26
-    ObsoleteState = Pending;
-    ObsoleteTag = '26.0';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '29.0';
-#endif
-    InherentEntitlements = RIMDX;
-    InherentPermissions = RIMDX;
+    InherentEntitlements = X;
+    InherentPermissions = X;
+    DataPerCompany = false;
     ReplicateData = false;
 
     fields
     {
-        field(1; "Field No."; Integer)
+        field(1; "User SID"; Guid)
         {
-            Caption = 'Field No.';
+            DataClassification = EndUserPseudonymousIdentifiers;
+        }
+        field(4; "Last Request Time"; DateTime)
+        {
             DataClassification = SystemMetadata;
-            Editable = false;
+        }
+        field(5; "Send Request"; Boolean)
+        {
+            DataClassification = SystemMetadata;
         }
     }
+
     keys
     {
-        key(PK; "Field No.")
+        key(Key1; "User SID")
         {
             Clustered = true;
         }
     }
+
 }
-#endif
+

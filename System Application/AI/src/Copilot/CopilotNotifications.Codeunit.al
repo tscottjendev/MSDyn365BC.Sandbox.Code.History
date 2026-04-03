@@ -132,6 +132,16 @@ codeunit 7757 "Copilot Notifications"
         AIQuotaNearlyUsedUpNotification.Send();
     end;
 
+    procedure ShowBingSearchOptOutNudgeMessage()
+    var
+        BingSearchNudgeNotification: Notification;
+    begin
+        BingSearchNudgeNotification.Id := BingNudgeGuidLbl;
+        BingSearchNudgeNotification.Message := BingNudgeLbl;
+        BingSearchNudgeNotification.Scope := NotificationScope::LocalScope;
+        BingSearchNudgeNotification.Send();
+    end;
+
     procedure ShowAIQuotaNearlyUsedUpLearnMore(AIQuotaNearlyUsedUpNotification: Notification)
     begin
         if CopilotCapabilityImpl.IsAdmin() then begin
