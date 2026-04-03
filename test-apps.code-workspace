@@ -55,19 +55,16 @@
       "path": "./E-Document Connector - Avalara Tests"
     },
     {
-      "path": "./E-Document Connector - B2Brouter Tests"
-    },
-    {
       "path": "./E-Document Connector - Logiq Tests"
-    },
-    {
-      "path": "./E-Document Connector - Pagero Tests"
     },
     {
       "path": "./E-Document Connector - SignUp Tests"
     },
     {
       "path": "./E-Document Core Tests"
+    },
+    {
+      "path": "./E-Documents Connector Tests"
     },
     {
       "path": "./Email - Current User Connector Tests"
