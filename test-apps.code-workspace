@@ -1,11 +1,11 @@
 {
   "settings": {
     "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
-    }
+    },
+    "al.enableCodeActions": false,
+    "allint.enabled": false
   },
   "folders": [
     {
@@ -276,13 +276,19 @@
       "path": "./System Application/Email/src/Test Email"
     },
     {
+      "path": "./Sales Lines Suggestions Tests/AI Tests"
+    },
+    {
+      "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
+    },
+    {
       "path": "./Test Runner/src/DataDrivenTest"
     },
     {
-      "path": "./Base Application/System/DevTools/CALTest"
+      "path": "./Performance Toolkit Tests/src/Mock Tests"
     },
     {
-      "path": "./Performance Toolkit Tests/src/Mock Tests"
+      "path": "./Base Application/System/DevTools/CALTest"
     },
     {
       "path": "./System Application Test/DisabledTests"
@@ -291,16 +297,10 @@
       "path": "./System Application Test/Extension Management/testArtifacts"
     },
     {
-      "path": "./Sales Lines Suggestions Tests/AI Tests"
-    },
-    {
-      "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
+      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
       "path": "./AI Test Toolkit/src/TestSuite"
-    },
-    {
-      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     }
   ]
 }
