@@ -1170,7 +1170,7 @@ codeunit 99000845 "Reservation Management"
 
         GetItemSetup(CalcReservEntry);
         OnAutoTrackOnAfterGetItemSetup(CalcReservEntry, Item);
-        
+
         if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
             exit;
 
@@ -2054,7 +2054,7 @@ codeunit 99000845 "Reservation Management"
     begin
         IsHandled := false;
         OnBeforeAutoReserveToShip(IsHandled, FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
-        if not IsHandled then begin            
+        if not IsHandled then begin
             CalcReservEntry.TestField("Source Type");
 
             if CalcReservEntry."Source Type" in [1 /*Sales*/, 3 /* Purchase*/]
@@ -2083,7 +2083,7 @@ codeunit 99000845 "Reservation Management"
             AutoReserveOneLine(ValueArray[1], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
 
             FullAutoReservation := (RemainingQtyToReserve = 0);
-        end; 
+        end;
 
         OnAfterAutoReserveToShip(FullAutoReservation, Description, AvailabilityDate, QuantityToShip, QuantityToShipBase);
     end;
@@ -3039,6 +3039,6 @@ codeunit 99000845 "Reservation Management"
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserveToShip(var FullAutoReservation: Boolean; Description: Text[100]; AvailabilityDate: Date; QuantityToShip: Decimal; QuantityToShipBase: Decimal)
     begin
-    end;    
+    end;
 }
 
