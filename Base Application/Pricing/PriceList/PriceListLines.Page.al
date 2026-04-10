@@ -488,6 +488,17 @@ page 7001 "Price List Lines"
         CurrPage.Update(true);
     end;
 
+    local procedure SetFieldEditableForClientTypeOdata()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+    begin
+        if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::OData, CLIENTTYPE::ODataV4]) then
+            exit;
+
+        SetEditable();
+        SetMandatoryAmount();
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateColumnVisibility(PriceListHeader: Record "Price List Header"; var SourceTypeVisible: Boolean; var JobSourceTypeVisible: Boolean)
     begin
