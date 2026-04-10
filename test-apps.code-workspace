@@ -12,16 +12,16 @@
       "path": "./_Exclude_APIV1_ Tests"
     },
     {
-      "path": "./_Exclude_APIV2_ Tests"
+      "path": "./RecommendedApps/Test/Recommended Apps Tests"
     },
     {
-      "path": "./_Exclude_Bank Deposits Tests"
+      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
     },
     {
-      "path": "./_Exclude_Business_Events_Test"
+      "path": "./BusinessFoundation/Test/Business Foundation Tests/DisabledTests"
     },
     {
-      "path": "./_Exclude_Email Logging Using Graph API Tests"
+      "path": "./PowerBIReports/Test/PowerBI Reports Tests"
     },
     {
       "path": "./_Exclude_Master_Data_Management_Test_Library"
