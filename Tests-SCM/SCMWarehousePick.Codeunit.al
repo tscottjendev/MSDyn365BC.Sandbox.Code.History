@@ -2926,6 +2926,84 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemUnitOfMeasure.Modify(true);
     end;
 
+    local procedure CreateAndPostItemJournalLineWithLotNo(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateSalesOrderWithLotTracking(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo(), ItemNo, Quantity, LocationCode, WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, Quantity);
+    end;
+
+    local procedure CreateSalesOrderWithExcessiveLotTracking(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerNo(), ItemNo, Quantity, LocationCode, WorkDate());
+
+        // Open item tracking lines - handler will assign lot with excessive quantity and confirm availability warning
+        SalesLine.OpenItemTrackingLines();
+    end;
+
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesAssignLotPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        LotNo: Code[50];
+        Qty: Decimal;
+    begin
+        LotNo := LibraryVariableStorage.DequeueText();
+        Qty := LibraryVariableStorage.DequeueDecimal();
+        ItemTrackingLines."Lot No.".SetValue(LotNo);
+        ItemTrackingLines."Quantity (Base)".SetValue(Qty);
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure AvailabilityWarningConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Confirm the availability warning when assigning excessive item tracking
+        Reply := true;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
