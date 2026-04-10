@@ -1,23 +1,10 @@
 {
-  "id": "b59379f5-36b3-4327-be62-c13dac9c87cf",
-  "name": "_Exclude_APIV2_ Tests",
+  "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
+  "name": "Tests-SCM-Service",
   "publisher": "Microsoft",
-  "brief": "Tests for the _Exclude_APIV2_ extension.",
-  "description": "Tests for the _Exclude_APIV2_ extension.",
   "version": "$(app_currentVersion)",
-  "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
-  "EULA": "https://go.microsoft.com/fwlink/?linkid=2182906",
-  "help": "https://go.microsoft.com/fwlink/?linkid=2206519",
-  "contextSensitiveHelpUrl": "https://learn.microsoft.com/dynamics365/business-central/",
-  "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
-  "logo": "ExtensionLogo.png",
+  "platform": "$(app_platformVersion)",
   "dependencies": [
-    {
-      "id": "10cb69d9-bc8a-4d27-970a-9e110e9db2a5",
-      "name": "_Exclude_APIV2_",
-      "publisher": "Microsoft",
-      "version": "$(app_minimumVersion)"
-    },
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
       "name": "Tests-TestLibraries",
@@ -35,15 +22,26 @@
       "publisher": "Microsoft",
       "name": "Library Variable Storage",
       "version": "$(app_minimumVersion)"
+    },
+    {
+      "id": "e7320ebb-08b3-4406-b1ec-b4927d3e280b",
+      "publisher": "Microsoft",
+      "name": "Any",
+      "version": "$(app_minimumVersion)"
+    },
+    {
+      "id": "bee8cf2f-494a-42f4-aabd-650e87934d39",
+      "name": "Business Foundation Test Libraries",
+      "publisher": "Microsoft",
+      "version": "$(app_minimumVersion)"
     }
   ],
-  "screenshots": [],
-  "platform": "$(app_platformVersion)",
   "target": "OnPrem",
   "resourceExposurePolicy": {
-    "allowDebugging": false,
+    "allowDebugging": true,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "$(app_minimumVersion)"
+  "application": "$(app_minimumVersion)",
+  "brief": "Tests-SCM-Service (W1)"
 }
