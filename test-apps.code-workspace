@@ -66,6 +66,9 @@
       "path": "./E-Document Connector - Avalara Tests"
     },
     {
+      "path": "./E-Document Connector - Logiq Tests"
+    },
+    {
       "path": "./E-Document Core Tests"
     },
     {
