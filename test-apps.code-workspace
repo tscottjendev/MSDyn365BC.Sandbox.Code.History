@@ -158,13 +158,5 @@
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }
