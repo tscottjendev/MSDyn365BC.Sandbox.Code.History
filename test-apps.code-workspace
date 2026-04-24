@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "allint.enabled": false
+  },
   "folders": [
     {
       "path": "./_Exclude_APIV1_ Tests"
@@ -310,6 +318,12 @@
       "path": "./Test Runner/src/DataDrivenTest"
     },
     {
+      "path": "./Subcontracting-Tests/DisabledTests"
+    },
+    {
+      "path": "./Subcontracting-Tests/src/Codeunits/Tests"
+    },
+    {
       "path": "./Business Foundation Tests/DisabledTests"
     },
     {
@@ -348,13 +362,5 @@
     {
       "path": "./E-Document Core Tests/DisabledTests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
-  }
+  ]
 }
