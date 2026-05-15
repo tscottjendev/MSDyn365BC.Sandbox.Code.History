@@ -2,18 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
-namespace System.TestLibraries.Feedback;
+using Microsoft.Finance.ReceivablesPayables;
 
-using System.Feedback;
-
-codeunit 138078 "Sat. Survey Test Library"
+codeunit 384 "Upd. Pending Prepmt. Purchase"
 {
-    var
-        SatisfactionSurveyImpl: Codeunit "Satisfaction Survey Impl.";
 
-    procedure GetRenderUrl(): Text
+    trigger OnRun()
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
     begin
-        exit(SatisfactionSurveyImpl.GetRenderUrl());
+        PrepaymentMgt.UpdatePendingPrepaymentPurchase();
     end;
 }
+

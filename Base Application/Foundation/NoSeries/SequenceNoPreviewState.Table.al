@@ -3,33 +3,29 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.DataAdministration;
+// NB: This table is only used during posting preview to ensure we use correct numbersequence during posting preview and actual posting, respectively.
 
-table 138702 "Retention Policy Test Data 3"
+namespace Microsoft.Foundation.NoSeries;
+
+table 9501 "Sequence No. Preview State"
 {
     DataClassification = SystemMetadata;
+    InherentEntitlements = RIMDX;
+    InherentPermissions = rimdx;
     ReplicateData = false;
+    Access = Internal;
 
     fields
     {
-        field(1; "Entry No."; Integer)
+        field(1; ID; Integer)
         {
             AutoIncrement = true;
-        }
-        field(2; "Date Field"; Date)
-        {
-        }
-        field(3; "DateTime Field"; DateTime)
-        {
-        }
-        field(4; Description; Text[100])
-        {
         }
     }
 
     keys
     {
-        key(PK; "Entry No.")
+        key(Key1; ID)
         {
             Clustered = true;
         }

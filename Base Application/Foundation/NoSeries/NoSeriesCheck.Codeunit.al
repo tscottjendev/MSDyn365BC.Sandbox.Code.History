@@ -3,16 +3,20 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Test.Reflection;
+namespace Microsoft.Foundation.NoSeries;
 
 /// <summary>
-/// This permissionset should only grant INDIRECT permissions
+/// This codeunit verifies that a number can be retrieved for the given No. Series.
 /// </summary>
-permissionset 138709 "RecRefTest-Delete"
+codeunit 4143 "No. Series Check"
 {
-    Assignable = false;
+    TableNo = "No. Series";
     Access = Internal;
-    IncludedPermissionSets = "RecRefTest-Object";
 
-    Permissions = tabledata "Record Reference Test" = d;
+    trigger OnRun()
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        NoSeries.PeekNextNo(Rec.Code, WorkDate());
+    end;
 }
