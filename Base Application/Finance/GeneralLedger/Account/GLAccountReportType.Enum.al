@@ -2,16 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Account;
 
-namespace System.TestLibraries.Utilities;
-
-using System.Utilities;
-
-permissionset 132508 "Record Link View"
+enum 20 "G/L Account Report Type"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Record Link Management - View";
+    AssignmentCompatibility = true;
+    Extensible = true;
 
-    // Include Test Tables
-    Permissions = tabledata "Record Link Record Test" = RIMD;
+    value(0; "Income Statement") { Caption = 'Income Statement'; }
+    value(1; "Balance Sheet") { Caption = 'Balance Sheet'; }
 }
