@@ -2,17 +2,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AllocationAccount;
 
-namespace System.TestLibraries.Globalization;
-
-using System.Globalization;
-
-permissionset 137121 "Translation Edit"
+enum 2671 "Breakdown Account Type"
 {
-    Assignable = true;
+    Extensible = true;
 
-    IncludedPermissionSets = "Translation - Edit";
+    value(0; "G/L Account")
+    {
+        Caption = 'G/L Account';
+    }
 
-    // Include Test Tables
-    Permissions = tabledata "Translation Test Table" = RIMD;
+    value(1; "Bank Account")
+    {
+        Caption = 'Bank Account';
+    }
 }
