@@ -9,6 +9,10 @@ using Microsoft.Service.Document;
 
 tableextension 6470 "Serv. Cash Flow Forecast Entry" extends "Cash Flow Forecast Entry"
 {
+    DataClassification = SystemMetadata;
+    Caption = 'Word Templates Test Table 4';
+    ReplicateData = false;
+
     fields
     {
         modify("Source No.")
