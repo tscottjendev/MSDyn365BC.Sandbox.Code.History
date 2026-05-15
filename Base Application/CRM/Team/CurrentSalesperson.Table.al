@@ -2,27 +2,31 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Team;
 
-namespace System.TestLibraries.Email;
-
-table 134684 "Email Related Record Test"
+table 5124 "Current Salesperson"
 {
-    ReplicateData = false;
+    Caption = 'Current Salesperson';
+    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; "No."; Integer)
+        field(1; "Code"; Code[10])
         {
-            AutoIncrement = true;
-            DataClassification = SystemMetadata;
+            Caption = 'Code';
         }
     }
 
     keys
     {
-        key(Key1; "No.")
+        key(Key1; "Code")
         {
             Clustered = true;
         }
     }
+
+    fieldgroups
+    {
+    }
 }
+
