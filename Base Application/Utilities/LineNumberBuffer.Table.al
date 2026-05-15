@@ -2,42 +2,38 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
 
-namespace System.TestLibraries.Reflection;
-
-table 135036 "Test Table A"
+table 283 "Line Number Buffer"
 {
-    DataClassification = SystemMetadata;
+    Caption = 'Line Number Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; MyField; Integer)
+        field(1; "Old Line Number"; Integer)
         {
+            Caption = 'Old Line Number';
             DataClassification = SystemMetadata;
-
         }
-
-        field(2; MyField2; Decimal)
+        field(2; "New Line Number"; Integer)
         {
+            Caption = 'New Line Number';
             DataClassification = SystemMetadata;
-            AutoFormatType = 0;
-        }
-
-        field(3; MyField3; Text[50])
-        {
-            DataClassification = SystemMetadata;
-
         }
     }
 
     keys
     {
-        key(PK; MyField)
+        key(Key1; "Old Line Number")
         {
             Clustered = true;
         }
     }
 
-
+    fieldgroups
+    {
+    }
 }
+

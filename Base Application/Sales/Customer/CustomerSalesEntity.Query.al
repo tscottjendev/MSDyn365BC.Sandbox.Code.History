@@ -1,11 +1,13 @@
-namespace Microsoft.API.V1;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
-using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 
-query 20000 "APIV1 - Customer Sales"
+query 5480 "Customer Sales Entity"
 {
-    APIVersion = 'v1.0';
     Caption = 'customerSales', Locked = true;
     EntityName = 'customerSale';
     EntitySetName = 'customerSales';
@@ -13,11 +15,11 @@ query 20000 "APIV1 - Customer Sales"
 
     elements
     {
-        dataitem(QueryElement1; Customer)
+        dataitem(Customer; Customer)
         {
             column(customerId; SystemId)
             {
-                Caption = 'SystemId', Locked = true;
+                Caption = 'Id', Locked = true;
             }
             column(customerNumber; "No.")
             {
@@ -27,9 +29,9 @@ query 20000 "APIV1 - Customer Sales"
             {
                 Caption = 'Name', Locked = true;
             }
-            dataitem(QueryElement10; "Cust. Ledger Entry")
+            dataitem(Cust_Ledger_Entry; "Cust. Ledger Entry")
             {
-                DataItemLink = "Customer No." = QueryElement1."No.";
+                DataItemLink = "Customer No." = Customer."No.";
                 SqlJoinType = LeftOuterJoin;
                 DataItemTableFilter = "Document Type" = filter(Invoice | "Credit Memo");
                 column(totalSalesAmount; "Sales (LCY)")
