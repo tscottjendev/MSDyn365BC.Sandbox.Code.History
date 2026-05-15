@@ -2,19 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Pricing.Source;
 
-namespace System.TestLibraries.Email;
-
-using System.Email;
-
-permissionset 134685 "Email Related Record"
+codeunit 7012 "Price Source Group - All" implements "Price Source Group"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Email - Edit";
+    procedure IsSourceTypeSupported(SourceType: Enum "Price Source Type"): Boolean;
+    begin
+        exit(true)
+    end;
 
-    // Include Test Tables
-    Permissions =
-        tabledata "Email Related Record Test" = RIMD,
-        tabledata "Test Email Account" = RIMD, // Needed for the Record to get passed in Library Assert
-        tabledata "Test Email Connector Setup" = RIMD;
+    procedure GetGroup() SourceGroup: Enum "Price Source Group";
+    begin
+        exit(SourceGroup::All);
+    end;
 }

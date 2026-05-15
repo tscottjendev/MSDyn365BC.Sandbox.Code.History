@@ -2,12 +2,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Upgrade;
 
-namespace System.TestLibraries.Security.AccessControl;
-
-using System.Security.AccessControl;
-permissionset 133400 "Permission Sets Obj."
+codeunit 104054 "Upgrade Custom Report Layouts"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Permission Sets - Objects";
+    Subtype = Upgrade;
+
+    trigger OnUpgradePerCompany()
+    begin
+        Codeunit.Run(Codeunit::"Upgrade Custom Report Impl.");
+    end;
 }

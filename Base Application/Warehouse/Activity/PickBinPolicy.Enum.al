@@ -2,15 +2,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Activity;
 
-namespace System.Test.Text;
-
-using System.Text;
-
-enumextension 135055 "Unsupported Symbology" extends "Barcode Symbology"
+enum 5700 "Pick Bin Policy"
 {
-    value(135055; "Unsupported Barcode Symbology")
+    Extensible = true;
+
+    value(100; "Default Bin")
     {
-        Caption = 'Unsupported Barcode Symbology';
+        Caption = 'Default Bin';
+    }
+
+    value(200; "Bin Ranking")
+    {
+        Caption = 'Bin Ranking';
     }
 }
