@@ -23,6 +23,7 @@ table 130471 "Test Code Coverage Result"
         }
         field(4; "CC Result"; Blob)
         {
+            Caption = 'Primary key';
             DataClassification = SystemMetadata;
         }
     }
