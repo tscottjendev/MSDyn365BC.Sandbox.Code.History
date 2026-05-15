@@ -2,40 +2,39 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Inventory.Item.Catalog;
 
-table 5720 Manufacturer
+namespace System.TestLibraries.DataAdministration;
+
+table 138700 "Retention Policy Test Data"
 {
-    Caption = 'Manufacturer';
-    LookupPageID = Manufacturers;
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {
-        field(10; "Code"; Code[10])
+        field(1; "Entry No."; Integer)
         {
-            Caption = 'Code';
-            NotBlank = true;
+            AutoIncrement = true;
         }
-        field(20; Name; Text[50])
+        field(2; "Date Field"; Date)
         {
-            Caption = 'Name';
+        }
+        field(3; "DateTime Field"; DateTime)
+        {
+        }
+        field(4; Description; Text[100])
+        {
+        }
+        field(5; "Description 2"; Text[100])
+        {
         }
     }
 
     keys
     {
-        key(Key1; "Code")
+        key(PK; "Entry No.")
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-        fieldgroup(DropDown; "Code", Name)
-        {
-        }
-    }
 }
-

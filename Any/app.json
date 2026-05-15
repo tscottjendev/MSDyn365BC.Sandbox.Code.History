@@ -1,6 +1,6 @@
 {
-  "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
-  "name": "Library Variable Storage",
+  "id": "e7320ebb-08b3-4406-b1ec-b4927d3e280b",
+  "name": "Any",
   "publisher": "Microsoft",
   "brief": "Library used to store variables in a queue to pass values to handler functions",
   "description": "In test code, Library - Variable Storage can be used to pass values to handler and other methods",
@@ -11,20 +11,13 @@
   "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
   "contextSensitiveHelpUrl": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-testing-application/",
   "logo": "ExtensionLogo.png",
-  "dependencies": [
-    {
-      "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
-      "publisher": "Microsoft",
-      "name": "Library Assert",
-      "version": "27.4.0.0"
-    }
-  ],
+  "dependencies": [],
   "screenshots": [],
   "platform": "27.0.0.0",
   "idRanges": [
     {
-      "from": 131004,
-      "to": 131004
+      "from": 130500,
+      "to": 130500
     }
   ],
   "features": [

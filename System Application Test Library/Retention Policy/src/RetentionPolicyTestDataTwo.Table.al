@@ -2,40 +2,36 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Service.Maintenance;
 
-table 5915 "Fault Area"
+namespace System.TestLibraries.DataAdministration;
+
+table 138701 "Retention Policy Test Data Two"
 {
-    Caption = 'Fault Area';
-    LookupPageID = "Fault Areas";
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
 
     fields
     {
-        field(1; "Code"; Code[10])
+        field(1; "Entry No."; Integer)
         {
-            Caption = 'Code';
-            NotBlank = true;
+            AutoIncrement = true;
         }
-        field(2; Description; Text[100])
+        field(2; "Date Field"; Date)
         {
-            Caption = 'Description';
+        }
+        field(3; "DateTime Field"; DateTime)
+        {
+        }
+        field(4; Description; Text[100])
+        {
         }
     }
 
     keys
     {
-        key(Key1; "Code")
+        key(PK; "Entry No.")
         {
             Clustered = true;
         }
-        key(Key2; Description)
-        {
-        }
-    }
-
-    fieldgroups
-    {
     }
 }
-
