@@ -2,21 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.SyncEngine;
 
-namespace System.Test.Environment.Configuration;
+using Microsoft.Inventory.Item;
 
-using System.Environment.Configuration;
-
-
-codeunit 132620 "Skip Welcome Banner"
+codeunit 5368 "Int. Table Manual Subscribers"
 {
-    Access = Internal;
     EventSubscriberInstance = Manual;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Checklist Banner", 'OnOpenChecklistBannerPage', '', false, false)]
-    local procedure OnOpenChecklistBannerPage(var SkipWelcomeState: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnValidateBaseUnitOfMeasure', '', false, false)]
+    local procedure HandleOnValidateBaseUnitOfMeasure(var ValidateBaseUnitOfMeasure: Boolean)
     begin
-        SkipWelcomeState := true;
+        ValidateBaseUnitOfMeasure := true;
     end;
-
 }

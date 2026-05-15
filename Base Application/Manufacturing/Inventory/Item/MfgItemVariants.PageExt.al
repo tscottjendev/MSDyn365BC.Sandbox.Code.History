@@ -2,19 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
-namespace System.TestLibraries.Integration;
-
-using System.Integration;
-
-query 139043 "Dummy Query"
+pageextension 99000796 "Mfg. Item Variants" extends "Item Variants"
 {
-    elements
+    layout
     {
-        dataitem(Web_Service; "Web Service")
+        addafter("Purchasing Blocked")
         {
-            column(Published; Published)
+            field("Production Blocked"; Rec."Production Blocked")
             {
+                ApplicationArea = Manufacturing;
             }
         }
     }

@@ -2,29 +2,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.History;
 
-namespace System.TestLibraries.Utilities;
-
-table 132508 "Record Link Record Test"
+table 5825 "Undo Sales Shpt. Line Params"
 {
-    ReplicateData = false;
-    DataClassification = SystemMetadata;
+    TableType = Temporary;
 
     fields
     {
-        field(1; PK; Integer)
+        field(1; "Primary Key"; Code[10])
         {
+            Caption = 'Primary Key';
             DataClassification = SystemMetadata;
-            AutoIncrement = true;
         }
-        field(2; Field; Text[50])
+        field(2; "Hide Dialog"; Boolean)
         {
+            Caption = 'Hide Dialog';
             DataClassification = SystemMetadata;
         }
     }
+
     keys
     {
-        key(Key1; PK, Field)
+        key(Key1; "Primary Key")
         {
             Clustered = true;
         }
