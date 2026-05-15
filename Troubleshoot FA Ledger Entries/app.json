@@ -1,29 +1,30 @@
 {
-  "id": "85125fdc-eb14-4f16-8c5d-6e4589aceb1d",
-  "name": "Tests-Data Exchange",
+  "id": "7961e9dc-a8e5-49b1-839b-3a78803a4cb8",
+  "name": "Troubleshoot FA Ledger Entries",
   "publisher": "Microsoft",
   "version": "$(app_currentVersion)",
+  "brief": "Troubleshoot - Find FA Ledger Entries with potential rounding issues.",
+  "description": "Troubleshoot - Find and correct FA Ledger Entries with potential rounding issues.",
+  "dependencies": [],
+  "screenshots": [],
+  "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
+  "EULA": "https://go.microsoft.com/fwlink/?linkid=2182906",
+  "help": "https://go.microsoft.com/fwlink/?linkid=2206521",
+  "url": "https://go.microsoft.com/fwlink/?LinkId=724011",
+  "logo": "ExtensionLogo.png",
   "platform": "$(app_platformVersion)",
-  "dependencies": [
+  "application": "$(app_minimumVersion)",
+  "idRanges": [
     {
-      "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
-      "name": "Tests-TestLibraries",
-      "publisher": "Microsoft",
-      "version": "$(app_minimumVersion)"
-    },
-    {
-      "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
-      "publisher": "Microsoft",
-      "name": "Library Variable Storage",
-      "version": "$(app_minimumVersion)"
+      "from": 6090,
+      "to": 6099
     }
   ],
-  "target": "OnPrem",
+  "contextSensitiveHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2206521",
   "resourceExposurePolicy": {
     "allowDebugging": true,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "$(app_minimumVersion)",
-  "brief": "Tests-Data Exchange (W1)"
+  "target": "Cloud"
 }

@@ -2,11 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Security.AccessControl;
 
-using Microsoft.Service.Contract;
+namespace System.TestLibraries.Environment.Configuration;
 
-permissionsetextension 6467 "Service G/L Accounts - View" extends "General Ledger Accounts - View"
+using System.Environment.Configuration;
+
+permissionset 132589 "Adv. Settings View"
 {
-    Permissions = tabledata "Service Contract Account Group" = R;
+    Assignable = true;
+    IncludedPermissionSets = "Advanced Settings - View";
 }
