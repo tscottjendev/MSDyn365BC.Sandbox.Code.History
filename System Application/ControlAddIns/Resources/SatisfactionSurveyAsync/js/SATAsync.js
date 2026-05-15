@@ -1,203 +1,27 @@
-/*
-This addin communicates with OAuthLanding.htm using localStorage. The keys used in the localStorage must be the same in both the files.
-*/
-var AuthStatusKey = "NavOauthStatus";
-var RegistrationStatusKey = "NavRegistrationStatus";
+function SendRequest(Url, Timeout) {
+    var request = new XMLHttpRequest();
+    try {
+        validateParams(Url, Timeout);
+        request.timeout = Timeout;
+        request.onreadystatechange = responseHandler;
+        request.open("GET", Url, true);
+        request.send(null);
+    }
+    catch (ex) {
+        Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ResponseReceived', [0, 'Send request failure: ' + ex]);
+    }
 
-function StartAuthorization(url) {
-
-    OauthLandingHelper(url, AuthStatusKey, handler);
-
-    function handler(data) {
-        if (data.code) {
-            notifySuccess(data.code);
-        } else if (data.error) {
-            notifyError(data.error, data.desc);
+    function responseHandler() {
+        if (request.readyState == 4) {
+            Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ResponseReceived', [request.status, request.responseText.substring(0, 250)]);
         }
     }
 
-    function notifySuccess(code) {
-        Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('AuthorizationCodeRetrieved', [code]);
-    }
-
-    function notifyError(error, desc) {
-        Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('AuthorizationErrorOccurred', [error, desc]);
-    }
-}
-
-function Authorize(url, linkName, linkTooltip) {
-    var a = createHyperlink(url, linkName, linkTooltip);
-
-    a.onclick = function () {
-        StartAuthorization(url);
-    }
-}
-
-function RegisterApp(url, linkName, linkTooltip) {
-    var a = createHyperlink(url, linkName, linkTooltip);
-
-    a.onclick = function () {
-        if (!isFeatureSupported()) {
-            Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('AppRegistrationErrorOccurred', ['NotSupported', '']);
-            return;
-        }
-
-        OauthLandingHelper(url, RegistrationStatusKey, handler);
-    }
-
-    function isFeatureSupported() {
-        var isSupported = false;
-        switch (Microsoft.Dynamics.NAV.GetEnvironment().Platform) {
-            case 0: // windows
-            case 1: // web
-                switch (Microsoft.Dynamics.NAV.GetEnvironment().DeviceCategory) {
-                    case 0: // desktop
-                    case 1: // tablet
-                        isSupported = true;
-                }
-        }
-        return isSupported;
-    }
-
-    function handler(data) {
-        if (data.clientId && data.clientSecret) {
-            top.window.localStorage.setItem(RegistrationStatusKey, 'success');
-            Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('AppRegistrationInformationRetrieved', [data.clientId, data.clientSecret]);
+    function validateParams(Url, Timeout) {
+        if (!Url || !Url.startsWith('https://') || Timeout <= 0 || Timeout > 60000) {
+            throw 'Unexpected parameter';
         }
     }
-}
-
-function OauthLandingHelper(url, key, callback) {
-    var w = top.window;
-    var aadWindow = w.open(url, '_blank', 'width=972,height=904,location=no');
-
-    if (aadWindow == null || aadWindow.closed || typeof aadWindow.closed === "undefined") {
-        callback({
-            error: "Popup blocked",
-            desc: "There was a problem opening the authentication prompt. Check if it was blocked by a popup blocker."
-        });
-        return;
-    }
-
-    function storageEvent(e) {
-        if (e.key === key && e.newValue) {
-            w.removeEventListener('storage', storageEvent, false);
-            action(e.newValue);
-        }
-    }
-
-    function messageEvent(e) {
-        if (e.data.clientId) {
-            w.removeEventListener("message", messageEvent, false);
-            action(e.data);
-        }
-    }
-
-    function action(data) {
-        var obj = data;
-        if (typeof data === 'string') {
-            obj = JSON.parse(data);
-        }
-        callback(obj);
-        closeWindow();
-    }
-
-    function closeWindow() {
-        try {
-            w.removeEventListener("message", messageEvent, false);
-            w.removeEventListener('storage', storageEvent, false);
-
-            try {
-                if (aadWindow.onbeforeunload) {
-                    aadWindow.onbeforeunload = null;
-                }
-            } catch (e) { }
-
-            if (w.localStorage.getItem(key)) {
-                w.localStorage.removeItem(key);
-            }
-
-            aadWindow.close();
-        } catch (ex) { }
-    }
-
-    function isCordova(win) {
-        if (typeof win !== 'undefined' && win) {
-            try {
-                // this can throw a 'Permission denied" exception in IE11
-                if (win.executeScript) { // if cordova. Is there a better way to detect?
-                    return true;
-                }
-            }
-            catch (e) {
-                return false;
-            }
-        }
-
-        return false;
-    }
-
-    if (isCordova(aadWindow)) {
-        aadWindow.addEventListener("loadstop", function () {
-            function getDataFromWindow() {
-                aadWindow.executeScript(
-                    { code: "localStorage.getItem('" + AuthStatusKey + "');" },
-                    function (data) {
-                        if (data && data.length > 0 && data[0]) {
-                            var value = data[0];
-                            clearInterval(loop);
-                            action(value);
-                        }
-                    }
-                );
-            };
-            var loop = setInterval(getDataFromWindow, 1000);
-        });
-    } else {
-        w.removeEventListener('storage', storageEvent, false);
-        w.addEventListener('storage', storageEvent, false);
-        w.removeEventListener('message', messageEvent, false);
-        w.addEventListener("message", messageEvent, false);
-    }
-}
-
-function createHyperlink(url, linkName, linkTooltip) {
-    var a = document.createElement('a');
-    var linkText = document.createTextNode(linkName);
-    a.appendChild(linkText);
-    a.title = linkTooltip;
-    a.href = "#";
-    a.className = getLinkClassName();
-
-    document.getElementById('controlAddIn').appendChild(a);
-    return a;
-}
-
-function getClassNameSuffix() {
-    switch (Microsoft.Dynamics.NAV.GetEnvironment().Platform) {
-        case 0:
-        default:
-            return '-windows';
-
-        case 3:
-            return '-outlook';
-
-        case 1:
-        case 2:
-            switch (Microsoft.Dynamics.NAV.GetEnvironment().DeviceCategory) {
-                case 0:
-                default:
-                    return "-desktop";
-                case 1:
-                    return '-tablet';
-                case 2:
-                    return '-phone';
-            }
-    }
-}
-
-function getLinkClassName() {
-    return 'addInLink' + getClassNameSuffix();
 }
 
 Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ControlAddInReady');
@@ -207,7 +31,7 @@ Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ControlAddInReady');
 // SIG // hkgBZQMEAgEFADB3BgorBgEEAYI3AgEEoGkwZzAyBgor
 // SIG // BgEEAYI3AgEeMCQCAQEEEBDgyQbOONQRoqMAEEvTUJAC
 // SIG // AQACAQACAQACAQACAQAwMTANBglghkgBZQMEAgEFAAQg
-// SIG // MHuD+Jd7RaUoY+JY9dBzS6FDLBLed1jlALFpLQEjQDug
+// SIG // 10JnKqkl4HKkEVj57HAnpBpsrQ1kPAEwDZEeV9i8irWg
 // SIG // gg12MIIF9DCCA9ygAwIBAgITMwAABIVemewOWS/N1wAA
 // SIG // AAAEhTANBgkqhkiG9w0BAQsFADB+MQswCQYDVQQGEwJV
 // SIG // UzETMBEGA1UECBMKV2FzaGluZ3RvbjEQMA4GA1UEBxMH
@@ -320,24 +144,24 @@ Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ControlAddInReady');
 // SIG // hV6Z7A5ZL83XAAAAAASFMA0GCWCGSAFlAwQCAQUAoIGu
 // SIG // MBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwGCisG
 // SIG // AQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMC8GCSqGSIb3
-// SIG // DQEJBDEiBCABP5Oxl4ICe0uHJzx59ERf8vThYsKMVPVu
-// SIG // Pknt34ddKjBCBgorBgEEAYI3AgEMMTQwMqAUgBIATQBp
+// SIG // DQEJBDEiBCAH09/D5uvpPfi+dRPCs347j9qit/3BwYDm
+// SIG // b/EgDagwdjBCBgorBgEEAYI3AgEMMTQwMqAUgBIATQBp
 // SIG // AGMAcgBvAHMAbwBmAHShGoAYaHR0cDovL3d3dy5taWNy
-// SIG // b3NvZnQuY29tMA0GCSqGSIb3DQEBAQUABIIBAGkfBZbb
-// SIG // khx18sM048WIf9gUe0XS8f/gov5io9qKsl7UuEQn358b
-// SIG // iFE3ktzdP6ZJpYUWDprTApWYwM5SIdmaXc2ez+aDjavc
-// SIG // mannMVfmw9IkIDDRlAXjS64OriyOp5GFsLJIawu9wOSx
-// SIG // /UfqOLPcQ8bM1D/Q/ZO7HKjmFhW9QaKQLouKeX3i7ANV
-// SIG // 4aGbvcFS69GHdR/OX2NkiH7oED0GwEzveKo1whqKo1Nh
-// SIG // yI6hh9MGqIC+3ciQOj1EbSRJc60D3vjFYaegVZelceqN
-// SIG // Gwm/DU0pEFLCulX28ebHY2tTHHt9mh/5dvCzpK8rPAPq
-// SIG // q/zyyxZWO9EZlHmzbtwQv2EW/g6hgheXMIIXkwYKKwYB
+// SIG // b3NvZnQuY29tMA0GCSqGSIb3DQEBAQUABIIBACGiB61/
+// SIG // 1P7NSVzCUEr6Uw+VB8DQxCf0e94w4bkfRZ5gJyx4KK7X
+// SIG // sbgC4mhiEgTG5CEcO/WrPv4Ynz3rKNZztPFvTI6WPnzh
+// SIG // lZLvqmpY/8PGMT4GQhlIX7J3+bp5V9oFDxoxI2fHO9Dt
+// SIG // QG2uqIdni3+TNwuwKWhEiZuB84qIAFk8WQNBKWUaBbx6
+// SIG // ZSW/25N3/8bFNQVdmB3xqyhuy+TiUZr2mMk9J1ziY01I
+// SIG // B84EQPxjD7momjrTChbNGOhHeKm09p7pg0yxjklQGsF8
+// SIG // T6ZKSKqTRMhrVWIJrDPClMy2L1u8xkgt1uWa9soeMrnQ
+// SIG // N0cIJCIjia6oLjvPX4fwoQibjxyhgheXMIIXkwYKKwYB
 // SIG // BAGCNwMDATGCF4Mwghd/BgkqhkiG9w0BBwKgghdwMIIX
 // SIG // bAIBAzEPMA0GCWCGSAFlAwQCAQUAMIIBUgYLKoZIhvcN
 // SIG // AQkQAQSgggFBBIIBPTCCATkCAQEGCisGAQQBhFkKAwEw
-// SIG // MTANBglghkgBZQMEAgEFAAQgoMAGfATe7HIrr4PKPMbc
-// SIG // vZZDXNXOMHSUjRFoPL1u1HUCBmnBS43bPBgTMjAyNjAz
-// SIG // MzExNzMwNTQuODk1WjAEgAIB9KCB0aSBzjCByzELMAkG
+// SIG // MTANBglghkgBZQMEAgEFAAQgyvuAOJ9spBixKkq2U4xl
+// SIG // xb7xJfaPQmsj9DKg5g2u4ykCBmnBS43qzxgTMjAyNjAz
+// SIG // MzExNzMyMDIuNjA2WjAEgAIB9KCB0aSBzjCByzELMAkG
 // SIG // A1UEBhMCVVMxEzARBgNVBAgTCldhc2hpbmd0b24xEDAO
 // SIG // BgNVBAcTB1JlZG1vbmQxHjAcBgNVBAoTFU1pY3Jvc29m
 // SIG // dCBDb3Jwb3JhdGlvbjElMCMGA1UECxMcTWljcm9zb2Z0
@@ -490,7 +314,7 @@ Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ControlAddInReady');
 // SIG // U3RhbXAgUENBIDIwMTACEzMAAAIlgMc3xs2qd0kAAQAA
 // SIG // AiUwDQYJYIZIAWUDBAIBBQCgggFKMBoGCSqGSIb3DQEJ
 // SIG // AzENBgsqhkiG9w0BCRABBDAvBgkqhkiG9w0BCQQxIgQg
-// SIG // xk860iz6C2SIa8DvWv2DzTv3mabVj8xDGRxaNBNZqpcw
+// SIG // 9zx6mPZ4drxnl8AwZGOs6oyesBZsySe4/bHogKlp9Low
 // SIG // gfoGCyqGSIb3DQEJEAIvMYHqMIHnMIHkMIG9BCBWDe6I
 // SIG // ejjd8vdgpgJf5RdAmMK41lkD+nQlMWoz0hyhEDCBmDCB
 // SIG // gKR+MHwxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpXYXNo
@@ -499,20 +323,20 @@ Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ControlAddInReady');
 // SIG // HU1pY3Jvc29mdCBUaW1lLVN0YW1wIFBDQSAyMDEwAhMz
 // SIG // AAACJYDHN8bNqndJAAEAAAIlMCIEINvF0hWBCSTLl0S5
 // SIG // jEOx5kDGxSAXekdNSqb/yCmxPUOCMA0GCSqGSIb3DQEB
-// SIG // CwUABIICAE4GV7s1hZrqzKM47YL1ySrUo32gF8La1Naa
-// SIG // 0oY/pMhUZAUO8DyXc4us/YGx+BRWUSWotc+gd7mUtuXH
-// SIG // PuaOdaN/0jq7VcPmPKHOi4zsr91GJXmmGLp2XR/MBUUl
-// SIG // dr25HvDecrD6V4cF6qX6tmaKO9uNuS6M+40me6z5ab3g
-// SIG // dbXI551qSpc+RrcE3UHQw70JN0JwuCsc0eZKSkLO2iBU
-// SIG // QyEixsKLO99AvqT8kHjSpWSBTm2UjgifVuDC71wNqmtl
-// SIG // t2lrvO8Xhdy0jzNi63dTYW78tWdaYV/4s7Sxuffzt8uh
-// SIG // 1iTakdbjwaHjLg0bqdmCTmkylwX4gXY+2DpLhIeIXFCb
-// SIG // coWi9BvOdkXbOdZdLjLnUEqHXdCv/QAa/FyhKibqP0hY
-// SIG // yWT9T+o4xAuQsAc4RFTVC9vOilX0qpEgStZPu19rY++N
-// SIG // LWpyYPe9WlBOQ1bW5Tcb1bqUnQhm0ZuKfL7nAEKv8HC9
-// SIG // 30uTfw9+Kk9vcNfRA9lK3KFu7VbFXgi+rGyza0v7jXqw
-// SIG // VaKGuDsxj1q9wA+1aSZDPf6QoxdZD1/DFIlFT61yjMcj
-// SIG // x5ADNUgFFHdYgrN9Bmdo8pP+jUh9Cpa6rxVNx7eRqqW7
-// SIG // MMbH1o4vksTfKINEmcuMcPcMWmnwvgPilbaJNZBdo3RS
-// SIG // vXw6NN6MWDGn9auc0IuxWkvooJa3eFGS
+// SIG // CwUABIICAIe3edDJkmqfpZCzkmTVaf1WZg9gToq0yHw0
+// SIG // iWve8PEl7VQA6aJ3FPGInnexkfvyTKUpz1F0R0AChEHe
+// SIG // /1Q5pA9RHYwIIQs38N/eN3YzFrgefexVESSqi0z7SIdF
+// SIG // 1QhLLxAic7xRtwYmMt0mLPrMzsiHmAtS2Ig6XpTJU4ac
+// SIG // DEHLcVIgG2irXQdw6Ktg6PChnfRUQ3zI5PJirlQoLauL
+// SIG // qn3uDWXjdSCxor6VG3MTgSVz/hVnaztFnLh37JZ1ipkU
+// SIG // rMqRPtRNrh/uovXbqgudwWOwRH14nEkXRUh1B9IQWDki
+// SIG // EiOYzpqWUxEV+VlkAbMAttBOpGD6Ono+xG5eAKK1XFUJ
+// SIG // 4xdcvOCD0Dll/H8NBXCvOXNtmXFQ9a1h00EPAQQ5iJ4Y
+// SIG // hqGMuaRnvvV+7RWAVpJUhD3CITIRlUEcTIX79YJaHW1d
+// SIG // FW4t0ogJ9TwK6utmm+D+KYWA1jOKDsM7Dy66KYwMijLZ
+// SIG // xTOm/iE1RnqZp3E+hSv9x5gNU1U8rdsztDP2uTeLiUEU
+// SIG // fgFMcgcKhBcMbTsSBq80tkX5EWjS5lolECAzDPEdd/i0
+// SIG // x2wL2CmKq8c1lzOR09cBUXtYHTetC1JPnAFyOuQw37uy
+// SIG // Xy95ZnKFNt/3NN2Dhs9JUby1EFdZcPrCuhe/+4ZVU7Fl
+// SIG // eJwgig8RaBe8I0WuM8aXDb4IFZMDJXeC
 // SIG // End signature block

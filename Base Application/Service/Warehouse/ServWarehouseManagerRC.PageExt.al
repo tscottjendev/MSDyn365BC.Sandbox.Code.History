@@ -2,30 +2,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.RoleCenters;
 
-namespace System.Test.Text;
+using Microsoft.Service.Document;
 
-page 132577 "Caption Class Test Page"
+pageextension 6472 "Serv. Warehouse Manager RC" extends "Warehouse Manager Role Center"
 {
-
-    layout
+    actions
     {
-        area(content)
+        addafter("Return Orders1")
         {
-            field("Test field"; '')
+            action("Orders2")
             {
-                ApplicationArea = All;
-                CaptionClass = CaptionClassTest.GetCaptionClass();
-                ToolTip = 'Specifies a Test field';
+                ApplicationArea = Service;
+                Caption = 'Service Orders';
+                RunObject = page "Service Orders";
             }
         }
     }
-
-    actions
-    {
-    }
-
-    var
-        CaptionClassTest: Codeunit "Caption Class Test";
 }
-
