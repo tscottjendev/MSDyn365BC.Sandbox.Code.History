@@ -16,7 +16,7 @@
       "path": "./_Exclude_Email Logging Using Graph API Tests"
     },
     {
-      "path": "./SalesLinesSuggestions/Test/Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
+      "path": "./_Exclude_Master_Data_Management_Test_Library"
     },
     {
       "path": "./_Exclude_Master_Data_Management_Tests"
@@ -175,7 +175,7 @@
       "path": "./Tests-Cash Flow"
     },
     {
-      "path": "./BaseApp/Test/Tests-Cash Flow"
+      "path": "./Tests-Cost Accounting"
     },
     {
       "path": "./Tests-CRM integration"
