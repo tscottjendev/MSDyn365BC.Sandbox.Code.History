@@ -1,11 +1,16 @@
-This module provides functionality for creating and running Businss Central Performance Toolkit test suites.
+This module provides functionality for verifying the values when running a test.
 
 Use this module to do the following:
-- Create a Businss Central Performance Toolkit tests suites.
-- Run the Businss Central Performance Toolkit test suites and analyze results.
+- Verify the outcome of a test.
+- Fail a test, if needed.
+- Distinguish between product errors and test failures.
 
-Additional Notes:
-This module can only be installed on a sandbox.
+This module must be used in test. Avoid using TESTFIELD, ERROR and other keywords that can be used in production.
+By failing the tests by using Assert, the stack trace will indicate that the test has failed, and not the product.
 
-Check the reference documentation at [https://microsoft.github.io/BCApps](https://microsoft.github.io/BCApps/reference/performance-toolkit/Module/Performance-Toolkit.html).
+In the test code, name the codeunit Assert instead of LibraryAssert.
+
+This module must not be used outside the test code.
+
+Check the reference documentation at [https://microsoft.github.io/BCApps](https://microsoft.github.io/BCApps/reference/library-assert/Module/Library-Assert.html).
 

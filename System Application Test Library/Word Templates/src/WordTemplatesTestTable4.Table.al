@@ -2,17 +2,25 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Warehouse.InventoryDocument;
 
-using Microsoft.Manufacturing.Family;
+namespace System.TestLibraries.Integration.Word;
 
-tableextension 99000774 "Mfg. Posted Invt. Pick Line" extends "Posted Invt. Pick Line"
+table 130446 "Word Templates Test Table 4"
 {
+    DataClassification = SystemMetadata;
+    Caption = 'Word Templates Test Table 4';
+    ReplicateData = false;
+
     fields
     {
-        modify("Destination No.")
+        field(1; Code; Code[30])
         {
-            TableRelation = if ("Destination Type" = const(Family)) Family;
+        }
+        field(2; "Value"; Text[100])
+        {
+        }
+        field(3; "Child Id"; BigInteger)
+        {
         }
     }
 }

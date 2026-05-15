@@ -2,11 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Projects.RoleCenters;
 
-profile "PROJECT MANAGER"
+namespace System.TestLibraries.Integration;
+
+page 132549 "Page Summary Empty Page"
 {
-    Caption = 'Project Manager';
-    ProfileDescription = 'Project Manager';
-    RoleCenter = 9015;
+    PageType = Card;
+
+
 }
+
