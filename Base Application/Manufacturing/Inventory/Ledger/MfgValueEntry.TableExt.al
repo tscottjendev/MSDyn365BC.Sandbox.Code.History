@@ -2,21 +2,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Ledger;
 
-namespace System.TestLibraries.Integration.Word;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.WorkCenter;
 
-table 130443 "Word Templates Test Table"
+tableextension 99000788 "Mfg. Value Entry" extends "Value Entry"
 {
-    DataClassification = SystemMetadata;
-    TableType = Temporary;
-    Caption = 'Word Templates Test / Table "<>:/\|?*'; // Used to verify that reserved characters are removed in template name
-    ReplicateData = false;
-
     fields
     {
-        field(1; "No."; Integer)
+        modify("No.")
         {
-            AutoIncrement = true;
+            TableRelation = if (Type = const("Machine Center")) "Machine Center"
+            else
+            if (Type = const("Work Center")) "Work Center";
         }
     }
 }

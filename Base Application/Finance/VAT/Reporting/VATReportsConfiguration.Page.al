@@ -1,16 +1,16 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.VAT.Group;
+namespace Microsoft.Finance.VAT.Reporting;
 
-using Microsoft.Finance.VAT.Reporting;
-
-page 4709 "VAT Reports Configuration Part"
+page 746 "VAT Reports Configuration"
 {
+    ApplicationArea = VAT;
     Caption = 'VAT Reports Configuration';
-    PageType = ListPart;
+    PageType = List;
     SourceTable = "VAT Reports Configuration";
+    UsageCategory = Administration;
 
     layout
     {
@@ -18,6 +18,11 @@ page 4709 "VAT Reports Configuration Part"
         {
             repeater(Group)
             {
+                field("VAT Report Type"; Rec."VAT Report Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to create a new VAT report, or if you want to change a previously submitted report.';
+                }
                 field("VAT Report Version"; Rec."VAT Report Version")
                 {
                     ApplicationArea = Basic, Suite;
@@ -75,6 +80,10 @@ page 4709 "VAT Reports Configuration Part"
                 }
             }
         }
+    }
+
+    actions
+    {
     }
 }
 
