@@ -1,15 +1,20 @@
-namespace Microsoft.Bank.Deposit;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Comment;
 
-page 1699 "Bank Acc. Comment Sheet"
+page 124 "Comment Sheet"
 {
     AutoSplitKey = true;
-    Caption = 'Bank Account Comment Sheet';
+    Caption = 'Comment Sheet';
     DataCaptionFields = "No.";
     DelayedInsert = true;
+    LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;
-    SourceTable = "Bank Acc. Comment Line";
-    Permissions = tabledata "Bank Acc. Comment Line" = rimd;
+    SourceTable = "Comment Line";
+
     layout
     {
         area(content)

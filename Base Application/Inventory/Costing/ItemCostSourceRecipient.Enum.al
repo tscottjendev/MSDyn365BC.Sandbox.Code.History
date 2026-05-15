@@ -2,20 +2,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.VAT.Group;
+namespace Microsoft.Inventory.Costing;
 
-enum 4701 "VAT Group Role"
+enum 5802 "Item Cost Source/Recipient"
 {
+    Extensible = false;
+
     value(0; " ")
     {
         Caption = ' ';
     }
-    value(1; Representative)
+    value(1; Source)
     {
-        Caption = 'Representative';
+        Caption = 'Source';
     }
-    value(2; Member)
+    value(2; Recipient)
     {
-        Caption = 'Member';
+        Caption = 'Recipient';
     }
 }

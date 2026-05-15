@@ -2,15 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT.Setup;
 
-namespace System.TestLibraries.Privacy;
-
-using System.Privacy;
-
-permissionset 135157 "Data Class Edit"
+enum 6200 "Allow Non-Deductible VAT Type"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Data Classification - Edit";
+    Extensible = true;
+    AssignmentCompatibility = true;
 
-    Permissions = tabledata "Fields Sync Status" = RIMD;
+    value(0; "Do Not Allow") { Caption = 'Do Not Allow'; }
+    value(1; "Allow") { Caption = 'Allow'; }
 }

@@ -3,17 +3,15 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Email;
+namespace System.Security.AccessControl;
 
-using System.Email;
+using System.Environment.Consumption;
 
-permissionset 134687 "Email Admin"
+permissionset 4306 "Agent - Diagnostics"
 {
     Assignable = true;
-    IncludedPermissionSets = "Email - Admin";
-
-    // Include Test Tables
-    Permissions =
-        tabledata "Test Email Account" = RIMD,
-        tabledata "Test Email Connector Setup" = RIMD;
+    Caption = 'Agent Diagnostics';
+    IncludedPermissionSets = "D365 Agent";
+    Permissions = tabledata "User AI Consumption Data" = r,
+                  system "Troubleshoot All Agents" = X;
 }
