@@ -2,19 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.FixedAssets.Ledger;
 
-codeunit 5620 "FA Reg.-FALedger"
+namespace System.TestLibraries.Security.AccessControl;
+
+using System.Security.AccessControl;
+permissionset 133403 "Test Set C"
 {
-    TableNo = "FA Register";
+    Assignable = false;
 
-    trigger OnRun()
-    begin
-        FALedgEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
-        PAGE.Run(PAGE::"FA Ledger Entries", FALedgEntry);
-    end;
+    IncludedPermissionSets = "Test Set D";
 
-    var
-        FALedgEntry: Record "FA Ledger Entry";
+    Permissions = page "Permission Set" = X,
+                  page "Permission Set Subform" = X;
 }
-
