@@ -2,36 +2,32 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-
-namespace System.TestLibraries.Reflection;
-
-table 135536 "Record Selection Test Table"
+#pragma warning disable AA0247
+table 2114 "O365 HTML Template"
 {
-    DataClassification = SystemMetadata;
+    Caption = 'O365 HTML Template';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; SomeInteger; Integer)
+        field(1; "Code"; Code[20])
         {
+            Caption = 'Code';
         }
-
-        field(2; SomeCode; Code[30])
+        field(2; Description; Text[100])
         {
+            Caption = 'Description';
         }
-
-        field(3; SomeText; Text[250])
+        field(7; "Media Resources Ref"; Code[50])
         {
-        }
-
-        field(4; SomeOtherText; Text[250])
-        {
+            Caption = 'Media Resources Ref';
         }
     }
 
     keys
     {
-        key(Key1; SomeInteger, SomeCode)
+        key(Key1; "Code")
         {
             Clustered = true;
         }
@@ -39,8 +35,6 @@ table 135536 "Record Selection Test Table"
 
     fieldgroups
     {
-        fieldgroup(Brick; SomeInteger, SomeCode, SomeText)
-        {
-        }
     }
 }
+
