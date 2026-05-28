@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
+  },
   "folders": [
     {
       "path": "./_Exclude_APIV1_ Tests"
@@ -116,6 +124,9 @@
     },
     {
       "path": "./OnPrem Permissions Tests"
+    },
+    {
+      "path": "./Payment Practices Test Library"
     },
     {
       "path": "./Payment Practices Tests"
@@ -315,13 +326,5 @@
     {
       "path": "./System Application/Email/src/Test Email"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
-  }
+  ]
 }
