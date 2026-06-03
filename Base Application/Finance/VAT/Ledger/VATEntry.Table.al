@@ -41,7 +41,8 @@ table 254 "VAT Entry"
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
                     TableData "Purch. Cr. Memo Hdr." = rm,
-                    TableData "G/L Entry" = rm;
+                    TableData "G/L Entry" = rm,
+                    TableData "VAT Entry" = m;
     DataClassification = CustomerContent;
 
     fields
@@ -814,8 +815,13 @@ table 254 "VAT Entry"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
+        EntryNosByGLAccountNo: Dictionary of [Code[20], List of [Integer]];
+        EntryNos: List of [Integer];
+        GLAccountNoToSet: Code[20];
         NoOfRecords: Integer;
         Index: Integer;
+        LastShownProgress: Integer;
+        Progress: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -873,22 +879,24 @@ table 254 "VAT Entry"
         until VATEntryLocal.Next() = 0;
     end;
 
-    local procedure AdjustGLAccountNoOnRec(var VATEntry: Record "VAT Entry")
+    local procedure TryGetGLAccountNoForVATEntry(var VATEntry: Record "VAT Entry"; var GLAccountNo: Code[20]): Boolean
     var
         GLEntry: Record "G/L Entry";
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
-        VATEntryEdit: Codeunit "VAT Entry - Edit";
     begin
         GLEntryVATEntryLink.SetCurrentKey("VAT Entry No.");
         GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
         if not GLEntryVATEntryLink.FindFirst() then begin
             if not AddMissingGLEntryVATEntryLink(VATEntry, GLEntry, GLEntryVATEntryLink) then
-                exit;
+                exit(false);
         end else begin
             GLEntry.SetLoadFields("G/L Account No.");
             if not GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.") then
-                exit;
+                exit(false);
         end;
+        GLAccountNo := GLEntry."G/L Account No.";
+        exit(true);
+    end;
 
         VATEntryEdit.SetGLAccountNo(Rec, GLEntry."G/L Account No.");
     end;
