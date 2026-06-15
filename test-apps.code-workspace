@@ -168,40 +168,40 @@
       "path": "./Simplified Bank Statement Import Test"
     },
     {
-      "path": "./StatisticalAccounts/Test/Statistical Accounts Tests"
+      "path": "./Statistical Accounts Tests"
     },
     {
-      "path": "./EDocumentConnectors/Pagero/Test/E-Document Connector - Pagero Tests"
+      "path": "./Sustainability Copilot Tests"
     },
     {
-      "path": "./EDocumentConnectors/Logiq/Test/E-Document Connector - Logiq Tests"
+      "path": "./Sustainability Tests"
     },
     {
-      "path": "./EDocumentConnectors/FORNAV/Test/E-Document Connector - FORNAV Tests"
+      "path": "./System Application Partner Test"
     },
     {
-      "path": "./EDocumentConnectors/Continia/Test/E-Document Connector - Continia Tests"
+      "path": "./System Application Test Library"
     },
     {
-      "path": "./EDocumentConnectors/SignUp/Test/E-Document Connector - SignUp Tests"
+      "path": "./Test Runner"
     },
     {
-      "path": "./EDocumentConnectors/Avalara/Test/E-Document Connector - Avalara Tests"
+      "path": "./Tests-Bank"
     },
     {
-      "path": "./EDocumentConnectors/B2Brouter/Test/E-Document Connector - B2Brouter Tests"
+      "path": "./Tests-Cash Flow"
     },
     {
-      "path": "./Intrastat/Test/Intrastat Core Tests"
+      "path": "./Tests-Cost Accounting"
     },
     {
-      "path": "./EnforcedDigitalVouchers/Test Library/Enforced Digital Vouchers Test Library"
+      "path": "./Tests-CRM integration"
     },
     {
-      "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
+      "path": "./Tests-Data Exchange"
     },
     {
-      "path": "./SAF-T/Test/SAF-T Tests"
+      "path": "./Tests-Dimension"
     },
     {
       "path": "./Tests-Upgrade"
@@ -210,73 +210,73 @@
       "path": "./Tests-User"
     },
     {
-      "path": "./VATGroupManagement/Test/VAT Group Management Tests"
+      "path": "./Tests-Fixed Asset"
     },
     {
-      "path": "./BaseApp/Test/Tests-Bank"
+      "path": "./Tests-General Journal"
     },
     {
-      "path": "./BaseApp/Test/Tests-Cash Flow"
+      "path": "./Tests-Graph"
     },
     {
-      "path": "./BaseApp/Test/Tests-Cost Accounting"
+      "path": "./Tests-Integration"
     },
     {
-      "path": "./BaseApp/Test/Tests-CRM integration"
+      "path": "./Tests-Job"
     },
     {
-      "path": "./BaseApp/Test/Tests-Data Exchange"
+      "path": "./Tests-Local"
     },
     {
-      "path": "./BaseApp/Test/Tests-Dimension"
+      "path": "./Tests-Marketing"
     },
     {
-      "path": "./BaseApp/Test/Tests-ERM"
+      "path": "./Tests-Misc"
     },
     {
-      "path": "./BaseApp/Test/Tests-Fixed Asset"
+      "path": "./Tests-Monitor Sensitive Fields"
     },
     {
-      "path": "./BaseApp/Test/Tests-General Journal"
+      "path": "./Tests-Permissions"
     },
     {
-      "path": "./BaseApp/Test/Tests-Graph"
+      "path": "./Tests-Physical Inventory"
     },
     {
-      "path": "./BaseApp/Test/Tests-Integration"
+      "path": "./Tests-Prepayment"
     },
     {
-      "path": "./BaseApp/Test/Tests-Job"
+      "path": "./Tests-Rapid Start"
     },
     {
-      "path": "./BaseApp/Test/Tests-Local"
+      "path": "./Tests-Report"
     },
     {
-      "path": "./BaseApp/Test/Tests-Marketing"
+      "path": "./Tests-Resource"
     },
     {
-      "path": "./BaseApp/Test/Tests-Misc"
+      "path": "./Tests-Reverse"
     },
     {
-      "path": "./BaseApp/Test/Tests-Monitor Sensitive Fields"
+      "path": "./Tests-SCM"
     },
     {
-      "path": "./BaseApp/Test/Tests-Permissions"
+      "path": "./Tests-SCM-Assembly"
     },
     {
-      "path": "./BaseApp/Test/Tests-Physical Inventory"
+      "path": "./Tests-SCM-Manufacturing"
     },
     {
-      "path": "./BaseApp/Test/Tests-Prepayment"
+      "path": "./Tests-SCM-Service"
     },
     {
-      "path": "./BaseApp/Test/Tests-Rapid Start"
+      "path": "./Tests-SINGLESERVER"
     },
     {
-      "path": "./BaseApp/Test/Tests-Report"
+      "path": "./Tests-SMB"
     },
     {
-      "path": "./BaseApp/Test/Tests-Resource"
+      "path": "./Tests-TestLibraries"
     },
     {
       "path": "./Shopify/test/Shopify Connector Test/DisabledTests"
