@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  },
   "folders": [
     {
       "path": "./AI Test Toolkit"
@@ -168,7 +160,6 @@
     "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeActions": false
+    }
   }
 }
