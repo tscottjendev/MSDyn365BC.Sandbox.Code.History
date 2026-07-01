@@ -160,7 +160,6 @@
     "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeActions": false
+    }
   }
 }
