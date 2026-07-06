@@ -12,7 +12,7 @@
       "path": "./_Exclude_APIV1_ Tests"
     },
     {
-      "path": "./RecommendedApps/Test/Recommended Apps Tests"
+      "path": "./_Exclude_APIV2_ Tests"
     },
     {
       "path": "./_Exclude_Bank Deposits Tests"
@@ -67,6 +67,9 @@
     },
     {
       "path": "./E-Document Connector - Continia Tests"
+    },
+    {
+      "path": "./E-Document Connector - FORNAV Tests"
     },
     {
       "path": "./E-Document Connector - Logiq Tests"
