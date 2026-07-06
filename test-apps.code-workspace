@@ -15,13 +15,13 @@
       "path": "./_Exclude_APIV2_ Tests"
     },
     {
-      "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
+      "path": "./_Exclude_Bank Deposits Tests"
     },
     {
-      "path": "./ReportLayouts/Test/Report Layouts Tests"
+      "path": "./_Exclude_Business_Events_Test"
     },
     {
-      "path": "./AuditFileExport/Test/Audit File Export Tests"
+      "path": "./_Exclude_Email Logging Using Graph API Tests"
     },
     {
       "path": "./_Exclude_Master_Data_Management_Test_Library"
@@ -204,10 +204,7 @@
       "path": "./Tests-Dimension"
     },
     {
-      "path": "./Tests-Upgrade"
-    },
-    {
-      "path": "./Tests-User"
+      "path": "./Tests-ERM"
     },
     {
       "path": "./Tests-Fixed Asset"
@@ -279,10 +276,13 @@
       "path": "./Tests-TestLibraries"
     },
     {
-      "path": "./Shopify/test/Shopify Connector Test/DisabledTests"
+      "path": "./Tests-Upgrade"
     },
     {
-      "path": "./BaseApp/Test/Tests-SCM-Assembly"
+      "path": "./Tests-User"
+    },
+    {
+      "path": "./Tests-VAT"
     },
     {
       "path": "./Tests-Workflow"
