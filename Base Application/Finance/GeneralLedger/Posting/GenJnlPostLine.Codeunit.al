@@ -1668,6 +1668,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BankAccLedgEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)";
         OnBeforeBankAccLedgEntryUpdateAmounts(BankAccLedgEntry, GenJnlLine, BankAcc, TaxAmount, TaxAmountLCY);
         BankAccLedgEntry.Open := GenJnlLine.Amount <> 0;
+        if not BankAccLedgEntry.Open then begin
+            BankAccLedgEntry."Closed at Date" := GenJnlLine."Posting Date";
+            BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
+        end;
         BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
         BankAccLedgEntry.Positive := GenJnlLine.Amount > 0;
         BankAccLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
@@ -4337,9 +4341,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             exit;
         IsLCYTransaction := (GenJnlLine."Currency Code" = '') and (CustLedgEntry2."Currency Code" = '');
         TempVATPostingSetup.Reset();
+        TempVATPostingSetup.DeleteAll();
         CustLedgEntry2.CalcFields("Amount (LCY)", "Original Amt. (LCY)");
-        ShouldConsiderVATPostingGrouping := not TempVATPostingSetup.IsEmpty();
-        if (not ShouldConsiderVATPostingGrouping) and IsLCYTransaction then
+        ShouldConsiderVATPostingGrouping := false;
+        if IsLCYTransaction then
             case CustLedgEntry2."Document Type" of
                 CustLedgEntry2."Document Type"::"Credit Memo", CustLedgEntry2."Document Type"::Invoice:
                     CustLedgEntry2.GetDocumentVATPostingSetup(TempVATPostingSetup, GenJnlLine);
@@ -4370,6 +4375,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TaxJurisdiction: Record "Tax Jurisdiction";
         VATPostingSetup: Record "VAT Posting Setup";
         GLEntry: Record "G/L Entry";
+        InvoicePartAmountByVAT: Decimal;
         VATPart: Decimal;
         VATAmount: Decimal;
         VATBase: Decimal;
@@ -4424,16 +4430,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
 
-                if ShouldConsiderVATPostingGrouping then
+                if ShouldConsiderVATPostingGrouping then begin
+                    InvoicePartAmountByVAT := CustLedgEntry2.GetInvoicePartAmountByVAT(CustLedgEntry2."Document Type", GenJnlLine, TempVATPostingSetup."VAT Bus. Posting Group", TempVATPostingSetup."VAT Prod. Posting Group");
                     VATPart :=
                         VATEntry2.GetUnrealizedVATPart(
                         Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
                         PaidAmount,
-                        CustLedgEntry2.GetInvoicePartAmountByVAT(CustLedgEntry2."Document Type", GenJnlLine, TempVATPostingSetup."VAT Bus. Posting Group", TempVATPostingSetup."VAT Prod. Posting Group"),
+                        InvoicePartAmountByVAT,
                         TotalUnrealVATAmountFirst,
                         TotalUnrealVATAmountLast,
-                        CustLedgEntry2."Original Amt. (LCY)")
-                else
+                        InvoicePartAmountByVAT);
+                end else
                     VATPart :=
                         VATEntry2.GetUnrealizedVATPart(
                             Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
