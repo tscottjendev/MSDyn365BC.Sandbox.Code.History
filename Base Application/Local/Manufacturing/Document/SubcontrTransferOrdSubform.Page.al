@@ -19,7 +19,9 @@ page 12155 "Subcontr.Transfer Ord. Subform"
     SourceTable = "Transfer Line";
     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
     ObsoleteState = Pending;
+#pragma warning disable AS0072
     ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 
     layout
     {
