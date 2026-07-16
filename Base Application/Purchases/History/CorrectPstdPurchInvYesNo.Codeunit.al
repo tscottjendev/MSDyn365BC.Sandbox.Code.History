@@ -61,7 +61,7 @@ codeunit 1324 "Correct PstdPurchInv (Yes/No)"
             CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeader);
             IsHandled := false;
             OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(PurchaseHeader, IsHandled, PurchInvHeader);
-            if (not IsHandled) and (PurchaseHeader."No." <> '') then
+            if not IsHandled then
                 PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
             exit(true);
         end;
