@@ -213,7 +213,9 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
 #if not CLEAN27
             ObsoleteState = Pending;
+#pragma warning disable AS0072
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '30.0';
@@ -225,7 +227,9 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
 #if not CLEAN27
             ObsoleteState = Pending;
+#pragma warning disable AS0072
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '30.0';
@@ -238,7 +242,9 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
 #if not CLEAN27
             ObsoleteState = Pending;
+#pragma warning disable AS0072
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '30.0';
@@ -252,7 +258,9 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
 #if not CLEAN27
             ObsoleteState = Pending;
+#pragma warning disable AS0072
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '30.0';
@@ -267,7 +275,9 @@ table 5747 "Transfer Receipt Line"
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
 #if not CLEAN27
             ObsoleteState = Pending;
+#pragma warning disable AS0072
             ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '30.0';

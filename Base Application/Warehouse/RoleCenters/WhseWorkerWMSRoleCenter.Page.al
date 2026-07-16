@@ -137,7 +137,9 @@ page 9009 "Whse. Worker WMS Role Center"
                 ToolTip = 'Create a subcontracting transfer shipment.';
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                 ObsoleteState = Pending;
+#pragma warning disable AS0072
                 ObsoleteTag = '27.0';
+#pragma warning restore AS0072
             }
 #endif
         }
