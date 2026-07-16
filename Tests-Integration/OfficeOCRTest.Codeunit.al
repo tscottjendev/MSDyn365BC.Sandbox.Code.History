@@ -461,9 +461,9 @@ codeunit 139058 "Office OCR Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Office OCR Test");
 
         LibraryApplicationArea.EnableFoundationSetup();
+        ResetOCRSetup();
         if CryptographyManagement.IsEncryptionEnabled() then
             DeleteEncryptionKey();
-        ResetOCRSetup();
         InitializeWithHostType(HostType);
     end;
 
@@ -473,6 +473,7 @@ codeunit 139058 "Office OCR Test"
         Workflow: Record Workflow;
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
+        if UnbindSubscription(LibraryOfficeHostProvider) then;
         Clear(LibraryOfficeHostProvider);
 
         Workflow.SetRange(Template, false);
@@ -502,8 +503,6 @@ codeunit 139058 "Office OCR Test"
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
         OfficeManagement.InitializeHost(OfficeHost, HostType);
-
-        EnsureHostTypeRegistered(HostType);
     end;
 
     local procedure SetOfficeHostUnAvailable()
@@ -521,32 +520,9 @@ codeunit 139058 "Office OCR Test"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        if not OfficeAddinSetup.Get() then begin
-            OfficeAddinSetup.Init();
-            OfficeAddinSetup.Insert();
-        end;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
         OfficeAddinSetup.Modify();
-        Commit();
-    end;
-
-    local procedure EnsureHostTypeRegistered(HostType: Text)
-    var
-        NameValueBuffer: Record "Name/Value Buffer";
-    begin
-        if NameValueBuffer.Get(SessionId()) and (NameValueBuffer.Name <> '') then
-            exit;
-
-        if NameValueBuffer.Get(SessionId()) then begin
-            NameValueBuffer.Name := CopyStr(HostType, 1, MaxStrLen(NameValueBuffer.Name));
-            NameValueBuffer.Modify();
-        end else begin
-            NameValueBuffer.Init();
-            NameValueBuffer.ID := SessionId();
-            NameValueBuffer.Name := CopyStr(HostType, 1, MaxStrLen(NameValueBuffer.Name));
-            NameValueBuffer.Insert();
-        end;
-        Commit();
     end;
 
     local procedure RandomEmail(): Text[80]
