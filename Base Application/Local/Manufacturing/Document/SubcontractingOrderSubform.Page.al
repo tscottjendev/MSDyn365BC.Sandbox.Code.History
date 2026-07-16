@@ -726,7 +726,9 @@ page 12153 "Subcontracting Order Subform"
                     ToolTip = 'View the related transfer order lines.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
+#pragma warning disable AS0072
                     ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 
                     trigger OnAction()
                     begin
@@ -873,7 +875,9 @@ page 12153 "Subcontracting Order Subform"
 
 #if not CLEAN27
     [Scope('OnPrem')]
+#pragma warning disable AS0072
     [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
+#pragma warning restore AS0072
     procedure ShowTransferOrder()
     var
         TransferLine: Record "Transfer Line";
