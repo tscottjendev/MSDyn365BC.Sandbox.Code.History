@@ -58,9 +58,6 @@ codeunit 1850 "Sales Forecast Handler"
         HasMinimumHistory: Boolean;
         HasMinimumHistoryLoc: Boolean;
     begin
-        if not InitializeSetup() then
-            exit(false);
-
         // Clean up
         MSSalesForecastParameter.SetRange("Item No.", ItemNo);
         MSSalesForecastParameter.DeleteAll();
@@ -92,7 +89,6 @@ codeunit 1850 "Sales Forecast Handler"
             NumberOfPeriodsWithHistory := NumberOfPeriodsWithHistoryLoc; // Otherwise, NumberOfPeriodsWithHistory is already the bigger number
         if not HasMinimumHistory then begin
             Status := Status::"Not enough historical data";
-            Commit();
             exit(false);
         end;
 
@@ -123,6 +119,11 @@ codeunit 1850 "Sales Forecast Handler"
         LimitType: Option;
         Limit: Decimal;
     begin
+        // The "Time Series Management" instance is reused across items in the batch
+        // and scheduled paths. Re-initialize on every call: Initialize resets the
+        // engine's internal input buffer, so each item is forecast on its own data
+        // instead of data accumulated from previously processed items.
+
         // if null, then using standard credentials
         if IsNullGuid(MSSalesForecastSetupRec."API Key ID") then begin
             TimeSeriesManagement.GetMLForecastCredentials(APIURI, APIKey, LimitType, Limit);
@@ -145,6 +146,7 @@ codeunit 1850 "Sales Forecast Handler"
                 Status := Status::"Failed Time Series initialization";
                 exit(false);
             end;
+
         exit(true);
     end;
 
