@@ -3407,6 +3407,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Taxable Documents - NamedType NoTaxableEntryIsNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1151467462 - NamedType 3906402459" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No Taxable Entry should be created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No Taxable Documents - NamedType NoTaxableEntryShouldBeCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1151467462 - NamedType 1742261496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No Taxable Entry should not be created.]]></Val>
@@ -4035,6 +4044,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesExentaTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3584541132 - NamedType 1906643928" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The endpoint URL %1 is not on the allow-list for this feature.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the URL entered by the user]D;]A;(LookupHint=Codeunit SII Endpoint Url Validation - NamedType InvalidEndpointUrlErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3658423115 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
