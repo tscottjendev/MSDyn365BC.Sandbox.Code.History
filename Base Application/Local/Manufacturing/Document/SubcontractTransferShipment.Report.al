@@ -23,7 +23,9 @@ report 12154 "Subcontract. Transfer Shipment"
     UsageCategory = ReportsAndAnalysis;
     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
     ObsoleteState = Pending;
+#pragma warning disable AS0072
     ObsoleteTag = '27.0';
+#pragma warning restore AS0072
 
     dataset
     {
