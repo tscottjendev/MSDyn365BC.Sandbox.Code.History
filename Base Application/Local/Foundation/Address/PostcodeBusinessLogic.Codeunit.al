@@ -22,14 +22,9 @@ codeunit 10500 "Postcode Business Logic"
     var
         PostcodeServiceManager: Codeunit "Postcode Service Manager";
         SavePostcode: Boolean;
-        UKPostcodeAutocompleteLbl: Label 'UK Postcode Service';
         NoDataRetrievedErr: Label 'Postal code service did not return any results.';
         SavePostcodeSet: Boolean;
-        DiscoverabilityMessageMsg: Label 'You can retrieve and validate addresses based on postcodes.';
-        ConfigureTok: Label 'Configure';
-        DontShowAgainTok: Label 'Don''t show again';
-        NotificationIdTok: Label '3c379efc-509e-4f20-8c0e-e65f9d535a04', Locked = true;
-        DisabledTok: Label 'Disabled', Locked = true;
+        ServiceNameTxt: Label 'GetAddress.io', Locked = true;
 
     procedure ShowLookupWindow(var TempEnteredAutocompleteAddress: Record "Autocomplete Address" temporary; ShowInputPage: Boolean; var TempAutocompleteAddress: Record "Autocomplete Address" temporary): Boolean
     var
@@ -48,6 +43,11 @@ codeunit 10500 "Postcode Business Logic"
         // -- Address selection window opened with a list of possible addresses
         // -  - Address selection is canceled => EXIT(FALSE), do not show postcode input page
         // -  - Address selection is confirmed => set the address and EXIT(TRUE)
+        if not IsConfigured() then
+            exit;
+
+        if PostcodeServiceManager.GetActiveService() <> ServiceNameTxt then
+            exit;
 
         if not ShowInputPage then
             TempEnteredAutocompleteAddress.Address := '';
@@ -89,29 +89,9 @@ codeunit 10500 "Postcode Business Logic"
     end;
 
     procedure ShowDiscoverabilityNotificationIfNeccessary()
-    var
-        PostcodeNotificationMemory: Record "Postcode Notification Memory";
-        TempServiceListNameValueBuffer: Record "Name/Value Buffer" temporary;
-        PostcodeServiceConfig: Record "Postcode Service Config";
-        DiscoverabilityNotification: Notification;
-        RecExists: Boolean;
     begin
-        PostcodeServiceManager.DiscoverPostcodeServices(TempServiceListNameValueBuffer);
-        if TempServiceListNameValueBuffer.IsEmpty() then
-            exit;
-
-        if PostcodeNotificationMemory.Get(UserId) then
-            exit;
-
-        RecExists := PostcodeServiceConfig.FindFirst();
-        if RecExists and (PostcodeServiceConfig.GetServiceKey() <> DisabledTok) then
-            exit;
-
-        DiscoverabilityNotification.Id(NotificationIdTok);
-        DiscoverabilityNotification.Message(DiscoverabilityMessageMsg);
-        DiscoverabilityNotification.AddAction(ConfigureTok, CODEUNIT::"Postcode Business Logic", 'NotificationOnConfigure');
-        DiscoverabilityNotification.AddAction(DontShowAgainTok, CODEUNIT::"Postcode Business Logic", 'NotificationOnDontShowAgain');
-        DiscoverabilityNotification.Send();
+        // This is a deprecated codeunit and it must not add one more discoverability notification on card pages
+        exit;
     end;
 
     procedure NotificationOnConfigure(Notification: Notification)
@@ -126,8 +106,11 @@ codeunit 10500 "Postcode Business Logic"
     end;
 
     procedure IsConfigured(): Boolean
+    var
+        Configured: Boolean;
     begin
-        exit(PostcodeServiceManager.IsConfigured());
+        PostcodeServiceManager.IsServiceConfigured(ServiceNameTxt, Configured);
+        exit(Configured);
     end;
 
     procedure SetSavePostcode(NewValue: Boolean)
@@ -216,26 +199,6 @@ codeunit 10500 "Postcode Business Logic"
         end;
 
         exit(true);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
-    local procedure RegisterServiceOnRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
-    var
-        PostcodeServiceConfig: Record "Postcode Service Config";
-    begin
-        if PostcodeServiceManager.IsConfigured() then
-            ServiceConnection.Status := ServiceConnection.Status::Enabled
-        else
-            ServiceConnection.Status := ServiceConnection.Status::Disabled;
-
-        if not PostcodeServiceConfig.FindFirst() then begin
-            PostcodeServiceConfig.Init();
-            PostcodeServiceConfig.Insert();
-            PostcodeServiceConfig.SaveServiceKey('Disabled');
-        end;
-
-        ServiceConnection.InsertServiceConnection(ServiceConnection, PostcodeServiceConfig.RecordId,
-          UKPostcodeAutocompleteLbl, '', PAGE::"Postcode Configuration Page");
     end;
 }
 
