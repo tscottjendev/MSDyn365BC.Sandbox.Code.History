@@ -79,7 +79,9 @@ page 5749 "Transfer Lines"
                     ToolTip = 'Specifies the number of work in process (WIP) items that have shipped on a subcontractor transfer order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
+#pragma warning disable AS0072
                     ObsoleteTag = '27.0';
+#pragma warning restore AS0072
                 }
                 field("WIP Outstanding Qty."; Rec."WIP Outstanding Qty.")
                 {
@@ -87,7 +89,9 @@ page 5749 "Transfer Lines"
                     ToolTip = 'Specifies the number of work in process (WIP) items that will be shipped on a subcontractor transfer order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
+#pragma warning disable AS0072
                     ObsoleteTag = '27.0';
+#pragma warning restore AS0072
                 }
 #endif
                 field("Unit of Measure"; Rec."Unit of Measure")
