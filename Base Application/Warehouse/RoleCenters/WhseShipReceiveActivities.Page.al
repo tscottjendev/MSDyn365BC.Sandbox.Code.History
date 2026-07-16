@@ -61,7 +61,9 @@ page 9050 "Whse Ship & Receive Activities"
                         ToolTip = 'Create a new subcontracting transfer order.';
                         ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                         ObsoleteState = Pending;
+#pragma warning disable AS0072
                         ObsoleteTag = '27.0';
+#pragma warning restore AS0072
                     }
 #endif
                 }
