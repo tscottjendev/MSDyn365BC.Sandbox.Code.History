@@ -1726,6 +1726,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BankAccLedgEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)";
         OnBeforeBankAccLedgEntryUpdateAmounts(BankAccLedgEntry, GenJnlLine, BankAcc, TaxAmount, TaxAmountLCY);
         BankAccLedgEntry.Open := GenJnlLine.Amount <> 0;
+        if not BankAccLedgEntry.Open then begin
+            BankAccLedgEntry."Closed at Date" := GenJnlLine."Posting Date";
+            BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
+        end;
         BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
         BankAccLedgEntry.Positive := GenJnlLine.Amount > 0;
         BankAccLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
@@ -12703,7 +12707,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
-	[IntegrationEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSendDocToCartera(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Option Sale,Purchase; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     begin
     end;
