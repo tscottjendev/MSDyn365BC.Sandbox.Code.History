@@ -5,11 +5,11 @@
 
 namespace Microsoft.Finance.ExcelReports;
 
-using Microsoft.Purchases.Vendor;
-using Microsoft.Purchases.Payables;
+using Microsoft.ExcelReports;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.ExcelReports;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
 
 report 4403 "EXR Aged Acc Payable Excel"
 {
@@ -76,8 +76,9 @@ report 4403 "EXR Aged Acc Payable Excel"
                 {
                     IncludeCaption = true;
                 }
-                column(CurrencyCode; CurrencyCodeDisplayCode)
+                column(CurrencyCode; "Currency Code")
                 {
+                    IncludeCaption = true;
                 }
                 column(PostingDate; "Posting Date")
                 {
@@ -118,11 +119,7 @@ report 4403 "EXR Aged Acc Payable Excel"
                 Clear(AgingData);
                 AgingData.DeleteAll();
                 InsertAgingData(VendorAgingData);
-
-                if AgingData."Currency Code" = '' then
-                    CurrencyCodeDisplayCode := GeneralLedgerSetup.GetCurrencyCode('')
-                else
-                    CurrencyCodeDisplayCode := AgingData."Currency Code";
+                CurrencyCodeDisplayCode := AgingData."Currency Code";
             end;
         }
 
@@ -263,7 +260,6 @@ report 4403 "EXR Aged Acc Payable Excel"
         DueByCurrencies = 'Due by Currencies', MaxLength = 31, Comment = 'Excel worksheet name.';
         OpenByFCY = 'Open by (FCY)';
         DataRetrieved = 'Data retrieved:';
-        CurrencyCodeDisplay = 'Currency Code';
         AgedAsOf = 'Aged as of:';
         AgedAccountsPayable = 'Aged Accounts Payable';
         AgedAccountsPayablePrint = 'Aged Accounts Payable (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
@@ -292,12 +288,6 @@ report 4403 "EXR Aged Acc Payable Excel"
         PeriodEnds: List of [Date];
         PeriodStarts: List of [Date];
         CurrencyCodeDisplayCode: Code[20];
-#if not CLEAN25
-#pragma warning disable AA0137
-        [Obsolete('Will be deleted', '25.0')]
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-#pragma warning restore AA0137
-#endif
 
     trigger OnPreReport()
     begin
@@ -319,6 +309,9 @@ report 4403 "EXR Aged Acc Payable Excel"
 
         if PeriodCount = 0 then
             PeriodCount := 5;
+
+        if not GeneralLedgerSetup.Get() then
+            Clear(GeneralLedgerSetup);
 
         WorkingEndDate := EndingDate;
         WorkingStartDate := CalcDate(PeriodLength, WorkingEndDate);
@@ -363,7 +356,10 @@ report 4403 "EXR Aged Acc Payable Excel"
         AgingData."Document No." := VendorLedgerEntry."Document No.";
         AgingData."Dimension 1 Code" := VendorLedgerEntry."Global Dimension 1 Code";
         AgingData."Dimension 2 Code" := VendorLedgerEntry."Global Dimension 2 Code";
-        AgingData."Currency Code" := VendorLedgerEntry."Currency Code";
+        if VendorLedgerEntry."Currency Code" = '' then
+            AgingData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode('')
+        else
+            AgingData."Currency Code" := VendorLedgerEntry."Currency Code";
         AgingData."Posting Date" := VendorLedgerEntry."Posting Date";
         AgingData."Document Date" := VendorLedgerEntry."Document Date";
         AgingData."Due Date" := VendorLedgerEntry."Due Date";
@@ -377,4 +373,3 @@ report 4403 "EXR Aged Acc Payable Excel"
         AgingData.Insert(true);
     end;
 }
-

@@ -100,7 +100,7 @@ codeunit 139566 "Shpfy Payments Test"
         JNet.Add('amount', Any.DecimalInRange(1000, 2));
         JNet.Add('currencyCode', 'USD');
         JPayout.Add('net', JNet);
-        
+
         // Add summary with fee/gross amounts
         JAmount.Add('amount', 0);
         JSummary.Add('adjustmentsFee', JAmount);
@@ -114,7 +114,7 @@ codeunit 139566 "Shpfy Payments Test"
         JSummary.Add('retriedPayoutsFee', JAmount);
         JSummary.Add('retriedPayoutsGross', JAmount);
         JPayout.Add('summary', JSummary);
-        
+
         exit(JPayout);
     end;
 

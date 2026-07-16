@@ -5,24 +5,22 @@
 namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Bank.Reconciliation;
-#if not CLEAN26
 using Microsoft.eServices.EDocument.Processing.Import;
-#endif
+using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
-using System.Reflection;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
-using Microsoft.eServices.EDocument.Service.Participant;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System.IO;
+using System.Reflection;
 
 codeunit 6109 "E-Document Import Helper"
 {
@@ -355,7 +353,9 @@ codeunit 6109 "E-Document Import Helper"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+#pragma warning disable AL0432 
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+#pragma warning restore AL0432
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         InvoiceDiscountAmount: Decimal;
         InvDiscBaseAmount: Decimal;
@@ -431,19 +431,26 @@ codeunit 6109 "E-Document Import Helper"
     /// <returns>Vendor number if exists or empty string.</returns>
     procedure FindVendor(VendorNoText: Code[20]; GLN: Code[13]; VATRegistrationNo: Text[20]): Code[20]
     var
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         VendorNo: Code[20];
     begin
         VendorNo := FindVendorByNo(VendorNoText);
-        if VendorNo <> '' then
+        if VendorNo <> '' then begin
+            EDocImpSessionTelemetry.SetText('Vendor Match Method', 'No');
             exit(VendorNo);
+        end;
 
         VendorNo := FindVendorByGLN(GLN);
-        if VendorNo <> '' then
+        if VendorNo <> '' then begin
+            EDocImpSessionTelemetry.SetText('Vendor Match Method', 'GLN');
             exit(VendorNo);
+        end;
 
         VendorNo := FindVendorByVATRegistrationNo(VATRegistrationNo);
-        if VendorNo <> '' then
+        if VendorNo <> '' then begin
+            EDocImpSessionTelemetry.SetText('Vendor Match Method', 'VAT Id');
             exit(VendorNo);
+        end;
     end;
 
     /// <summary>
@@ -564,9 +571,11 @@ codeunit 6109 "E-Document Import Helper"
         Vendor: Record Vendor;
         RecordMatchMgt: Codeunit "Record Match Mgt.";
         EDocumentNotification: Codeunit "E-Document Notification";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         NameNearness: Integer;
         AddressNearness: Integer;
         MatchedByAddress: Boolean;
+        NameOnlyCandidateFound: Boolean;
     begin
         Vendor.SetCurrentKey(Blocked);
         Vendor.SetLoadFields(Name, Address);
@@ -581,10 +590,14 @@ codeunit 6109 "E-Document Import Helper"
                     MatchedByAddress := AddressNearness >= RequiredNearness();
                     if MatchedByAddress then
                         exit(Vendor."No.");
+                    NameOnlyCandidateFound := true;
                     if EDocEntryNoForNotification <> 0 then
                         EDocumentNotification.AddVendorMatchedByNameNotAddressNotification(EDocEntryNoForNotification);
                 end;
             until Vendor.Next() = 0;
+
+        if NameOnlyCandidateFound then
+            EDocImpSessionTelemetry.SetBool('Vendor Matched By Name Not Address', true);
     end;
 
     /// <summary>
@@ -624,6 +637,9 @@ codeunit 6109 "E-Document Import Helper"
     begin
         if not Vendor.Get(VendorNo) then
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(VendorNotFoundErr, EDocument."Bill-to/Pay-to Name"));
+
+        if Vendor."Self-Billing Agreement" then
+            LogErrorIfVendorIsSelfBilling(EDocument, Vendor);
     end;
 
     /// <summary>
@@ -645,6 +661,12 @@ codeunit 6109 "E-Document Import Helper"
         ServiceParticipant.SetRange(Service);
         if ServiceParticipant.FindFirst() then
             exit(ServiceParticipant.Participant);
+    end;
+
+    procedure LogErrorIfVendorIsSelfBilling(var EDocument: Record "E-Document"; Vendor: Record Vendor)
+    begin
+        if (EDocument."Direction" = Enum::"E-Document Direction"::"Incoming") then
+            EDocErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(SelfBillingVendorErr, Vendor."No."));
     end;
 
 #if not CLEAN26
@@ -1035,5 +1057,6 @@ codeunit 6109 "E-Document Import Helper"
         UnableToApplyDiscountErr: Label 'The invoice discount of %1 cannot be applied. Invoice discount must be allowed on at least one invoice line and invoice total must not be 0.', Comment = '%1 - a decimal number';
         TotalsMismatchErr: Label 'The total amount %1 on the created document is different than the total amount %2 in the electronic document.', Comment = '%1 total amount, %2 expected total amount';
         VendorNotFoundErr: Label 'Cannot find vendor ''%1'' based on the vendor''s name, address or VAT registration number on the electronic document. Make sure that a card for the vendor exists with the corresponding name, address or VAT Registration No.', Comment = '%1 Vendor name (e.g. London Postmaster)';
+        SelfBillingVendorErr: Label 'Inbound E-Document blocked for vendor %1 due to Self-Billing Agreement. Supplier-issued invoices cannot be processed for this vendor.', Comment = '%1 Vendor name (e.g. London Postmaster)';
         NotSpecifiedUnitOfMeasureTxt: Label '<NONE>';
 }

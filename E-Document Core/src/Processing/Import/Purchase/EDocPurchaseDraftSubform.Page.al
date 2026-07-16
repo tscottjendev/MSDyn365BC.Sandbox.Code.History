@@ -7,8 +7,10 @@ namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Purchases.Setup;
 
 page 6183 "E-Doc. Purchase Draft Subform"
 {
@@ -70,10 +72,17 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Lookup = true;
                     ShowMandatory = true;
                 }
+                field("VAT Prod. Posting Group"; Rec."[BC] VAT Prod. Posting Group")
+                {
+                    ApplicationArea = All;
+                    Lookup = true;
+                    Visible = VATProdPostGroupIsVisible;
+                }
                 field("Item Reference No."; Rec."[BC] Item Reference No.")
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    Visible = false;
                 }
                 field("Unit Of Measure"; Rec."[BC] Unit of Measure")
                 {
@@ -92,7 +101,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateCalculatedAmounts(true, true);
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Direct Unit Cost"; Rec."Unit Price")
@@ -101,7 +110,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     trigger OnValidate()
                     begin
-                        UpdateCalculatedAmounts(true, true);
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Total Discount"; Rec."Total Discount")
@@ -111,7 +120,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     trigger OnValidate()
                     begin
-                        UpdateCalculatedAmounts(true, true);
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Line Amount"; LineAmount)
@@ -299,6 +308,25 @@ page 6183 "E-Doc. Purchase Draft Subform"
                             Rec.LookupDimensions();
                         end;
                     }
+                    action(LookupItemReferences)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Item References';
+                        ToolTip = 'View item references for the vendor associated with this e-document.';
+                        Image = Change;
+
+                        trigger OnAction()
+                        var
+                            ItemReference: Record "Item Reference";
+                            ItemReferencePage: Page "Item Reference Entries";
+                        begin
+                            EDocumentPurchaseHeader.TestField("[BC] Vendor No.");
+                            ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+                            ItemReference.SetRange("Reference Type No.", EDocumentPurchaseHeader."[BC] Vendor No.");
+                            ItemReferencePage.SetTableView(ItemReference);
+                            ItemReferencePage.Run();
+                        end;
+                    }
                 }
             }
         }
@@ -312,7 +340,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
         EDocPOMatching: Codeunit "E-Doc. PO Matching";
         AdditionalColumns, OrderMatchedCaption, MatchWarningsCaption, MatchWarningsStyleExpr : Text;
         LineAmount: Decimal;
-        DimVisible1, DimVisible2, HasAdditionalColumns, IsEDocumentMatchedToAnyPOLine, IsLineMatchedToOrderLine, IsLineMatchedToReceiptLine, HasEDocumentOrderMatchWarnings : Boolean;
+        DimVisible1, DimVisible2, HasAdditionalColumns, IsEDocumentMatchedToAnyPOLine, IsLineMatchedToOrderLine, IsLineMatchedToReceiptLine, HasEDocumentOrderMatchWarnings, VATProdPostGroupIsVisible : Boolean;
         HistoryCantBeRetrievedErr: Label 'The purchase invoice that matched historically with this line can''t be opened.';
 
     trigger OnOpenPage()
@@ -329,6 +357,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
     trigger OnAfterGetCurrRecord()
     begin
         UpdatePOMatching();
+        SetVATProductPostingGroupVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -336,11 +365,12 @@ page 6183 "E-Doc. Purchase Draft Subform"
         if EDocumentPurchaseLine.Get(Rec."E-Document Entry No.", Rec."Line No.") then;
         AdditionalColumns := Rec.AdditionalColumnsDisplayText();
         SetHasAdditionalColumns();
-        UpdateCalculatedAmounts(false, false);
+        UpdateCalculatedAmounts(false);
         IsLineMatchedToOrderLine := EDocPOMatching.IsEDocumentLineMatchedToAnyPOLine(EDocumentPurchaseLine);
         IsLineMatchedToReceiptLine := EDocPOMatching.IsEDocumentLineMatchedToAnyReceiptLine(EDocumentPurchaseLine);
         OrderMatchedCaption := IsLineMatchedToOrderLine ? GetSummaryOfMatchedOrders() : '';
         UpdateMatchWarnings();
+        SetVATProductPostingGroupVisibility();
     end;
 
     internal procedure SetEDocumentPurchaseHeader(EDocPurchHeader: Record "E-Document Purchase Header")
@@ -360,9 +390,16 @@ page 6183 "E-Doc. Purchase Draft Subform"
           DimVisible1, DimVisible2, DimOther, DimOther, DimOther, DimOther, DimOther, DimOther);
     end;
 
-    local procedure UpdateCalculatedAmounts(UpdateParentRecord: Boolean; LaunchErrorOnInvalidDiscount: Boolean)
+    local procedure SetVATProductPostingGroupVisibility()
     var
-        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        VATProdPostGroupIsVisible := PurchSetup."Resolve VAT Group Purch EDoc";
+    end;
+
+    local procedure UpdateCalculatedAmounts(UpdateParentRecord: Boolean)
+    var
         TotalEDocPurchaseLine: Record "E-Document Purchase Line";
         EDocumentImportHelper: Codeunit "E-Document Import Helper";
         LineSubtotal: Decimal;
@@ -370,14 +407,13 @@ page 6183 "E-Doc. Purchase Draft Subform"
     begin
         LineSubtotal := Rec.Quantity * Rec."Unit Price";
         LineAmount := LineSubtotal - Rec."Total Discount";
-        if LaunchErrorOnInvalidDiscount then
-            if LineSubtotal = 0 then begin
-                if Rec."Total Discount" > 0 then
-                    Error(DiscountExceedsSubtotalErr)
-            end
-            else
-                if Rec."Total Discount" / LineSubtotal > 1 then
-                    Error(DiscountExceedsSubtotalErr);
+        if LineSubtotal = 0 then begin
+            if Rec."Total Discount" > 0 then
+                Error(DiscountExceedsSubtotalErr)
+        end
+        else
+            if Rec."Total Discount" / LineSubtotal > 1 then
+                Error(DiscountExceedsSubtotalErr);
         if not UpdateParentRecord then
             exit;
         if not EDocumentPurchaseHeader.Get(Rec."E-Document Entry No.") then
@@ -545,5 +581,4 @@ page 6183 "E-Doc. Purchase Draft Subform"
         if WarningDetails.Length() > 0 then
             Message(WarningDetails.ToText());
     end;
-
 }

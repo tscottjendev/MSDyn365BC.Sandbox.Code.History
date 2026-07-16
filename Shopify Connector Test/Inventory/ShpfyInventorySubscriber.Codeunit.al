@@ -8,10 +8,10 @@ namespace Microsoft.Integration.Shopify.Test;
 using Microsoft.Integration.Shopify;
 
 /// <summary>
-/// Codeunit Shpfy Inventory Subscriber (ID 134248).
+/// Codeunit Shpfy Inventory Subscriber (ID 139593).
 /// Mock subscriber for inventory API tests to simulate GraphQL responses.
 /// </summary>
-codeunit 134248 "Shpfy Inventory Subscriber"
+codeunit 139593 "Shpfy Inventory Subscriber"
 {
     SingleInstance = true;
     EventSubscriberInstance = Manual;
@@ -26,7 +26,6 @@ codeunit 134248 "Shpfy Inventory Subscriber"
     begin
         RetryScenario := NewScenario;
         CallCount := 0;
-        LastGraphQLRequest := '';
     end;
 
     internal procedure SetErrorCode(NewErrorCode: Text)

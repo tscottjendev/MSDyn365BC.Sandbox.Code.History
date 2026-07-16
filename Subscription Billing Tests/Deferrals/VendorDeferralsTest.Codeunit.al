@@ -48,10 +48,10 @@ codeunit 139913 "Vendor Deferrals Test"
         Assert: Codeunit Assert;
         ContractTestLibrary: Codeunit "Contract Test Library";
         CorrectPostedPurchaseInvoice: Codeunit "Correct Posted Purch. Invoice";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
         CorrectedDocumentNo: Code[20];
         PostedDocumentNo: Code[20];
         PostingDate: Date;
@@ -879,7 +879,6 @@ codeunit 139913 "Vendor Deferrals Test"
         GetGLEntryAmountFromAccountNo(GLAmountAfterRelease, GeneralPostingSetup."Vend. Sub. Contr. Def. Account");
         Assert.AreEqual(GLAmountBeforeRelease - VendorContractDeferral.Amount, GLAmountAfterRelease, AmountNotMovedFromDeferralsAccountErr);
     end;
-
     #endregion Tests
 
     #region Procedures

@@ -4,8 +4,8 @@
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -39,6 +39,9 @@
       "path": "./AI Test Toolkit"
     },
     {
+      "path": "./Application Test Library"
+    },
+    {
       "path": "./Audit File Export Tests"
     },
     {
@@ -69,7 +72,7 @@
       "path": "./E-Document Connector - Continia Tests"
     },
     {
-      "path": "./E-Document Connector - FORNAV Tests"
+      "path": "./E-Document Connector - ForNAV Tests"
     },
     {
       "path": "./E-Document Connector - Logiq Tests"
@@ -79,9 +82,6 @@
     },
     {
       "path": "./E-Document Connector - SignUp Tests"
-    },
-    {
-      "path": "./E-Document Core Tests"
     },
     {
       "path": "./Email - Current User Connector Tests"
@@ -105,13 +105,13 @@
       "path": "./Enforced Digital Vouchers Tests"
     },
     {
-      "path": "./Error Messages with Recommendations Tests"
-    },
-    {
       "path": "./Essential Business Headlines Test"
     },
     {
       "path": "./EU 3-Party Trade Purchase Tests"
+    },
+    {
+      "path": "./Excise Taxes Tests"
     },
     {
       "path": "./Field Service Integration Test"
@@ -138,13 +138,16 @@
       "path": "./PayPal Payments Standard Tests"
     },
     {
+      "path": "./PEPPOL Tests"
+    },
+    {
       "path": "./Performance Toolkit Tests"
     },
     {
       "path": "./PowerBI Reports Test Library"
     },
     {
-      "path": "./PowerBI Reports Tests"
+      "path": "./Quality Management Test Library"
     },
     {
       "path": "./Recommended Apps Tests"
@@ -291,7 +294,16 @@
       "path": "./VAT Group Management Tests"
     },
     {
+      "path": "./Withholding Tax Tests"
+    },
+    {
+      "path": "./System Application Test Library/Extension Management/testArtifacts"
+    },
+    {
       "path": "./Subscription Billing Tests/DisabledTests"
+    },
+    {
+      "path": "./E-Document Core Tests/DisabledTests"
     },
     {
       "path": "./Shopify Connector Test/DisabledTests"
@@ -300,7 +312,13 @@
       "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
+      "path": "./Quality Management-Tests/DisabledTests"
+    },
+    {
       "path": "./Test Runner/src/DataDrivenTest"
+    },
+    {
+      "path": "./Quality Management/src/Configuration/Template/Test"
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
@@ -321,6 +339,9 @@
       "path": "./System Application/Email/src/Test Email"
     },
     {
+      "path": "./Error Messages with Recommendations Tests/DisabledTests"
+    },
+    {
       "path": "./Business Foundation Tests/DisabledTests"
     },
     {
@@ -330,7 +351,7 @@
       "path": "./System Application Test/DisabledTests"
     },
     {
-      "path": "./System Application Test/Extension Management/testArtifacts"
+      "path": "./PowerBI Reports Tests/DisabledTests"
     },
     {
       "path": "./Base Application/System/DevTools/CALTest"
