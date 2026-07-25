@@ -1,11 +1,11 @@
 {
   "settings": {
+    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeActions": false,
     "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    "al.enableCodeActions": false
   },
   "folders": [
     {
@@ -288,22 +288,10 @@
       "path": "./VAT Group Management Tests"
     },
     {
-      "path": "./Business Foundation Tests/DisabledTests"
-    },
-    {
       "path": "./Sales Lines Suggestions Tests/AI Tests"
     },
     {
       "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
-    },
-    {
-      "path": "./Test Runner/src/DataDrivenTest"
-    },
-    {
-      "path": "./Base Application/System/DevTools/CALTest"
-    },
-    {
-      "path": "./System Application/Email/src/Test Email"
     },
     {
       "path": "./System Application Test/DisabledTests"
@@ -313,6 +301,12 @@
     },
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./Base Application/System/DevTools/CALTest"
+    },
+    {
+      "path": "./Test Runner/src/DataDrivenTest"
     },
     {
       "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
@@ -325,6 +319,12 @@
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
+    },
+    {
+      "path": "./System Application/Email/src/Test Email"
+    },
+    {
+      "path": "./Business Foundation Tests/DisabledTests"
     }
   ]
 }
