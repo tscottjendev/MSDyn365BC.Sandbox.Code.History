@@ -280,34 +280,22 @@
       "path": "./VAT Group Management Tests"
     },
     {
+      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
+    },
+    {
       "path": "./Sales Lines Suggestions Tests/AI Tests"
     },
     {
       "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
     },
     {
-      "path": "./Subscription Billing Tests/DisabledTests"
+      "path": "./System Application/Email/src/Test Email"
     },
     {
       "path": "./System Application Test/DisabledTests"
     },
     {
       "path": "./System Application Test/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./Performance Toolkit Tests/src/Mock Tests"
-    },
-    {
-      "path": "./Shopify Connector Test/DisabledTests"
-    },
-    {
-      "path": "./Base Application/System/DevTools/CALTest"
-    },
-    {
-      "path": "./Test Runner/src/DataDrivenTest"
-    },
-    {
-      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
       "path": "./AI Test Toolkit/src/TestSuite"
@@ -319,16 +307,28 @@
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
     },
     {
-      "path": "./System Application/Email/src/Test Email"
+      "path": "./Subscription Billing Tests/DisabledTests"
     },
     {
       "path": "./Business Foundation Tests/DisabledTests"
+    },
+    {
+      "path": "./Test Runner/src/DataDrivenTest"
+    },
+    {
+      "path": "./Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./Base Application/System/DevTools/CALTest"
+    },
+    {
+      "path": "./Shopify Connector Test/DisabledTests"
     }
   ],
   "settings": {
+    "al.enableCodeActions": false,
     "allint.enabled": false,
     "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     }
