@@ -115,6 +115,9 @@
       "path": "./Excise Taxes Tests"
     },
     {
+      "path": "./External Storage - Document Attachments Tests"
+    },
+    {
       "path": "./Field Service Integration Test"
     },
     {
