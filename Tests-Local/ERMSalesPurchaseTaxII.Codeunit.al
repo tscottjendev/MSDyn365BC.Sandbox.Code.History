@@ -1043,7 +1043,7 @@
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Check additional charge values for Item in Value Entry.
-        VerifyValueEntriesCostAmount(DocumentNo, ChargeAmount * (1 + (TaxDetail."Tax Below Maximum" / 100)));
+        VerifyValueEntriesCostAmount(DocumentNo, ChargeAmount + Round(ChargeAmount * TaxDetail."Tax Below Maximum" / 100));
     end;
 
     [Test]
@@ -6096,7 +6096,8 @@
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.CalcSums("Cost Amount (Actual)");
-        Assert.AreEqual(ExpectedAmount, ValueEntry."Cost Amount (Actual)", WrongValueEntryAmountErr);
+        Assert.AreNearlyEqual(
+          ExpectedAmount, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), WrongValueEntryAmountErr);
     end;
 
     local procedure VerifyUnitCostWithTaxInJobLedgEntry(PurchLine: Record "Purchase Line"; DocNo: Code[20])

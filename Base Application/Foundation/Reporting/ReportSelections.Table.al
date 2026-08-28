@@ -78,6 +78,7 @@ table 77 "Report Selections"
                 if not "Use for Email Body" then begin
                     "Email Body Layout Code" := '';
                     "Email Body Layout Name" := '';
+                    Clear("Email Body Layout AppID");
                 end;
             end;
         }
@@ -91,6 +92,7 @@ table 77 "Report Selections"
                 if not "Use for Email Body" then begin
                     "Email Body Layout Code" := '';
                     "Email Body Layout Name" := '';
+                    Clear("Email Body Layout AppID");
                 end;
             end;
         }
@@ -160,6 +162,7 @@ table 77 "Report Selections"
             var
                 ReportLayoutList: Record "Report Layout List";
             begin
+                Clear("Email Body Layout AppID");
                 if "Email Body Layout Name" <> '' then begin
                     "Use for Email Body" := true;
                     "Email Body Layout Code" := '';
@@ -234,7 +237,6 @@ table 77 "Report Selections"
             var
                 ReportLayoutList: Record "Report Layout List";
             begin
-                Clear("Report Layout AppID");
                 if "Report Layout Name" <> '' then begin
                     "Use for Email Attachment" := true;
                     ReportLayoutList.SetRange(Name, "Report Layout Name");
@@ -247,7 +249,8 @@ table 77 "Report Selections"
                     end;
                     if IsNullGuid("Report Layout AppID") then
                         Rec."Report Layout AppID" := ReportLayoutList."Application ID";
-                end;
+                end else
+                    Clear("Report Layout AppID");
             end;
         }
         field(31; "Report Layout AppID"; Guid)
@@ -258,7 +261,7 @@ table 77 "Report Selections"
         field(32; "Report Layout Caption"; Text[250])
         {
             Caption = 'Report Layout';
-            ToolTip = 'Specifies the Name of the report layout that is used.';
+            ToolTip = 'Specifies the name of the report layout that is used.';
             FieldClass = FlowField;
             CalcFormula = lookup("Report Layout List".Caption where("Report ID" = field("Report ID"), Name = field("Report Layout Name")));
 
@@ -281,7 +284,7 @@ table 77 "Report Selections"
         field(33; "Report Layout Publisher"; Text[250])
         {
             Caption = 'Report Layout Publisher';
-            ToolTip = 'Specifies the publisher of the email Attachment layout that is used.';
+            ToolTip = 'Specifies the publisher of the report layout that is used.';
             FieldClass = FlowField;
             CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID"), "Application ID" = field("Report Layout AppID")));
             Editable = false;
@@ -1761,6 +1764,7 @@ table 77 "Report Selections"
             TempReportSelections.SaveReportAsPDFInTempBlob(TempBlob, TempReportSelections."Report ID", RecordVariant, TempReportSelections."Custom Report Layout Code", ReportUsage);
             TempBlob.CreateInStream(AttachmentInStream);
             ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, DocName, 'pdf');
+            OnSendToDiskForCustOnBeforeDownloadAttachment(TempReportSelections, RecordVariant, DocNo, DocName, 'pdf', ClientAttachmentFileName);
             DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
         until TempReportSelections.Next() = 0;
     end;
@@ -2907,6 +2911,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnAfterAddRelatedReminderInvoiceSource(var SourceTableIDs: List of [Integer]; var SourceRelationTypes: List of [Integer]; var SourceIDs: List of [Guid]; ReminderLines: Record "Issued Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToDiskForCustOnBeforeDownloadAttachment(var TempReportSelections: Record "Report Selections" temporary; RecordVariant: Variant; DocumentNo: Code[20]; DocumentName: Text; Extension: Code[3]; var ClientAttachmentFileName: Text)
     begin
     end;
 }

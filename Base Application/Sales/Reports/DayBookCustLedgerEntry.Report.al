@@ -20,6 +20,7 @@ report 2501 "Day Book Cust. Ledger Entry"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Day Book Customer Ledger Entry';
+    ToolTip = 'View a summary of customer ledger entries for the specified date. The report shows entries grouped by document type and sorted by entry number.';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = RDLCLayout;
 
@@ -410,6 +411,8 @@ report 2501 "Day Book Cust. Ledger Entry"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Day Book Customer Ledger Entry';
+        AboutText = 'The **Day Book Customer Ledger Entry** report provides a chronological listing of posted customer ledger entries by posting date, including related G/L amounts, discounts, tax base, and tax amounts, with optional entry-level details. Use it for daily or period-based control, reconciliation, and audit trail reviews by verifying customer transactions in the exact order they were posted.';
 
         layout
         {
