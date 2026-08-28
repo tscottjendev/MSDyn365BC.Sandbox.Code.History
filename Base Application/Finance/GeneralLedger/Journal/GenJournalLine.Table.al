@@ -23,6 +23,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Setup;
@@ -945,6 +946,8 @@ table 81 "Gen. Journal Line"
 
                 if "Applies-to Doc. No." <> xRec."Applies-to Doc. No." then
                     ClearCustVendApplnEntry();
+
+                OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(Rec, SuppressCommit);
 
                 if ("Applies-to Doc. No." = '') and (xRec."Applies-to Doc. No." <> '') then begin
                     PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
@@ -2556,6 +2559,42 @@ table 81 "Gen. Journal Line"
             if ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
+        }
+        /// <summary>
+        /// Specifies the spend request that this journal line relates to.
+        /// </summary>
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this journal line relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if "Spend Request No." = '' then begin
+                    "Spend Request Close" := false;
+                    exit;
+                end;
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close", Rec."Amount (LCY)");
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        /// <summary>
+        /// Specifies that the spend request will be closed when the journal line is posted.
+        /// </summary>
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the journal line is posted.';
+            DataClassification = CustomerContent;
         }
         /// <summary>
         /// Job queue processing status for batch posting operations and automated journal processing.
@@ -4756,6 +4795,7 @@ table 81 "Gen. Journal Line"
                 exit;
 
         CheckDirectPosting(GLAcc);
+        CheckSpendRequest(GLAcc);
 
         OnAfterCheckGLAcc(Rec, GLAcc);
     end;
@@ -4785,6 +4825,14 @@ table 81 "Gen. Journal Line"
         GLAccount.TestField("Direct Posting", true);
 
         OnAfterCheckDirectPosting(GLAccount, Rec);
+    end;
+
+    local procedure CheckSpendRequest(var GLAccount: Record "G/L Account")
+    begin
+        if Rec."Spend Request No." <> '' then
+            exit;
+        if GLAccount."Spend Request Required" = GLAccount."Spend Request Required"::None then
+            exit;
     end;
 
     /// <summary>
@@ -5084,6 +5132,9 @@ table 81 "Gen. Journal Line"
             then
                 CustCheckCreditLimit.GenJnlLineCheck(Rec);
 
+        if "Spend Request No." <> '' then
+            CheckSpendRequestAmount();
+
         Validate("VAT %");
         Validate("Bal. VAT %");
         UpdateLineBalance();
@@ -5098,6 +5149,13 @@ table 81 "Gen. Journal Line"
         end;
 
         OnAfterValidateAmount(Rec);
+    end;
+
+    local procedure CheckSpendRequestAmount()
+    var
+        SpendRequest: Record "Spend Request";
+    begin
+        SpendRequest.CheckSpendRequestAmount(Rec."Spend Request No.", Rec."Amount (LCY)");
     end;
 
     local procedure UpdateApplyToAmount()
@@ -5927,7 +5985,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 CustLedgEntry.CalcFields("Remaining Amount");
-                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry);
+                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry, Rec);
 
                 if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
                     Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
@@ -5975,7 +6033,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 VendLedgEntry.CalcFields("Remaining Amount");
-                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry);
+                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry, Rec);
 
                 if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
                     Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
@@ -7155,6 +7213,8 @@ table 81 "Gen. Journal Line"
         "Ship-to/Order Address Code" := PurchHeader."Order Address Code";
         "Salespers./Purch. Code" := PurchHeader."Purchaser Code";
         "On Hold" := PurchHeader."On Hold";
+        "Spend Request No." := PurchHeader."Spend Request No.";
+        "Spend Request Close" := PurchHeader."Spend Request Close";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
         ReadGLSetup();
@@ -7185,6 +7245,8 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure CopyFromPurchHeaderPrepmtPost(PurchHeader: Record "Purchase Header"; UsePmtDisc: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Account Type" := "Account Type"::Vendor;
         "Account No." := PurchHeader."Pay-to Vendor No.";
@@ -7201,6 +7263,13 @@ table 81 "Gen. Journal Line"
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Payment Method Code" := PurchHeader."Payment Method Code";
+        if PurchHeader."Payment Reference" <> '' then
+            "Payment Reference" := PurchHeader."Payment Reference"
+        else begin
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref." then
+                "Payment Reference" := PurchHeader."Vendor Invoice No.";
+        end;
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -9211,6 +9280,17 @@ table 81 "Gen. Journal Line"
     /// <param name="TempGenJnlLine">A temporary Gen. Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    /// <summary>
+    /// Event triggered before calling PaymentToleranceMgt.DelPmtTolApllnDocNo during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to run additional checks and modify the Gen. Journal Line after ClearCustVendApplnEntry and before DelPmtTolApllnDocNo.
+    /// </summary>
+    /// <param name="GenJournalLine">The current Gen. Journal Line being processed.</param>
+    /// <param name="SuppressCommit">Indicates whether commits are suppressed.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean)
     begin
     end;
 
@@ -12670,8 +12750,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Vendor Ledger Entry.
     /// </summary>
     /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -12680,8 +12761,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Customer Ledger Entry.
     /// </summary>
     /// <param name="CustLedgerEntry">The Customer Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

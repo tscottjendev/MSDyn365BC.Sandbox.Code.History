@@ -173,7 +173,12 @@ codeunit 368 "Format Document"
             SalespersonPurchaser.Init();
             PurchaserText := '';
         end else
-            PurchaserText := PurchaserTxt;
+            if SalespersonPurchaser.Get(Code) then
+                PurchaserText := PurchaserTxt
+            else begin
+                SalespersonPurchaser.Init();
+                PurchaserText := '';
+            end;
     end;
 
     procedure SetShipmentMethod(var ShipmentMethod: Record "Shipment Method"; "Code": Code[10]; LanguageCode: Code[10])
@@ -199,10 +204,13 @@ codeunit 368 "Format Document"
         if Code = '' then begin
             SalespersonPurchaser.Init();
             SalesPersonText := '';
-        end else begin
-            SalespersonPurchaser.Get(Code);
-            SalesPersonText := SalespersonTxt;
-        end;
+        end else
+            if SalespersonPurchaser.Get(Code) then
+                SalesPersonText := SalespersonTxt
+            else begin
+                SalespersonPurchaser.Init();
+                SalesPersonText := '';
+            end;
     end;
 
     procedure SetText(Condition: Boolean; Caption: Text[80]): Text[80]
