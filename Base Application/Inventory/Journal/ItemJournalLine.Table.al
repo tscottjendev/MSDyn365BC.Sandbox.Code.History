@@ -72,6 +72,7 @@ table 83 "Item Journal Line"
 
             trigger OnValidate()
             var
+                SkipInventoryValueZeroCheck: Boolean;
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -104,11 +105,12 @@ table 83 "Item Journal Line"
                 end;
 
                 GetItem();
-                OnValidateItemNoOnAfterGetItem(Rec, Item);
+                SkipInventoryValueZeroCheck := false;
+                OnValidateItemNoOnAfterGetItem(Rec, Item, SkipInventoryValueZeroCheck);
                 DisplayErrorIfItemIsBlocked(Item);
                 ValidateTypeWithItemNo();
 
-                if "Value Entry Type" = "Value Entry Type"::Revaluation then
+                if ("Value Entry Type" = "Value Entry Type"::Revaluation) and not SkipInventoryValueZeroCheck then
                     Item.TestField("Inventory Value Zero", false);
                 OnValidateItemNoOnBeforeSetDescription(Rec, Item);
                 Description := Item.Description;
@@ -3673,6 +3675,7 @@ table 83 "Item Journal Line"
     /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
     procedure CheckTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
+        OnBeforeCheckTrackingIfRequired(Rec, ItemTrackingSetup);
         if ItemTrackingSetup."Serial No. Required" then
             TestField("Serial No.");
         if ItemTrackingSetup."Lot No. Required" then
@@ -4734,7 +4737,7 @@ table 83 "Item Journal Line"
     /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
     /// <param name="Item">The retrived "Item" record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; var SkipInventoryValueZeroCheck: Boolean)
     begin
     end;
 
@@ -4951,6 +4954,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTrackingIfRequired(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup");
     begin
     end;
 

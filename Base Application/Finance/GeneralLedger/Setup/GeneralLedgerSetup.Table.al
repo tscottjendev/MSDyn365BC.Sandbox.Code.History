@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -450,6 +450,16 @@ table 98 "General Ledger Setup"
             TableRelation = "No. Series";
         }
         /// <summary>
+        /// Number series used for assigning spend request numbers during spend request creation.
+        /// </summary>
+        field(64; "Spend Request No. Series"; Code[20])
+        {
+            Caption = 'Spend Request No. Series';
+            ToolTip = 'Specifies the code for the number series that will be used to assign numbers to spend requests.';
+            TableRelation = "No. Series";
+            DataClassification = CustomerContent;
+        }
+        /// <summary>
         /// Combines G/L entries with identical account, posting date, and dimensions into summary entries.
         /// </summary>
         field(65; "Summarize G/L Entries"; Boolean)
@@ -494,7 +504,14 @@ table 98 "General Ledger Setup"
             TableRelation = Currency;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAdditionalReportingCurrency("Additional Reporting Currency", xRec."Additional Reporting Currency", IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Additional Reporting Currency" <> xRec."Additional Reporting Currency") and
                    ("Additional Reporting Currency" <> '')
                 then begin
@@ -907,6 +924,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
+
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -1068,6 +1086,11 @@ table 98 "General Ledger Setup"
             Caption = 'Payroll Trans. Import Format';
             ToolTip = 'Specifies the format of the payroll transaction file that can be imported into the General Journal window.';
             TableRelation = "Data Exch. Def" where(Type = const("Payroll Import"));
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUptake('0004H8X', 'Payroll service', Enum::"Feature Uptake Status"::Discovered);
+            end;
         }
         /// <summary>
         /// Symbol used to represent the local currency in reports and user interface displays.
@@ -1245,7 +1268,7 @@ table 98 "General Ledger Setup"
         field(188; "Control VAT Period"; Enum "VAT Period Control")
         {
             Caption = 'Control VAT Period';
-            ToolTip = 'Specifies a way of using VAT Date against VAT Return Periods. If you choose â€˜Block posting within closed and warn for released periodâ€™, system will not allow postings in closed VAT Return Period, but if the period is not closed, but VAT returns are released or submitted, user will be warned what try to post an entry with VAT Date in this period. If you choose â€˜Block posting within closed periodâ€™, system will still not allow postings in closed VAT Return Period, but there will be no warnings for release or submitted VAT returns. If you choose â€˜Warn when posting in closed periodâ€™, system will not block posting entry with VAT Date in the closed VAT return period, but it will show warning message before posting. And if you choose â€˜Disabledâ€™ options, system will allow you to post without any control regardless of VAT return or period status.';
+            ToolTip = 'Specifies a way of using VAT Date against VAT Return Periods. If you choose Block posting within closed and warn for released period, system will not allow postings in closed VAT Return Period, but if the period is not closed, but VAT returns are released or submitted, user will be warned what try to post an entry with VAT Date in this period. If you choose Block posting within closed period, system will still not allow postings in closed VAT Return Period, but there will be no warnings for release or submitted VAT returns. If you choose ˜Warn when posting in closed period, system will not block posting entry with VAT Date in the closed VAT return period, but it will show warning message before posting. And if you choose ˜Disabled options, system will allow you to post without any control regardless of VAT return or period status.';
 
             trigger OnValidate()
             begin
@@ -1263,7 +1286,22 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             var
                 ImportConsolidationFromApi: Codeunit "Import Consolidation From API";
+                AuditLog: Codeunit "Audit Log";
             begin
+                if Rec."Allow Query From Consolid." <> xRec."Allow Query From Consolid." then
+                    if Rec."Allow Query From Consolid." then begin
+                        Session.LogSecurityAudit(
+                            FinancialConsolidationServiceNameTxt, SecurityOperationResult::Success,
+                            SecurityAuditAllowQueryEnabledTxt,
+                            AuditCategory::ApplicationManagement);
+                        AuditLog.LogAuditMessage(
+                            StrSubstNo(FinConsolidConfiguredLbl, UserSecurityId()),
+                            SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                    end else
+                        Session.LogSecurityAudit(
+                            FinancialConsolidationServiceNameTxt, SecurityOperationResult::Success,
+                            SecurityAuditAllowQueryDisabledTxt,
+                            AuditCategory::ApplicationManagement);
                 if not Rec."Allow Query From Consolid." then
                     exit;
                 if not GuiAllowed() then
@@ -1374,7 +1412,7 @@ table 98 "General Ledger Setup"
         }
         field(205; "Allow Posting From DateFormula"; DateFormula)
         {
-            Caption = 'Allow Posting From DateFormula';
+            Caption = 'Allow Posting From Date Formula';
 
             trigger OnValidate()
             begin
@@ -1388,7 +1426,7 @@ table 98 "General Ledger Setup"
         }
         field(206; "Allow Posting To DateFormula"; DateFormula)
         {
-            Caption = 'Allow Posting To DateFormula';
+            Caption = 'Allow Posting To Date Formula';
 
             trigger OnValidate()
             begin
@@ -1399,6 +1437,11 @@ table 98 "General Ledger Setup"
                     CheckDateRange();
                 end;
             end;
+        }
+        field(210; "Use Concurrent Posting"; Boolean)
+        {
+            Caption = 'Use Concurrent Posting';
+            ToolTip = 'Specifies whether to use concurrent posting when posting journals. Concurrent posting can reduce the time it takes to post journals by allowing multiple batches to be posted at the same time. Enabling this option requires additional configuration and setup, such as setting up a batch job to run the concurrent posting process and ensuring that your system has the necessary resources to support concurrent processing.';
         }
         field(10701; "Payment Discount Type"; Option)
         {
@@ -1527,6 +1570,10 @@ table 98 "General Ledger Setup"
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage is changed', Locked = true;
         PrivacyStatementAckErr: Label 'Enabling requires privacy statement acknowledgement.';
         CannotUpdateLCYCodeErr: Label 'You cannot update the local currency code because there are posted general ledger entries.';
+        FinancialConsolidationServiceNameTxt: Label 'Financial Consolidation', Locked = true;
+        SecurityAuditAllowQueryEnabledTxt: Label 'Company was enabled as a subsidiary for cross-tenant Financial Consolidation queries.', Locked = true;
+        SecurityAuditAllowQueryDisabledTxt: Label 'Company was disabled as a subsidiary for cross-tenant Financial Consolidation queries.', Locked = true;
+        FinConsolidConfiguredLbl: Label 'Financial Consolidation cross-tenant query has been enabled by UserSecurityId %1.', Locked = true;
 
     /// <summary>
     /// Validates and corrects the format of decimal places configuration for currency and amount display.
@@ -1734,22 +1781,6 @@ table 98 "General Ledger Setup"
             AllowedPostingDate := CalcDate('<+1D>', AllowedPostingDate);
     end;
 
-    [Scope('OnPrem')]
-    procedure CheckAdjustForPaymentDisc()
-    begin
-        VATPostingSetup.SetRange("Adjust for Payment Discount", true);
-        if VATPostingSetup.FindFirst() then
-            Error(
-              '%1 %2 %3 use %4.', VATPostingSetup.TableName,
-              VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-              VATPostingSetup.FieldName("Adjust for Payment Discount"));
-        TaxJurisdiction.SetRange("Adjust for Payment Discount", true);
-        if TaxJurisdiction.FindFirst() then
-            Error(
-              '%1 %2 use %3.', TaxJurisdiction.TableName,
-              TaxJurisdiction.Code, TaxJurisdiction.FieldName("Adjust for Payment Discount"));
-    end;
-
     /// <summary>
     /// Updates global dimension number assignments for dimension values when changing global dimension configuration.
     /// </summary>
@@ -1800,6 +1831,12 @@ table 98 "General Ledger Setup"
             Rec.RecordId());
     end;
 
+    procedure UseConcurrentPosting(): Boolean
+    begin
+        GetRecordOnce();
+        exit("Use Concurrent Posting");
+    end;
+
     /// <summary>
     /// Determines if VAT is enabled in the system based on current VAT posting setup configuration.
     /// </summary>
@@ -1822,6 +1859,22 @@ table 98 "General Ledger Setup"
 
         UseVATFieldRef := GeneralLedgerSetupRecordRef.Field(UseVATFieldNo);
         exit(UseVATFieldRef.Value);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckAdjustForPaymentDisc()
+    begin
+        VATPostingSetup.SetRange("Adjust for Payment Discount", true);
+        if VATPostingSetup.FindFirst() then
+            Error(
+              '%1 %2 %3 use %4.', VATPostingSetup.TableName,
+              VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
+              VATPostingSetup.FieldName("Adjust for Payment Discount"));
+        TaxJurisdiction.SetRange("Adjust for Payment Discount", true);
+        if TaxJurisdiction.FindFirst() then
+            Error(
+              '%1 %2 use %3.', TaxJurisdiction.TableName,
+              TaxJurisdiction.Code, TaxJurisdiction.FieldName("Adjust for Payment Discount"));
     end;
 
     /// <summary>
@@ -1897,6 +1950,19 @@ table 98 "General Ledger Setup"
     /// <param name="NewDimensionCode">New dimension code that was assigned</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDimValueGlobalDimNo(ShortCutDimNo: Integer; OldDimensionCode: Code[20]; NewDimensionCode: Code[20])
+    begin
+    end;
+
+
+    /// <summary>
+    /// Integration event raised before validating the Additional Reporting Currency field.
+    /// Enables custom validation logic and the ability to bypass the standard adjustment and analysis view processing.
+    /// </summary>
+    /// <param name="AdditionalReportingCurrency">New additional reporting currency code being validated, can be modified by subscribers</param>
+    /// <param name="xRecAdditionalReportingCurrency">Previous additional reporting currency code before the change</param>
+    /// <param name="IsHandled">Set to true to bypass standard validation logic</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAdditionalReportingCurrency(var AdditionalReportingCurrency: Code[10]; xRecAdditionalReportingCurrency: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

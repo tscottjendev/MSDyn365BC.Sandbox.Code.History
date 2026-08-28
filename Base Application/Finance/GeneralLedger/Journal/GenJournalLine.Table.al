@@ -23,6 +23,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Setup;
@@ -170,7 +171,6 @@ table 81 "Gen. Journal Line"
                     end;
 
                 Validate("Deferral Code", '');
-                ClearInvCrMemoTypeFields();
             end;
         }
         /// <summary>
@@ -343,7 +343,6 @@ table 81 "Gen. Journal Line"
                     end;
                 UpdateSalesPurchLCY();
                 ValidateApplyRequirements(Rec);
-                ClearInvCrMemoTypeFields();
             end;
         }
         /// <summary>
@@ -950,6 +949,8 @@ table 81 "Gen. Journal Line"
                 if "Applies-to Doc. No." <> xRec."Applies-to Doc. No." then
                     ClearCustVendApplnEntry();
 
+                OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(Rec, SuppressCommit);
+
                 if ("Applies-to Doc. No." = '') and (xRec."Applies-to Doc. No." <> '') then begin
                     PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
 
@@ -1532,7 +1533,6 @@ table 81 "Gen. Journal Line"
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
-                ClearInvCrMemoTypeFields();
             end;
         }
         /// <summary>
@@ -2582,6 +2582,42 @@ table 81 "Gen. Journal Line"
             if ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
+        }
+        /// <summary>
+        /// Specifies the spend request that this journal line relates to.
+        /// </summary>
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this journal line relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if "Spend Request No." = '' then begin
+                    "Spend Request Close" := false;
+                    exit;
+                end;
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close", Rec."Amount (LCY)");
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        /// <summary>
+        /// Specifies that the spend request will be closed when the journal line is posted.
+        /// </summary>
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the journal line is posted.';
+            DataClassification = CustomerContent;
         }
         /// <summary>
         /// Job queue processing status for batch posting operations and automated journal processing.
@@ -3952,161 +3988,6 @@ table 81 "Gen. Journal Line"
             OptionCaption = 'National,International,Special';
             OptionMembers = National,International,Special;
         }
-        field(10709; "Sales Invoice Type"; Enum "SII Sales Invoice Type")
-        {
-            Caption = 'Sales Invoice Type';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Sales Invoice Type" <> "Sales Invoice Type"::"F1 Invoice" then begin
-                    CheckAccAndBalAccType("Account Type"::Customer);
-                    TestField("Document Type", "Document Type"::Invoice);
-                end;
-            end;
-        }
-        field(10710; "Sales Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
-        {
-            Caption = 'Sales Cr. Memo Type';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Sales Cr. Memo Type" <> "Sales Cr. Memo Type"::"R1 Corrected Invoice" then begin
-                    CheckAccAndBalAccType("Account Type"::Customer);
-                    TestField("Document Type", "Document Type"::"Credit Memo");
-                end;
-            end;
-        }
-        field(10711; "Sales Special Scheme Code"; Enum "SII Sales Special Scheme Code")
-        {
-            Caption = 'Sales Special Scheme Code';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Sales Special Scheme Code" <> "Sales Special Scheme Code"::"01 General" then
-                    CheckAccAndBalAccType("Account Type"::Customer);
-            end;
-        }
-        field(10712; "Purch. Invoice Type"; Enum "SII Purch. Invoice Type")
-        {
-            Caption = 'Purch. Invoice Type';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Purch. Invoice Type" <> "Purch. Invoice Type"::"F1 Invoice" then begin
-                    CheckAccAndBalAccType("Account Type"::Vendor);
-                    TestField("Document Type", "Document Type"::Invoice);
-                end;
-            end;
-        }
-        field(10713; "Purch. Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
-        {
-            Caption = 'Purch. Cr. Memo Type';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Purch. Cr. Memo Type" <> "Purch. Cr. Memo Type"::"R1 Corrected Invoice" then begin
-                    CheckAccAndBalAccType("Account Type"::Vendor);
-                    TestField("Document Type", "Document Type"::"Credit Memo");
-                end;
-            end;
-        }
-        field(10714; "Purch. Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
-        {
-            Caption = 'Purch. Special Scheme Code';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                if "Purch. Special Scheme Code" <> "Purch. Special Scheme Code"::"01 General" then
-                    CheckAccAndBalAccType("Account Type"::Vendor);
-            end;
-        }
-        field(10715; "Correction Type"; Option)
-        {
-            Caption = 'Correction Type';
-            DataClassification = CustomerContent;
-            OptionCaption = ' ,Replacement,Difference,Removal';
-            OptionMembers = " ",Replacement,Difference,Removal;
-
-            trigger OnValidate()
-            begin
-                if "Correction Type" <> 0 then
-                    CheckDataForCorrection();
-            end;
-        }
-        field(10716; "Corrected Invoice No."; Code[20])
-        {
-            Caption = 'Corrected Invoice No.';
-            DataClassification = CustomerContent;
-
-            trigger OnLookup()
-            var
-                SalesInvoiceHeader: Record "Sales Invoice Header";
-                PurchInvHeader: Record "Purch. Inv. Header";
-                TempGenJournalLine: Record "Gen. Journal Line" temporary;
-            begin
-                InitGenJnlLineBufferWithCustVend(TempGenJournalLine);
-                case true of
-                    TempGenJournalLine."Account Type" = TempGenJournalLine."Account Type"::Customer:
-                        if SalesInvoiceHeader.LookupInvoice("Account No.") then
-                            Validate("Corrected Invoice No.", SalesInvoiceHeader."No.");
-                    TempGenJournalLine."Account Type" = TempGenJournalLine."Account Type"::Vendor:
-                        if PurchInvHeader.LookupInvoice("Account No.") then
-                            Validate("Corrected Invoice No.", PurchInvHeader."No.");
-                end;
-            end;
-
-            trigger OnValidate()
-            var
-                SalesInvoiceHeader: Record "Sales Invoice Header";
-                PurchInvHeader: Record "Purch. Inv. Header";
-                TempGenJournalLine: Record "Gen. Journal Line" temporary;
-            begin
-                if "Corrected Invoice No." <> '' then begin
-                    CheckDataForCorrection();
-                    InitGenJnlLineBufferWithCustVend(TempGenJournalLine);
-                    case true of
-                        TempGenJournalLine."Account Type" = TempGenJournalLine."Account Type"::Customer:
-                            SalesInvoiceHeader.CheckCorrectedDocumentExist("Account No.", "Corrected Invoice No.");
-                        TempGenJournalLine."Account Type" = TempGenJournalLine."Account Type"::Vendor:
-                            PurchInvHeader.CheckCorrectedDocumentExist("Account No.", "Corrected Invoice No.");
-                    end;
-                end;
-            end;
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
-        field(10725; "Issued By Third Party"; Boolean)
-        {
-            Caption = 'Issued By Third Party';
-        }
-        field(10726; "SII First Summary Doc. No."; Blob)
-        {
-            Caption = 'First Summary Doc. No.';
-        }
-        field(10727; "SII Last Summary Doc. No."; Blob)
-        {
-            Caption = 'Last Summary Doc. No.';
-        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -4392,8 +4273,6 @@ table 81 "Gen. Journal Line"
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
-        IncorrectAccTypeErr: Label '%1 or %2 must be a %3.', Comment = '%1=Account Type,%2=Balance Account Type,%3=Customer or Vendor';
-        OneOrAnotherTok: Label '%1 or %2', Comment = 'Customer or Vendor';
         SpecialSymbolsTok: Label '=|&@()<>', Locked = true;
         MustUseAllGLAccountsAsDestinationAccountsAllocAccErr: Label 'To use Allocation Accounts in combination with deferrals, the selected Allocation Account must have only G/L Accounts as destination types, no other types are allowed.';
         CannotChangePostingGroupForAccountTypeErr: Label 'Posting group cannot be changed for Account Type %1.', Comment = '%1 - account type';
@@ -4432,46 +4311,6 @@ table 81 "Gen. Journal Line"
         exit(
           ("Account No." = '') and (Amount = 0) and
           (("Bal. Account No." = '') or not "System-Created Entry"));
-    end;
-
-    procedure GetSIIFirstSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure GetSIILastSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        Clear("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        Clear("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     local procedure InitVATDateIfEmpty()
@@ -4679,23 +4518,6 @@ table 81 "Gen. Journal Line"
         "Dimension Set ID" := DimSetID;
         "Reason Code" := ReasonCode;
         OnAfterInitNewLine(Rec);
-    end;
-
-    local procedure InitGenJnlLineBufferWithCustVend(var TempGenJournalLine: Record "Gen. Journal Line" temporary)
-    begin
-        TempGenJournalLine.Init();
-        case true of
-            "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]:
-                begin
-                    TempGenJournalLine."Account Type" := "Account Type";
-                    TempGenJournalLine."Account No." := "Account No.";
-                end;
-            "Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]:
-                begin
-                    TempGenJournalLine."Account Type" := "Bal. Account Type";
-                    TempGenJournalLine."Account No." := "Bal. Account No.";
-                end;
-        end;
     end;
 
     local procedure CheckAccountTypeOnJobValidation()
@@ -5117,6 +4939,7 @@ table 81 "Gen. Journal Line"
                 exit;
 
         CheckDirectPosting(GLAcc);
+        CheckSpendRequest(GLAcc);
 
         OnAfterCheckGLAcc(Rec, GLAcc);
     end;
@@ -5134,25 +4957,6 @@ table 81 "Gen. Journal Line"
         end;
     end;
 
-    local procedure CheckAccAndBalAccType(AccType: Enum "Gen. Journal Account Type")
-    begin
-        if ("Account Type" <> AccType) and ("Bal. Account Type" <> AccType) then
-            Error(
-              IncorrectAccTypeErr,
-              FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Format(AccType));
-    end;
-
-    local procedure CheckDataForCorrection()
-    begin
-        TestField("Document Type", "Document Type"::"Credit Memo");
-        if not (("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-                ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]))
-        then
-            Error(IncorrectAccTypeErr,
-              FieldCaption("Account Type"), FieldCaption("Bal. Account Type"),
-              StrSubstNo(OneOrAnotherTok, Format("Account Type"::Customer), Format("Account Type"::Vendor)));
-    end;
-
     local procedure CheckDirectPosting(var GLAccount: Record "G/L Account")
     var
         IsHandled: Boolean;
@@ -5165,6 +4969,14 @@ table 81 "Gen. Journal Line"
         GLAccount.TestField("Direct Posting", true);
 
         OnAfterCheckDirectPosting(GLAccount, Rec);
+    end;
+
+    local procedure CheckSpendRequest(var GLAccount: Record "G/L Account")
+    begin
+        if Rec."Spend Request No." <> '' then
+            exit;
+        if GLAccount."Spend Request Required" = GLAccount."Spend Request Required"::None then
+            exit;
     end;
 
     /// <summary>
@@ -5464,6 +5276,9 @@ table 81 "Gen. Journal Line"
             then
                 CustCheckCreditLimit.GenJnlLineCheck(Rec);
 
+        if "Spend Request No." <> '' then
+            CheckSpendRequestAmount();
+
         Validate("VAT %");
         Validate("Bal. VAT %");
         UpdateLineBalance();
@@ -5478,6 +5293,13 @@ table 81 "Gen. Journal Line"
         end;
 
         OnAfterValidateAmount(Rec);
+    end;
+
+    local procedure CheckSpendRequestAmount()
+    var
+        SpendRequest: Record "Spend Request";
+    begin
+        SpendRequest.CheckSpendRequestAmount(Rec."Spend Request No.", Rec."Amount (LCY)");
     end;
 
     local procedure UpdateApplyToAmount()
@@ -6336,7 +6158,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 CustLedgEntry.CalcFields("Remaining Amount");
-                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry);
+                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry, Rec);
 
                 if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
                     Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
@@ -6384,7 +6206,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 VendLedgEntry.CalcFields("Remaining Amount");
-                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry);
+                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry, Rec);
 
                 if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
                     Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
@@ -7574,12 +7396,13 @@ table 81 "Gen. Journal Line"
         "Ship-to/Order Address Code" := PurchHeader."Order Address Code";
         "Salespers./Purch. Code" := PurchHeader."Purchaser Code";
         "On Hold" := PurchHeader."On Hold";
+        "Spend Request No." := PurchHeader."Spend Request No.";
+        "Spend Request Close" := PurchHeader."Spend Request Close";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
         ReadGLSetup();
         if GLSetup."Journal Templ. Name Mandatory" then
             "Journal Template Name" := PurchHeader."Journal Templ. Name";
-        "Do Not Send To SII" := PurchHeader."Do Not Send To SII";
 
         if PurchHeader."Remit-to Code" <> '' then
             "Remit-to Code" := PurchHeader."Remit-to Code";
@@ -7611,6 +7434,8 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure CopyFromPurchHeaderPrepmtPost(PurchHeader: Record "Purchase Header"; UsePmtDisc: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Account Type" := "Account Type"::Vendor;
         "Account No." := PurchHeader."Pay-to Vendor No.";
@@ -7628,6 +7453,13 @@ table 81 "Gen. Journal Line"
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Payment Method Code" := PurchHeader."Payment Method Code";
         "Recipient Bank Account" := PurchHeader."Vendor Bank Acc. Code";
+        if PurchHeader."Payment Reference" <> '' then
+            "Payment Reference" := PurchHeader."Payment Reference"
+        else begin
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref." then
+                "Payment Reference" := PurchHeader."Vendor Invoice No.";
+        end;
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -7692,11 +7524,6 @@ table 81 "Gen. Journal Line"
         ReadGLSetup();
         if GLSetup."Journal Templ. Name Mandatory" then
             "Journal Template Name" := SalesHeader."Journal Templ. Name";
-        "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
-        "Issued By Third Party" := SalesHeader."Issued By Third Party";
-
-        SetSIIFirstSummaryDocNo(SalesHeader.GetSIIFirstSummaryDocNo());
-        SetSIILastSummaryDocNo(SalesHeader.GetSIILastSummaryDocNo());
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -8825,18 +8652,6 @@ table 81 "Gen. Journal Line"
               Text015, GenJournalLine."Document Type", GenJournalLine."Document No.", ApplyDocType, ApplyDocNo);
     end;
 
-    local procedure ClearInvCrMemoTypeFields()
-    begin
-        "Sales Invoice Type" := "Sales Invoice Type"::"F1 Invoice";
-        "Sales Cr. Memo Type" := "Sales Cr. Memo Type"::"R1 Corrected Invoice";
-        "Sales Special Scheme Code" := "Sales Special Scheme Code"::"01 General";
-        "Purch. Invoice Type" := "Purch. Invoice Type"::"F1 Invoice";
-        "Purch. Cr. Memo Type" := "Purch. Cr. Memo Type"::"R1 Corrected Invoice";
-        "Purch. Special Scheme Code" := "Purch. Special Scheme Code"::"01 General";
-        "Correction Type" := 0;
-        "Corrected Invoice No." := '';
-    end;
-
     local procedure CheckJobQueueStatus(GenJnlLine: Record "Gen. Journal Line")
     begin
         if not (GenJnlLine."Job Queue Status" in ["Job Queue Status"::" ", "Job Queue Status"::Error]) then
@@ -9701,6 +9516,17 @@ table 81 "Gen. Journal Line"
     /// <param name="TempGenJnlLine">A temporary Gen. Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    /// <summary>
+    /// Event triggered before calling PaymentToleranceMgt.DelPmtTolApllnDocNo during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to run additional checks and modify the Gen. Journal Line after ClearCustVendApplnEntry and before DelPmtTolApllnDocNo.
+    /// </summary>
+    /// <param name="GenJournalLine">The current Gen. Journal Line being processed.</param>
+    /// <param name="SuppressCommit">Indicates whether commits are suppressed.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean)
     begin
     end;
 
@@ -13160,8 +12986,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Vendor Ledger Entry.
     /// </summary>
     /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -13170,8 +12997,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Customer Ledger Entry.
     /// </summary>
     /// <param name="CustLedgerEntry">The Customer Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

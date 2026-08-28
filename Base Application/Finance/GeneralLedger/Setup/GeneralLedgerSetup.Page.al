@@ -57,13 +57,13 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula to calculate the earliest date, relative to the workdate, on which posting to the company books is allowed.';
+                    ToolTip = 'Specifies a date formula to calculate the earliest date, relative to today''s date, on which posting to the company books is allowed.';
                 }
                 field("Allow Posting To DateFormula"; Rec."Allow Posting To DateFormula")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula to calculate the latest date on which posting to the company books is allowed.';
+                    ToolTip = 'Specifies a date formula to calculate the latest date, relative to today''s date, on which posting to the company books is allowed.';
                 }
                 field("Allow Deferral Posting From"; Rec."Allow Deferral Posting From")
                 {
@@ -228,6 +228,10 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series used to generate autocredit memos for purchases.';
                 }
+                field("Spend Request No. Series"; Rec."Spend Request No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
                 field("Bill-to/Sell-to VAT Calc."; Rec."Bill-to/Sell-to VAT Calc.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -287,6 +291,11 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                 }
                 field(CheckSourceCurrencyConsistency; Rec."Check Source Curr. Consistency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
+                field(UseConcurrentPosting; Rec."Use Concurrent Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;

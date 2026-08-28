@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Clause;
 
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.ExtendedText;
@@ -64,10 +63,6 @@ table 560 "VAT Clause"
         {
             Caption = 'Last Modified DateTime';
             Editable = false;
-        }
-        field(10700; "SII Exemption Code"; Enum "SII Exemption Code")
-        {
-            Caption = 'SII Exemption Code';
         }
     }
 
@@ -160,8 +155,8 @@ table 560 "VAT Clause"
             exit(Result);
 
         if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then begin
-            TryFindDescriptionByDocumentType(DocumentType, LanguageCode);
-            TranslateDescription(LanguageCode);
+            if not TryFindDescriptionByDocumentType(DocumentType, LanguageCode) then
+                TranslateDescription(LanguageCode);
             exit(Description + ' ' + "Description 2");
         end;
 

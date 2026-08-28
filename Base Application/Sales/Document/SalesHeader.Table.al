@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -238,7 +238,8 @@ table 36 "Sales Header"
                     Rec.RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId());
 
                 if xRec."Sell-to Customer No." <> "Sell-to Customer No." then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         /// <summary>
@@ -272,7 +273,6 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             var
-                SIIManagement: Codeunit "SII Management";
                 IsHandled: Boolean;
                 IsHandledDoExist: Boolean;
             begin
@@ -285,9 +285,10 @@ table 36 "Sales Header"
                     exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
-                    if xRec."Bill-to Customer No." = '' then
-                        InitRecord()
-                    else
+                    if xRec."Bill-to Customer No." = '' then begin
+                        SkipDocNoOccurrenceReset := true;
+                        InitRecord();
+                    end else
                         if ConfirmBillToCustomerChange() then begin
                             OnValidateBillToCustomerNoOnAfterConfirmed(Rec);
 
@@ -348,11 +349,11 @@ table 36 "Sales Header"
                 if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
                     Rec.RecallModifyAddressNotification(Rec.GetModifyBillToCustomerAddressNotificationId());
 
-                Validate("ID Type", SIIManagement.GetSalesIDType("Bill-to Customer No.", "Correction Type", "Corrected Invoice No."));
-                SIIManagement.UpdateSIIInfoInSalesDoc(Rec);
+                OnAfterValidateBillToCustomerNoOnSII(Rec);
 
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         /// <summary>
@@ -871,7 +872,7 @@ table 36 "Sales Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
+            ToolTip = 'Specifies the code for the location from where the items are shipped. When you select the customer and the customer has a location assigned, the value is taken from the Customer card. If the customer has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -975,7 +976,8 @@ table 36 "Sales Header"
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
                 if "Currency Code" <> xRec."Currency Code" then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
 
                 if Status = Status::Open then
                     SetCompanyBankAccount();
@@ -2281,7 +2283,8 @@ table 36 "Sales Header"
                 TestStatusOpen();
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then begin
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
                 end;
             end;
         }
@@ -3148,7 +3151,9 @@ table 36 "Sales Header"
                     end;
                 end;
 
-                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') then
+                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') and
+                   ("Document Type" <> "Document Type"::Quote)
+                then
                     CheckContactRelatedToCustomerCompany("Sell-to Contact No.", "Sell-to Customer No.");
 
                 IsHandled := false;
@@ -3707,96 +3712,17 @@ table 36 "Sales Header"
             trigger OnValidate()
             var
                 SalesInvoiceHeader: Record "Sales Invoice Header";
-                SIIManagement: Codeunit "SII Management";
             begin
                 if "Corrected Invoice No." <> '' then
                     SalesInvoiceHeader.CheckCorrectedDocumentExist("Bill-to Customer No.", "Corrected Invoice No.");
 
-                Validate("ID Type", SIIManagement.GetSalesIDType("Bill-to Customer No.", "Correction Type", "Corrected Invoice No."));
+                OnAfterValidateCorrectedInvoiceNoOnSII(Rec);
             end;
         }
         field(10706; "Due Date Modified"; Boolean)
         {
             Caption = 'Due Date Modified';
             Editable = false;
-        }
-        field(10707; "Invoice Type"; Enum "SII Sales Invoice Type")
-        {
-            Caption = 'Invoice Type';
-            trigger OnValidate()
-            begin
-                SetSIIFirstSummaryDocNo('');
-                SetSIILastSummaryDocNo('');
-            end;
-        }
-        field(10708; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-            trigger OnValidate()
-            begin
-                SetSIIFirstSummaryDocNo('');
-                SetSIILastSummaryDocNo('');
-            end;
-        }
-        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-
-            trigger OnValidate()
-            var
-                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-            begin
-                SIISchemeCodeMgt.UpdateSalesSpecialSchemeCodeInSalesHeader(Rec, xRec);
-            end;
-        }
-        field(10710; "Operation Description"; Text[250])
-        {
-            Caption = 'Operation Description';
-        }
-        field(10711; "Correction Type"; Option)
-        {
-            Caption = 'Correction Type';
-            OptionCaption = ' ,Replacement,Difference,Removal';
-            OptionMembers = " ",Replacement,Difference,Removal;
-
-            trigger OnValidate()
-            var
-                SIIManagement: Codeunit "SII Management";
-            begin
-                Validate("ID Type", SIIManagement.GetSalesIDType("Bill-to Customer No.", "Correction Type", "Corrected Invoice No."));
-            end;
-        }
-        field(10712; "Operation Description 2"; Text[250])
-        {
-            Caption = 'Operation Description 2';
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
-        field(10725; "Issued By Third Party"; Boolean)
-        {
-            Caption = 'Issued By Third Party';
-        }
-        field(10726; "SII First Summary Doc. No."; Blob)
-        {
-            Caption = 'First Summary Doc. No.';
-        }
-        field(10727; "SII Last Summary Doc. No."; Blob)
-        {
-            Caption = 'Last Summary Doc. No.';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -4131,6 +4057,7 @@ table 36 "Sales Header"
         SkipSellToContact: Boolean;
         SkipBillToContact: Boolean;
         SkipTaxCalculation: Boolean;
+        SkipDocNoOccurrenceReset: Boolean;
 
     /// <summary>
     /// Initializes a new sales header with a new document number from the number series.
@@ -4162,58 +4089,9 @@ table 36 "Sales Header"
         InitRecord();
     end;
 
-    procedure GetSIIFirstSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure GetSIILastSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        if SIISummaryDocNoText <> '' then
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
-                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
-            else
-                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
-
-        Clear("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        if SIISummaryDocNoText <> '' then
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
-                TestField("Invoice Type", "Invoice Type"::"F4 Invoice summary entry")
-            else
-                TestField("Cr. Memo Type", "Cr. Memo Type"::"F4 Invoice summary entry");
 
 
-        Clear("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
-    end;
+
 
     /// <summary>
     /// Initializes a new sales header with default values.
@@ -4222,7 +4100,6 @@ table 36 "Sales Header"
     var
         ShipToAddress: Record "Ship-to Address";
         ArchiveManagement: Codeunit ArchiveManagement;
-        SIIManagement: Codeunit "SII Management";
         LocationCode: Code[10];
         IsHandled: Boolean;
         NewOrderDate: Date;
@@ -4277,9 +4154,9 @@ table 36 "Sales Header"
 
         IsHandled := false;
         OnInitRecordOnBeforeGetNextArchiveDocOccurrenceNo(Rec, IsHandled);
-        if not IsHandled then
+        if (not IsHandled) and (not SkipDocNoOccurrenceReset) then
             "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", Rec."Document Type".AsInteger(), Rec."No.");
-        SIIManagement.UpdateSIIInfoInSalesDoc(Rec);
+        SkipDocNoOccurrenceReset := false;
 
         OnAfterInitRecord(Rec);
     end;
@@ -4828,7 +4705,10 @@ table 36 "Sales Header"
         ShouldCreateSalsesLine := not TempSalesLine.IsExtendedText();
         OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine, SalesLine);
         if ShouldCreateSalsesLine then begin
-            CreateSalesLine(TempSalesLine);
+            IsHandled := false;
+            OnBeforeRecreateSalesLine(IsHandled, SalesLine, TempSalesLine, Rec);
+            if not IsHandled then
+                CreateSalesLine(TempSalesLine);
             ExtendedTextAdded := false;
             OnAfterRecreateSalesLine(SalesLine, TempSalesLine, Rec);
 
@@ -5811,8 +5691,11 @@ table 36 "Sales Header"
                 "Sell-to Contact" := Cust.Contact;
             end;
         if "Sell-to Contact No." <> '' then
-            if OfficeContact.Get("Sell-to Contact No.") then
+            if OfficeContact.Get("Sell-to Contact No.") then begin
                 OfficeContact.CheckIfPrivacyBlockedGeneric();
+                if OfficeContact."E-Mail" <> '' then
+                    Validate("Sell-to E-Mail", OfficeContact."E-Mail");
+            end;
 
         OnAfterUpdateSellToCont(Rec, Cust, OfficeContact, HideValidationDialog);
     end;
@@ -5913,6 +5796,10 @@ table 36 "Sales Header"
             Validate("Sell-to Phone No.", Cont."Phone No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
+                if "Sell-to Customer No." <> '' then begin
+                    "Sell-to Customer No." := '';
+                    "Bill-to Customer No." := '';
+                end;
                 if not GetContactAsCompany(Cont, SearchContact) then
                     SearchContact := Cont;
                 "Sell-to Customer Name" := SearchContact."Company Name";
@@ -6000,7 +5887,7 @@ table 36 "Sales Header"
     local procedure CheckCustomerContactRelation(Cont: Record Contact; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
     var
         ContactBusinessRelationLinkType: Enum "Contact Business Relation Link To Table";
-                                             IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckCustomerContactRelation(Rec, Cont, IsHandled, CustomerNo, ContBusinessRelationNo);
@@ -6581,7 +6468,7 @@ table 36 "Sales Header"
     procedure GetPstdDocLinesToReverse()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
-                                 IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetPstdDocLinesToReverse(Rec, IsHandled);
@@ -7066,9 +6953,9 @@ table 36 "Sales Header"
     local procedure UpdateOpportunityLink(Opportunity: Record Opportunity; SalesDocumentType: Enum "Opportunity Document Type"; SalesHeaderNo: Code[20])
     begin
         Opportunity."Sales Document Type" := SalesDocumentType;
-                                                                                                  Opportunity."Sales Document No." := SalesHeaderNo;
-                                                                                                  OnUpdateOpportunityLinkOnBeforeModify(Opportunity, Rec, SalesDocumentType.AsInteger(), SalesHeaderNo);
-                                                                                                  Opportunity.Modify();
+        Opportunity."Sales Document No." := SalesHeaderNo;
+        OnUpdateOpportunityLinkOnBeforeModify(Opportunity, Rec, SalesDocumentType.AsInteger(), SalesHeaderNo);
+        Opportunity.Modify();
     end;
 
     /// <summary>
@@ -7119,6 +7006,7 @@ table 36 "Sales Header"
         SalesLine2.SetRange("Document No.", "No.");
         SalesLine2.SetRange("Drop Shipment", false);
         SalesLine2.SetRange(Type, SalesLine.Type::Item);
+        OnCheckShippingAdviceOnAfterSetLineFilters(SalesLine2, Rec);
         Result := true;
         if SalesLine2.FindSet() then
             repeat
@@ -7160,6 +7048,7 @@ table 36 "Sales Header"
         MinValue: Code[20];
         MaxValue: Code[20];
     begin
+        OnBeforeGetFilterCustNo(Rec);
         if GetFilter("Sell-to Customer No.") <> '' then
             if TryGetFilterCustNoRange(MinValue, MaxValue) then
                 if MinValue = MaxValue then
@@ -8210,7 +8099,10 @@ table 36 "Sales Header"
         end else
             "Payment Method Code" := BillToCustomer."Payment Method Code";
 
-        AltCustVATRegFacade.UpdateSetupOnBillToCustomerChangeInSalesHeader(Rec, xRec, BillToCustomer);
+        IsHandled := false;
+        OnBeforeUpdateSetupOnBillToCustomerChangeInSalesHeader(Rec, BillToCustomer, IsHandled);
+        if not IsHandled then
+            AltCustVATRegFacade.UpdateSetupOnBillToCustomerChangeInSalesHeader(Rec, xRec, BillToCustomer);
 
         "Customer Posting Group" := BillToCustomer."Customer Posting Group";
         "Currency Code" := BillToCustomer."Currency Code";
@@ -8449,6 +8341,11 @@ table 36 "Sales Header"
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmCloseUnposted(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesLinesExist() then begin
             IsHandled := false;
             OnConfirmCloseUnpostedOnSalesLinesExist(Rec, Result, IsHandled);
@@ -8879,8 +8776,8 @@ table 36 "Sales Header"
         MyNotifications: Record "My Notifications";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         PageMyNotifications: Page "My Notifications";
-                                 ModifyCustomerAddressNotification: Notification;
-                                 IsHandled: Boolean;
+        ModifyCustomerAddressNotification: Notification;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeShowModifyAddressNotification(IsHandled, Rec, CustomerNumber);
@@ -9932,7 +9829,7 @@ table 36 "Sales Header"
     internal procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
     var
         RemQtyBaseInvtItemSalesLine: Query RemQtyBaseInvtItemSalesLine;
-                                         IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCalculateReservableOutstandingQuantityBase(Rec, IsHandled, OutstandingQtyBase);
@@ -10012,8 +9909,8 @@ table 36 "Sales Header"
         if not PaymentTerm.Get("Payment Terms Code") then
             exit;
 
-        DueDateCalc := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-        AdjustDueDate.SalesAdjustDueDate(DueDateCalc, "Document Date", PaymentTerms.CalculateMaxDueDate("Document Date"), "Bill-to Customer No.");
+        DueDateCalc := CalcDate(PaymentTerm."Due Date Calculation", "Document Date");
+        AdjustDueDate.SalesAdjustDueDate(DueDateCalc, "Document Date", PaymentTerm.CalculateMaxDueDate("Document Date"), "Bill-to Customer No.");
 
         if DueDateCalc = "Due Date" then
             "Due Date Modified" := false;
@@ -10080,6 +9977,16 @@ table 36 "Sales Header"
     /// <param name="SalesHeader">The sales header record that was initialized.</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateBillToCustomerNoOnSII(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCorrectedInvoiceNoOnSII(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -10166,6 +10073,11 @@ table 36 "Sales Header"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckShippingAdviceOnAfterSetLineFilters(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
     /// <summary>
     /// Raised after the user confirms sales price changes.
     /// </summary>
@@ -10195,6 +10107,18 @@ table 36 "Sales Header"
     /// <param name="Result">The result indicating if dimensions can be kept.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCouldDimensionsBeKept(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var Result: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before a sales line is recreated from temporary storage, allowing subscribers to replace the standard sales line creation.
+    /// </summary>
+    /// <param name="IsHandled">Set to true to skip the standard CreateSalesLine call.</param>
+    /// <param name="SalesLine">The sales line record being recreated.</param>
+    /// <param name="TempSalesLine">The temporary sales line used as source.</param>
+    /// <param name="SalesHeader">The parent sales header record.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecreateSalesLine(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -10606,6 +10530,17 @@ table 36 "Sales Header"
     /// <param name="CUrrentFieldNo">The field number that triggered the update.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; xSalesHeader: Record "Sales Header"; SkipBillToContact: Boolean; CUrrentFieldNo: Integer)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before updating the VAT registration setup on a bill-to customer change in the sales header.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header record being modified.</param>
+    /// <param name="BillToCustomer">The bill-to customer record.</param>
+    /// <param name="IsHandled">Set to true to skip the standard update of the VAT registration setup.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSetupOnBillToCustomerChangeInSalesHeader(var SalesHeader: Record "Sales Header"; BillToCustomer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
@@ -13801,6 +13736,26 @@ table 36 "Sales Header"
     /// <param name="TempSalesLine">The temporary sales line record used as source.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before confirming close unposted.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header record.</param>
+    /// <param name="Result">The result indicating whether to proceed with closing.</param>
+    /// <param name="IsHandled">Set to true to skip the default confirmation logic.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmCloseUnposted(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before getting filter customer number.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header record.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFilterCustNo(var SalesHeader: Record "Sales Header")
     begin
     end;
 
