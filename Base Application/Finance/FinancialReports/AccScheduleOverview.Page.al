@@ -300,7 +300,11 @@ page 490 "Acc. Schedule Overview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        Rec.SetFilter("Date Filter", DateFilter);
+                        if DateFilter = '' then begin
+                            TempFinancialReport.DateFilter := '';
+                            FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
+                        end else
+                            Rec.SetFilter("Date Filter", DateFilter);
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
                         UpdateColumnCaptions();
@@ -1045,6 +1049,8 @@ page 490 "Acc. Schedule Overview"
                 trigger OnAction()
                 begin
                     AccSchedManagement.ForceRecalculate(true);
+                    PreserveCurrentPageFilters := true;
+                    ReloadPage();
                 end;
             }
             action(RestoreFinRepFilters)
@@ -1457,6 +1463,7 @@ page 490 "Acc. Schedule Overview"
 #endif
         RowDefinitionBlocked: Boolean;
         ColDefinitionBlocked: Boolean;
+        PreserveCurrentPageFilters: Boolean;
 
     protected var
         AnalysisView: Record "Analysis View";
@@ -1597,7 +1604,10 @@ page 490 "Acc. Schedule Overview"
 
         // `FinancialReportTemp` contains the state of the filters the user interacts with
         // `LoadFinancialReportFiltersOrDefault` loads this temporary record considering user overriden filters (if any).
-        LoadFinancialReportFiltersOrDefault(TempFinancialReport);
+        if PreserveCurrentPageFilters then
+            PreserveCurrentPageFilters := false
+        else
+            LoadFinancialReportFiltersOrDefault(TempFinancialReport);
 
         // Afterwards, we update all page state variables 
         SetFinancialReportTxt();
