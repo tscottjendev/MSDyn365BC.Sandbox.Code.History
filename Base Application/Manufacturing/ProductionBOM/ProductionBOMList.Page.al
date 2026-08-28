@@ -176,7 +176,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Exchange Production BOM Item';
                 Image = ExchProdBOMItem;
                 RunObject = Report "Exchange Production BOM Item";
-                ToolTip = 'Replace items that are no longer used in production BOMs. You can exchange an item, for example, with a new item or a new production BOM. You can create new versions while exchanging an item in the production BOMs.';
             }
             action("Delete Expired Components")
             {
@@ -184,7 +183,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Delete Expired Components';
                 Image = DeleteExpiredComponents;
                 RunObject = Report "Delete Expired Components";
-                ToolTip = 'Remove BOM lines that have expired ending dates. The BOM header will not be changed.';
             }
             action("Calculate Low-Level Code")
             {
@@ -192,7 +190,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Calculate Low-Level Code';
                 Image = CalculateHierarchy;
                 RunObject = Report "Calculate Low Level Code";
-                ToolTip = 'Calculate the low-level codes for items in production BOMs. Low-level codes determine the sequence in which materials are planned during MRP runs. Top level items have code 0.';
             }
         }
         area(reporting)
@@ -203,7 +200,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Where-Used (Top Level)';
                 Image = "Report";
                 RunObject = Report "Where-Used (Top Level)";
-                ToolTip = 'View where and in what quantities the item is used in the product structure. The report only shows information for the top-level item. For example, if item "A" is used to produce item "B", and item "B" is used to produce item "C", the report will show item B if you run this report for item A. If you run this report for item B, then item C will be shown as where-used.';
             }
             action("Quantity Explosion of BOM")
             {
@@ -211,7 +207,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Quantity Explosion of BOM';
                 Image = "Report";
                 RunObject = Report "Quantity Explosion of BOM";
-                ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
             }
 #if not CLEAN27
             action("Compare List")
@@ -234,7 +229,6 @@ page 99000787 "Production BOM List"
                 Caption = 'Compare Production Cost Shares';
                 Image = "Report";
                 RunObject = Report "Compare Production Cost Shares";
-                ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
             }
         }
         area(Promoted)
