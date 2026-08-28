@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -21,6 +21,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.WithholdingTax;
 using Microsoft.Foundation.Address;
@@ -41,6 +42,9 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN28
+using Microsoft.Manufacturing.Setup;
+#endif
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
@@ -86,6 +90,9 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             var
+#if not CLEAN28
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -143,7 +150,10 @@ table 38 "Purchase Header"
                 if not IsHandled then
                     "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
                 ValidateEmptySellToCustomerAndLocation();
-                "Subcontracting Location Code" := Vend."Subcontracting Location Code";
+#if not CLEAN28
+                if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    "Subcontracting Location Code" := Vend."Subcontracting Location Code";
+#endif
                 OnAfterCopyBuyFromVendorFieldsFromVendor(Rec, Vend, xRec);
 
                 if "Buy-from Vendor No." = xRec."Pay-to Vendor No." then
@@ -333,8 +343,12 @@ table 38 "Purchase Header"
 
                 if (xRec."Buy-from Vendor No." = "Buy-from Vendor No.") and
                    (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.")
-                then
-                    RecreatePurchLines(PayToVendorTxt);
+                then begin
+                    IsHandled := false;
+                    OnValidatePayToVendorNoOnBeforeRecreatePurchLines(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        RecreatePurchLines(PayToVendorTxt);
+                end;
 
                 if not SkipPayToContact then
                     UpdatePayToCont("Pay-to Vendor No.");
@@ -768,14 +782,14 @@ table 38 "Purchase Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the location where the items are to be placed when they are received. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
+            ToolTip = 'Specifies the code for the location where the items are to be received. When you select the vendor and the vendor has a location assigned, the value is taken from the Vendor card. If the vendor has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
             var
                 IsHandled: Boolean;
             begin
-                OnBeforeValidateLocationCode(Rec, IsHandled);
+                OnBeforeValidateLocationCode(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -927,6 +941,15 @@ table 38 "Purchase Header"
                         PurchLine.SetPurchHeader(Rec);
 
                         Currency.Initialize("Currency Code");
+
+                        if not RecalculatePrice and "Prices Including VAT" then begin
+                            PurchLine.FindSet();
+                            repeat
+                                PurchLine.Amount := Round(PurchLine.CalcLineAmount() / (1 + PurchLine."VAT %" / 100), Currency."Amount Rounding Precision");
+                                PurchLine."Amount Including VAT" := Round(PurchLine.CalcLineAmount(), Currency."Amount Rounding Precision");
+                                PurchLine.Modify();
+                            until PurchLine.Next() = 0;
+                        end;
 
                         PurchLine.FindSet();
                         repeat
@@ -2223,6 +2246,36 @@ table 38 "Purchase Header"
                 Validate("VAT Base Discount %");
             end;
         }
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if Rec."Spend Request No." = '' then begin
+                    Rec."Spend Request Close" := false;
+                    exit;
+                end;
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close");
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
+        }
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
@@ -2491,10 +2544,10 @@ table 38 "Purchase Header"
                         exit;
                     end;
 
-                if ("Pay-to Vendor No." <> '') and ("Pay-to Contact No." <> '') then
+                if ("Pay-to Vendor No." <> '') and ("Pay-to Contact No." <> '') then begin
                     Cont.Get("Pay-to Contact No.");
-
-                CheckContactRelatedToVendorCompany("Pay-to Contact No.", "Pay-to Vendor No.", FieldNo("Pay-to Contact No."));
+                    CheckContactRelatedToVendorCompany("Pay-to Contact No.", "Pay-to Vendor No.", FieldNo("Pay-to Contact No."));
+                end;
 
                 UpdatePayToVend("Pay-to Contact No.");
             end;
@@ -3182,6 +3235,7 @@ table 38 "Purchase Header"
             Caption = 'TDD Prepared By';
             DataClassification = EndUserIdentifiableInformation;
         }
+#if not CLEANSCHEMA31
         field(12180; "Subcontracting Order"; Boolean)
         {
             CalcFormula = exist("Purchase Line" where("Document Type" = const(Order),
@@ -3191,12 +3245,33 @@ table 38 "Purchase Header"
             Caption = 'Subcontracting Order';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+#pragma warning disable AS0072
+            ObsoleteTag = '27.0';
+#pragma warning restore AS0072
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
         field(12181; "Subcontracting Location Code"; Code[10])
         {
             Caption = 'Subcontracting Location Code';
             TableRelation = Location;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN28
+            ObsoleteState = Pending;
+#pragma warning disable AS0072
+            ObsoleteTag = '27.0';
+#pragma warning restore AS0072
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -6929,9 +7004,9 @@ table 38 "Purchase Header"
     /// </param>
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
-        DummyReportSelections: Record "Report Selections";
-        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        ReportSelections: Record "Report Selections";
         IsHandled: Boolean;
+        DocTxt: Text[150];
     begin
         IsHandled := false;
         OnBeforeSendProfile(Rec, DocumentSendingProfile, IsHandled);
@@ -6939,12 +7014,13 @@ table 38 "Purchase Header"
             exit;
 
         CheckMixedDropShipment();
+        GetReportSelectionsUsageFromDocumentType(ReportSelections.Usage, DocTxt);
         IsHandled := false;
         OnSendProfileOnBeforeSendVendor(Rec, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.SendVendor(
-                DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, "No.", "Buy-from Vendor No.",
-                ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Buy-from Vendor No."), FieldNo("No."));
+                ReportSelections.Usage.AsInteger(), Rec, "No.", "Buy-from Vendor No.",
+                DocTxt, FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
     local procedure CheckMixedDropShipment()
@@ -7720,6 +7796,14 @@ table 38 "Purchase Header"
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
             "Document Type"::Quote:
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
+            "Document Type"::Invoice:
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Invoice";
+            "Document Type"::"Credit Memo":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Cr.Memo";
+            "Document Type"::"Blanket Order":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Blanket";
+            "Document Type"::"Return Order":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Return";
         end;
 
         ReportUsage := ReportSelectionsUsage.AsInteger();
@@ -8553,6 +8637,12 @@ table 38 "Purchase Header"
                 exit(GetRangeMax("Buy-from Contact No."));
     end;
 
+    procedure GetContactDetails(var BuyFromContact: Record Contact; var PayToContact: Record Contact)
+    begin
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -9209,7 +9299,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateLocationCode(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateLocationCode(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header"; CurrFieldNo: Integer)
     begin
     end;
 
@@ -9494,6 +9584,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaytoVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePayToVendorNoOnBeforeRecreatePurchLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
