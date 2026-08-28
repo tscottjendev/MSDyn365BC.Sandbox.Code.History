@@ -704,7 +704,7 @@ table 5900 "Service Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
+            ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines. When you select the customer and the customer has a location assigned, the value is taken from the Customer card. If the customer has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -5519,7 +5519,7 @@ table 5900 "Service Header"
                             if ServiceContractHeader."Last Invoice Date" = 0D then
                                 ServiceContractLine."Invoiced to Date" := 0D
                             else
-                                ServContractMgt.CalcInvoicedToDate(ServiceContractLine, ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
+                                CalcContractLineInvoicedToDate(ServiceContractLine, ServiceContractHeader, Rec."No.");
                             ServiceContractLine.Modify(true);
                         until ServiceContractLine.Next() = 0;
                 end;
@@ -5603,6 +5603,22 @@ table 5900 "Service Header"
             ServiceContractHeader."Last Invoice Period End" := 0D;
 
         exit(true);
+    end;
+
+    local procedure CalcContractLineInvoicedToDate(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header"; ExcludeDocNo: Code[20])
+    var
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        ServContractMgt: Codeunit ServContractManagement;
+    begin
+        ServiceLedgerEntry.SetCurrentKey("Service Contract No.");
+        ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractLine."Contract No.");
+        ServiceLedgerEntry.SetRange("Service Item No. (Serviced)", ServiceContractLine."Service Item No.");
+        ServiceLedgerEntry.SetRange("Entry Type", ServiceLedgerEntry."Entry Type"::Sale);
+        ServiceLedgerEntry.SetFilter("Document No.", '<>%1', ExcludeDocNo);
+        if ServiceLedgerEntry.IsEmpty() then
+            ServiceContractLine."Invoiced to Date" := 0D
+        else
+            ServContractMgt.CalcInvoicedToDate(ServiceContractLine, ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
     end;
 
     /// <summary>
@@ -6017,9 +6033,19 @@ table 5900 "Service Header"
     begin
     end;
 
+    internal procedure RunOnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+        OnValidatePaymentTermsCodeOnBeforeValidateDueDate(ServiceHeader, IsHandled);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
+    end;
+
+    internal procedure RunOnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+        OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(ServiceHeader, IsHandled)
     end;
 
     [IntegrationEvent(false, false)]
