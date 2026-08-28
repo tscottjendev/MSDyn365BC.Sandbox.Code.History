@@ -572,6 +572,10 @@ dotnet
         type("Microsoft.Dynamics.Nav.LicensingService.Model.UserInfo"; "UserInfo")
         {
         }
+
+        type("Microsoft.Dynamics.Nav.LicensingService.Model.VerifiedDomainInfo"; "VerifiedDomainInfo")
+        {
+        }
     }
 
     assembly("Microsoft.Dynamics.Nav.NavUserAccount")
@@ -1271,6 +1275,10 @@ dotnet
         }
 
         type("MimeKit.MimePart"; "MimePart")
+        {
+        }
+
+        type("MimeKit.EncodingConstraint"; "EncodingConstraint")
         {
         }
     }
@@ -2151,6 +2159,10 @@ dotnet
         Culture = 'neutral';
 
         type("Microsoft.Dynamics.Nav.Service.CopilotApi.AL.ALCopilotAuthorization"; ALCopilotAuthorization)
+        {
+        }
+
+        type("Microsoft.Dynamics.Nav.Service.CopilotApi.AL.ALCopilotFastPromptResponse"; ALCopilotFastPromptResponse)
         {
         }
 

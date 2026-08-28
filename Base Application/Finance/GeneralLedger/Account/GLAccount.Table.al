@@ -16,6 +16,7 @@ using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.Enums;
@@ -25,6 +26,8 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 using System.Utilities;
@@ -317,6 +320,9 @@ table 15 "G/L Account"
                 then
                     Error(CurrencyCodeErr);
 
+                if "Source Currency Code" <> '' then
+                    CheckNotUsedAsReceivablesPayablesAccount();
+
                 if ("Source Currency Code" <> xRec."Source Currency Code") and (xRec."Source Currency Code" <> '') then begin
                     GLAccountSourceCurrency."G/L Account No." := "No.";
                     GLAccountSourceCurrency."Currency Code" := xRec."Source Currency Code";
@@ -344,6 +350,12 @@ table 15 "G/L Account"
         {
             Caption = 'Source Currency Revaluation';
             ToolTip = 'Specifies if source currency revaluation should be done for this account.';
+
+            trigger OnValidate()
+            begin
+                if "Source Currency Revaluation" then
+                    CheckNotUsedAsReceivablesPayablesAccount();
+            end;
         }
         /// <summary>
         /// Indicates whether this account supports unrealized currency revaluation adjustments.
@@ -1020,6 +1032,15 @@ table 15 "G/L Account"
             DataClassification = CustomerContent;
         }
         /// <summary>
+        /// Specifies whether a spend request is required before expenses can be posted to this account.
+        /// </summary>
+        field(90; "Spend Request Required"; Enum "Spend Request Required")
+        {
+            Caption = 'Spend Request Required';
+            ToolTip = 'Specifies whether a spend request is required before expenses can be posted to this account.';
+            DataClassification = CustomerContent;
+        }
+        /// <summary>
         /// Filter for dimension set ID to restrict balance calculations to specific dimension combinations.
         /// </summary>
         field(400; "Dimension Set ID Filter"; Integer)
@@ -1230,6 +1251,22 @@ table 15 "G/L Account"
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';
         CurrencyCodeErr: Label 'Currency codes are only allowed for assets and liabilities and posting account.';
         BalanceMustBeZeroErr: Label 'In order to change the currency code, the balance of the account must be zero.';
+        AccUsedAsReceivablesErr: Label 'G/L Account %1 is used as a Receivables Account in Customer Posting Group %2 and cannot be used for source currency revaluation.', Comment = '%1 = G/L Account No., %2 = Customer Posting Group Code';
+        AccUsedAsPayablesVendorErr: Label 'G/L Account %1 is used as a Payables Account in Vendor Posting Group %2 and cannot be used for source currency revaluation.', Comment = '%1 = G/L Account No., %2 = Vendor Posting Group Code';
+
+    local procedure CheckNotUsedAsReceivablesPayablesAccount()
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        CustomerPostingGroup.SetRange("Receivables Account", "No.");
+        if CustomerPostingGroup.FindFirst() then
+            Error(AccUsedAsReceivablesErr, "No.", CustomerPostingGroup.Code);
+
+        VendorPostingGroup.SetRange("Payables Account", "No.");
+        if VendorPostingGroup.FindFirst() then
+            Error(AccUsedAsPayablesVendorErr, "No.", VendorPostingGroup.Code);
+    end;
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
