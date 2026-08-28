@@ -246,7 +246,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         PlanningRoutingLine.SetRange(PlanningRoutingLine."Worksheet Batch Name", WkshBatchName);
         PlanningRoutingLine.SetRange(PlanningRoutingLine."Worksheet Line No.", WkshLineNo);
         if PlanningRoutingLine.FindLast() then
-            exit(GetProdCenterBinCode(PlanningRoutingLine.Type, PlanningRoutingLine."No.", LocationCode, false, Enum::"Flushing Method Routing"::Manual));
+            exit(GetProdCenterBinCode(PlanningRoutingLine.Type, PlanningRoutingLine."No.", LocationCode, false, Enum::"Flushing Method"::Manual));
     end;
 
     procedure GetProdCenterLocationCode(Type: Enum "Capacity Type"; No: Code[20]): Code[10]
@@ -733,6 +733,7 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         ProdOrderComponent.SetRange("Due Date", 0D, CrossDockDate);
         ProdOrderComponent.SetRange("Planning Level Code", 0);
         ProdOrderComponent.SetFilter("Remaining Qty. (Base)", '>0');
+        OnCalcCrossDockToProdOrderComponentOnBeforeFindProdOrderComponent(ProdOrderComponent);
         if ProdOrderComponent.Find('-') then
             repeat
                 ProdOrderComponent.CalcFields("Pick Qty. (Base)");
@@ -750,6 +751,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCrossDockToProdOrderComponentOnBeforeFindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 
@@ -1367,30 +1373,12 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     end;
 
     local procedure FlushingMethodRequiresPick(FlushingMethod: Enum "Flushing Method"): Boolean
-#if not CLEAN26
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-#endif
     begin
-#if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-            exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"])
-        else
-#endif
         exit(FlushingMethod in [FlushingMethod::"Pick + Manual", FlushingMethod::"Pick + Backward", FlushingMethod::"Pick + Forward"]);
     end;
 
     local procedure FlushingMethodRequiresManualPick(FlushingMethod: Enum "Flushing Method"): Boolean
-#if not CLEAN26
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-#endif
     begin
-#if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-            exit(FlushingMethod in [FlushingMethod::Manual, FlushingMethod::"Pick + Manual"])
-        else
-#endif
         exit(FlushingMethod = FlushingMethod::"Pick + Manual");
     end;
 

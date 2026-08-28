@@ -24,6 +24,7 @@ report 715 "Price List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Price List';
+    ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = RDLCLayout;
@@ -136,9 +137,11 @@ report 715 "Price List"
             column(VATTextCaption; VATTextCaptionLbl)
             {
             }
+#if not CLEAN29
             column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification())
             {
             }
+#endif
             dataitem(SalesPrices; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = filter(1 ..));

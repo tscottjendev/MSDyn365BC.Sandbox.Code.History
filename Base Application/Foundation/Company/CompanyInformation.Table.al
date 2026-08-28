@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -98,6 +98,7 @@ table 79 "Company Information"
         field(11; "Giro No."; Text[20])
         {
             Caption = 'Giro No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies the company''s giro number.';
         }
         field(12; "Bank Name"; Text[100])
@@ -113,6 +114,7 @@ table 79 "Company Information"
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies the company''s bank account number.';
         }
         field(15; "Payment Routing No."; Text[20])
@@ -332,6 +334,7 @@ table 79 "Company Information"
         field(38; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             ToolTip = 'Specifies the international bank account number of your primary bank account.';
 
             trigger OnValidate()
@@ -505,10 +508,20 @@ table 79 "Company Information"
             ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
             InitValue = '1Y';
         }
+#if not CLEANSCHEMA32
         field(10601; Enterpriseregister; Boolean)
         {
             Caption = 'Enterpriseregister';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -543,7 +556,9 @@ table 79 "Company Information"
         RecordHasBeenRead: Boolean;
 
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
+#if not CLEAN29
         Text10601: Label 'Enterpriseregister';
+#endif
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
 #pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
@@ -741,6 +756,8 @@ table 79 "Company Information"
         OnAfterGetSystemIndicator(Text, Style)
     end;
 
+#if not CLEAN29
+    [Obsolete('The procedure will be removed in a future release.', '29.0')]
     procedure GetEnterpriseClassification(): Text[50]
     begin
         if Enterpriseregister then
@@ -748,6 +765,7 @@ table 79 "Company Information"
 
         exit('');
     end;
+#endif
 
     procedure GetCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
     begin

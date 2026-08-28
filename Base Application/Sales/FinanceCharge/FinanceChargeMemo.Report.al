@@ -30,6 +30,7 @@ report 118 "Finance Charge Memo"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Finance Charge Memo';
+    ToolTip = 'Create a new finance charge memo.';
     UsageCategory = ReportsAndAnalysis;
     WordMergeDataItem = "Issued Fin. Charge Memo Header";
     DefaultRenderingLayout = RDLCLayout;
@@ -230,9 +231,11 @@ report 118 "Finance Charge Memo"
                 column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl())
                 {
                 }
+#if not CLEAN29
                 column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification())
                 {
                 }
+#endif
                 column(KundeIDCaption; KundeTxt)
                 {
                 }

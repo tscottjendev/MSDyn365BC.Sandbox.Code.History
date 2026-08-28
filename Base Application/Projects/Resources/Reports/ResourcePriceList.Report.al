@@ -15,6 +15,7 @@ report 1115 "Resource - Price List"
 {
     ApplicationArea = Jobs;
     Caption = 'Resource - Price List';
+    ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = RDLCLayout;
 
@@ -117,9 +118,11 @@ report 1115 "Resource - Price List"
             column(WorkTypeDescriptionCaption; WorkTypeDescriptionCaptionLbl)
             {
             }
+#if not CLEAN29
             column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification())
             {
             }
+#endif
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = filter(1 ..));
