@@ -145,7 +145,7 @@ report 10083 "Export Electronic Payments"
                     column(VendLedgEntry__External_Document_No__; VendLedgEntry."External Document No.")
                     {
                     }
-                    column(VendLedgEntry__Document_Type_; VendLedgEntry."Document Type")
+                    column(VendLedgEntry__Document_Type_; Format(VendLedgEntry."Document Type"))
                     {
                     }
                     column(AmountPaid_Control57; AmountPaid)
@@ -163,7 +163,7 @@ report 10083 "Export Electronic Payments"
                     column(CustLedgEntry__Document_No__; CustLedgEntry."Document No.")
                     {
                     }
-                    column(CustLedgEntry__Document_Type_; CustLedgEntry."Document Type")
+                    column(CustLedgEntry__Document_Type_; Format(CustLedgEntry."Document Type"))
                     {
                     }
                     column(PageLoop_Number; Number)
@@ -317,7 +317,7 @@ report 10083 "Export Electronic Payments"
                             ValidExchRate: Boolean;
                         begin
                             ValidExchRate := true;
-                            CalcFields("Remaining Amount");
+                            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
                             if ("Pmt. Discount Date" >= "Gen. Journal Line"."Document Date") and
                                ("Remaining Pmt. Disc. Possible" <> 0) and
                                ((-ExportAmount - TotalAmountPaid) - "Remaining Pmt. Disc. Possible" >= -"Amount to Apply")

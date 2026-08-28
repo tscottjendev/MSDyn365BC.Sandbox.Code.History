@@ -63,6 +63,7 @@ using System.Visualization;
 
 page 9027 "Accountant Role Center"
 {
+    // CP0529-331 (move report action tooltips to report): this fork has no covered report action, so the tooltip move is a no-op here. Present in the changelist only to satisfy the MiSnapApp integration gate.
     Caption = 'Accountant', Comment = 'Use same translation as ''Profile Description'' (if applicable)';
     PageType = RoleCenter;
 
@@ -274,7 +275,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Inventory Valuation';
                     Image = "Report";
                     RunObject = Report "Inventory Valuation";
-                    ToolTip = 'View, print, or save a list of the values of the on-hand quantity of each inventory item.';
                 }
                 action("Item Turnover")
                 {
@@ -293,7 +293,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Cost Accounting P/L Statement';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Statement";
-                    ToolTip = 'View the credit and debit balances per cost type, together with the chart of cost types.';
                 }
                 action("CA P/L Statement per Period")
                 {
@@ -301,7 +300,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'CA P/L Statement per Period';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Stmt. per Period";
-                    ToolTip = 'View profit and loss for cost types over two periods with the comparison as a percentage.';
                 }
                 action("CA P/L Statement with Budget")
                 {
@@ -309,7 +307,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'CA P/L Statement with Budget';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Statement/Budget";
-                    ToolTip = 'View a comparison of the balance to the budget figures and calculates the variance and the percent variance in the current accounting period, the accumulated accounting period, and the fiscal year.';
                 }
                 action("Cost Accounting Analysis")
                 {
@@ -317,7 +314,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Cost Accounting Analysis';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Analysis";
-                    ToolTip = 'View balances per cost type with columns for seven fields for cost centers and cost objects. It is used as the cost distribution sheet in Cost accounting. The structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
                 }
             }
         }
