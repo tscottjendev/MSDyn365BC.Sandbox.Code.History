@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -735,6 +735,16 @@ page 16 "Chart of Accounts"
             Caption = 'Hide blocked accounts';
             Filters = where(Blocked = const(false));
         }
+        view(Uncategorized)
+        {
+            Caption = 'Uncategorized accounts';
+            Filters = where("Account Category" = const(" "));
+        }
+        view(NoSubCategory)
+        {
+            Caption = 'Uncategorized accounts (missing sub category)';
+            Filters = where("Account Subcategory Entry No." = const(0));
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -771,6 +781,8 @@ page 16 "Chart of Accounts"
         NoEmphasize: Boolean;
         NameEmphasize: Boolean;
         NameIndent: Integer;
+
+    protected var
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
 

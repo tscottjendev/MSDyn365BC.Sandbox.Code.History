@@ -33,6 +33,11 @@ page 99000761 "Machine Center List"
                 {
                     ApplicationArea = Manufacturing;
                 }
+                field("Name 2"; Rec."Name 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
                 field("Work Center No."; Rec."Work Center No.")
                 {
                     ApplicationArea = Manufacturing;
@@ -94,6 +99,12 @@ page 99000761 "Machine Center List"
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                }
+                field("Calendar Entries Available Until"; Rec."Calendar Entries Avail. Until")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    StyleExpr = CalendarHorizonStyleTxt;
                 }
             }
         }
@@ -212,7 +223,6 @@ page 99000761 "Machine Center List"
                 Caption = 'Calculate Machine Center Calendar';
                 Image = CalcWorkCenterCalendar;
                 RunObject = Report "Calc. Machine Center Calendar";
-                ToolTip = 'Create new calendar entries for the machine center to define the available daily capacity.';
             }
         }
         area(reporting)
@@ -249,7 +259,6 @@ page 99000761 "Machine Center List"
                 Caption = 'Work/Machine Center Load';
                 Image = "Report";
                 RunObject = Report "Work/Machine Center Load";
-                ToolTip = 'Get an overview of availability at the work center and machine center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
             }
         }
         area(Promoted)
@@ -291,5 +300,16 @@ page 99000761 "Machine Center List"
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        Rec.CalcFields("Calendar Entries Avail. Until");
+        CalendarHorizonStyleTxt := '';
+        if (Rec."Calendar Entries Avail. Until" <> 0D) and (Rec."Calendar Entries Avail. Until" < WorkDate()) then
+            CalendarHorizonStyleTxt := 'Unfavorable';
+    end;
+
+    var
+        CalendarHorizonStyleTxt: Text;
 }
 

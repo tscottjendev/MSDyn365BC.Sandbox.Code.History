@@ -289,6 +289,11 @@ page 50 "Purchase Order"
                     ShowMandatory = VendorInvoiceNoMandatory;
                     Editable = IsVendorInvoiceEditable;
                 }
+                field("Spend Request No."; Rec."Spend Request No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1608,20 +1613,14 @@ page 50 "Purchase Order"
                         end;
                     }
                 }
+#if not CLEAN29
                 separator(Action1140000)
                 {
+                    ObsoleteReason = 'Not used';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '29.0';
                 }
-                action("Deliv. Reminder Ledger &Entries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Deliv. Reminder Ledger &Entries';
-                    Image = ReceiptReminder;
-                    RunObject = Page "Deliv. Reminder Ledger Entries";
-                    RunPageLink = "Order No." = field("No.");
-                    RunPageView = sorting("Order No.", "Order Line No.", "Posting Date")
-                                  order(ascending);
-                    ToolTip = 'View the entries that were created when delivery reminders were created. You can navigate to investigate each entry further.';
-                }
+#endif
                 action("Archive Document")
                 {
                     ApplicationArea = Suite;
@@ -2308,6 +2307,7 @@ page 50 "Purchase Order"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId());
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId());
         StatusStyleTxt := Rec.GetStatusStyleText();
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
     end;
 
     trigger OnAfterGetRecord()
@@ -2317,8 +2317,7 @@ page 50 "Purchase Order"
         RejectICPurchaseOrderEnabled := ICInboxOutboxMgt.IsPurchaseHeaderFromIncomingIC(Rec);
         CalculateCurrentShippingAndPayToOption();
         ShowOverReceiptNotification();
-        BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
-        PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
         IsVendorInvoiceEditable := not Rec."Self-Billing Invoice";
 
