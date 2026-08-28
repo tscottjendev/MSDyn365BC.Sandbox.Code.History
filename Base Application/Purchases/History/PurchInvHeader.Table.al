@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.WithholdingTax;
 using Microsoft.Foundation.Address;
@@ -570,6 +571,19 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Prepayment Order No.';
         }
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request";
+            DataClassification = CustomerContent;
+        }
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
+        }
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
@@ -671,6 +685,13 @@ table 122 "Purch. Inv. Header"
             ToolTip = 'Specifies if the posted purchase invoice is a corrective document.';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(1340; "Dispute Status"; Code[10])
+        {
+            Caption = 'Dispute Status';
+            ToolTip = 'Specifies if there is an ongoing dispute for this document.';
+            TableRelation = "Dispute Status";
+            DataClassification = CustomerContent;
         }
         field(5050; "Campaign No."; Code[20])
         {
