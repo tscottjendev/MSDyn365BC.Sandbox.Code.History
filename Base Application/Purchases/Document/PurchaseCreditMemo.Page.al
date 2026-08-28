@@ -286,6 +286,12 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = VendorCreditMemoNoMandatory;
                 }
+                field("Spend Request No."; Rec."Spend Request No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the spend request that this purchase document relates to.';
+                }
                 field("Purchaser Code"; Rec."Purchaser Code")
                 {
                     ApplicationArea = Suite;
@@ -512,7 +518,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Location;
                     Importance = Additional;
-                    ToolTip = 'Specifies the location where the items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
+                    ToolTip = 'Specifies the code for the location from where the items are shipped. When you select the vendor and the vendor has a location assigned, the value is taken from the Vendor card. If the vendor has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
                 }
                 field(Correction; Rec.Correction)
                 {
@@ -1599,13 +1605,13 @@ page 52 "Purchase Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption();
-        BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
-        PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
