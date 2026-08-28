@@ -11,9 +11,10 @@ using Microsoft.Purchases.Vendor;
 
 report 99000789 "Subcontractor - Dispatch List"
 {
-    DefaultRenderingLayout = WordLayout;
+    DefaultRenderingLayout = ExcelLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Subcontractor - Dispatch List';
+    ToolTip = 'View the list of material to be sent to manufacturing subcontractors.';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
