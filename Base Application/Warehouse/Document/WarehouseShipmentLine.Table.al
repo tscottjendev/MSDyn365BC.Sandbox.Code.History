@@ -11,7 +11,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
@@ -261,6 +260,8 @@ table 7321 "Warehouse Shipment Line"
                         "Shipping Advice",
                         FieldCaption("Qty. to Ship"),
                         "Qty. Outstanding");
+
+                OnValidateQtyToShipOnBeforeCheckConfirm(Confirmed, Rec, CurrFieldNo);
 
                 if not Confirmed then
                     Error('');
@@ -1229,21 +1230,18 @@ table 7321 "Warehouse Shipment Line"
 
     internal procedure CheckDirectTransfer(DirectTransfer: Boolean; DoCheck: Boolean): Boolean
     var
-        InventorySetup: Record "Inventory Setup";
         TransferHeader: Record "Transfer Header";
     begin
         if "Source Type" <> Database::"Transfer Line" then
             exit(false);
 
-        InventorySetup.Get();
-        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
-            TransferHeader.SetLoadFields("Direct Transfer");
-            TransferHeader.Get(Rec."Source No.");
-            if DoCheck then
-                TransferHeader.TestField("Direct Transfer", DirectTransfer)
-            else
-                exit(TransferHeader."Direct Transfer");
-        end;
+        TransferHeader.SetLoadFields("Direct Transfer", "Direct Transfer Posting");
+        if TransferHeader.Get(Rec."Source No.") then
+            if TransferHeader."Direct Transfer Posting" = TransferHeader."Direct Transfer Posting"::"Direct Transfer" then
+                if DoCheck then
+                    TransferHeader.TestField("Direct Transfer", DirectTransfer)
+                else
+                    exit(TransferHeader."Direct Transfer");
     end;
 
     [IntegrationEvent(false, false)]
@@ -1318,6 +1316,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompareShipAndPickQty(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToShipOnBeforeCheckConfirm(var Confirmed: Boolean; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CurrentFieldNo: Integer)
     begin
     end;
 
