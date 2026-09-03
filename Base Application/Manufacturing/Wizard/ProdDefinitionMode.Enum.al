@@ -2,22 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.eServices.EDocument.Processing.Message;
+namespace Microsoft.Manufacturing.Wizard;
 
-/// <summary>
-/// Identifies whether an E-Document payment occurrence applies or reverses an amount.
-/// </summary>
-enum 6115 "E-Doc. Payment Occurrence Type"
+enum 99001011 "Prod. Definition Mode"
 {
-    Access = Public;
-    Extensible = false;
+    Extensible = true;
 
-    value(0; Applied)
+    value(0; DefineItemStructure)
     {
-        Caption = 'Applied';
+        Caption = 'Define Item Structure';
     }
-    value(1; Reversed)
+    value(1; CreateProductionOrder)
     {
-        Caption = 'Reversed';
+        Caption = 'Create Production Order';
     }
 }
