@@ -161,5 +161,13 @@
     {
       "path": "./System Application/Email/src/Test Email"
     }
-  ]
+  ],
+  "settings": {
+    "allint.enabled": false,
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    }
+  }
 }
