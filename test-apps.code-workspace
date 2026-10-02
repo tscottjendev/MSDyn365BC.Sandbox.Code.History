@@ -51,6 +51,9 @@
       "path": "./Business Foundation Test Libraries"
     },
     {
+      "path": "./Business Foundation Tests"
+    },
+    {
       "path": "./Contoso Coffee Demo Dataset Tests"
     },
     {
@@ -84,6 +87,9 @@
       "path": "./E-Document Connector - SignUp Tests"
     },
     {
+      "path": "./E-Document Core Tests"
+    },
+    {
       "path": "./Email - Current User Connector Tests"
     },
     {
@@ -105,6 +111,9 @@
       "path": "./Enforced Digital Vouchers Tests"
     },
     {
+      "path": "./Error Messages with Recommendations Tests"
+    },
+    {
       "path": "./Essential Business Headlines Test"
     },
     {
@@ -112,6 +121,9 @@
     },
     {
       "path": "./Excise Taxes Tests"
+    },
+    {
+      "path": "./External Storage - Document Attachments Tests"
     },
     {
       "path": "./Field Service Integration Test"
@@ -150,13 +162,16 @@
       "path": "./PowerBI Reports Test Library"
     },
     {
+      "path": "./PowerBI Reports Tests"
+    },
+    {
       "path": "./Quality Management Test Library"
     },
     {
-      "path": "./Recommended Apps Tests"
+      "path": "./Quality Management-Tests"
     },
     {
-      "path": "./Report Layouts Tests"
+      "path": "./Recommended Apps Tests"
     },
     {
       "path": "./SAF-T Tests"
@@ -171,10 +186,16 @@
       "path": "./Service Management Tests"
     },
     {
+      "path": "./Shopify Connector Test"
+    },
+    {
       "path": "./Simplified Bank Statement Import Test"
     },
     {
       "path": "./Statistical Accounts Tests"
+    },
+    {
+      "path": "./Subscription Billing Tests"
     },
     {
       "path": "./Sustainability Copilot Tests"
@@ -184,6 +205,9 @@
     },
     {
       "path": "./System Application Partner Test"
+    },
+    {
+      "path": "./System Application Test"
     },
     {
       "path": "./System Application Test Library"
@@ -211,6 +235,18 @@
     },
     {
       "path": "./Tests-ERM"
+    },
+    {
+      "path": "./Tests-ERM-Application"
+    },
+    {
+      "path": "./Tests-ERM-Finance"
+    },
+    {
+      "path": "./Tests-ERM-Purchase"
+    },
+    {
+      "path": "./Tests-ERM-Sales"
     },
     {
       "path": "./Tests-Fixed Asset"
@@ -267,10 +303,25 @@
       "path": "./Tests-SCM-Assembly"
     },
     {
+      "path": "./Tests-SCM-Costing"
+    },
+    {
       "path": "./Tests-SCM-Manufacturing"
     },
     {
+      "path": "./Tests-SCM-Planning"
+    },
+    {
+      "path": "./Tests-SCM-Reservation"
+    },
+    {
       "path": "./Tests-SCM-Service"
+    },
+    {
+      "path": "./Tests-SCM-Warehouse"
+    },
+    {
+      "path": "./Tests-SCM-Workflow"
     },
     {
       "path": "./Tests-SINGLESERVER"
@@ -303,19 +354,10 @@
       "path": "./Quality Management/src/Configuration/Template/Test"
     },
     {
-      "path": "./Shopify Connector Test/DisabledTests"
-    },
-    {
-      "path": "./Error Messages with Recommendations Tests/DisabledTests"
-    },
-    {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
     },
     {
       "path": "./Subcontracting-Tests/Tests"
-    },
-    {
-      "path": "./PowerBI Reports Tests/DisabledTests"
     },
     {
       "path": "./Base Application/System/DevTools/CALTest"
@@ -325,9 +367,6 @@
     },
     {
       "path": "./AI Test Toolkit/src/TestSuite"
-    },
-    {
-      "path": "./Quality Management-Tests/DisabledTests"
     },
     {
       "path": "./Test Runner/src/DataDrivenTest"
@@ -342,22 +381,10 @@
       "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
-      "path": "./Subscription Billing Tests/DisabledTests"
-    },
-    {
-      "path": "./E-Document Core Tests/DisabledTests"
-    },
-    {
       "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
-    },
-    {
-      "path": "./Business Foundation Tests/DisabledTests"
-    },
-    {
-      "path": "./System Application Test/DisabledTests"
     },
     {
       "path": "./System Application/Email/src/Test Email"
