@@ -2,19 +2,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Integration.Entity;
 
-enum 5504 "Tax Buffer Type"
+namespace System.TestTools.AITestToolkit;
+
+enum 149032 "AIT Run History - View By"
 {
     Extensible = false;
-    AssignmentCompatibility = true;
 
-    value(0; "Sales Tax")
+    value(0; Version)
     {
-        Caption = 'Sales Tax';
+        Caption = 'Version';
     }
-    value(1; VAT)
+
+    value(1; Tag)
     {
-        Caption = 'VAT';
+        Caption = 'Tag';
     }
 }

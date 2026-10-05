@@ -5,16 +5,14 @@
 
 namespace System.Utilities;
 
-using System.Agents;
-
-permissionset 4305 "Agent - Admin"
+controladdin PageReady
 {
-    Assignable = true;
-    Caption = 'Agent administrator';
-    IncludedPermissionSets = "D365 Agent";
-    Permissions =
-        tabledata "Access Control" = RIMD,
-        tabledata Agent = RIMD,
-        system "Configure All Agents" = X,
-        system "Create Custom Agent" = X;
+    Scripts = 'Resources\PageReady\js\PageReady.js';
+    StyleSheets = 'Resources\PageReady\stylesheets\PageReady.css';
+    RequestedWidth = 0;
+    RequestedHeight = 0;
+    HorizontalStretch = false;
+    VerticalStretch = false;
+
+    event AddInReady();
 }
