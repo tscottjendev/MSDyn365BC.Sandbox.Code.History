@@ -2,13 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Contact;
 
-namespace System.TestLibraries.Environment.Configuration;
-
-using System.Environment.Configuration;
-
-permissionset 135003 "Feature Key Admin"
+enum 5050 "Contact Type"
 {
-    Assignable = true;
-    IncludedPermissionSets = "Feature Key - Admin";
+    Extensible = true;
+    AssignmentCompatibility = true;
+
+    value(0; "Company") { Caption = 'Company'; }
+    value(1; "Person") { Caption = 'Person'; }
 }

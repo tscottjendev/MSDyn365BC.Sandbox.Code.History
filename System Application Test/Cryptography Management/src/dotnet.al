@@ -3,15 +3,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+namespace System.Test.Security.Encryption;
+
 dotnet
-{
+{
     assembly("netstandard")
     {
-        type("System.Security.SecurityElement"; "System.Security.SecurityElement")
+        type("System.TimeZoneInfo"; TimeZoneInfoTest)
         {
         }
-
     }
-
 }
-

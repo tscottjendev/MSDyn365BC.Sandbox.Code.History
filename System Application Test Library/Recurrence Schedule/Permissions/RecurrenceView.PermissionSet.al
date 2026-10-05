@@ -5,8 +5,9 @@
 
 namespace System.TestLibraries.DateTime;
 
-permissionset 137122 "Time Zone Read"
+
+permissionset 134691 "Recurrence View"
 {
     Assignable = true;
-    // No permissions required.
+    // No permissions required
 }

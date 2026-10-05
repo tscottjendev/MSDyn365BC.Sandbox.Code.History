@@ -3,13 +3,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Integration.Excel;
-permissionset 132525 "Edit in Excel Test Lib. - Adm"
+namespace System.TestLibraries.Email;
+
+using System.Email;
+
+permissionset 134687 "Email Admin"
 {
-    Assignable = false;
+    Assignable = true;
+    IncludedPermissionSets = "Email - Admin";
 
-    IncludedPermissionSets = "Edit in Excel Test Lib. - Obj.";
-
+    // Include Test Tables
     Permissions =
-        tabledata "Edit In Excel Test Table" = RIMD; // solves AS0103, PTE0004
+        tabledata "Test Email Account" = RIMD,
+        tabledata "Test Email Connector Setup" = RIMD;
 }
