@@ -2,14 +2,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT.Registration;
 
-namespace System.TestLibraries.Integration.Excel;
-permissionset 132525 "Edit in Excel Test Lib. - Adm"
+enum 205 "Alt. Cust VAT Reg. Doc." implements "Alt. Cust. VAT Reg. Doc."
 {
-    Assignable = false;
+    Extensible = true;
+    DefaultImplementation = "Alt. Cust. VAT Reg. Doc." = "Alt. Cust. VAT Reg. Doc. Impl.";
 
-    IncludedPermissionSets = "Edit in Excel Test Lib. - Obj.";
-
-    Permissions =
-        tabledata "Edit In Excel Test Table" = RIMD; // solves AS0103, PTE0004
+    value(0; Default)
+    {
+    }
 }

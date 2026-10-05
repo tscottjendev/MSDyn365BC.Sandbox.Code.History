@@ -3,17 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Reflection;
+namespace System.TestLibraries.Globalization;
 
-using System.Reflection;
+using System.Globalization;
 
-permissionset 135036 "Field Selection Read"
+permissionset 137121 "Translation Edit"
 {
     Assignable = true;
 
-    IncludedPermissionSets = "Field Selection - Read";
+    IncludedPermissionSets = "Translation - Edit";
 
     // Include Test Tables
-    Permissions = tabledata "Test Table A" = RIMD,
-                  tabledata "Test Table B" = RIMD;
+    Permissions = tabledata "Translation Test Table" = RIMD;
 }
