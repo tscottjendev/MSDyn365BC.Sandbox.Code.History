@@ -2,17 +2,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT.Registration;
 
-namespace System.TestLibraries.Integration;
-
-using System.Integration;
-
-permissionset 132616 "Page Action Read"
+enum 206 "Ship-To Alt. Cust. VAT Reg." implements "Ship-To Alt. Cust. VAT Reg."
 {
-    Assignable = true;
+    Extensible = true;
+    DefaultImplementation = "Ship-To Alt. Cust. VAT Reg." = "Ship Alt. Cust. VAT Reg. Impl.";
 
-    IncludedPermissionSets = "Page Action Provider - Read";
-
-    // Include Test Tables
-    Permissions = tabledata "Page Action Provider Test" = RIMD;
+    value(0; Default)
+    {
+    }
 }

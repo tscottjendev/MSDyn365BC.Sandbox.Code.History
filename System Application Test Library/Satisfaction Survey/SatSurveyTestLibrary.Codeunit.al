@@ -2,19 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.FixedAssets.Ledger;
 
-codeunit 5620 "FA Reg.-FALedger"
+namespace System.TestLibraries.Feedback;
+
+using System.Feedback;
+
+codeunit 138078 "Sat. Survey Test Library"
 {
-    TableNo = "FA Register";
-
-    trigger OnRun()
-    begin
-        FALedgEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
-        PAGE.Run(PAGE::"FA Ledger Entries", FALedgEntry);
-    end;
-
     var
-        FALedgEntry: Record "FA Ledger Entry";
-}
+        SatisfactionSurveyImpl: Codeunit "Satisfaction Survey Impl.";
 
+    procedure GetRenderUrl(): Text
+    begin
+        exit(SatisfactionSurveyImpl.GetRenderUrl());
+    end;
+}

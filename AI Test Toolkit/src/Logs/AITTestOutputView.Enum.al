@@ -2,31 +2,35 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Integration.Entity;
 
-enum 5468 "Picture Entity Parent Type"
+namespace System.TestTools.AITestToolkit;
+
+enum 149034 "AIT Test Output - View"
 {
-    AssignmentCompatibility = true;
     Extensible = false;
 
-    value(1; Customer)
+    value(0; "Full Output")
     {
-        Caption = 'Customer';
+        Caption = 'Full Output';
     }
-    value(2; "Item")
+
+    value(1; Answer)
     {
-        Caption = 'Item';
+        Caption = 'Answer';
     }
-    value(3; "Vendor")
+
+    value(2; Question)
     {
-        Caption = 'Vendor';
+        Caption = 'Question';
     }
-    value(4; "Employee")
+
+    value(3; Context)
     {
-        Caption = 'Employee';
+        Caption = 'Context';
     }
-    value(5; "Contact")
+
+    value(4; "Ground Truth")
     {
-        Caption = 'Contact';
+        Caption = 'Ground Truth';
     }
 }

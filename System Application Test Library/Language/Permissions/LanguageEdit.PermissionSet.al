@@ -3,12 +3,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Utilities;
+namespace System.TestLibraries.Globalization;
 
-using System.Utilities;
+using System.Globalization;
 
-permissionset 135032 "Blob Storage Exec"
+permissionset 130043 "Language Edit"
 {
     Assignable = true;
-    IncludedPermissionSets = "Blob Storage - Exec";
+    IncludedPermissionSets = "Language - Edit";
 }

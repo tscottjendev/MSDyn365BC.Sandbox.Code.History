@@ -3,12 +3,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.TestLibraries.Integration.Excel;
-permissionset 132524 "Edit in Excel Test Lib. - Obj."
+namespace System.TestLibraries.Security.AccessControl;
+
+using System.Security.AccessControl;
+permissionset 133402 "Test Set B"
 {
     Assignable = false;
 
-    Permissions =
-        table "Edit In Excel Test Table" = X,
-        codeunit "Edit in Excel Test Library" = X;
+    Permissions = page "Expanded Permissions" = X,
+                  page "Permission Set Tree" = X;
 }

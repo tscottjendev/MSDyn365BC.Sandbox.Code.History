@@ -2,22 +2,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Service.Archive;
+namespace Microsoft.Finance.VAT.Group;
 
-enum 5930 "Archive Service Quotes"
+enum 4703 "VAT Group BC Version"
 {
-    Caption = 'Archive Service Quotes';
-
-    value(0; Never)
+    value(0; BC)
     {
-        Caption = 'Never';
+        Caption = 'Business Central';
     }
-    value(1; Question)
+    value(1; NAV2018)
     {
-        Caption = 'Question';
+        Caption = 'Dynamics NAV 2018';
     }
-    value(2; Always)
+    value(2; NAV2017)
     {
-        Caption = 'Always';
+        Caption = 'Dynamics NAV 2016-2017';
     }
 }
