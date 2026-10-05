@@ -2,44 +2,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Finance.Dimension;
 
-table 375 "Dimension Code Amount Buffer"
+namespace System.TestLibraries.MCP;
+
+table 130131 "Mock API"
 {
-    Caption = 'Dimension Code Amount Buffer';
+    Access = Internal;
+    DataClassification = SystemMetadata;
     ReplicateData = false;
-    DataClassification = CustomerContent;
 
     fields
     {
-        field(1; "Line Code"; Code[20])
+        field(1; "Primary Key"; Integer)
         {
-            Caption = 'Line Code';
-            DataClassification = SystemMetadata;
-        }
-        field(2; "Column Code"; Code[20])
-        {
-            Caption = 'Column Code';
-            DataClassification = SystemMetadata;
-        }
-        field(3; Amount; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Amount';
+            Caption = 'Primary key';
             DataClassification = SystemMetadata;
         }
     }
 
     keys
     {
-        key(Key1; "Line Code", "Column Code")
+        key(PK; "Primary Key")
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-

@@ -2,38 +2,43 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.CRM.Outlook;
 
-table 1601 "Office Add-in Setup"
+namespace System.TestLibraries.Email;
+using System.Email;
+
+table 134686 "Test Email Account"
 {
-    Caption = 'Office Add-in Setup';
-    DataClassification = CustomerContent;
+    DataClassification = SystemMetadata;
     ReplicateData = false;
 
     fields
     {
-        field(1; "Primary Key"; Code[10])
+        field(1; Id; Guid)
         {
-            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
-        field(2; "Office Host Codeunit ID"; Integer)
+
+        field(2; Email; Text[250])
         {
-            Caption = 'Office Host Codeunit ID';
-            InitValue = 1633;
+            Caption = 'Email';
+        }
+
+        field(3; Name; Text[250])
+        {
+            Caption = 'Name';
+        }
+
+        field(4; Connector; Enum "Email Connector")
+        {
+            Caption = 'Connector';
         }
     }
 
     keys
     {
-        key(Key1; "Primary Key")
+        key(PK; Id)
         {
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-

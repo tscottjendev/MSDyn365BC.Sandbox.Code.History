@@ -2,17 +2,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Warehouse.Activity;
 
-using Microsoft.Manufacturing.Family;
+namespace System.TestLibraries.Integration.Word;
 
-tableextension 99000770 "Mfg. Warehouse Activity Header" extends "Warehouse Activity Header"
+table 130447 "Word Templates Test Table 5"
 {
+    DataClassification = SystemMetadata;
+    Caption = 'Word Templates Test Table 5';
+    ReplicateData = false;
+
     fields
     {
-        modify("Destination No.")
+        field(1; Id; BigInteger)
         {
-            TableRelation = if ("Destination Type" = const(Family)) Family;
+        }
+        field(2; "Value"; Text[100])
+        {
         }
     }
 }
