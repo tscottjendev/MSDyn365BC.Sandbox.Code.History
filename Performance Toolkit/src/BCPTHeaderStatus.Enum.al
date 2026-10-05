@@ -2,44 +2,41 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Utilities;
 
-enum 1800 "Company Setup Status"
+namespace System.Tooling;
+
+/// <summary>
+/// This enum has the Status of the BCPT Header.
+/// </summary>
+enum 149000 "BCPT Header Status"
 {
     Extensible = false;
 
     /// <summary>
-    /// Undefined.
+    /// Specifies the initial state.
     /// </summary>
     value(0; " ")
     {
     }
 
     /// <summary>
-    /// Setup completed.
+    /// Specifies that the BCPT Header state is Running.
     /// </summary>
-    value(1; Completed)
+    value(20; Running)
     {
     }
 
     /// <summary>
-    /// Setup is in progress.
+    /// Specifies that the BCPT Header state is Completed.
     /// </summary>
-    value(2; "In Progress")
+    value(30; Completed)
     {
     }
 
     /// <summary>
-    /// Setup ended in an error.
+    /// Specifies that the BCPT Header state is Cancelled.
     /// </summary>
-    value(3; Error)
-    {
-    }
-
-    /// <summary>
-    /// The user performing setup is missing permissions.
-    /// </summary>
-    value(4; "Missing Permission")
+    value(40; Cancelled)
     {
     }
 }

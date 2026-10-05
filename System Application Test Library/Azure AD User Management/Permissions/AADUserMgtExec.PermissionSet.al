@@ -3,15 +3,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Security.AccessControl;
+namespace System.TestLibraries.Azure.ActiveDirectory;
 
-using System.Environment.Consumption;
+using System.Azure.Identity;
 
-permissionset 4306 "Agent - Diagnostics"
+permissionset 132914 "AAD User Mgt Exec"
 {
     Assignable = true;
-    Caption = 'Agent Diagnostics';
-    IncludedPermissionSets = "D365 Agent";
-    Permissions = tabledata "User AI Consumption Data" = r,
-                  system "Troubleshoot All Agents" = X;
+    IncludedPermissionSets = "AAD User Management - Exec";
 }

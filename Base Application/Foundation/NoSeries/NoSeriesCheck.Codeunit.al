@@ -3,18 +3,20 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace Microsoft.API.V1;
+namespace Microsoft.Foundation.NoSeries;
 
-// This permission set should always be internal
-permissionset 2146 "D365 APIV1"
+/// <summary>
+/// This codeunit verifies that a number can be retrieved for the given No. Series.
+/// </summary>
+codeunit 4143 "No. Series Check"
 {
-    Assignable = false;
+    TableNo = "No. Series";
     Access = Internal;
-    Permissions = codeunit * = X,
-                  page * = X,
-                  table * = X,
-                  query * = X,
-                  report * = X,
-                  xmlport * = X,
-                  tabledata * = RIMD;
+
+    trigger OnRun()
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        NoSeries.PeekNextNo(Rec.Code, WorkDate());
+    end;
 }

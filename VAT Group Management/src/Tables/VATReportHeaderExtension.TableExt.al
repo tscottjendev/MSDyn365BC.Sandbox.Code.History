@@ -2,49 +2,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace System.Reflection;
+namespace Microsoft.Finance.VAT.Group;
 
-table 8450 "Field Buffer"
+using Microsoft.Finance.VAT.Reporting;
+
+tableextension 4700 "VAT Report Header Extension" extends "VAT Report Header"
 {
-    Caption = 'Field Buffer';
-    ReplicateData = false;
-    DataClassification = CustomerContent;
-
     fields
     {
-        field(1; "Order"; Integer)
+        field(4700; "VAT Group Return"; Boolean)
         {
-            Caption = 'Order';
             DataClassification = SystemMetadata;
             Caption = 'VAT Group Return';
 
         }
-        field(2; "Table ID"; Integer)
+        field(4701; "VAT Group Status"; Text[20])
         {
-            Caption = 'Table ID';
             DataClassification = SystemMetadata;
             Caption = 'VAT Group Return Status';
         }
-        field(3; "Field ID"; Integer)
+        field(4702; "VAT Group Settlement Posted"; Boolean)
         {
-            Caption = 'Field ID';
             DataClassification = SystemMetadata;
+            Caption = 'VAT Group Settlement Posted';
         }
-    }
-
-    keys
-    {
-        key(Key1; "Order")
-        {
-            Clustered = true;
-        }
-        key(Key2; "Table ID", "Field ID")
-        {
-        }
-    }
-
-    fieldgroups
-    {
     }
 }
-

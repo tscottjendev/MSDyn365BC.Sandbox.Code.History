@@ -3,25 +3,25 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Tooling;
+namespace System.Device;
 
 /// <summary>
-/// This enum has the Delay Type of the BCPT Line.
+/// The failure for the barcode scanner.
 /// </summary>
-enum 149002 "BCPT Line Delay Type"
+enum 8761 BarcodeFailure
 {
-    Extensible = false;
+    /// <summary>
+    /// The barcode scanning action was canceled.
+    /// </summary>
+    value(0; Cancel) { }
 
     /// <summary>
-    /// Specifies that the BCPT Line Delay Type Fixed.
+    /// No barcode was found.
     /// </summary>
-    value(10; Fixed)
-    {
-    }
+    value(1; NoBarcode) { }
+
     /// <summary>
-    /// Specifies that the BCPT Line Delay Type is Random.
+    /// An error occurred while scanning the barcode.
     /// </summary>
-    value(20; Random)
-    {
-    }
+    value(2; Error) { }
 }
