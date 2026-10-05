@@ -1,6 +1,6 @@
 {
-  "id": "23de40a6-dfe8-4f80-80db-d70f83ce8caf",
-  "name": "Test Runner",
+  "id": "c81764a5-be79-4d50-ba3e-4ade02073780",
+  "name": "Tests-Fixed Asset",
   "publisher": "Microsoft",
   "brief": "Executes one or more tests and gathers the results.",
   "description": "Provides options for running manual tests in the UI or automated tests in the console. Manual tests are run from the Test Tool page, and automated tests are run from the Command Line Test Tool page. For each group of tests, you can define the test isolation by using the Test Runner Codeunit. The Test Runner - Isol. Codeunit codeunit reverts changes to the database after tests are complete. The Test Runner Isol. Disabled codeunit prevents changes from being reverted. This is useful when testing requires multiple sessions, such as when invoking web services, job queues, background threads, and so on.",
@@ -16,18 +16,30 @@
   "platform": "27.0.0.0",
   "idRanges": [
     {
-      "from": 130450,
-      "to": 130480
+      "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
+      "name": "Tests-TestLibraries",
+      "publisher": "Microsoft",
+      "version": "$(app_minimumVersion)"
+    },
+    {
+      "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
+      "publisher": "Microsoft",
+      "name": "Library Variable Storage",
+      "version": "$(app_minimumVersion)"
+    },
+    {
+      "id": "9856ae4f-d1a7-46ef-89bb-6ef056398228",
+      "name": "System Application Test Library",
+      "publisher": "Microsoft",
+      "version": "$(app_minimumVersion)"
     }
   ],
-  "features": [
-    "TranslationFile",
-    "GenerateCaptions"
-  ],
+  "target": "OnPrem",
   "resourceExposurePolicy": {
     "allowDebugging": true,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "target": "Cloud"
+  "application": "$(app_minimumVersion)",
+  "brief": "Tests-Fixed Asset (W1)"
 }
