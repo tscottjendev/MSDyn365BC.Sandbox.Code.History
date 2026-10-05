@@ -2,9 +2,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Foundation.Enums;
 
-enumextension 6452 "Serv. Supply Document Type" extends "Supply Document Type"
+namespace System.TestLibraries.Media;
+
+permissionset 135038 "Video Read"
 {
-    value(1; "Service Shipment") { Caption = 'Service Shipment'; }
+    Assignable = true;
+
+    // Add Test Tables
+    Permissions = tabledata "My Video Source" = RIMD;
 }

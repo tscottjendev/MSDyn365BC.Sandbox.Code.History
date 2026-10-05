@@ -3,16 +3,15 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-namespace System.Test.Tooling;
+namespace System.Test.Apps;
 
-using System.Tooling;
+using System.Apps;
 
-codeunit 144758 "BCPT Codeunit With Error"
+codeunit 133102 "Sample Setup For Test"
 {
-    TableNo = "BCPT Line";
-
     trigger OnRun()
     begin
-        Error('Throw Error');
+        Page.RunModal(Page::"Extension Settings");
     end;
+
 }
