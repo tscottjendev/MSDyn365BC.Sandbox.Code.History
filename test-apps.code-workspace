@@ -25,6 +25,9 @@
       "path": "./Tests-Cash Flow"
     },
     {
+      "path": "./Tests-Company Creation"
+    },
+    {
       "path": "./Tests-Cost Accounting"
     },
     {
@@ -179,10 +182,10 @@
     }
   ],
   "settings": {
-    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
+    "allint.enabled": false,
     "al.enableCodeAnalysis": false,
     "al.enableCodeActions": false
   }
