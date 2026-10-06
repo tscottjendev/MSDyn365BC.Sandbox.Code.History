@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false
+  },
   "folders": [
     {
       "path": "./_Exclude_APIV1_ Tests"
@@ -214,6 +222,9 @@
       "path": "./Tests-Cash Flow"
     },
     {
+      "path": "./Tests-Company Creation"
+    },
+    {
       "path": "./Tests-Cost Accounting"
     },
     {
@@ -384,13 +395,5 @@
     {
       "path": "./System Application/Email/src/Test Email"
     }
-  ],
-  "settings": {
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false
-  }
+  ]
 }
