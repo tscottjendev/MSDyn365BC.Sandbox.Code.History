@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
     "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false,
-    "allint.enabled": false
+    }
   },
   "folders": [
     {
@@ -139,6 +139,9 @@
     },
     {
       "path": "./Manufacturing Tests"
+    },
+    {
+      "path": "./Microsoft Fabric Mirroring Tests"
     },
     {
       "path": "./OnPrem Permissions Tests"
