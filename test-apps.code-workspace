@@ -294,7 +294,7 @@
       "path": "./Subscription Billing Tests/DisabledTests"
     },
     {
-      "path": "./AI Test Toolkit/src/TestSuite"
+      "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
     },
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
