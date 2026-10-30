@@ -294,7 +294,7 @@
       "path": "./Subscription Billing Tests/DisabledTests"
     },
     {
-      "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
+      "path": "./AI Test Toolkit/src/TestSuite"
     },
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
@@ -309,7 +309,7 @@
       "path": "./Test Runner/src/DataDrivenTest"
     },
     {
-      "path": "./AI Test Toolkit/src/TestSuite"
+      "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
@@ -328,18 +328,6 @@
     },
     {
       "path": "./Base Application/System/DevTools/CALTest"
-    },
-    {
-      "path": "./Subscription Billing Tests/DisabledTests"
-    },
-    {
-      "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
-    },
-    {
-      "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
-    },
-    {
-      "path": "./Business Foundation Tests/DisabledTests"
     },
     {
       "path": "./System Application Test/DisabledTests"
