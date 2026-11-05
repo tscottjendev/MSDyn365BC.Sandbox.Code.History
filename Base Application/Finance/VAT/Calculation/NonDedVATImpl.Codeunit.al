@@ -39,7 +39,6 @@ codeunit 6201 "Non-Ded. VAT Impl."
         PrepaymentsWithNDVATErr: Label 'You cannot post prepayment that contains Non-Deductible VAT.';
         UnrealizedVATWithNDVATErr: Label 'You cannot post unrealized VAT that contains Non-Deductible VAT.';
         DifferentNonDedVATRatesSameVATIdentifierErr: Label 'You cannot set different Non-Deductible VAT % for the combinations of business and product groups with the same VAT identifier.\The following combination with the same VAT identifier has different Non-Deductible VAT %: business group %1, product group %2', Comment = '%1, %2 - codes';
-        NonTemporaryVATAmountLineInsertErr: Label 'Records cannot be inserted into a non-temporary instance of the %1 table. Your extension provider must refactor the business logic so that it doesn''t insert in a non-temporary instance of this table.', Comment = '%1 = table caption';
 
     procedure IsNonDeductibleVATEnabled(): Boolean
     var
@@ -1156,11 +1155,15 @@ codeunit 6201 "Non-Ded. VAT Impl."
         exit(DocAmountRoundingPrecision);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"VAT Amount Line", 'OnBeforeInsertEvent', '', false, false)]
-    local procedure BlockNonTemporaryVATAmountLineInsert(var Rec: Record "VAT Amount Line"; RunTrigger: Boolean)
+    local procedure IsNormalVATInvoiceForVendor(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    var
+        Vendor: Record Vendor;
     begin
-        if not Rec.IsTemporary() then
-            Error(NonTemporaryVATAmountLineInsertErr, Rec.TableCaption());
+        if (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and
+            (GenJournalLine."VAT Calculation Type" = GenJournalLine."VAT Calculation Type"::"Normal VAT") and
+            (Vendor.Get(GenJournalLine."Bill-to/Pay-to No.") and (Vendor."Prices Including VAT")) then
+            exit(true);
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
