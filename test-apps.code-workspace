@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false
-  },
   "folders": [
     {
       "path": "./_Exclude_APIV1_ Tests"
@@ -222,6 +214,9 @@
       "path": "./Test Runner"
     },
     {
+      "path": "./Test Runner Tests"
+    },
+    {
       "path": "./Tests-Bank"
     },
     {
@@ -401,5 +396,13 @@
     {
       "path": "./Quality Management/src/Configuration/Template/Test"
     }
-  ]
+  ],
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "allint.enabled": false
+  }
 }
