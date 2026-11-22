@@ -349,10 +349,13 @@
       "path": "./System Application/Email/src/Test Email"
     },
     {
-      "path": "./Sales Lines Suggestions Tests/AI Tests"
+      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
-      "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
+      "path": "./System Application Test Library/Extension Management/testArtifacts"
+    },
+    {
+      "path": "./Base Application/System/DevTools/CALTest"
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
@@ -361,10 +364,13 @@
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
     },
     {
-      "path": "./Base Application/System/DevTools/CALTest"
+      "path": "./Test Runner/src/DataDrivenTest"
     },
     {
-      "path": "./System Application Test Library/Extension Management/testArtifacts"
+      "path": "./AI Test Toolkit/src/TestSuite"
+    },
+    {
+      "path": "./Quality Management/src/Configuration/Template/Test"
     },
     {
       "path": "./Performance Toolkit Tests/src/Mock Tests"
@@ -373,24 +379,18 @@
       "path": "./Subcontracting-Tests/Tests"
     },
     {
-      "path": "./Test Runner/src/DataDrivenTest"
+      "path": "./Sales Lines Suggestions Tests/AI Tests"
     },
     {
-      "path": "./AI Test Toolkit/src/TestSuite"
-    },
-    {
-      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
-    },
-    {
-      "path": "./Quality Management/src/Configuration/Template/Test"
+      "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
     }
   ],
   "settings": {
-    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
-    },
-    "al.enableCodeAnalysis": false
+    }
   }
 }
