@@ -144,6 +144,14 @@
     {
       "path": "./Test Runner/src/DataDrivenTest"
     },
+    {
+      "path": "./AI Test Toolkit/src/TestSuite"
+    }
+  ],
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
     "al.enableCodeActions": false,
     "al.enableCodeAnalysis": false,
     "allint.enabled": false
