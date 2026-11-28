@@ -1,10 +1,10 @@
 {
   "settings": {
-    "allint.enabled": false,
     "search.exclude": {
       "**.xlf": true
     },
     "al.enableCodeActions": false,
+    "allint.enabled": false,
     "al.enableCodeAnalysis": false
   },
   "folders": [
@@ -300,58 +300,10 @@
       "path": "./Withholding Tax Tests"
     },
     {
-      "path": "./Shopify Connector Test/DisabledTests"
-    },
-    {
-      "path": "./System Application/Email/src/Test Email"
-    },
-    {
-      "path": "./Quality Management-Tests/DisabledTests"
-    },
-    {
-      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
-    },
-    {
-      "path": "./System Application Test Library/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./Business Foundation Tests/DisabledTests"
-    },
-    {
-      "path": "./Subscription Billing Tests/DisabledTests"
-    },
-    {
-      "path": "./Base Application/System/DevTools/CALTest"
-    },
-    {
       "path": "./Bank Account Reconciliation With AI Tests/src/PromptTests"
     },
     {
       "path": "./Bank Account Reconciliation With AI Tests/src/UnitTests"
-    },
-    {
-      "path": "./Test Runner/src/DataDrivenTest"
-    },
-    {
-      "path": "./E-Document Core Tests/DisabledTests"
-    },
-    {
-      "path": "./AI Test Toolkit/src/TestSuite"
-    },
-    {
-      "path": "./Quality Management/src/Configuration/Template/Test"
-    },
-    {
-      "path": "./System Application Test/DisabledTests"
-    },
-    {
-      "path": "./Performance Toolkit Tests/src/Mock Tests"
-    },
-    {
-      "path": "./Subcontracting-Tests/Tests"
-    },
-    {
-      "path": "./PowerBI Reports Tests/DisabledTests"
     },
     {
       "path": "./Sales Lines Suggestions Tests/AI Tests"
@@ -360,7 +312,55 @@
       "path": "./Sales Lines Suggestions Tests/AttachmentHandlerPromptTests"
     },
     {
+      "path": "./E-Document Core Tests/DisabledTests"
+    },
+    {
+      "path": "./System Application/Email/src/Test Email"
+    },
+    {
+      "path": "./Business Foundation Tests/DisabledTests"
+    },
+    {
+      "path": "./System Application Test/DisabledTests"
+    },
+    {
+      "path": "./Subscription Billing Tests/DisabledTests"
+    },
+    {
+      "path": "./PowerBI Reports Tests/DisabledTests"
+    },
+    {
       "path": "./Error Messages with Recommendations Tests/DisabledTests"
+    },
+    {
+      "path": "./Shopify Connector Test/DisabledTests"
+    },
+    {
+      "path": "./Subcontracting-Tests/Tests"
+    },
+    {
+      "path": "./Contoso Coffee Demo Dataset Tests/src/TestImplementations"
+    },
+    {
+      "path": "./System Application Test Library/Extension Management/testArtifacts"
+    },
+    {
+      "path": "./Quality Management/src/Configuration/Template/Test"
+    },
+    {
+      "path": "./Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./Base Application/System/DevTools/CALTest"
+    },
+    {
+      "path": "./Quality Management-Tests/DisabledTests"
+    },
+    {
+      "path": "./Test Runner/src/DataDrivenTest"
+    },
+    {
+      "path": "./AI Test Toolkit/src/TestSuite"
     }
   ]
 }
